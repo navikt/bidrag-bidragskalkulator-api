@@ -33,6 +33,6 @@ jobs:
         uses: nais/deploy/actions/deploy@v2
         env:
           CLUSTER: dev
-          RESOURCE: .nais/naiserator.yaml
+          RESOURCE: .nais/naiserator.yml
           VAR: image=${{ steps.docker-build-push.outputs.image }}
           TELEMETRY: ${{ steps.docker-build-push.outputs.telemetry }}
