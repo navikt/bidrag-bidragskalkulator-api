@@ -11,10 +11,10 @@ Enn så lenge er ikke denne applikasjonen deployet noe sted.
 ## Utvikling
 
 ### Testing
+
 Alle pull requests kjører automatisk gjennom en test-workflow som:
 - Bygger applikasjonen
 - Kjører alle tester
-- Publiserer testresultater i PR-en
 
 For å kjøre testene lokalt:
 ```bash
