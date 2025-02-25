@@ -23,14 +23,13 @@ spec:
       rules:
         - application: bidrag-bidragskalkulator-v2
           namespace: bidrag
-
-    liveness:
-      path: "/api/internal/isalive"
-      initialDelay: 15
-      timeout: 1
-      periodSeconds: 5
-      failureThreshold: 10
-    readiness:
-      path: "/api/internal/isready"
-      initialDelay: 15
-      timeout: 1
+  liveness:
+    path: "/api/internal/isalive"
+    initialDelay: 15
+    timeout: 1
+    periodSeconds: 5
+    failureThreshold: 10
+  readiness:
+    path: "/api/internal/isready"
+    initialDelay: 15
+    timeout: 1
