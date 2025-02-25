@@ -1,0 +1,36 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+
+metadata:
+  name: bidrag-bidragskalkulator-api
+  namespace: bidrag
+  labels:
+      team: bidrag
+spec:
+  ingresses:
+    - https://bidragskalkulator-api.dev.nav.cloud.nais.io
+  image: {{ image }}
+  port: 8080
+  replicas:
+    max: 1
+    min: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 32Mi
+  accessPolicy:
+    inbound:
+      rules:
+        - application: bidrag-bidragskalkulator-v2
+          namespace: bidrag
+
+    liveness:
+      path: "/api/internal/isalive"
+      initialDelay: 15
+      timeout: 1
+      periodSeconds: 5
+      failureThreshold: 10
+    readiness:
+      path: "/api/internal/isready"
+      initialDelay: 15
+      timeout: 1
