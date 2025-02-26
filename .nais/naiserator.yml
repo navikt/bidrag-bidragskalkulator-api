@@ -7,8 +7,6 @@ metadata:
   labels:
       team: bidrag
 spec:
-  ingresses:
-    - https://bidragskalkulator-api.dev.nav.cloud.nais.io
   image: {{ image }}
   port: 8080
   replicas:
