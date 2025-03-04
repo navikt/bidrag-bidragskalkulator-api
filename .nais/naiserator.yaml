@@ -24,6 +24,8 @@ spec:
   env:
     - name: BIDRAG_SJABLON_URL
       value: {{BIDRAG_SJABLON_URL}}
+  secureLogs:
+    enabled: true
   azure:
     application:
       enable: true
