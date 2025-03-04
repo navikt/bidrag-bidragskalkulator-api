@@ -4,8 +4,8 @@ on:
     branches:
       - main
 jobs:
-  build_and_deploy:
-    name: Build, push and deploy
+  build:
+    name: Build and publish Docker image
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -29,10 +29,44 @@ jobs:
         id: docker-build-push
         with:
           team: bidrag
-      - name: Deploy to Nais
-        uses: nais/deploy/actions/deploy@v2
+
+  deploy-dev:
+    name: Deploy to dev
+    needs: [ build ]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: dev-gcp
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: nais/deploy/actions/deploy@v2
         env:
-          CLUSTER: dev
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: dev-gcp
           RESOURCE: .nais/naiserator.yml
           VAR: image=${{ steps.docker-build-push.outputs.image }}
+          VARS: .nais/dev.yaml
+          TELEMETRY: ${{ steps.docker-build-push.outputs.telemetry }}
+
+
+  deploy-prod:
+    name: Deploy to prod
+    needs: [ build ]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: prod-gcp
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: nais/deploy/actions/deploy@v2
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: prod-gcp
+          RESOURCE: .nais/naiserator.yml
+          VAR: image=${{ steps.docker-build-push.outputs.image }}
+          VARS: .nais/prod.yaml
           TELEMETRY: ${{ steps.docker-build-push.outputs.telemetry }}
