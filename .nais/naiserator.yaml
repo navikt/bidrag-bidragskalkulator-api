@@ -19,8 +19,8 @@ spec:
     min: 2
   resources:
     requests:
-      cpu: 512Mi
-      memory: 200m
+      cpu: 50m
+      memory: 384Mi
   env:
     - name: BIDRAG_SJABLON_URL
       value: {{BIDRAG_SJABLON_URL}}
