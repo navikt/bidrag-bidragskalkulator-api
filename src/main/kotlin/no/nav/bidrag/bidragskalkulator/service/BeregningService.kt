@@ -2,29 +2,26 @@ package no.nav.bidrag.bidragskalkulator.service
 
 import no.nav.bidrag.beregn.barnebidrag.BeregnBarnebidragApi
 import no.nav.bidrag.bidragskalkulator.controller.dto.BeregningResultatDto
-import no.nav.bidrag.domene.enums.vedtak.Stønadstype
-import no.nav.bidrag.domene.tid.ÅrMånedsperiode
-import no.nav.bidrag.transport.behandling.beregning.felles.BeregnGrunnlag
-import no.nav.bidrag.transport.behandling.felles.grunnlag.GrunnlagDto
+import no.nav.bidrag.bidragskalkulator.controller.dto.EnkelBeregningRequestDto
+import no.nav.bidrag.bidragskalkulator.mapping.BeregnGrunnlagMapper
 import org.springframework.stereotype.Service
-import java.time.LocalDate
+import java.math.BigDecimal
 
 @Service
 class BeregningService(
-    private val beregnBarnebidragApi: BeregnBarnebidragApi
+    private val beregnBarnebidragApi: BeregnBarnebidragApi,
+    private val beregnGrunnlagMapper: BeregnGrunnlagMapper,
 ) {
 
-    fun beregnBarneBidrag(): BeregningResultatDto {
+    fun beregnBarneBidrag(beregningRequest: EnkelBeregningRequestDto): BeregningResultatDto {
 
-        val resultat = beregnBarnebidragApi.beregn(
-            BeregnGrunnlag(
-                stønadstype = Stønadstype.BIDRAG,
-                periode = ÅrMånedsperiode("2025-01", "2025-02"),
-                søknadsbarnReferanse = "",
-                opphørSistePeriode = false,
-                grunnlagListe = emptyList(),
-            )
-        )
-        return BeregningResultatDto(resultat = resultat.beregnetBarnebidragPeriodeListe.first().resultat.beløp?.toDouble() ?: 0.0)
+        val beregnGrunlagList = beregnGrunnlagMapper.mapToBeregnGrunnlag(beregningRequest)
+        val beregnetBarnebidragResultat = beregnGrunlagList.map { beregnGrunnlag -> beregnBarnebidragApi.beregn((beregnGrunnlag)) }
+        val sum = beregnetBarnebidragResultat
+            .flatMap { it.beregnetBarnebidragPeriodeListe }
+            .mapNotNull { it.resultat.beløp }
+            .fold(BigDecimal.ZERO) { acc, value -> acc + value }
+
+        return BeregningResultatDto(resultat = sum)
     }
 }
