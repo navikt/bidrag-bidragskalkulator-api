@@ -28,7 +28,7 @@ spec:
     enabled: true
   azure:
     application:
-      enable: true
+      enabled: true
   accessPolicy:
     inbound:
       rules:
