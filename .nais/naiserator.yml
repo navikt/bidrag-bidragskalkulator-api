@@ -6,16 +6,12 @@ metadata:
   namespace: bidrag
   labels:
       team: bidrag
-env:
-  BIDRAG_SJABLON_URL: {{BIDRAG_SJABLON_URL}}
+
 spec:
   ingresses:
   {{#each ingresses as |url|}}
      - {{url}}
   {{/each}}
-  azure:
-    application:
-      enable: true
   image: {{ image }}
   port: 8080
   replicas:
@@ -25,6 +21,12 @@ spec:
     requests:
       cpu: 50m
       memory: 32Mi
+  env:
+    - name: BIDRAG_SJABLON_URL
+      value: {{BIDRAG_SJABLON_URL}}
+  azure:
+    application:
+      enable: true
   accessPolicy:
     inbound:
       rules:
