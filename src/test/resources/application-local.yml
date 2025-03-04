@@ -1,0 +1,10 @@
+AZURE_APP_TENANT_ID: xxx
+AZURE_APP_CLIENT_ID: xxx
+AZURE_APP_CLIENT_SECRET: xxx
+server.port: 8990
+NAIS_APP_NAME: bidrag-bidragskalkulator-api
+
+---
+spring.config.activate.on-profile: localnais
+
+BIDRAG_SJABLON_URL: https://bidrag-sjablon.dev-fss-pub.nais.io/bidrag-sjablon

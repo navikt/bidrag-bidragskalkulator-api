@@ -6,7 +6,16 @@ metadata:
   namespace: bidrag
   labels:
       team: bidrag
+env:
+  BIDRAG_SJABLON_URL: {{BIDRAG_SJABLON_URL}}
 spec:
+  ingresses:
+  {{#each ingresses as |url|}}
+     - {{url}}
+  {{/each}}
+  azure:
+    application:
+      enable: true
   image: {{ image }}
   port: 8080
   replicas:
@@ -21,6 +30,9 @@ spec:
       rules:
         - application: bidrag-bidragskalkulator-v2
           namespace: bidrag
+    outbound:
+      external:
+        - host: {{outbound_access_host}}
   liveness:
     path: "/api/internal/isalive"
     initialDelay: 15
