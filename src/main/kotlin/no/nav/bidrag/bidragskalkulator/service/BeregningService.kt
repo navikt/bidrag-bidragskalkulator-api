@@ -14,9 +14,9 @@ class BeregningService(
 ) {
 
     fun beregnBarneBidrag(beregningRequest: EnkelBeregningRequestDto): BeregningResultatDto {
-
         val beregnGrunlagList = beregnGrunnlagMapper.mapToBeregnGrunnlag(beregningRequest)
         val beregnetBarnebidragResultat = beregnGrunlagList.map { beregnGrunnlag -> beregnBarnebidragApi.beregn((beregnGrunnlag)) }
+
         val sum = beregnetBarnebidragResultat
             .flatMap { it.beregnetBarnebidragPeriodeListe }
             .mapNotNull { it.resultat.beløp }

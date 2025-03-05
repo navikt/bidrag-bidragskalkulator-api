@@ -4,10 +4,12 @@ import no.nav.bidrag.bidragskalkulator.controller.dto.BeregningResultatDto
 import no.nav.bidrag.bidragskalkulator.controller.dto.EnkelBeregningRequestDto
 import jakarta.validation.Valid
 import no.nav.bidrag.bidragskalkulator.service.BeregningService
+import no.nav.security.token.support.core.api.Protected
 import org.springframework.web.bind.annotation.*
 import java.math.BigDecimal
 
 @RestController
+@Protected
 @RequestMapping("/v1/beregning")
 class BeregningController(private val beregningService: BeregningService) {
 
@@ -18,9 +20,8 @@ class BeregningController(private val beregningService: BeregningService) {
         return BeregningResultatDto(resultat = BigDecimal(100))
     }
 
-
-    @GetMapping("/barnebidrag")
-    fun beregnBarneBidrag(@Valid @RequestBody request: EnkelBeregningRequestDto): BeregningResultatDto {
+    @PostMapping("/barnebidrag")
+    fun beregnBarnebidrag(@Valid @RequestBody request: EnkelBeregningRequestDto): BeregningResultatDto {
         return beregningService.beregnBarneBidrag(request)
     }
 }
