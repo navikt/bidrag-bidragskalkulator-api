@@ -9,15 +9,15 @@ import no.nav.bidrag.domene.enums.grunnlag.Grunnlagstype
 import no.nav.bidrag.domene.enums.inntekt.Inntektsrapportering
 import no.nav.bidrag.domene.enums.person.Bostatuskode
 import no.nav.bidrag.domene.enums.vedtak.Stønadstype
-import no.nav.bidrag.domene.ident.Personident
 import no.nav.bidrag.transport.behandling.beregning.felles.BeregnGrunnlag
 import no.nav.bidrag.transport.behandling.felles.grunnlag.GrunnlagDto
 import no.nav.bidrag.domene.tid.ÅrMånedsperiode
-import no.nav.bidrag.transport.behandling.beregning.felles.InntektsgrunnlagPeriode
 import no.nav.bidrag.transport.behandling.felles.grunnlag.BostatusPeriode
+import no.nav.bidrag.transport.behandling.felles.grunnlag.InntektsrapporteringPeriode
 import no.nav.bidrag.transport.behandling.felles.grunnlag.SamværsperiodeGrunnlag
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
+import java.time.YearMonth
 
 @Component
 class BeregnGrunnlagMapper {
@@ -27,8 +27,7 @@ class BeregnGrunnlagMapper {
     }
 
     private val objectMapper: ObjectMapper = jacksonObjectMapper()
-    //TODO: finn ut hva som må settes her
-    private val beregningsperiode = ÅrMånedsperiode("2025-01", "2026-01")
+    private val beregningsperiode = ÅrMånedsperiode(YearMonth.now(), YearMonth.now().plusMonths(1))
 
     fun mapToBeregnGrunnlag(beregningRequestDto: EnkelBeregningRequestDto): List<BeregnGrunnlag> {
         return beregningRequestDto.barn.indices.map { index ->
@@ -68,13 +67,12 @@ class BeregnGrunnlagMapper {
             referanse = referanse,
             type = Grunnlagstype.INNTEKT_RAPPORTERING_PERIODE,
             innhold = POJONode(
-                InntektsgrunnlagPeriode(
-                    periode = beregningsperiode,
-                    //TODO: finn ut hva som må settes her
+                InntektsrapporteringPeriode(
+                    periode =  ÅrMånedsperiode(YearMonth.now(), null),
                     inntektsrapportering = Inntektsrapportering.SAKSBEHANDLER_BEREGNET_INNTEKT,
                     beløp = beløp,
-                    //TODO: finn ut hva som må settes her
-                    inntektEiesAvIdent = Personident("")
+                    manueltRegistrert = true,
+                    valgt = true
                 )
             ),
             gjelderReferanse = eierReferanse
@@ -89,7 +87,7 @@ class BeregnGrunnlagMapper {
                 (gjelderReferanse ?: gjelderBarnReferanse)?.let {
                     BostatusPeriode(
                         bostatus = bostatus,
-                        periode = beregningsperiode,
+                        periode = ÅrMånedsperiode(YearMonth.now(), null),
                         relatertTilPart = it,
                         manueltRegistrert = true
                     )
@@ -106,7 +104,7 @@ class BeregnGrunnlagMapper {
             type = Grunnlagstype.SAMVÆRSPERIODE,
             innhold = POJONode(
                 SamværsperiodeGrunnlag(
-                    periode = beregningsperiode,
+                    periode = ÅrMånedsperiode(YearMonth.now(), null),
 //                    TODO: bruk samværsgrad i BarnDto
                     samværsklasse = Samværsklasse.SAMVÆRSKLASSE_1,
                     manueltRegistrert = true
