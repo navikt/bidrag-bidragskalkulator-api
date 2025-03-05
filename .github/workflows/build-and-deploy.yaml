@@ -29,6 +29,10 @@ jobs:
         id: docker-build-push
         with:
           team: bidrag
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+    outputs:
+      image: ${{ steps.docker-build-push.outputs.image }}
 
   deploy-dev:
     name: Deploy to dev
@@ -45,8 +49,8 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
-          RESOURCE: .nais/naiserator.yml
-          VAR: image=${{ steps.docker-build-push.outputs.image }}
+          RESOURCE: .nais/naiserator.yaml
+          VAR: image=${{ needs.build.outputs.image }}
           VARS: .nais/dev.yaml
           TELEMETRY: ${{ steps.docker-build-push.outputs.telemetry }}
 
@@ -66,7 +70,7 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
-          RESOURCE: .nais/naiserator.yml
-          VAR: image=${{ steps.docker-build-push.outputs.image }}
+          RESOURCE: .nais/naiserator.yaml
+          VAR: image=${{ needs.build.outputs.image }}
           VARS: .nais/prod.yaml
           TELEMETRY: ${{ steps.docker-build-push.outputs.telemetry }}

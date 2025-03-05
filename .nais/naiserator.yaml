@@ -6,25 +6,29 @@ metadata:
   namespace: bidrag
   labels:
       team: bidrag
-env:
-  BIDRAG_SJABLON_URL: {{BIDRAG_SJABLON_URL}}
+
 spec:
   ingresses:
   {{#each ingresses as |url|}}
      - {{url}}
   {{/each}}
-  azure:
-    application:
-      enable: true
   image: {{ image }}
   port: 8080
   replicas:
-    max: 1
-    min: 1
+    max: 2
+    min: 2
   resources:
     requests:
       cpu: 50m
-      memory: 32Mi
+      memory: 384Mi
+  env:
+    - name: BIDRAG_SJABLON_URL
+      value: {{BIDRAG_SJABLON_URL}}
+  secureLogs:
+    enabled: true
+  azure:
+    application:
+      enabled: true
   accessPolicy:
     inbound:
       rules:
@@ -34,12 +38,12 @@ spec:
       external:
         - host: {{outbound_access_host}}
   liveness:
-    path: "/api/internal/isalive"
+    path: /api/internal/isalive
     initialDelay: 15
     timeout: 1
     periodSeconds: 5
     failureThreshold: 10
   readiness:
-    path: "/api/internal/isready"
+    path: /api/internal/isready
     initialDelay: 15
     timeout: 1
