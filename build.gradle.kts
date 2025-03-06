@@ -3,7 +3,7 @@ version = "0.0.1-SNAPSHOT"
 
 val bidragBeregnFellesVersion = "2025.02.25.153116"
 val bidragFellesVersion = "2025.02.25.075650"
-val kotlinVersion = "2.1.10"
+val kotlinLoggingJvmVersion = "7.0.3"
 
 plugins {
     id("org.jetbrains.kotlin.plugin.spring") version "1.9.25"
@@ -34,6 +34,10 @@ dependencies {
     api("no.nav.bidrag:bidrag-commons-felles:${bidragFellesVersion}"){
         exclude(group = "io.github.oshai", module = "kotlin-logging-jvm")
     }
+
+    api("io.github.oshai:kotlin-logging-jvm:${kotlinLoggingJvmVersion}")
+    api("com.fasterxml.jackson.module:jackson-module-kotlin:2.18.2")
+    api("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.18.2")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")

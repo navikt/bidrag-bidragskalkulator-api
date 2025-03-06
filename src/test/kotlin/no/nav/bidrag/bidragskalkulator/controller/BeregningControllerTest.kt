@@ -1,7 +1,7 @@
 package no.nav.bidrag.bidragskalkulator.controller
 
-import no.nav.bidrag.bidragskalkulator.controller.dto.BarnDto
-import no.nav.bidrag.bidragskalkulator.controller.dto.EnkelBeregningRequestDto
+import no.nav.bidrag.bidragskalkulator.dto.BarnDto
+import no.nav.bidrag.bidragskalkulator.dto.BeregningRequestDto
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -25,7 +25,7 @@ class BeregningControllerTest {
 
     @Test
     fun `should accept valid request`() {
-        val request = EnkelBeregningRequestDto(
+        val request = BeregningRequestDto(
             inntektForelder1 = 500000.0,
             inntektForelder2 = 400000.0,
             barn = listOf(
@@ -44,7 +44,7 @@ class BeregningControllerTest {
 
     @Test
     fun `should return 400 for negative income`() {
-        val request = EnkelBeregningRequestDto(
+        val request = BeregningRequestDto(
             inntektForelder1 = -500000.0,
             inntektForelder2 = 400000.0,
             barn = listOf(
@@ -63,7 +63,7 @@ class BeregningControllerTest {
 
     @Test
     fun `should return 400 for empty barn list`() {
-        val request = EnkelBeregningRequestDto(
+        val request = BeregningRequestDto(
             inntektForelder1 = 500000.0,
             inntektForelder2 = 400000.0,
             barn = emptyList()
@@ -80,7 +80,7 @@ class BeregningControllerTest {
 
     @Test
     fun `should return 400 for age above 25`() {
-        val request = EnkelBeregningRequestDto(
+        val request = BeregningRequestDto(
             inntektForelder1 = 500000.0,
             inntektForelder2 = 400000.0,
             barn = listOf(
@@ -99,7 +99,7 @@ class BeregningControllerTest {
 
     @Test
     fun `should return 400 for samværsgrad above 100`() {
-        val request = EnkelBeregningRequestDto(
+        val request = BeregningRequestDto(
             inntektForelder1 = 500000.0,
             inntektForelder2 = 400000.0,
             barn = listOf(

@@ -1,8 +1,5 @@
 package no.nav.bidrag.bidragskalkulator.service
 
-import no.nav.bidrag.bidragskalkulator.controller.dto.BarnDto
-import no.nav.bidrag.bidragskalkulator.controller.dto.EnkelBeregningRequestDto
-import java.math.BigDecimal
 //import com.ninjasquad.springmockk.MockkBean
 
 class BeregningServiceTest {
