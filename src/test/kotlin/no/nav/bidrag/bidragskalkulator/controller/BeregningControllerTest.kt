@@ -12,6 +12,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import com.fasterxml.jackson.databind.ObjectMapper
+import no.nav.bidrag.domene.enums.beregning.Samværsklasse
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -29,17 +30,17 @@ class BeregningControllerTest {
             inntektForelder1 = 500000.0,
             inntektForelder2 = 400000.0,
             barn = listOf(
-                BarnDto(alder = 10, samværsgrad = 50)
+                BarnDto(alder = 10, samværsklasse = Samværsklasse.SAMVÆRSKLASSE_1)
             )
         )
 
         mockMvc.perform(
-            post("/v1/beregning/enkel")
+            post("/v1/beregning/barnebidrag")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
         )
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.resultat").exists())
+            .andExpect(jsonPath("$.beregningsResultater").isNotEmpty())
     }
 
     @Test
@@ -48,12 +49,12 @@ class BeregningControllerTest {
             inntektForelder1 = -500000.0,
             inntektForelder2 = 400000.0,
             barn = listOf(
-                BarnDto(alder = 10, samværsgrad = 50)
+                BarnDto(alder = 10, samværsklasse = Samværsklasse.SAMVÆRSKLASSE_1)
             )
         )
 
         mockMvc.perform(
-            post("/v1/beregning/enkel")
+            post("/v1/beregning/barnebidrag")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
         )
@@ -70,7 +71,7 @@ class BeregningControllerTest {
         )
 
         mockMvc.perform(
-            post("/v1/beregning/enkel")
+            post("/v1/beregning/barnebidrag")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
         )
@@ -84,12 +85,12 @@ class BeregningControllerTest {
             inntektForelder1 = 500000.0,
             inntektForelder2 = 400000.0,
             barn = listOf(
-                BarnDto(alder = 26, samværsgrad = 50)
+                BarnDto(alder = 26, samværsklasse = Samværsklasse.SAMVÆRSKLASSE_1)
             )
         )
 
         mockMvc.perform(
-            post("/v1/beregning/enkel")
+            post("/v1/beregning/barnebidrag")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
         )
@@ -97,22 +98,4 @@ class BeregningControllerTest {
             .andExpect(jsonPath("$.errors[0]").value("barn[0].alder: Alder kan ikke være høyere enn 25"))
     }
 
-    @Test
-    fun `should return 400 for samværsgrad above 100`() {
-        val request = BeregningRequestDto(
-            inntektForelder1 = 500000.0,
-            inntektForelder2 = 400000.0,
-            barn = listOf(
-                BarnDto(alder = 10, samværsgrad = 101)
-            )
-        )
-
-        mockMvc.perform(
-            post("/v1/beregning/enkel")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request))
-        )
-            .andExpect(status().isBadRequest)
-            .andExpect(jsonPath("$.errors[0]").value("barn[0].samværsgrad: Samværsgrad kan ikke være høyere enn 100"))
-    }
 }
