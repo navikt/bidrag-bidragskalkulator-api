@@ -1,0 +1,10 @@
+{
+  "inntektForelder1": 50000.0,
+  "inntektForelder2": 60000.0,
+  "barn": [
+    {
+      "alder": 8,
+      "samværsklasse": "SAMVÆRSKLASSE_1"
+    }
+  ]
+}

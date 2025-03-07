@@ -3,7 +3,8 @@ version = "0.0.1-SNAPSHOT"
 
 val bidragBeregnFellesVersion = "2025.02.25.153116"
 val bidragFellesVersion = "2025.02.25.075650"
-val kotlinVersion = "2.1.10"
+val kotlinLoggingJvmVersion = "7.0.3"
+val springDocWebmvcVersion = "2.8.5"
 
 plugins {
     id("org.jetbrains.kotlin.plugin.spring") version "1.9.25"
@@ -20,12 +21,17 @@ repositories {
 }
 
 dependencies {
+    //Spring
     api("org.springframework.boot:spring-boot-starter")
     api("org.springframework.boot:spring-boot-starter-web")
     api("org.springframework.boot:spring-boot-starter-validation")
     api("org.springframework.boot:spring-boot-starter-security")
     api("org.jetbrains.kotlin:kotlin-reflect")
 
+    //Springdoc
+    api("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springDocWebmvcVersion")
+
+    //Nav
     api("no.nav.bidrag:bidrag-beregn-barnebidrag:${bidragBeregnFellesVersion}") {
         exclude(group = "com.google.errorprone", module = "error_prone_annotations")
         exclude(group = "io.github.oshai", module = "kotlin-logging-jvm")
@@ -35,10 +41,17 @@ dependencies {
         exclude(group = "io.github.oshai", module = "kotlin-logging-jvm")
     }
 
+    api("io.github.oshai:kotlin-logging-jvm:${kotlinLoggingJvmVersion}")
+    api("com.fasterxml.jackson.module:jackson-module-kotlin:2.18.2")
+    api("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.18.2")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-
+    testImplementation("org.mockito:mockito-core:5.7.0")
+    testImplementation("org.mockito:mockito-inline:5.2.0")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.9.3")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.0")
 }
 
 java {
@@ -55,5 +68,6 @@ kotlin {
 tasks {
     withType<Test> {
         useJUnitPlatform()
+        systemProperty("spring.profiles.active", "test")
     }
 }
