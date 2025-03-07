@@ -14,6 +14,6 @@ class BeregningController(private val beregningService: BeregningService) {
 
     @PostMapping("/barnebidrag")
     fun beregnBarnebidrag(@Valid @RequestBody request: BeregningRequestDto): BeregningResultatDto {
-        return beregningService.beregnBarneBidrag(request)
+        return beregningService.beregnBarnebidrag(request)
     }
 }

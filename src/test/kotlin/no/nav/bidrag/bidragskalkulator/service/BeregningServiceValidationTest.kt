@@ -1,0 +1,67 @@
+import jakarta.validation.Validation
+import jakarta.validation.Validator
+import no.nav.bidrag.bidragskalkulator.dto.BeregningRequestDto
+import no.nav.bidrag.bidragskalkulator.dto.BarnDto
+import no.nav.bidrag.domene.enums.beregning.Samværsklasse
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+
+class BeregningServiceValidationTest {
+
+    private lateinit var validator: Validator
+
+    @BeforeEach
+    fun setup() {
+        val factory = Validation.buildDefaultValidatorFactory()
+        validator = factory.validator
+    }
+
+    @Test
+    fun `skal returnere valideringsfeil dersom barnelisten er tom`() {
+        val request = BeregningRequestDto(
+            inntektForelder1 = 500000.0,
+            inntektForelder2 = 600000.0,
+            barn = emptyList()
+        )
+
+        val violations = validator.validate(request)
+        assertTrue(violations.any { it.message.contains("Liste over barn kan ikke være tom") })
+    }
+
+    @Test
+    fun `skal returnere valideringsfeil dersom inntekt er negativ`() {
+        val request = BeregningRequestDto(
+            inntektForelder1 = -50000.0, // Ugyldig
+            inntektForelder2 = 600000.0,
+            barn = listOf(BarnDto(8, Samværsklasse.SAMVÆRSKLASSE_1))
+        )
+
+        val violations = validator.validate(request)
+        assertTrue(violations.any { it.message.contains("Inntekt for forelder 1 kan ikke være negativ") })
+    }
+
+    @Test
+    fun `skal returnere valideringsfeil dersom barnets alder er utenfor gyldig intervall`() {
+        val request = BeregningRequestDto(
+            inntektForelder1 = 500000.0,
+            inntektForelder2 = 600000.0,
+            barn = listOf(BarnDto(30, Samværsklasse.SAMVÆRSKLASSE_1)) // Alder for høy
+        )
+
+        val violations = validator.validate(request)
+        assertTrue(violations.any { it.message.contains("Alder kan ikke være høyere enn 25") })
+    }
+
+    @Test
+    fun `skal håndtere ekstremt høye inntekter korrekt`() {
+        val request = BeregningRequestDto(
+            inntektForelder1 = 1_000_000_000.0,  // 1 milliard
+            inntektForelder2 = 900_000_000.0,  // 900 millioner
+            barn = listOf(BarnDto(12, Samværsklasse.SAMVÆRSKLASSE_1))
+        )
+
+        val violations = validator.validate(request)
+        assertTrue(violations.isEmpty(), "Forventet ingen valideringsfeil for høye inntekter")
+    }
+}

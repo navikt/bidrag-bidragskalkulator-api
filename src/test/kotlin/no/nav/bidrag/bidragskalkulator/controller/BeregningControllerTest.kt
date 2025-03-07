@@ -25,7 +25,7 @@ class BeregningControllerTest {
     private lateinit var objectMapper: ObjectMapper
 
     @Test
-    fun `should accept valid request`() {
+    fun `skal ta imot en gyldig request`() {
         val request = BeregningRequestDto(
             inntektForelder1 = 500000.0,
             inntektForelder2 = 400000.0,
@@ -44,7 +44,7 @@ class BeregningControllerTest {
     }
 
     @Test
-    fun `should return 400 for negative income`() {
+    fun `skal returnere 400 for negativ inntekt`() {
         val request = BeregningRequestDto(
             inntektForelder1 = -500000.0,
             inntektForelder2 = 400000.0,
@@ -63,7 +63,7 @@ class BeregningControllerTest {
     }
 
     @Test
-    fun `should return 400 for empty barn list`() {
+    fun `skal returnere 400 for et tom barn liste`() {
         val request = BeregningRequestDto(
             inntektForelder1 = 500000.0,
             inntektForelder2 = 400000.0,
@@ -80,7 +80,7 @@ class BeregningControllerTest {
     }
 
     @Test
-    fun `should return 400 for age above 25`() {
+    fun `skal returnere 400 for alder over 25`() {
         val request = BeregningRequestDto(
             inntektForelder1 = 500000.0,
             inntektForelder2 = 400000.0,

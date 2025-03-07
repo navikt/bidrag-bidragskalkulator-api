@@ -1,4 +1,4 @@
-package no.nav.bidrag.bidragskalkulator.mapping
+package no.nav.bidrag.bidragskalkulator.mapper
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule

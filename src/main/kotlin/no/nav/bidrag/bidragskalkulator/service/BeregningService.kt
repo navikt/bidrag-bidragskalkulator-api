@@ -4,7 +4,7 @@ import no.nav.bidrag.beregn.barnebidrag.BeregnBarnebidragApi
 import no.nav.bidrag.bidragskalkulator.dto.BeregningResultatDto
 import no.nav.bidrag.bidragskalkulator.dto.BeregningRequestDto
 import no.nav.bidrag.bidragskalkulator.dto.BeregningResultatPerBarnDto
-import no.nav.bidrag.bidragskalkulator.mapping.BeregnGrunnlagMapper
+import no.nav.bidrag.bidragskalkulator.mapper.BeregnGrunnlagMapper
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
 
@@ -14,7 +14,7 @@ class BeregningService(
     private val beregnGrunnlagMapper: BeregnGrunnlagMapper,
 ) {
 
-    fun beregnBarneBidrag(beregningRequest: BeregningRequestDto): BeregningResultatDto {
+    fun beregnBarnebidrag(beregningRequest: BeregningRequestDto): BeregningResultatDto {
         val beregnGrunnlag = beregnGrunnlagMapper.mapToBeregnGrunnlag(beregningRequest)
 
         val beregningResultatPerBarn = beregnGrunnlag.map { data ->
