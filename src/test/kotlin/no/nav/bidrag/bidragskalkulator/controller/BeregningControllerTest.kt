@@ -35,7 +35,7 @@ class BeregningControllerTest {
         )
 
         mockMvc.perform(
-            post("/v1/beregning/barnebidrag")
+            post("/api/v1/beregning/barnebidrag")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
         )
@@ -54,7 +54,7 @@ class BeregningControllerTest {
         )
 
         mockMvc.perform(
-            post("/v1/beregning/barnebidrag")
+            post("/api/v1/beregning/barnebidrag")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
         )
@@ -71,7 +71,7 @@ class BeregningControllerTest {
         )
 
         mockMvc.perform(
-            post("/v1/beregning/barnebidrag")
+            post("/api/v1/beregning/barnebidrag")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
         )
@@ -90,7 +90,7 @@ class BeregningControllerTest {
         )
 
         mockMvc.perform(
-            post("/v1/beregning/barnebidrag")
+            post("/api/v1/beregning/barnebidrag")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
         )

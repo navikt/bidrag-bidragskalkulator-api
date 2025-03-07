@@ -4,6 +4,7 @@ version = "0.0.1-SNAPSHOT"
 val bidragBeregnFellesVersion = "2025.02.25.153116"
 val bidragFellesVersion = "2025.02.25.075650"
 val kotlinLoggingJvmVersion = "7.0.3"
+val springDocWebmvcVersion = "2.8.5"
 
 plugins {
     id("org.jetbrains.kotlin.plugin.spring") version "1.9.25"
@@ -20,12 +21,17 @@ repositories {
 }
 
 dependencies {
+    //Spring
     api("org.springframework.boot:spring-boot-starter")
     api("org.springframework.boot:spring-boot-starter-web")
     api("org.springframework.boot:spring-boot-starter-validation")
     api("org.springframework.boot:spring-boot-starter-security")
     api("org.jetbrains.kotlin:kotlin-reflect")
 
+    //Springdoc
+    api("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springDocWebmvcVersion")
+
+    //Nav
     api("no.nav.bidrag:bidrag-beregn-barnebidrag:${bidragBeregnFellesVersion}") {
         exclude(group = "com.google.errorprone", module = "error_prone_annotations")
         exclude(group = "io.github.oshai", module = "kotlin-logging-jvm")

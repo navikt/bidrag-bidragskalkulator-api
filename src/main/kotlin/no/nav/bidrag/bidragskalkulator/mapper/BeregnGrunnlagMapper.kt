@@ -71,7 +71,7 @@ class BeregnGrunnlagMapper {
         GrunnlagDto(
             referanse = søknadsbarnReferanse,
             type = Grunnlagstype.PERSON_SØKNADSBARN,
-            innhold = objectMapper.valueToTree(Person(fødselsdato = søknadsbarn.fødselsdato))
+            innhold = objectMapper.valueToTree(Person(fødselsdato = søknadsbarn.getEstimertFødselsdato()))
         )
 
     private fun createInntektGrunnlag(referanse: String, beløp: BigDecimal, eierReferanse: String) =
