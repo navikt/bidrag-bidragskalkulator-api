@@ -5,5 +5,5 @@ springdoc:
     path: /
     showCommonExtensions: true
 
-spring.config.activate.on-profile: local, test
+spring.config.activate.on-profile: local
 BIDRAG_SJABLON_URL: https://bidrag-sjablon.dev-fss-pub.nais.io/bidrag-sjablon
