@@ -26,3 +26,6 @@ jobs:
 
       - name: Build and test
         run: ./gradlew test --no-daemon --stacktrace
+        env:
+          SPRING_PROFILES_ACTIVE: test
+          BIDRAG_SJABLON_URL: https://bidrag-sjablon.dev-fss-pub.nais.io/bidrag-sjablon
