@@ -1,31 +1,31 @@
 package no.nav.bidrag.bidragskalkulator.service
 
 import no.nav.bidrag.beregn.barnebidrag.BeregnBarnebidragApi
-import no.nav.bidrag.bidragskalkulator.dto.BeregningResultatDto
+import no.nav.bidrag.bidragskalkulator.dto.BeregningsresultatDto
 import no.nav.bidrag.bidragskalkulator.dto.BeregningRequestDto
-import no.nav.bidrag.bidragskalkulator.dto.BeregningResultatPerBarnDto
-import no.nav.bidrag.bidragskalkulator.mapper.BeregnGrunnlagMapper
+import no.nav.bidrag.bidragskalkulator.dto.BeregningsresultatBarnDto
+import no.nav.bidrag.bidragskalkulator.mapper.BeregningsgrunnlagMapper
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
 
 @Service
 class BeregningService(
     private val beregnBarnebidragApi: BeregnBarnebidragApi,
-    private val beregnGrunnlagMapper: BeregnGrunnlagMapper,
+    private val beregningsgrunnlagMapper: BeregningsgrunnlagMapper,
 ) {
 
-    fun beregnBarnebidrag(beregningRequest: BeregningRequestDto): BeregningResultatDto {
-        val beregnGrunnlag = beregnGrunnlagMapper.mapToBeregnGrunnlag(beregningRequest)
+    fun beregnBarnebidrag(beregningRequest: BeregningRequestDto): BeregningsresultatDto {
+        val beregningsgrunnlag = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(beregningRequest)
 
-        val beregningResultatPerBarn = beregnGrunnlag.map { data ->
-            BeregningResultatPerBarnDto(
-                resultat = beregnBarnebidragApi.beregn(data.beregnGrunnlag)
+        val beregningsresultat = beregningsgrunnlag.map { data ->
+            BeregningsresultatBarnDto(
+                sum = beregnBarnebidragApi.beregn(data.grunnlag)
                     .beregnetBarnebidragPeriodeListe
                     .sumOf { it.resultat.beløp ?: BigDecimal.ZERO },
                 barnetsAlder = data.barnetsAlder
             )
         }
 
-        return BeregningResultatDto(beregningResultatPerBarn)
+        return BeregningsresultatDto(beregningsresultat)
     }
 }

@@ -3,7 +3,7 @@ package no.nav.bidrag.bidragskalkulator.controller
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
-import no.nav.bidrag.bidragskalkulator.dto.BeregningResultatDto
+import no.nav.bidrag.bidragskalkulator.dto.BeregningsresultatDto
 import no.nav.bidrag.bidragskalkulator.dto.BeregningRequestDto
 import jakarta.validation.Valid
 import no.nav.bidrag.bidragskalkulator.service.BeregningService
@@ -22,7 +22,7 @@ class BeregningController(private val beregningService: BeregningService) {
         ]
     )
     @PostMapping("/barnebidrag")
-    fun beregnBarnebidrag(@Valid @RequestBody request: BeregningRequestDto): BeregningResultatDto {
+    fun beregnBarnebidrag(@Valid @RequestBody request: BeregningRequestDto): BeregningsresultatDto {
         return beregningService.beregnBarnebidrag(request)
     }
 }
