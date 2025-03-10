@@ -1,3 +1,6 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
+
 group = "com.github.navikt"
 version = "0.0.1-SNAPSHOT"
 
@@ -68,6 +71,12 @@ kotlin {
 tasks {
     withType<Test> {
         useJUnitPlatform()
+        testLogging {
+            showExceptions = true
+            showStackTraces = true
+            exceptionFormat = TestExceptionFormat.FULL
+            events = setOf(TestLogEvent.PASSED, TestLogEvent.SKIPPED, TestLogEvent.FAILED)
+        }
         systemProperty("spring.profiles.active", "test")
     }
 }

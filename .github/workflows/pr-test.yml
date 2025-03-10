@@ -21,20 +21,6 @@ jobs:
           java-version: '21'
           cache: gradle
 
-      - name: Cache Gradle dependencies
-        uses: actions/cache@v4
+      - uses: gradle/gradle-build-action@v3.5.0
         with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle.kts', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            gradle-${{ runner.os }}-
-
-      - name: Grant execute permission to Gradle wrapper
-        run: chmod +x gradlew
-
-      - name: Build and test
-        run: ./gradlew test --no-daemon --stacktrace
-        env:
-          SPRING_PROFILES_ACTIVE: test
+          arguments: --configuration-cache test
