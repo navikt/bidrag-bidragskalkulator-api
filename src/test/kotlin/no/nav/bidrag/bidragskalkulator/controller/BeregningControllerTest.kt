@@ -12,9 +12,12 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import com.fasterxml.jackson.databind.ObjectMapper
+import no.nav.bidrag.bidragskalkulator.BidragBidragskalkulatorApiApplicationTests
 import no.nav.bidrag.domene.enums.beregning.Samværsklasse
 
-@SpringBootTest
+@SpringBootTest(
+    classes = [BidragBidragskalkulatorApiApplicationTests::class],
+)
 @AutoConfigureMockMvc
 class BeregningControllerTest {
 
