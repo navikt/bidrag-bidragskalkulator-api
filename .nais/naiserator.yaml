@@ -26,9 +26,6 @@ spec:
       value: {{BIDRAG_SJABLON_URL}}
   secureLogs:
     enabled: true
-  azure:
-    application:
-      enabled: true
   accessPolicy:
     inbound:
       rules:

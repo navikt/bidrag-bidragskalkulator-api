@@ -10,10 +10,9 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class HealthControllerTest {
-
-    @Autowired
-    private lateinit var mockMvc: MockMvc
+internal class HealthControllerTest @Autowired constructor(
+    val mockMvc: MockMvc,
+) {
 
     @Test
     fun `isalive endpoint should return 200 OK`() {
