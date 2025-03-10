@@ -14,11 +14,18 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPat
 import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.bidrag.bidragskalkulator.BidragBidragskalkulatorApiApplicationTests
 import no.nav.bidrag.domene.enums.beregning.Samværsklasse
+import org.junit.jupiter.api.extension.ExtendWith
+import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.context.ContextConfiguration
+import org.springframework.test.context.junit.jupiter.SpringExtension
 
+@ExtendWith(SpringExtension::class)
+@ContextConfiguration(classes = [BidragBidragskalkulatorApiApplicationTests::class])
 @SpringBootTest(
-    classes = [BidragBidragskalkulatorApiApplicationTests::class],
+    classes = [BidragBidragskalkulatorApiApplicationTests::class], webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
 class BeregningControllerTest {
 
     @Autowired
