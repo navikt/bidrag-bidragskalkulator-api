@@ -18,12 +18,10 @@ import no.nav.bidrag.bidragskalkulator.dto.BeregningResultatDto
 import no.nav.bidrag.bidragskalkulator.dto.BeregningResultatPerBarnDto
 import no.nav.bidrag.bidragskalkulator.service.BeregningService
 import no.nav.bidrag.domene.enums.beregning.Samværsklasse
-import org.springframework.test.context.ActiveProfiles
 import java.math.BigDecimal
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@ActiveProfiles("test")
 internal class BeregningControllerTest @Autowired constructor(
     val mockMvc: MockMvc,
     val objectMapper: ObjectMapper
