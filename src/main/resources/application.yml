@@ -1,5 +1,5 @@
 springdoc:
-  packages-to-scan: no.nav.bidrag.behandling.controller
+  packages-to-scan: no.nav.bidrag.bidragskalkulator.controller
   paths-to-match: "/api/**"
   swagger-ui:
     path: /
