@@ -52,7 +52,7 @@ internal class BeregningControllerTest @Autowired constructor(
                 .content(objectMapper.writeValueAsString(request))
         )
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.beregningsResultater").isNotEmpty())
+            .andExpect(jsonPath("$.resultater").isNotEmpty())
     }
 
     @Test
