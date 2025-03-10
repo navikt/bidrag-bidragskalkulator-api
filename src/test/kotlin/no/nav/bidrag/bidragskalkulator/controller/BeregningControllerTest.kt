@@ -14,8 +14,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPat
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
-import no.nav.bidrag.bidragskalkulator.dto.BeregningResultatDto
-import no.nav.bidrag.bidragskalkulator.dto.BeregningResultatPerBarnDto
+import no.nav.bidrag.bidragskalkulator.dto.BeregningsresultatDto
+import no.nav.bidrag.bidragskalkulator.dto.BeregningsresultatBarnDto
 import no.nav.bidrag.bidragskalkulator.service.BeregningService
 import no.nav.bidrag.domene.enums.beregning.Samværsklasse
 import java.math.BigDecimal
@@ -41,8 +41,8 @@ internal class BeregningControllerTest @Autowired constructor(
             )
         )
 
-        every { beregningService.beregnBarnebidrag(request) } returns BeregningResultatDto(beregningsResultater = listOf(
-            BeregningResultatPerBarnDto(resultat = BigDecimal(100), barnetsAlder = request.barn.first().alder)
+        every { beregningService.beregnBarnebidrag(request) } returns BeregningsresultatDto(resultater = listOf(
+            BeregningsresultatBarnDto(sum = BigDecimal(100), barnetsAlder = request.barn.first().alder)
         ));
 
 

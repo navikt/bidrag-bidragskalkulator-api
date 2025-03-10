@@ -1,7 +1,7 @@
 import no.nav.bidrag.beregn.barnebidrag.BeregnBarnebidragApi
 import no.nav.bidrag.bidragskalkulator.dto.BeregningRequestDto
-import no.nav.bidrag.bidragskalkulator.mapper.BeregnGrunnlagMapper
-import no.nav.bidrag.bidragskalkulator.mapper.BeregnGrunnlagMedAlder
+import no.nav.bidrag.bidragskalkulator.mapper.BeregningsgrunnlagMapper
+import no.nav.bidrag.bidragskalkulator.mapper.GrunnlagOgAlder
 import no.nav.bidrag.bidragskalkulator.service.BeregningService
 import no.nav.bidrag.bidragskalkulator.utils.JsonUtils
 import no.nav.bidrag.domene.tid.ÅrMånedsperiode
@@ -28,7 +28,7 @@ class BeregningServiceTest {
     private lateinit var beregnBarnebidragApi: BeregnBarnebidragApi
 
     @Mock
-    private lateinit var beregnGrunnlagMapper: BeregnGrunnlagMapper
+    private lateinit var beregningsgrunnlagMapper: BeregningsgrunnlagMapper
 
     @InjectMocks
     private lateinit var beregningService: BeregningService
@@ -51,17 +51,17 @@ class BeregningServiceTest {
 
         val resultat = beregningService.beregnBarnebidrag(beregningRequest)
 
-        assertTrue(resultat.beregningsResultater.isEmpty(), "Forventet tomt resultat når ingen barn er oppgitt")
+        assertTrue(resultat.resultater.isEmpty(), "Forventet tomt resultat når ingen barn er oppgitt")
     }
 
     @Test
     fun `skal returnere ett beregningsresultat for ett barn`() {
         val beregningRequest: BeregningRequestDto = JsonUtils.readJsonFile("beregning_et_barn.json")
 
-        val beregnGrunnlagMedAlder = beregningRequest.barn.mapIndexed { index, barnDto ->
-            BeregnGrunnlagMedAlder(
+        val grunnlagOgAlder = beregningRequest.barn.mapIndexed { index, barnDto ->
+            GrunnlagOgAlder(
                 barnetsAlder = barnDto.alder,
-                beregnGrunnlag = BeregnGrunnlag(
+                grunnlag = BeregnGrunnlag(
                     periode = ÅrMånedsperiode(YearMonth.now(), YearMonth.now().plusMonths(1)),
                     søknadsbarnReferanse = "Person_Søknadsbarn_$index",
                 )
@@ -70,23 +70,23 @@ class BeregningServiceTest {
 
         val beregnetResultat = BeregnetBarnebidragResultat(beregnetBarnebidragPeriodeListe = listOf(createResultatPeriode()))
 
-        Mockito.`when`(beregnGrunnlagMapper.mapToBeregnGrunnlag(beregningRequest)).thenReturn(beregnGrunnlagMedAlder)
+        Mockito.`when`(beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(beregningRequest)).thenReturn(grunnlagOgAlder)
         Mockito.`when`(beregnBarnebidragApi.beregn(anyOrNull())).thenReturn(beregnetResultat)
 
         val resultat = beregningService.beregnBarnebidrag(beregningRequest)
 
-        assertEquals(1, resultat.beregningsResultater.size)
-        assertEquals(beregningRequest.barn.first().alder, resultat.beregningsResultater.first().barnetsAlder)
+        assertEquals(1, resultat.resultater.size)
+        assertEquals(beregningRequest.barn.first().alder, resultat.resultater.first().barnetsAlder)
     }
 
     @Test
     fun `skal returnere to beregningsresultater for to barn`() {
         val beregningRequest: BeregningRequestDto = JsonUtils.readJsonFile("beregning_to_barn.json")
 
-        val beregnGrunnlagMedAlder = beregningRequest.barn.mapIndexed { index, barnDto ->
-            BeregnGrunnlagMedAlder(
+        val grunnlagOgAlder = beregningRequest.barn.mapIndexed { index, barnDto ->
+            GrunnlagOgAlder(
                 barnetsAlder = barnDto.alder,
-                beregnGrunnlag = BeregnGrunnlag(
+                grunnlag = BeregnGrunnlag(
                     periode = ÅrMånedsperiode(YearMonth.now(), YearMonth.now().plusMonths(1)),
                     søknadsbarnReferanse = "Person_Søknadsbarn_$index",
                 )
@@ -95,11 +95,11 @@ class BeregningServiceTest {
 
         val beregnetResultat = BeregnetBarnebidragResultat(beregnetBarnebidragPeriodeListe = listOf(createResultatPeriode()))
 
-        Mockito.`when`(beregnGrunnlagMapper.mapToBeregnGrunnlag(beregningRequest)).thenReturn(beregnGrunnlagMedAlder)
+        Mockito.`when`(beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(beregningRequest)).thenReturn(grunnlagOgAlder)
         Mockito.`when`(beregnBarnebidragApi.beregn(anyOrNull())).thenReturn(beregnetResultat)
 
         val resultat = beregningService.beregnBarnebidrag(beregningRequest)
 
-        assertEquals(2, resultat.beregningsResultater.size)
+        assertEquals(2, resultat.resultater.size)
     }
 }

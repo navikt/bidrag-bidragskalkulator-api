@@ -17,7 +17,7 @@ import java.math.BigDecimal
 import java.time.YearMonth
 
 @Component
-class BeregnGrunnlagMapper {
+class BeregningsgrunnlagMapper {
 
     companion object {
         private const val BIDRAGSMOTTAKER_REFERANSE = "Person_Bidragsmottaker"
@@ -29,52 +29,52 @@ class BeregnGrunnlagMapper {
         registerModule(JavaTimeModule())
     }
 
-    fun mapToBeregnGrunnlag(beregningRequestDto: BeregningRequestDto): List<BeregnGrunnlagMedAlder> {
-        val fasteGrunnlagList = createFasteGrunnlagListe(beregningRequestDto)
+    fun mapTilBeregningsgrunnlag(dto: BeregningRequestDto): List<GrunnlagOgAlder> {
+        val fasteGrunnlag = lagFasteGrunnlag(dto)
         val beregningsperiode = ÅrMånedsperiode(YearMonth.now(), YearMonth.now().plusMonths(1))
 
-        return beregningRequestDto.barn.mapIndexed { index, søknadsbarn ->
-            BeregnGrunnlagMedAlder(
+        return dto.barn.mapIndexed { index, søknadsbarn ->
+            GrunnlagOgAlder(
                 barnetsAlder = søknadsbarn.alder,
-                beregnGrunnlag = BeregnGrunnlag(
+                grunnlag = BeregnGrunnlag(
                     periode = beregningsperiode,
                     søknadsbarnReferanse = "Person_Søknadsbarn_$index",
                     opphørSistePeriode = false,
                     stønadstype = Stønadstype.BIDRAG,
-                    grunnlagListe = createGrunnlagListe(søknadsbarn, "Person_Søknadsbarn_$index") + fasteGrunnlagList
+                    grunnlagListe = lagGrunnlagsliste(søknadsbarn, "Person_Søknadsbarn_$index") + fasteGrunnlag
                 )
             )
 
         }
     }
 
-    private fun createFasteGrunnlagListe(beregningRequestDto: BeregningRequestDto) = listOf(
-        createEmptyGrunnlag(BIDRAGSMOTTAKER_REFERANSE, Grunnlagstype.PERSON_BIDRAGSMOTTAKER),
-        createEmptyGrunnlag(BIDRAGSPLIKTIG_REFERANSE, Grunnlagstype.PERSON_BIDRAGSPLIKTIG),
-        createInntektGrunnlag("Inntekt_Bidragspliktig", beregningRequestDto.inntektForelder2.toBigDecimal(), BIDRAGSPLIKTIG_REFERANSE),
-        createInntektGrunnlag("Inntekt_Bidragsmottaker", beregningRequestDto.inntektForelder1.toBigDecimal(), BIDRAGSMOTTAKER_REFERANSE),
-        createBostatusGrunnlag("Bostatus_Bidragspliktig", Bostatuskode.BOR_MED_ANDRE_VOKSNE, null, BIDRAGSPLIKTIG_REFERANSE)
+    private fun lagFasteGrunnlag(beregningRequestDto: BeregningRequestDto) = listOf(
+        lagTomtGrunnlag(BIDRAGSMOTTAKER_REFERANSE, Grunnlagstype.PERSON_BIDRAGSMOTTAKER),
+        lagTomtGrunnlag(BIDRAGSPLIKTIG_REFERANSE, Grunnlagstype.PERSON_BIDRAGSPLIKTIG),
+        lagInntektsgrunnlag("Inntekt_Bidragspliktig", beregningRequestDto.inntektForelder2.toBigDecimal(), BIDRAGSPLIKTIG_REFERANSE),
+        lagInntektsgrunnlag("Inntekt_Bidragsmottaker", beregningRequestDto.inntektForelder1.toBigDecimal(), BIDRAGSMOTTAKER_REFERANSE),
+        lagBostatusgrunnlag("Bostatus_Bidragspliktig", Bostatuskode.BOR_MED_ANDRE_VOKSNE, null, BIDRAGSPLIKTIG_REFERANSE)
     )
 
-    private fun createGrunnlagListe(søknadsbarn: BarnDto, søknadsbarnReferanse: String) = listOf(
-        createSøknadsbarnGrunnlag(søknadsbarnReferanse, søknadsbarn),
-        createInntektGrunnlag("Inntekt_$søknadsbarnReferanse", BigDecimal.ZERO, søknadsbarnReferanse),
+    private fun lagGrunnlagsliste(søknadsbarn: BarnDto, søknadsbarnReferanse: String) = listOf(
+        lagSøknadsbarngrunnlag(søknadsbarnReferanse, søknadsbarn),
+        lagInntektsgrunnlag("Inntekt_$søknadsbarnReferanse", BigDecimal.ZERO, søknadsbarnReferanse),
         //TODO: bruk riktig verdi for gjelderReferanse som sier bosted til barn
-        createBostatusGrunnlag("Bostatus_Søknadsbarn", Bostatuskode.IKKE_MED_FORELDER, søknadsbarnReferanse, BIDRAGSPLIKTIG_REFERANSE),
-        createSamværsgrunnlag(søknadsbarn, søknadsbarnReferanse, BIDRAGSPLIKTIG_REFERANSE)
+        lagBostatusgrunnlag("Bostatus_Søknadsbarn", Bostatuskode.IKKE_MED_FORELDER, søknadsbarnReferanse, BIDRAGSPLIKTIG_REFERANSE),
+        lagSamværsgrunnlag(søknadsbarn, søknadsbarnReferanse, BIDRAGSPLIKTIG_REFERANSE)
     )
 
-    private fun createEmptyGrunnlag(referanse: String, type: Grunnlagstype) =
+    private fun lagTomtGrunnlag(referanse: String, type: Grunnlagstype) =
         GrunnlagDto(referanse, type, objectMapper.createObjectNode())
 
-    private fun createSøknadsbarnGrunnlag(søknadsbarnReferanse: String, søknadsbarn: BarnDto) =
+    private fun lagSøknadsbarngrunnlag(søknadsbarnReferanse: String, søknadsbarn: BarnDto) =
         GrunnlagDto(
             referanse = søknadsbarnReferanse,
             type = Grunnlagstype.PERSON_SØKNADSBARN,
             innhold = objectMapper.valueToTree(Person(fødselsdato = søknadsbarn.getEstimertFødselsdato()))
         )
 
-    private fun createInntektGrunnlag(referanse: String, beløp: BigDecimal, eierReferanse: String) =
+    private fun lagInntektsgrunnlag(referanse: String, beløp: BigDecimal, eierReferanse: String) =
         GrunnlagDto(
             referanse = referanse,
             type = Grunnlagstype.INNTEKT_RAPPORTERING_PERIODE,
@@ -90,7 +90,7 @@ class BeregnGrunnlagMapper {
             gjelderReferanse = eierReferanse
         )
 
-    private fun createBostatusGrunnlag(referanse: String, bostatus: Bostatuskode, gjelderBarnReferanse: String?, gjelderReferanse: String? = null) =
+    private fun lagBostatusgrunnlag(referanse: String, bostatus: Bostatuskode, gjelderBarnReferanse: String?, gjelderReferanse: String? = null) =
         GrunnlagDto(
             referanse = referanse,
             type = Grunnlagstype.BOSTATUS_PERIODE,
@@ -108,7 +108,7 @@ class BeregnGrunnlagMapper {
             gjelderReferanse = gjelderReferanse
         )
 
-    private fun createSamværsgrunnlag(søknadsbarn: BarnDto, gjelderBarnReferanse: String, gjelderReferanse: String) =
+    private fun lagSamværsgrunnlag(søknadsbarn: BarnDto, gjelderBarnReferanse: String, gjelderReferanse: String) =
         GrunnlagDto(
             referanse = "Mottatt_Samværsperiode",
             type = Grunnlagstype.SAMVÆRSPERIODE,
@@ -124,7 +124,7 @@ class BeregnGrunnlagMapper {
         )
 }
 
-data class BeregnGrunnlagMedAlder(
+data class GrunnlagOgAlder(
     val barnetsAlder: Int,
-    val beregnGrunnlag: BeregnGrunnlag
+    val grunnlag: BeregnGrunnlag
 )
