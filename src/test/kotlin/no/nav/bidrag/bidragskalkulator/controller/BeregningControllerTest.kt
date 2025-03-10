@@ -12,22 +12,29 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.ninjasquad.springmockk.MockkBean
+import io.mockk.every
+import no.nav.bidrag.bidragskalkulator.dto.BeregningResultatDto
+import no.nav.bidrag.bidragskalkulator.dto.BeregningResultatPerBarnDto
+import no.nav.bidrag.bidragskalkulator.service.BeregningService
 import no.nav.bidrag.domene.enums.beregning.Samværsklasse
 import org.springframework.test.context.ActiveProfiles
+import java.math.BigDecimal
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-class BeregningControllerTest {
+internal class BeregningControllerTest @Autowired constructor(
+    val mockMvc: MockMvc,
+    val objectMapper: ObjectMapper
+) {
 
-    @Autowired
-    private lateinit var mockMvc: MockMvc
-
-    @Autowired
-    private lateinit var objectMapper: ObjectMapper
+    @MockkBean
+    lateinit var beregningService: BeregningService
 
     @Test
     fun `skal ta imot en gyldig request`() {
+
         val request = BeregningRequestDto(
             inntektForelder1 = 500000.0,
             inntektForelder2 = 400000.0,
@@ -35,6 +42,11 @@ class BeregningControllerTest {
                 BarnDto(alder = 10, samværsklasse = Samværsklasse.SAMVÆRSKLASSE_1)
             )
         )
+
+        every { beregningService.beregnBarnebidrag(request) } returns BeregningResultatDto(beregningsResultater = listOf(
+            BeregningResultatPerBarnDto(resultat = BigDecimal(100), barnetsAlder = request.barn.first().alder)
+        ));
+
 
         mockMvc.perform(
             post("/api/v1/beregning/barnebidrag")

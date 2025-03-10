@@ -8,6 +8,7 @@ val bidragBeregnFellesVersion = "2025.02.25.153116"
 val bidragFellesVersion = "2025.02.25.075650"
 val kotlinLoggingJvmVersion = "7.0.3"
 val springDocWebmvcVersion = "2.8.5"
+val mockkVersion = "4.0.2"
 
 plugins {
     id("org.jetbrains.kotlin.plugin.spring") version "1.9.25"
@@ -55,6 +56,7 @@ dependencies {
     testImplementation("org.mockito:mockito-inline:5.2.0")
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.3")
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.0")
+    testImplementation("com.ninja-squad:springmockk:$mockkVersion")
 }
 
 java {
