@@ -53,7 +53,7 @@ class BeregningsgrunnlagMapper {
         lagTomtGrunnlag(BIDRAGSPLIKTIG_REFERANSE, Grunnlagstype.PERSON_BIDRAGSPLIKTIG),
         lagInntektsgrunnlag("Inntekt_Bidragspliktig", beregningRequestDto.inntektForelder2.toBigDecimal(), BIDRAGSPLIKTIG_REFERANSE),
         lagInntektsgrunnlag("Inntekt_Bidragsmottaker", beregningRequestDto.inntektForelder1.toBigDecimal(), BIDRAGSMOTTAKER_REFERANSE),
-        lagBostatusgrunnlag("Bostatus_Bidragspliktig", Bostatuskode.BOR_MED_ANDRE_VOKSNE, null, BIDRAGSPLIKTIG_REFERANSE)
+        lagBostatusgrunnlag("Bostatus_Bidragspliktig", Bostatuskode.BOR_IKKE_MED_ANDRE_VOKSNE, null, BIDRAGSPLIKTIG_REFERANSE)
     )
 
     private fun lagGrunnlagsliste(søknadsbarn: BarnDto, søknadsbarnReferanse: String) = listOf(
