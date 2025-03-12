@@ -4,11 +4,13 @@
   "barn": [
     {
       "alder": 10,
-      "samværsklasse": "SAMVÆRSKLASSE_1"
+      "samværsklasse": "SAMVÆRSKLASSE_1",
+      "bidragstype": "PLIKTIG"
     },
     {
       "alder": 6,
-      "samværsklasse": "SAMVÆRSKLASSE_1"
+      "samværsklasse": "SAMVÆRSKLASSE_1",
+      "bidragstype": "PLIKTIG"
     }
   ]
 }

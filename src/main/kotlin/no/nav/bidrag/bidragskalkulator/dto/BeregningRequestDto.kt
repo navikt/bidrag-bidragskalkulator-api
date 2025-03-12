@@ -12,6 +12,12 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 
+@Schema(description = "Type bidrag")
+enum class BidragsType {
+    PLIKTIG,
+    MOTTAKER
+}
+
 @Schema(description = "Informasjon om et barn i beregningen")
 data class BarnDto(
     @field:NotNull(message = "Alder må være satt")
@@ -22,7 +28,11 @@ data class BarnDto(
 
     @field:NotNull(message = "samværsklasse må være satt")
     @Schema(ref = "#/components/schemas/Samværsklasse") // Reference dynamically registered schema. See OpenApiConfig
-    val samværsklasse: Samværsklasse
+    val samværsklasse: Samværsklasse,
+
+    @field:NotNull(message = "bidragstype må være satt")
+    @Schema(description = "Type bidrag", required = true)
+    val bidragstype: BidragsType
 ){
     @JsonIgnore
     @Schema(hidden = true) // 🚀 Hides from Swagger

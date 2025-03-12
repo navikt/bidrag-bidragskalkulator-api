@@ -18,6 +18,7 @@ import no.nav.bidrag.bidragskalkulator.dto.BeregningsresultatDto
 import no.nav.bidrag.bidragskalkulator.dto.BeregningsresultatBarnDto
 import no.nav.bidrag.bidragskalkulator.service.BeregningService
 import no.nav.bidrag.domene.enums.beregning.Samværsklasse
+import no.nav.bidrag.bidragskalkulator.dto.BidragsType
 import java.math.BigDecimal
 
 @SpringBootTest
@@ -37,7 +38,7 @@ internal class BeregningControllerTest @Autowired constructor(
             inntektForelder1 = 500000.0,
             inntektForelder2 = 400000.0,
             barn = listOf(
-                BarnDto(alder = 10, samværsklasse = Samværsklasse.SAMVÆRSKLASSE_1)
+                BarnDto(alder = 10, samværsklasse = Samværsklasse.SAMVÆRSKLASSE_1, bidragstype = BidragsType.PLIKTIG)
             )
         )
 
@@ -61,7 +62,7 @@ internal class BeregningControllerTest @Autowired constructor(
             inntektForelder1 = -500000.0,
             inntektForelder2 = 400000.0,
             barn = listOf(
-                BarnDto(alder = 10, samværsklasse = Samværsklasse.SAMVÆRSKLASSE_1)
+                BarnDto(alder = 10, samværsklasse = Samværsklasse.SAMVÆRSKLASSE_1, bidragstype = BidragsType.PLIKTIG)
             )
         )
 
@@ -97,7 +98,7 @@ internal class BeregningControllerTest @Autowired constructor(
             inntektForelder1 = 500000.0,
             inntektForelder2 = 400000.0,
             barn = listOf(
-                BarnDto(alder = 26, samværsklasse = Samværsklasse.SAMVÆRSKLASSE_1)
+                BarnDto(alder = 26, samværsklasse = Samværsklasse.SAMVÆRSKLASSE_1, bidragstype = BidragsType.PLIKTIG)
             )
         )
 
@@ -108,6 +109,52 @@ internal class BeregningControllerTest @Autowired constructor(
         )
             .andExpect(status().isBadRequest)
             .andExpect(jsonPath("$.errors[0]").value("barn[0].alder: Alder kan ikke være høyere enn 25"))
+    }
+
+    @Test
+    fun `skal håndtere inntekt mapping korrekt for bidragspliktig`() {
+        val request = BeregningRequestDto(
+            inntektForelder1 = 500000.0,
+            inntektForelder2 = 400000.0,
+            barn = listOf(
+                BarnDto(alder = 10, samværsklasse = Samværsklasse.SAMVÆRSKLASSE_1, bidragstype = BidragsType.PLIKTIG)
+            )
+        )
+
+        every { beregningService.beregnBarnebidrag(request) } returns BeregningsresultatDto(resultater = listOf(
+            BeregningsresultatBarnDto(sum = BigDecimal(100), barnetsAlder = request.barn.first().alder)
+        ))
+
+        mockMvc.perform(
+            post("/api/v1/beregning/barnebidrag")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.resultater").isNotEmpty())
+    }
+
+    @Test
+    fun `skal håndtere inntekt mapping korrekt for bidragsmottaker`() {
+        val request = BeregningRequestDto(
+            inntektForelder1 = 500000.0,
+            inntektForelder2 = 400000.0,
+            barn = listOf(
+                BarnDto(alder = 10, samværsklasse = Samværsklasse.SAMVÆRSKLASSE_1, bidragstype = BidragsType.MOTTAKER)
+            )
+        )
+
+        every { beregningService.beregnBarnebidrag(request) } returns BeregningsresultatDto(resultater = listOf(
+            BeregningsresultatBarnDto(sum = BigDecimal(100), barnetsAlder = request.barn.first().alder)
+        ))
+
+        mockMvc.perform(
+            post("/api/v1/beregning/barnebidrag")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.resultater").isNotEmpty())
     }
 
 }
