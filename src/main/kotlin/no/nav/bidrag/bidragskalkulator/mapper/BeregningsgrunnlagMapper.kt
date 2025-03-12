@@ -13,6 +13,7 @@ import no.nav.bidrag.domene.enums.vedtak.Stønadstype
 import no.nav.bidrag.domene.tid.ÅrMånedsperiode
 import no.nav.bidrag.transport.behandling.beregning.felles.BeregnGrunnlag
 import no.nav.bidrag.transport.behandling.felles.grunnlag.*
+import org.slf4j.LoggerFactory.getLogger
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
 import java.time.YearMonth
@@ -31,7 +32,6 @@ class BeregningsgrunnlagMapper {
     }
 
     fun mapTilBeregningsgrunnlag(dto: BeregningRequestDto): List<GrunnlagOgAlder> {
-        val fasteGrunnlag = lagFasteGrunnlag()
         val beregningsperiode = ÅrMånedsperiode(YearMonth.now(), YearMonth.now().plusMonths(1))
 
         return dto.barn.mapIndexed { index, søknadsbarn ->
@@ -42,24 +42,21 @@ class BeregningsgrunnlagMapper {
                     søknadsbarnReferanse = "Person_Søknadsbarn_$index",
                     opphørSistePeriode = false,
                     stønadstype = Stønadstype.BIDRAG,
-                    grunnlagListe = lagGrunnlagsliste(søknadsbarn, dto, "Person_Søknadsbarn_$index") + fasteGrunnlag
+                    grunnlagListe = lagGrunnlagsliste(søknadsbarn, dto, "Person_Søknadsbarn_$index")
                 )
             )
-
         }
     }
-
-    private fun lagFasteGrunnlag() = listOf(
-        lagTomtGrunnlag(BIDRAGSMOTTAKER_REFERANSE, Grunnlagstype.PERSON_BIDRAGSMOTTAKER),
-        lagTomtGrunnlag(BIDRAGSPLIKTIG_REFERANSE, Grunnlagstype.PERSON_BIDRAGSPLIKTIG),
-        lagBostatusgrunnlag("Bostatus_Bidragspliktig", Bostatuskode.BOR_IKKE_MED_ANDRE_VOKSNE, null, BIDRAGSPLIKTIG_REFERANSE)
-    )
 
     private fun lagGrunnlagsliste(søknadsbarn: BarnDto, dto: BeregningRequestDto, søknadsbarnReferanse: String): List<GrunnlagDto> {
         val erBidragspliktig = søknadsbarn.bidragstype == BidragsType.PLIKTIG
         val lønnBidragsmottaker = if (erBidragspliktig) dto.inntektForelder2 else dto.inntektForelder1
         val lønnBidragspliktig = if (erBidragspliktig) dto.inntektForelder1 else dto.inntektForelder2
+
         return listOf(
+            lagTomtGrunnlag(BIDRAGSMOTTAKER_REFERANSE, Grunnlagstype.PERSON_BIDRAGSMOTTAKER),
+            lagTomtGrunnlag(BIDRAGSPLIKTIG_REFERANSE, Grunnlagstype.PERSON_BIDRAGSPLIKTIG),
+            lagBostatusgrunnlag("Bostatus_Bidragspliktig", Bostatuskode.BOR_IKKE_MED_ANDRE_VOKSNE, null, BIDRAGSPLIKTIG_REFERANSE),
             lagSøknadsbarngrunnlag(søknadsbarnReferanse, søknadsbarn),
             lagInntektsgrunnlag(
                 "Inntekt_Bidragspliktig",
@@ -75,9 +72,9 @@ class BeregningsgrunnlagMapper {
             //TODO: bruk riktig verdi for gjelderReferanse som sier bosted til barn
             lagBostatusgrunnlag(
                 "Bostatus_Søknadsbarn",
-                Bostatuskode.MED_FORELDER,
+                Bostatuskode.ALENE,
                 søknadsbarnReferanse,
-                BIDRAGSPLIKTIG_REFERANSE
+                BIDRAGSMOTTAKER_REFERANSE
             ),
             lagSamværsgrunnlag(søknadsbarn, søknadsbarnReferanse, BIDRAGSPLIKTIG_REFERANSE)
         )
