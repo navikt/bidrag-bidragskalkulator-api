@@ -4,7 +4,8 @@
   "barn": [
     {
       "alder": 8,
-      "samværsklasse": "SAMVÆRSKLASSE_1"
+      "samværsklasse": "SAMVÆRSKLASSE_1",
+      "bidragstype": "PLIKTIG"
     }
   ]
 }
