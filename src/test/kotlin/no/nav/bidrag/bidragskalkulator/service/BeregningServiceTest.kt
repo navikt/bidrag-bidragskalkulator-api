@@ -9,6 +9,7 @@ import no.nav.bidrag.transport.behandling.beregning.barnebidrag.BeregnetBarnebid
 import no.nav.bidrag.transport.behandling.beregning.barnebidrag.ResultatBeregning
 import no.nav.bidrag.transport.behandling.beregning.barnebidrag.ResultatPeriode
 import no.nav.bidrag.transport.behandling.beregning.felles.BeregnGrunnlag
+import no.nav.bidrag.transport.behandling.felles.grunnlag.GrunnlagDto
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -41,6 +42,12 @@ class BeregningServiceTest {
         )
     }
 
+    private fun mockBeregnUnderholdskostnad() {
+        val beregnUnderholdskostnadRespons: List<GrunnlagDto> = JsonUtils.readJsonFile("/underholdskostnad/beregn_underholdskostnad_respons.json")
+        Mockito.`when`(beregnBarnebidragApi.beregnUnderholdskostnad(anyOrNull()))
+            .thenReturn(beregnUnderholdskostnadRespons)
+    }
+
     @Test
     fun `skal returnere tomt resultat dersom ingen barn er oppgitt`() {
         val beregningRequest = BeregningRequestDto(
@@ -56,7 +63,7 @@ class BeregningServiceTest {
 
     @Test
     fun `skal returnere ett beregningsresultat for ett barn`() {
-        val beregningRequest: BeregningRequestDto = JsonUtils.readJsonFile("beregning_et_barn.json")
+        val beregningRequest: BeregningRequestDto = JsonUtils.readJsonFile("/barnebidrag/beregning_et_barn.json")
 
         val grunnlagOgAlder = beregningRequest.barn.mapIndexed { index, barnDto ->
             GrunnlagOgAlder(
@@ -72,6 +79,7 @@ class BeregningServiceTest {
 
         Mockito.`when`(beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(beregningRequest)).thenReturn(grunnlagOgAlder)
         Mockito.`when`(beregnBarnebidragApi.beregn(anyOrNull())).thenReturn(beregnetResultat)
+        mockBeregnUnderholdskostnad()
 
         val resultat = beregningService.beregnBarnebidrag(beregningRequest)
 
@@ -81,7 +89,7 @@ class BeregningServiceTest {
 
     @Test
     fun `skal returnere to beregningsresultater for to barn`() {
-        val beregningRequest: BeregningRequestDto = JsonUtils.readJsonFile("beregning_to_barn.json")
+        val beregningRequest: BeregningRequestDto = JsonUtils.readJsonFile("/barnebidrag/beregning_to_barn.json")
 
         val grunnlagOgAlder = beregningRequest.barn.mapIndexed { index, barnDto ->
             GrunnlagOgAlder(
@@ -97,9 +105,31 @@ class BeregningServiceTest {
 
         Mockito.`when`(beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(beregningRequest)).thenReturn(grunnlagOgAlder)
         Mockito.`when`(beregnBarnebidragApi.beregn(anyOrNull())).thenReturn(beregnetResultat)
+        mockBeregnUnderholdskostnad()
 
         val resultat = beregningService.beregnBarnebidrag(beregningRequest)
 
         assertEquals(2, resultat.resultater.size)
+    }
+
+    @Test
+    fun `skal hente underholdskostnad når data er tilgjengelig`() {
+        val grunnlag = BeregnGrunnlag(periode = ÅrMånedsperiode(YearMonth.now(), null), søknadsbarnReferanse = "Søknadsbarn")
+        mockBeregnUnderholdskostnad()
+
+        val result = beregningService.hentUnderholdskostnad(grunnlag)
+
+        assertEquals(BigDecimal("8471"), result, "Forventet underholdskostnad skal være 8471")
+    }
+
+    @Test
+    fun `skal returnere 0 dersom ingen underholdskostnad finnes`() {
+        val grunnlag = BeregnGrunnlag(periode = ÅrMånedsperiode(YearMonth.now(), null), søknadsbarnReferanse = "Søknadsbarn")
+
+        Mockito.`when`(beregnBarnebidragApi.beregnUnderholdskostnad(anyOrNull())).thenReturn(emptyList())
+
+        val result = beregningService.hentUnderholdskostnad(grunnlag)
+
+        assertEquals(BigDecimal.ZERO, result, "Forventet underholdskostnad skal være 0 når ingen data finnes")
     }
 }

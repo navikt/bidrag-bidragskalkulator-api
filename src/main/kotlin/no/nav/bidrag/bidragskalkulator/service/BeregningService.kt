@@ -5,6 +5,9 @@ import no.nav.bidrag.bidragskalkulator.dto.BeregningsresultatDto
 import no.nav.bidrag.bidragskalkulator.dto.BeregningRequestDto
 import no.nav.bidrag.bidragskalkulator.dto.BeregningsresultatBarnDto
 import no.nav.bidrag.bidragskalkulator.mapper.BeregningsgrunnlagMapper
+import no.nav.bidrag.domene.enums.grunnlag.Grunnlagstype
+import no.nav.bidrag.transport.behandling.beregning.felles.BeregnGrunnlag
+import no.nav.bidrag.transport.behandling.felles.grunnlag.*
 import org.slf4j.LoggerFactory.getLogger
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
@@ -22,11 +25,14 @@ class BeregningService(
 
         val start = System.currentTimeMillis()
         val beregningsresultat = beregningsgrunnlag.map { data ->
+            val beregnetSum = beregnBarnebidragApi.beregn(data.grunnlag)
+                .beregnetBarnebidragPeriodeListe
+                .sumOf { it.resultat.beløp ?: BigDecimal.ZERO }
+
             BeregningsresultatBarnDto(
-                sum = beregnBarnebidragApi.beregn(data.grunnlag)
-                    .beregnetBarnebidragPeriodeListe
-                    .sumOf { it.resultat.beløp ?: BigDecimal.ZERO },
-                barnetsAlder = data.barnetsAlder
+                sum = beregnetSum,
+                barnetsAlder = data.barnetsAlder,
+                underholdskostnad = hentUnderholdskostnad(data.grunnlag)
             )
         }
         val duration = System.currentTimeMillis() - start;
@@ -34,4 +40,11 @@ class BeregningService(
 
         return BeregningsresultatDto(beregningsresultat)
     }
+
+    internal fun hentUnderholdskostnad(grunnlag: BeregnGrunnlag): BigDecimal =
+        beregnBarnebidragApi.beregnUnderholdskostnad(grunnlag)
+            .firstOrNull { it.type == Grunnlagstype.DELBEREGNING_UNDERHOLDSKOSTNAD }
+            ?.innholdTilObjekt<DelberegningUnderholdskostnad>()
+            ?.underholdskostnad
+            ?: BigDecimal.ZERO
 }
