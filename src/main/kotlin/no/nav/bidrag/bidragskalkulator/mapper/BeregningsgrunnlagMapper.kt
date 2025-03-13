@@ -5,6 +5,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import no.nav.bidrag.bidragskalkulator.dto.BarnDto
 import no.nav.bidrag.bidragskalkulator.dto.BeregningRequestDto
+import no.nav.bidrag.bidragskalkulator.dto.BidragsType
 import no.nav.bidrag.domene.enums.grunnlag.Grunnlagstype
 import no.nav.bidrag.domene.enums.inntekt.Inntektsrapportering
 import no.nav.bidrag.domene.enums.person.Bostatuskode
@@ -12,6 +13,7 @@ import no.nav.bidrag.domene.enums.vedtak.Stønadstype
 import no.nav.bidrag.domene.tid.ÅrMånedsperiode
 import no.nav.bidrag.transport.behandling.beregning.felles.BeregnGrunnlag
 import no.nav.bidrag.transport.behandling.felles.grunnlag.*
+import org.slf4j.LoggerFactory.getLogger
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
 import java.time.YearMonth
@@ -30,7 +32,6 @@ class BeregningsgrunnlagMapper {
     }
 
     fun mapTilBeregningsgrunnlag(dto: BeregningRequestDto): List<GrunnlagOgAlder> {
-        val fasteGrunnlag = lagFasteGrunnlag(dto)
         val beregningsperiode = ÅrMånedsperiode(YearMonth.now(), YearMonth.now().plusMonths(1))
 
         return dto.barn.mapIndexed { index, søknadsbarn ->
@@ -41,28 +42,43 @@ class BeregningsgrunnlagMapper {
                     søknadsbarnReferanse = "Person_Søknadsbarn_$index",
                     opphørSistePeriode = false,
                     stønadstype = Stønadstype.BIDRAG,
-                    grunnlagListe = lagGrunnlagsliste(søknadsbarn, "Person_Søknadsbarn_$index") + fasteGrunnlag
+                    grunnlagListe = lagGrunnlagsliste(søknadsbarn, dto, "Person_Søknadsbarn_$index")
                 )
             )
-
         }
     }
 
-    private fun lagFasteGrunnlag(beregningRequestDto: BeregningRequestDto) = listOf(
-        lagTomtGrunnlag(BIDRAGSMOTTAKER_REFERANSE, Grunnlagstype.PERSON_BIDRAGSMOTTAKER),
-        lagTomtGrunnlag(BIDRAGSPLIKTIG_REFERANSE, Grunnlagstype.PERSON_BIDRAGSPLIKTIG),
-        lagInntektsgrunnlag("Inntekt_Bidragspliktig", beregningRequestDto.inntektForelder2.toBigDecimal(), BIDRAGSPLIKTIG_REFERANSE),
-        lagInntektsgrunnlag("Inntekt_Bidragsmottaker", beregningRequestDto.inntektForelder1.toBigDecimal(), BIDRAGSMOTTAKER_REFERANSE),
-        lagBostatusgrunnlag("Bostatus_Bidragspliktig", Bostatuskode.BOR_IKKE_MED_ANDRE_VOKSNE, null, BIDRAGSPLIKTIG_REFERANSE)
-    )
+    private fun lagGrunnlagsliste(søknadsbarn: BarnDto, dto: BeregningRequestDto, søknadsbarnReferanse: String): List<GrunnlagDto> {
+        val erBidragspliktig = søknadsbarn.bidragstype == BidragsType.PLIKTIG
+        val lønnBidragsmottaker = if (erBidragspliktig) dto.inntektForelder2 else dto.inntektForelder1
+        val lønnBidragspliktig = if (erBidragspliktig) dto.inntektForelder1 else dto.inntektForelder2
 
-    private fun lagGrunnlagsliste(søknadsbarn: BarnDto, søknadsbarnReferanse: String) = listOf(
-        lagSøknadsbarngrunnlag(søknadsbarnReferanse, søknadsbarn),
-        lagInntektsgrunnlag("Inntekt_$søknadsbarnReferanse", BigDecimal.ZERO, søknadsbarnReferanse),
-        //TODO: bruk riktig verdi for gjelderReferanse som sier bosted til barn
-        lagBostatusgrunnlag("Bostatus_Søknadsbarn", Bostatuskode.IKKE_MED_FORELDER, søknadsbarnReferanse, BIDRAGSPLIKTIG_REFERANSE),
-        lagSamværsgrunnlag(søknadsbarn, søknadsbarnReferanse, BIDRAGSPLIKTIG_REFERANSE)
-    )
+        return listOf(
+            lagTomtGrunnlag(BIDRAGSMOTTAKER_REFERANSE, Grunnlagstype.PERSON_BIDRAGSMOTTAKER),
+            lagTomtGrunnlag(BIDRAGSPLIKTIG_REFERANSE, Grunnlagstype.PERSON_BIDRAGSPLIKTIG),
+            lagBostatusgrunnlag("Bostatus_Bidragspliktig", Bostatuskode.BOR_IKKE_MED_ANDRE_VOKSNE, null, BIDRAGSPLIKTIG_REFERANSE),
+            lagSøknadsbarngrunnlag(søknadsbarnReferanse, søknadsbarn),
+            lagInntektsgrunnlag(
+                "Inntekt_Bidragspliktig",
+                lønnBidragspliktig.toBigDecimal(),
+                BIDRAGSPLIKTIG_REFERANSE
+            ),
+            lagInntektsgrunnlag(
+                "Inntekt_Bidragsmottaker",
+                lønnBidragsmottaker.toBigDecimal(),
+                BIDRAGSMOTTAKER_REFERANSE
+            ),
+            lagInntektsgrunnlag("Inntekt_$søknadsbarnReferanse", BigDecimal.ZERO, søknadsbarnReferanse),
+            //TODO: bruk riktig verdi for gjelderReferanse som sier bosted til barn
+            lagBostatusgrunnlag(
+                "Bostatus_Søknadsbarn",
+                Bostatuskode.ALENE,
+                søknadsbarnReferanse,
+                BIDRAGSMOTTAKER_REFERANSE
+            ),
+            lagSamværsgrunnlag(søknadsbarn, søknadsbarnReferanse, BIDRAGSPLIKTIG_REFERANSE)
+        )
+    }
 
     private fun lagTomtGrunnlag(referanse: String, type: Grunnlagstype) =
         GrunnlagDto(referanse, type, objectMapper.createObjectNode())
