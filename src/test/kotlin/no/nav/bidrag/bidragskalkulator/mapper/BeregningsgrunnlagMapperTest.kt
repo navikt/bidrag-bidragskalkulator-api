@@ -17,7 +17,7 @@ class BeregningsgrunnlagMapperTest {
 
     @Test
     fun `skal mappe BeregningRequestDto med ett barn til BeregnGrunnlag`() {
-        val beregningRequest: BeregningRequestDto = JsonUtils.readJsonFile("beregning_et_barn.json")
+        val beregningRequest: BeregningRequestDto = JsonUtils.readJsonFile("/barnebidrag/beregning_et_barn.json")
 
         val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(beregningRequest)
 
@@ -27,7 +27,7 @@ class BeregningsgrunnlagMapperTest {
 
     @Test
     fun `skal mappe BeregningRequestDto med to barn til BeregnGrunnlag`() {
-        val beregningRequest: BeregningRequestDto = JsonUtils.readJsonFile("beregning_to_barn.json")
+        val beregningRequest: BeregningRequestDto = JsonUtils.readJsonFile("/barnebidrag/beregning_to_barn.json")
 
         val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(beregningRequest)
 
@@ -39,7 +39,7 @@ class BeregningsgrunnlagMapperTest {
 
     @Test
     fun `skal ha riktig antall grunnlagselementer`() {
-        val beregningRequest: BeregningRequestDto = JsonUtils.readJsonFile("beregning_et_barn.json")
+        val beregningRequest: BeregningRequestDto = JsonUtils.readJsonFile("/barnebidrag/beregning_et_barn.json")
 
         val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(beregningRequest)
 

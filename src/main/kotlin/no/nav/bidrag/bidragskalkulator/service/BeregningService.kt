@@ -22,17 +22,18 @@ class BeregningService(
         val beregningsgrunnlag = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(beregningRequest)
 
         val beregningsresultat = beregningsgrunnlag.map { data ->
+            val beregnetSum = beregnBarnebidragApi.beregn(data.grunnlag)
+                .beregnetBarnebidragPeriodeListe
+                .sumOf { it.resultat.beløp ?: BigDecimal.ZERO }
 
             BeregningsresultatBarnDto(
-                sum = beregnBarnebidragApi.beregn(data.grunnlag)
-                    .beregnetBarnebidragPeriodeListe
-                    .sumOf { it.resultat.beløp ?: BigDecimal.ZERO },
+                sum = beregnetSum,
                 barnetsAlder = data.barnetsAlder,
                 underholdskostnad = hentUnderholdskostnad(data.grunnlag)
             )
         }
 
-        return BeregningsresultatDto(beregningsresultat)
+        return BeregningsresultatDto(resultater = beregningsresultat)
     }
 
     internal fun hentUnderholdskostnad(grunnlag: BeregnGrunnlag): BigDecimal =
@@ -40,5 +41,5 @@ class BeregningService(
             .firstOrNull { it.type == Grunnlagstype.DELBEREGNING_UNDERHOLDSKOSTNAD }
             ?.innholdTilObjekt<DelberegningUnderholdskostnad>()
             ?.underholdskostnad
-            ?: throw NoSuchElementException("Ingen underholdskostnad funnet i beregningen")
+            ?: BigDecimal.ZERO
 }

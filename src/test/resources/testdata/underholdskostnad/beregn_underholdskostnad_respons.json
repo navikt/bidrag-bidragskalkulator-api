@@ -1,0 +1,81 @@
+[
+  {
+    "type": "DELBEREGNING_UNDERHOLDSKOSTNAD",
+    "referanse": "delberegning_DELBEREGNING_UNDERHOLDSKOSTNAD_Person_Bidragsmottaker_Person_Søknadsbarn_0_202503",
+    "gjelderReferanse": "Person_Bidragsmottaker",
+    "grunnlagsreferanseListe": [
+      "sjablon_BoutgifterBidragsbarnBeløp_202407",
+      "sjablon_ForhøyetBarnetrygdBeløp_202407",
+      "sjablon_OrdinærBarnetrygdBeløp_202407",
+      "sjablon_SJABLON_FORBRUKSUTGIFTER_202407_10"
+    ],
+    "innhold": {
+      "periode": {
+        "fom": "2025-03",
+        "til": null
+      },
+      "forbruksutgift": 6385.00,
+      "boutgift": 3596.00,
+      "barnetilsynMedStønad": null,
+      "nettoTilsynsutgift": null,
+      "barnetrygd": 1510.00,
+      "underholdskostnad": 8471
+    }
+  },
+  {
+    "type": "SJABLON_SJABLONTALL",
+    "referanse": "sjablon_BoutgifterBidragsbarnBeløp_202407",
+    "gjelderReferanse": null,
+    "grunnlagsreferanseListe": [],
+    "innhold": {
+      "periode": {
+        "fom": "2024-07",
+        "til": null
+      },
+      "sjablon": "BOUTGIFTER_BIDRAGSBARN_BELØP",
+      "verdi": 3596.0
+    }
+  },
+  {
+    "type": "SJABLON_SJABLONTALL",
+    "referanse": "sjablon_ForhøyetBarnetrygdBeløp_202407",
+    "gjelderReferanse": null,
+    "grunnlagsreferanseListe": [],
+    "innhold": {
+      "periode": {
+        "fom": "2024-07",
+        "til": null
+      },
+      "sjablon": "FORHØYET_BARNETRYGD_BELØP",
+      "verdi": 1766.0
+    }
+  },
+  {
+    "type": "SJABLON_SJABLONTALL",
+    "referanse": "sjablon_OrdinærBarnetrygdBeløp_202407",
+    "gjelderReferanse": null,
+    "grunnlagsreferanseListe": [],
+    "innhold": {
+      "periode": {
+        "fom": "2024-07",
+        "til": null
+      },
+      "sjablon": "ORDINÆR_BARNETRYGD_BELØP",
+      "verdi": 1510.0
+    }
+  },
+  {
+    "type": "SJABLON_FORBRUKSUTGIFTER",
+    "referanse": "sjablon_SJABLON_FORBRUKSUTGIFTER_202407_10",
+    "gjelderReferanse": null,
+    "grunnlagsreferanseListe": [],
+    "innhold": {
+      "periode": {
+        "fom": "2024-07",
+        "til": null
+      },
+      "alderTom": 10,
+      "beløpForbruk": 6385.0
+    }
+  }
+]

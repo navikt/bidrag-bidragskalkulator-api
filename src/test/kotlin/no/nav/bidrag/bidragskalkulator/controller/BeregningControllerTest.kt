@@ -42,7 +42,7 @@ internal class BeregningControllerTest @Autowired constructor(
         )
 
         every { beregningService.beregnBarnebidrag(request) } returns BeregningsresultatDto(resultater = listOf(
-            BeregningsresultatBarnDto(sum = BigDecimal(100), barnetsAlder = request.barn.first().alder)
+            BeregningsresultatBarnDto(sum = BigDecimal(100), barnetsAlder = request.barn.first().alder, underholdskostnad = BigDecimal(8471))
         ));
 
 
