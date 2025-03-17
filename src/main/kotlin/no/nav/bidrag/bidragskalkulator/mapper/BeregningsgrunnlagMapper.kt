@@ -41,7 +41,7 @@ class BeregningsgrunnlagMapper {
                     periode = beregningsperiode,
                     søknadsbarnReferanse = "Person_Søknadsbarn_$index",
                     opphørSistePeriode = false,
-                    stønadstype = Stønadstype.BIDRAG,
+                    stønadstype = if(søknadsbarn.alder > 18)  Stønadstype.BIDRAG18AAR else Stønadstype.BIDRAG,
                     grunnlagListe = lagGrunnlagsliste(søknadsbarn, dto, "Person_Søknadsbarn_$index")
                 )
             )
@@ -72,9 +72,9 @@ class BeregningsgrunnlagMapper {
             //TODO: bruk riktig verdi for gjelderReferanse som sier bosted til barn
             lagBostatusgrunnlag(
                 "Bostatus_Søknadsbarn",
-                Bostatuskode.ALENE,
+                Bostatuskode.IKKE_MED_FORELDER,
                 søknadsbarnReferanse,
-                BIDRAGSMOTTAKER_REFERANSE
+                BIDRAGSPLIKTIG_REFERANSE
             ),
             lagSamværsgrunnlag(søknadsbarn, søknadsbarnReferanse, BIDRAGSPLIKTIG_REFERANSE)
         )

@@ -36,8 +36,7 @@ data class BarnDto(
 ){
     @JsonIgnore
     @Schema(hidden = true) // 🚀 Hides from Swagger
-    fun getEstimertFødselsdato(): LocalDate =
-        LocalDate.parse("${YearMonth.now().minusYears(alder.toLong()).format(DateTimeFormatter.ofPattern("yyyy-MM"))}-01")
+    fun getEstimertFødselsdato(): LocalDate = LocalDate.now().minusYears(alder.toLong())
 }
 
 @Schema(description = "Modellen brukes til å beregne barnebidrag")
