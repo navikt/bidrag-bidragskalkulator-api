@@ -1,0 +1,11 @@
+{
+  "inntektForelder1": 50000.0,
+  "inntektForelder2": 60000.0,
+  "barn": [
+    {
+      "alder": 19,
+      "samværsklasse": "SAMVÆRSKLASSE_4",
+      "bidragstype": "PLIKTIG"
+    }
+  ]
+}

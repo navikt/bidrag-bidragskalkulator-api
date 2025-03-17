@@ -2,6 +2,7 @@ package no.nav.bidrag.bidragskalkulator.mapper
 
 import no.nav.bidrag.bidragskalkulator.dto.BeregningRequestDto
 import no.nav.bidrag.bidragskalkulator.utils.JsonUtils
+import no.nav.bidrag.domene.enums.vedtak.Stønadstype
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -46,6 +47,16 @@ class BeregningsgrunnlagMapperTest {
         // barnsreferanse, bidragspliktigsreferanse, bidragsmottakersreferanse, bidragspliktig inntekt,
         // bidragsmottaker inntekt, barn inntekt, samværsklasse, bidragspliktig bostatus, barn bostatus
         assertEquals(9, result.first().grunnlag.grunnlagListe.size, "Forventet 9 grunnlagselementer")
+    }
+
+    @Test
+    fun `skal sette stønadstype til BIDRAG18AAR for barn over 18`() {
+        val beregningRequest: BeregningRequestDto = JsonUtils.readJsonFile("/barnebidrag/beregning_barn_over_18.json")
+
+        val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(beregningRequest)
+
+        assertEquals(1, result.size, "Forventet én beregning")
+        assertEquals(Stønadstype.BIDRAG18AAR, result.first().grunnlag.stønadstype, "Stønadstype skal være BIDRAG18AAR for barn over 18")
     }
 
     private fun assertBarnetsAlderOgReferanse(
