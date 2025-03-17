@@ -13,7 +13,6 @@ import no.nav.bidrag.domene.enums.vedtak.Stønadstype
 import no.nav.bidrag.domene.tid.ÅrMånedsperiode
 import no.nav.bidrag.transport.behandling.beregning.felles.BeregnGrunnlag
 import no.nav.bidrag.transport.behandling.felles.grunnlag.*
-import org.slf4j.LoggerFactory.getLogger
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
 import java.time.YearMonth
