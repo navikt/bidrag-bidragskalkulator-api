@@ -39,7 +39,7 @@ class BeregningsgrunnlagMapper {
                 grunnlag = BeregnGrunnlag(
                     periode = beregningsperiode,
                     søknadsbarnReferanse = "Person_Søknadsbarn_$index",
-                    opphørSistePeriode = false,
+                    opphørSistePeriode = if(søknadsbarn.alder > 18) true else false,
                     stønadstype = if(søknadsbarn.alder > 18)  Stønadstype.BIDRAG18AAR else Stønadstype.BIDRAG,
                     grunnlagListe = lagGrunnlagsliste(søknadsbarn, dto, "Person_Søknadsbarn_$index")
                 )
@@ -95,7 +95,7 @@ class BeregningsgrunnlagMapper {
             type = Grunnlagstype.INNTEKT_RAPPORTERING_PERIODE,
             innhold = objectMapper.valueToTree(
                 InntektsrapporteringPeriode(
-                    periode = ÅrMånedsperiode(YearMonth.now(), YearMonth.now().plusMonths(2)),
+                    periode = ÅrMånedsperiode(YearMonth.now(), null),
                     inntektsrapportering = Inntektsrapportering.SAKSBEHANDLER_BEREGNET_INNTEKT,
                     beløp = beløp,
                     manueltRegistrert = true,
@@ -113,7 +113,7 @@ class BeregningsgrunnlagMapper {
                 (gjelderReferanse ?: gjelderBarnReferanse)?.let {
                     BostatusPeriode(
                         bostatus = bostatus,
-                        periode = ÅrMånedsperiode(YearMonth.now(), YearMonth.now().plusMonths(2)),
+                        periode = ÅrMånedsperiode(YearMonth.now(), null),
                         relatertTilPart = it,
                         manueltRegistrert = true
                     )
@@ -129,7 +129,7 @@ class BeregningsgrunnlagMapper {
             type = Grunnlagstype.SAMVÆRSPERIODE,
             innhold = objectMapper.valueToTree(
                 SamværsperiodeGrunnlag(
-                    periode = ÅrMånedsperiode(YearMonth.now(), YearMonth.now().plusMonths(2)),
+                    periode = ÅrMånedsperiode(YearMonth.now(), null),
                     samværsklasse = søknadsbarn.samværsklasse,
                     manueltRegistrert = true
                 )
