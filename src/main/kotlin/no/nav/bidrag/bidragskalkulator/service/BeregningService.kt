@@ -11,6 +11,7 @@ import no.nav.bidrag.transport.behandling.felles.grunnlag.*
 import org.slf4j.LoggerFactory.getLogger
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
+import java.math.RoundingMode
 
 @Service
 class BeregningService(
@@ -30,7 +31,9 @@ class BeregningService(
                 .sumOf { it.resultat.beløp ?: BigDecimal.ZERO }
 
             BeregningsresultatBarnDto(
-                sum = beregnetSum,
+                sum = beregnetSum.divide(BigDecimal(100))
+                    .setScale(0, RoundingMode.HALF_UP)
+                    .multiply(BigDecimal(100)),
                 barnetsAlder = data.barnetsAlder,
                 underholdskostnad = hentUnderholdskostnad(data.grunnlag)
             )

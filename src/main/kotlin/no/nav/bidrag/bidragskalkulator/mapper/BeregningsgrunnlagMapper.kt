@@ -39,8 +39,8 @@ class BeregningsgrunnlagMapper {
                 grunnlag = BeregnGrunnlag(
                     periode = beregningsperiode,
                     søknadsbarnReferanse = "Person_Søknadsbarn_$index",
-                    opphørSistePeriode = false,
-                    stønadstype = if(søknadsbarn.alder > 18)  Stønadstype.BIDRAG18AAR else Stønadstype.BIDRAG,
+                    opphørSistePeriode = if(søknadsbarn.alder > 18) true else false,
+                    stønadstype = if(søknadsbarn.alder > 18) Stønadstype.BIDRAG18AAR else Stønadstype.BIDRAG,
                     grunnlagListe = lagGrunnlagsliste(søknadsbarn, dto, "Person_Søknadsbarn_$index")
                 )
             )
