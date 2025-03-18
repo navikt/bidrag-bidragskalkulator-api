@@ -33,7 +33,10 @@ data class BarnDto(
     val bidragstype: BidragsType
 ){
     @JsonIgnore
-    @Schema(hidden = true) // 🚀 Hides from Swagger
+    @Schema(hidden = true) // Hides from Swagger
+    //Når barnet har alder = 15, blir fødselsmåneden alltid satt til juli, uavhengig av den faktiske fødselsdatoen (usikkert hvor denne regelen stammer fra).
+    // Dette betyr at barnet ikke anses som 15 år før juli.
+    // I alle beregningsperioder før juli vil barnet derfor fortsatt regnes som 14 år.
     fun getEstimertFødselsdato(): LocalDate = LocalDate.now().minusYears(alder.toLong())
 }
 
