@@ -9,8 +9,6 @@ import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.Max
 import no.nav.bidrag.domene.enums.beregning.Samværsklasse
 import java.time.LocalDate
-import java.time.YearMonth
-import java.time.format.DateTimeFormatter
 
 @Schema(description = "Type bidrag")
 enum class BidragsType {
