@@ -9,8 +9,6 @@ import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.Max
 import no.nav.bidrag.domene.enums.beregning.Samværsklasse
 import java.time.LocalDate
-import java.time.YearMonth
-import java.time.format.DateTimeFormatter
 
 @Schema(description = "Type bidrag")
 enum class BidragsType {
@@ -36,8 +34,7 @@ data class BarnDto(
 ){
     @JsonIgnore
     @Schema(hidden = true) // 🚀 Hides from Swagger
-    fun getEstimertFødselsdato(): LocalDate =
-        LocalDate.parse("${YearMonth.now().minusYears(alder.toLong()).format(DateTimeFormatter.ofPattern("yyyy-MM"))}-01")
+    fun getEstimertFødselsdato(): LocalDate = LocalDate.now().minusYears(alder.toLong())
 }
 
 @Schema(description = "Modellen brukes til å beregne barnebidrag")

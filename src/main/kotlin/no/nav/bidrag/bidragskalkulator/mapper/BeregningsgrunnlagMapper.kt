@@ -13,7 +13,6 @@ import no.nav.bidrag.domene.enums.vedtak.Stønadstype
 import no.nav.bidrag.domene.tid.ÅrMånedsperiode
 import no.nav.bidrag.transport.behandling.beregning.felles.BeregnGrunnlag
 import no.nav.bidrag.transport.behandling.felles.grunnlag.*
-import org.slf4j.LoggerFactory.getLogger
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
 import java.time.YearMonth
@@ -41,7 +40,7 @@ class BeregningsgrunnlagMapper {
                     periode = beregningsperiode,
                     søknadsbarnReferanse = "Person_Søknadsbarn_$index",
                     opphørSistePeriode = false,
-                    stønadstype = Stønadstype.BIDRAG,
+                    stønadstype = if(søknadsbarn.alder > 18)  Stønadstype.BIDRAG18AAR else Stønadstype.BIDRAG,
                     grunnlagListe = lagGrunnlagsliste(søknadsbarn, dto, "Person_Søknadsbarn_$index")
                 )
             )
@@ -72,9 +71,9 @@ class BeregningsgrunnlagMapper {
             //TODO: bruk riktig verdi for gjelderReferanse som sier bosted til barn
             lagBostatusgrunnlag(
                 "Bostatus_Søknadsbarn",
-                Bostatuskode.ALENE,
+                Bostatuskode.IKKE_MED_FORELDER,
                 søknadsbarnReferanse,
-                BIDRAGSMOTTAKER_REFERANSE
+                BIDRAGSPLIKTIG_REFERANSE
             ),
             lagSamværsgrunnlag(søknadsbarn, søknadsbarnReferanse, BIDRAGSPLIKTIG_REFERANSE)
         )
@@ -96,7 +95,7 @@ class BeregningsgrunnlagMapper {
             type = Grunnlagstype.INNTEKT_RAPPORTERING_PERIODE,
             innhold = objectMapper.valueToTree(
                 InntektsrapporteringPeriode(
-                    periode = ÅrMånedsperiode(YearMonth.now(), YearMonth.now().plusMonths(2)),
+                    periode = ÅrMånedsperiode(YearMonth.now(), null),
                     inntektsrapportering = Inntektsrapportering.SAKSBEHANDLER_BEREGNET_INNTEKT,
                     beløp = beløp,
                     manueltRegistrert = true,
@@ -114,7 +113,7 @@ class BeregningsgrunnlagMapper {
                 (gjelderReferanse ?: gjelderBarnReferanse)?.let {
                     BostatusPeriode(
                         bostatus = bostatus,
-                        periode = ÅrMånedsperiode(YearMonth.now(), YearMonth.now().plusMonths(2)),
+                        periode = ÅrMånedsperiode(YearMonth.now(), null),
                         relatertTilPart = it,
                         manueltRegistrert = true
                     )
@@ -130,7 +129,7 @@ class BeregningsgrunnlagMapper {
             type = Grunnlagstype.SAMVÆRSPERIODE,
             innhold = objectMapper.valueToTree(
                 SamværsperiodeGrunnlag(
-                    periode = ÅrMånedsperiode(YearMonth.now(), YearMonth.now().plusMonths(2)),
+                    periode = ÅrMånedsperiode(YearMonth.now(), null),
                     samværsklasse = søknadsbarn.samværsklasse,
                     manueltRegistrert = true
                 )
