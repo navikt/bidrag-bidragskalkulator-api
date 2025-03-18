@@ -4,8 +4,8 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 group = "com.github.navikt"
 version = "0.0.1-SNAPSHOT"
 
-val bidragBeregnFellesVersion = "2025.02.25.153116"
-val bidragFellesVersion = "2025.02.25.075650"
+val bidragBeregnFellesVersion = "2025.03.17.135801"
+val bidragFellesVersion = "2025.03.14.125946"
 val kotlinLoggingJvmVersion = "7.0.3"
 val springDocWebmvcVersion = "2.8.5"
 val mockkVersion = "4.0.2"
