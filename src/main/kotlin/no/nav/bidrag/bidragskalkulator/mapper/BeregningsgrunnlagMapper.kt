@@ -69,7 +69,7 @@ class BeregningsgrunnlagMapper {
             lagInntektsgrunnlag("Inntekt_$søknadsbarnReferanse", BigDecimal.ZERO, søknadsbarnReferanse),
             //TODO: bruk riktig verdi for gjelderReferanse som sier bosted til barn
             lagBostatusgrunnlag(
-                "Bostatus_Søknadsbarn",
+                "Bostatus_" + søknadsbarnReferanse,
                 Bostatuskode.IKKE_MED_FORELDER,
                 søknadsbarnReferanse,
                 BIDRAGSPLIKTIG_REFERANSE
