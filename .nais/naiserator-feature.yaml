@@ -12,6 +12,11 @@ spec:
      - https://bidragskalkulator-api-feature.intern.dev.nav.no
   image: {{ image }}
   port: 8080
+  azure:
+    application:
+      enabled: true
+  tokenx:
+    enabled: true
   replicas:
     max: 2
     min: 2
