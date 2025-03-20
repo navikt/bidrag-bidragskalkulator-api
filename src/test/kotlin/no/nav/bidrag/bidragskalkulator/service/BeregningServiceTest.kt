@@ -60,6 +60,7 @@ class BeregningServiceTest {
             val grunnlagOgAlder = beregningRequest.barn.mapIndexed { index, barnDto ->
                 GrunnlagOgAlder(
                     barnetsAlder = barnDto.alder,
+                    bidragsType = barnDto.bidragstype,
                     grunnlag = BeregnGrunnlag(
                         periode = ÅrMånedsperiode(YearMonth.now(), null),
                         søknadsbarnReferanse = "Person_Søknadsbarn_$index",
@@ -122,6 +123,7 @@ class BeregningServiceTest {
         val grunnlagOgAlder = beregningRequest.barn.mapIndexed { index, barnDto ->
             GrunnlagOgAlder(
                 barnetsAlder = barnDto.alder,
+                bidragsType = barnDto.bidragstype,
                 grunnlag = BeregnGrunnlag(
                     periode = ÅrMånedsperiode(YearMonth.now(), YearMonth.now().plusMonths(1)),
                     søknadsbarnReferanse = "Person_Søknadsbarn_$index",

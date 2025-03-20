@@ -43,7 +43,7 @@ internal class BeregningControllerTest @Autowired constructor(
         )
 
         every { beregningService.beregnBarnebidrag(request) } returns BeregningsresultatDto(resultater = listOf(
-            BeregningsresultatBarnDto(sum = BigDecimal(100), barnetsAlder = request.barn.first().alder, underholdskostnad = BigDecimal(8471))
+            BeregningsresultatBarnDto(sum = BigDecimal(100), barnetsAlder = request.barn.first().alder, underholdskostnad = BigDecimal(8471), bidragstype = request.barn.first().bidragstype)
         ));
 
 
@@ -122,7 +122,7 @@ internal class BeregningControllerTest @Autowired constructor(
         )
 
         every { beregningService.beregnBarnebidrag(request) } returns BeregningsresultatDto(resultater = listOf(
-            BeregningsresultatBarnDto(sum = BigDecimal(100), barnetsAlder = request.barn.first().alder, underholdskostnad = BigDecimal(8471))
+            BeregningsresultatBarnDto(sum = BigDecimal(100), barnetsAlder = request.barn.first().alder, underholdskostnad = BigDecimal(8471), bidragstype = request.barn.first().bidragstype)
         ))
 
         mockMvc.perform(
@@ -145,7 +145,7 @@ internal class BeregningControllerTest @Autowired constructor(
         )
 
         every { beregningService.beregnBarnebidrag(request) } returns BeregningsresultatDto(resultater = listOf(
-            BeregningsresultatBarnDto(sum = BigDecimal(100), barnetsAlder = request.barn.first().alder, underholdskostnad = BigDecimal(8471))
+            BeregningsresultatBarnDto(sum = BigDecimal(100), barnetsAlder = request.barn.first().alder, underholdskostnad = BigDecimal(8471), bidragstype = request.barn.first().bidragstype)
         ))
 
         mockMvc.perform(
