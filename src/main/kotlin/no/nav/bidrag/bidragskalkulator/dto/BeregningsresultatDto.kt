@@ -16,5 +16,7 @@ data class BeregningsresultatBarnDto(
     @Schema(description = "Alder på barnet som beregningen gjelder for", example = "10")
     val barnetsAlder: Int,
     @Schema(description = "Underholdskostnad til barnet, gruppert etter aldersintervall (0-5, 6-10, 11-14, 15+)", example = "4738")
-    val underholdskostnad: BigDecimal
+    val underholdskostnad: BigDecimal,
+    @Schema(description = "Typen bidrag – man skal betale eller motta bidrag", example = "PLIKTIG")
+    val bidragstype: BidragsType,
 )

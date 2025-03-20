@@ -35,7 +35,8 @@ class BeregningService(
                     .setScale(0, RoundingMode.HALF_UP)
                     .multiply(BigDecimal(100)),
                 barnetsAlder = data.barnetsAlder,
-                underholdskostnad = hentUnderholdskostnad(data.grunnlag)
+                underholdskostnad = hentUnderholdskostnad(data.grunnlag),
+                bidragstype = data.bidragsType,
             )
         }.toList()
         
