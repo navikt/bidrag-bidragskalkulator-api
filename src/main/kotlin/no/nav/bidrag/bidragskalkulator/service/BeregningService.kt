@@ -25,7 +25,7 @@ class BeregningService(
         val beregningsgrunnlag = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(beregningRequest)
 
         val start = System.currentTimeMillis()
-        val beregningsresultat = beregningsgrunnlag.map { data ->
+        val beregningsresultat = beregningsgrunnlag.parallelStream().map { data ->
             val beregnetSum = beregnBarnebidragApi.beregn(data.grunnlag)
                 .beregnetBarnebidragPeriodeListe
                 .sumOf { it.resultat.beløp ?: BigDecimal.ZERO }
@@ -37,7 +37,8 @@ class BeregningService(
                 barnetsAlder = data.barnetsAlder,
                 underholdskostnad = hentUnderholdskostnad(data.grunnlag)
             )
-        }
+        }.toList()
+        
         val duration = System.currentTimeMillis() - start;
         logger.info("Beregning av ${beregningsresultat.size} barn tok $duration ms")
 
