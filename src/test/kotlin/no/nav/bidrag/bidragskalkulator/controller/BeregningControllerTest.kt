@@ -1,39 +1,81 @@
 package no.nav.bidrag.bidragskalkulator.controller
 
-import no.nav.bidrag.bidragskalkulator.dto.BarnDto
-import no.nav.bidrag.bidragskalkulator.dto.BeregningRequestDto
+
+import com.ninjasquad.springmockk.MockkBean
+import io.mockk.every
+import no.nav.bidrag.bidragskalkulator.BidragBidragskalkulatorApiApplication
+import no.nav.bidrag.bidragskalkulator.dto.*
+import no.nav.bidrag.bidragskalkulator.service.BeregningService
+import no.nav.bidrag.domene.enums.beregning.Samværsklasse
+import no.nav.security.mock.oauth2.MockOAuth2Server
+import no.nav.security.mock.oauth2.http.objectMapper
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
+import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.ninjasquad.springmockk.MockkBean
-import io.mockk.every
-import no.nav.bidrag.bidragskalkulator.dto.BeregningsresultatDto
-import no.nav.bidrag.bidragskalkulator.dto.BeregningsresultatBarnDto
-import no.nav.bidrag.bidragskalkulator.service.BeregningService
-import no.nav.bidrag.domene.enums.beregning.Samværsklasse
-import no.nav.bidrag.bidragskalkulator.dto.BidragsType
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.math.BigDecimal
+import java.util.HashMap
 
-@SpringBootTest
+@ExtendWith(SpringExtension::class)
+@SpringBootTest(classes = [BidragBidragskalkulatorApiApplication::class], webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-internal class BeregningControllerTest @Autowired constructor(
-    val mockMvc: MockMvc,
-    val objectMapper: ObjectMapper
-) {
+@ActiveProfiles("test")
+class BeregningControllerTest {
+
+    @Autowired
+    private lateinit var mockMvc: MockMvc
 
     @MockkBean
-    lateinit var beregningService: BeregningService
+    private lateinit var beregningService: BeregningService
+
+    companion object {
+        private val oAuth2Server = MockOAuth2Server()
+
+        @BeforeAll
+        @JvmStatic
+        fun beforeAll() {
+            oAuth2Server.start(65181)
+        }
+
+        @AfterAll
+        @JvmStatic
+        fun afterAll() {
+            oAuth2Server.shutdown()
+        }
+    }
+
+    private fun genereToken(): String {
+        val personident = "12345678910"
+        val claims = HashMap<String, Any>()
+        claims["idp"] = personident
+        val issuerId = "tokenx"
+        return oAuth2Server.issueToken(issuerId, personident, "aud-localhost", claims).serialize()
+    }
+
+    @Test
+    fun `skal returnere 200 OK for gyldig request`() {
+        val token = genereToken()
+
+        mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/v1/beregning/barnebidrag")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
+                .accept(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isOk)
+    }
 
     @Test
     fun `skal ta imot en gyldig request`() {
-
         val request = BeregningRequestDto(
             inntektForelder1 = 500000.0,
             inntektForelder2 = 400000.0,
@@ -46,15 +88,17 @@ internal class BeregningControllerTest @Autowired constructor(
             BeregningsresultatBarnDto(sum = BigDecimal(100), barnetsAlder = request.barn.first().alder, underholdskostnad = BigDecimal(8471))
         ));
 
-
         mockMvc.perform(
-            post("/api/v1/beregning/barnebidrag")
+            MockMvcRequestBuilders.post("/api/v1/beregning/barnebidrag")
+                .header("Authorization", genereToken())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.resultater").isNotEmpty())
     }
+
+
 
     @Test
     fun `skal returnere 400 for negativ inntekt`() {
@@ -67,7 +111,8 @@ internal class BeregningControllerTest @Autowired constructor(
         )
 
         mockMvc.perform(
-            post("/api/v1/beregning/barnebidrag")
+            MockMvcRequestBuilders.post("/api/v1/beregning/barnebidrag")
+                .header(HttpHeaders.AUTHORIZATION, genereToken())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
         )
@@ -83,8 +128,10 @@ internal class BeregningControllerTest @Autowired constructor(
             barn = emptyList()
         )
 
+
         mockMvc.perform(
-            post("/api/v1/beregning/barnebidrag")
+            MockMvcRequestBuilders.post("/api/v1/beregning/barnebidrag")
+                .header(HttpHeaders.AUTHORIZATION, genereToken())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
         )
@@ -103,7 +150,8 @@ internal class BeregningControllerTest @Autowired constructor(
         )
 
         mockMvc.perform(
-            post("/api/v1/beregning/barnebidrag")
+            MockMvcRequestBuilders.post("/api/v1/beregning/barnebidrag")
+                .header(HttpHeaders.AUTHORIZATION, genereToken())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
         )
@@ -126,7 +174,8 @@ internal class BeregningControllerTest @Autowired constructor(
         ))
 
         mockMvc.perform(
-            post("/api/v1/beregning/barnebidrag")
+            MockMvcRequestBuilders.post("/api/v1/beregning/barnebidrag")
+                .header(HttpHeaders.AUTHORIZATION, genereToken())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
         )
@@ -149,12 +198,12 @@ internal class BeregningControllerTest @Autowired constructor(
         ))
 
         mockMvc.perform(
-            post("/api/v1/beregning/barnebidrag")
+            MockMvcRequestBuilders.post("/api/v1/beregning/barnebidrag")
+                .header(HttpHeaders.AUTHORIZATION, genereToken())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.resultater").isNotEmpty())
     }
-
 }

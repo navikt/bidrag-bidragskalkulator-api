@@ -9,6 +9,7 @@ val bidragFellesVersion = "2025.03.14.125946"
 val kotlinLoggingJvmVersion = "7.0.3"
 val springDocWebmvcVersion = "2.8.5"
 val mockkVersion = "4.0.2"
+val mockOAuth2ServerVersion = "2.1.10"
 
 plugins {
     id("org.jetbrains.kotlin.plugin.spring") version "1.9.25"
@@ -30,6 +31,8 @@ dependencies {
     api("org.springframework.boot:spring-boot-starter-web")
     api("org.springframework.boot:spring-boot-starter-validation")
     api("org.springframework.boot:spring-boot-starter-security")
+    api("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
+    api("org.springframework.boot:spring-boot-starter-oauth2-client")
     api("org.jetbrains.kotlin:kotlin-reflect")
 
     //Springdoc
@@ -57,6 +60,10 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.3")
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.0")
     testImplementation("com.ninja-squad:springmockk:$mockkVersion")
+
+    testImplementation("no.nav.security:mock-oauth2-server:$mockOAuth2ServerVersion")
+    testImplementation("org.springframework.security:spring-security-test")
+    testImplementation("io.mockk:mockk:1.13.5")
 }
 
 java {

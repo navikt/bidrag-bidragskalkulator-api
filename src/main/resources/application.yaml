@@ -13,8 +13,8 @@ spring.config.activate.on-profile: local-nais
 BIDRAG_SJABLON_URL: https://bidrag-sjablon.dev-fss-pub.nais.io/bidrag-sjablon
 
 no.nav.security.jwt:
-  issuer:
+  issuers:
     tokenx:
-      discovery_url: https://tokenx.dev-gcp.nav.cloud.nais.io/.well-known/oauth-authorization-server
-      accepted_audience: dev-gcp:bidrag:bidrag-bidragskalkulator-api-feature
+      discovery_url: ${TOKEN_X_WELL_KNOWN_URL}
+      accepted_audience: ${TOKEN_X_CLIENT_ID}
 

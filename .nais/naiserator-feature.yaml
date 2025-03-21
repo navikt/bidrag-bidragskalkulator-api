@@ -41,12 +41,12 @@ spec:
       external:
         - host: bidrag-sjablon.dev-fss-pub.nais.io
   liveness:
-    path: /api/internal/isalive
+    path: /actuator/health
     initialDelay: 15
     timeout: 1
     periodSeconds: 5
     failureThreshold: 10
   readiness:
-    path: /api/internal/isready
+    path: /actuator/health
     initialDelay: 15
     timeout: 1
