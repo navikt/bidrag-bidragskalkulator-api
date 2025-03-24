@@ -15,6 +15,6 @@ BIDRAG_SJABLON_URL: https://bidrag-sjablon.dev-fss-pub.nais.io/bidrag-sjablon
 no.nav.security.jwt:
   issuers:
     tokenx:
-      discovery_url: ${TOKEN_X_WELL_KNOWN_URL}
+      discoveryurl: ${TOKEN_X_WELL_KNOWN_URL}
       accepted_audience: ${TOKEN_X_CLIENT_ID}
 

@@ -4,5 +4,5 @@ TOKEN_X_WELL_KNOWN_URL: http://localhost:65181/tokenx/.well-known/openid-configu
 no.nav.security.jwt:
   issuers:
     tokenx:
-      discovery_url: ${TOKEN_X_WELL_KNOWN_URL}
+      discoveryurl: ${TOKEN_X_WELL_KNOWN_URL}
       accepted_audience: aud-localhost
