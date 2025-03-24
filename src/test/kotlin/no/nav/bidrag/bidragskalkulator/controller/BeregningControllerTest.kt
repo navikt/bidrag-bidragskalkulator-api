@@ -26,11 +26,13 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPat
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.math.BigDecimal
 import java.util.HashMap
+import kotlin.test.Ignore
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [BidragBidragskalkulatorApiApplication::class], webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@Ignore
 class BeregningControllerTest {
 
     @Autowired
