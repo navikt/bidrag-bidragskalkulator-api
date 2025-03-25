@@ -16,11 +16,11 @@ import org.springframework.context.annotation.Import
 
 @OpenAPIDefinition(
     info = io.swagger.v3.oas.annotations.info.Info(title = "bidrag-bidragskalkulator-api", version = "v1"),
-    security = [SecurityRequirement(name = "bearer-key")],
+    security = [SecurityRequirement(name = SecurityConstants.BEARER_KEY)],
 )
 @io.swagger.v3.oas.annotations.security.SecurityScheme(
     bearerFormat = "JWT",
-    name = "bearer-key",
+    name = SecurityConstants.BEARER_KEY,
     scheme = "bearer",
     type = SecuritySchemeType.HTTP,
 )
@@ -43,4 +43,9 @@ class BeregnBarnebidragConfig {
                 .addSchemas("Samværsklasse", samværsklasseSchema)
         }
     }
+}
+
+object SecurityConstants {
+    const val BEARER_KEY = "bearer-key"
+    const val TOKENX = "tokenx"
 }
