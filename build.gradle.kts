@@ -10,6 +10,7 @@ val kotlinLoggingJvmVersion = "7.0.3"
 val springDocWebmvcVersion = "2.8.5"
 val mockkVersion = "4.0.2"
 val mockOAuth2ServerVersion = "2.1.10"
+val tokenSupportVersion = "5.0.20"
 
 plugins {
     id("org.jetbrains.kotlin.plugin.spring") version "1.9.25"
@@ -47,6 +48,8 @@ dependencies {
     api("no.nav.bidrag:bidrag-commons-felles:${bidragFellesVersion}"){
         exclude(group = "io.github.oshai", module = "kotlin-logging-jvm")
     }
+    api("no.nav.security:token-validation-spring:$tokenSupportVersion")
+
 
     api("io.github.oshai:kotlin-logging-jvm:${kotlinLoggingJvmVersion}")
     api("com.fasterxml.jackson.module:jackson-module-kotlin:2.18.2")
