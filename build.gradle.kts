@@ -64,9 +64,9 @@ dependencies {
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.0")
     testImplementation("com.ninja-squad:springmockk:$mockkVersion")
 
+    testImplementation("no.nav.security:token-validation-spring-test:$tokenSupportVersion")
     testImplementation("no.nav.security:mock-oauth2-server:$mockOAuth2ServerVersion")
     testImplementation("org.springframework.security:spring-security-test")
-    testImplementation("io.mockk:mockk:1.13.5")
 }
 
 java {
