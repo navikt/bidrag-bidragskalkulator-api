@@ -39,3 +39,4 @@ out/
 
 ### Kotlin ###
 .kotlin
+src/test/resources/application-local-nais.properties

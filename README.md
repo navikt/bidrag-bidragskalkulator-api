@@ -48,6 +48,16 @@ Bygg og start applikasjonen med **local profilen** ved å kjøre:
 
 For å kjøre applikasjonen lokalt mot sky, følg disse stegene:  
 
+#### 🖥️ Alternativ 1: Kjøre skript
+
+```bash
+./local-cloud-run.sh
+```
+
+For å hente token se under på punkt 4. Generer token
+
+#### 🖥️ Alternativ 2: Manuell kjøring av applikasjon
+
 ### 1. Konfigurer kubectl til `dev-gcp`
 
 Åpne terminalen i rotmappen til `bidrag-bidragskalkulator-api` og konfigurer kubectl til å bruke `dev-gcp`-klusteret:
