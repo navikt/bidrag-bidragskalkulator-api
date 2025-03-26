@@ -25,6 +25,8 @@ spec:
       cpu: 50m
       memory: 384Mi
   env:
+    - name: SPRING_PROFILES_ACTIVE
+      value: local-nais
     - name: BIDRAG_SJABLON_URL
       value: https://bidrag-sjablon.dev-fss-pub.nais.io/bidrag-sjablon
   secureLogs:
