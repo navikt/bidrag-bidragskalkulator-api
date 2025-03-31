@@ -40,3 +40,4 @@ out/
 ### Kotlin ###
 .kotlin
 src/test/resources/application-local-nais.properties
+src/main/resources/application-local-nais.properties

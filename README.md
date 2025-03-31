@@ -50,11 +50,11 @@ For å kjøre applikasjonen lokalt mot sky, følg disse stegene:
 
 #### 🖥️ Alternativ 1: Kjøre skript
 
+Skripten vil sette nødvendige miljøvariabler, starte applikasjonen, og deretter åpne både Swagger og TokenX generator (se punkt 4. Generer token nedenfor).
+
 ```bash
 ./local-cloud-run.sh
 ```
-
-For å hente token se under på punkt 4. Generer token
 
 #### 🖥️ Alternativ 2: Manuell kjøring av applikasjon
 
