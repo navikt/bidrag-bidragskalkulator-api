@@ -10,12 +10,29 @@ import jakarta.validation.Valid
 import no.nav.bidrag.bidragskalkulator.config.SecurityConstants
 import no.nav.bidrag.bidragskalkulator.service.BeregningService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
+import no.nav.security.token.support.core.api.Unprotected
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/v1/beregning")
 @ProtectedWithClaims(issuer = SecurityConstants.TOKENX)
 class BeregningController(private val beregningService: BeregningService) {
+
+    @Operation(summary = "Beregner barnebidrag",
+        description = "Beregner barnebidrag basert på inntekten til foreldre og barnets alder. Returnerer 200 ved vellykket beregning.")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "Beregning fullført"),
+            ApiResponse(responseCode = "400", description = "Ugyldig forespørsel - mangler eller feil i inputdata"),
+            ApiResponse(responseCode = "500", description = "Intern serverfeil")
+        ]
+    )
+    @PostMapping("/barnebidrag")
+    @Unprotected
+    fun beregnBarnebidrag(@Valid @RequestBody request: BeregningRequestDto): BeregningsresultatDto {
+        return beregningService.beregnBarnebidrag(request)
+    }
+
 
     @Operation(summary = "Beregner barnebidrag",
         description = "Beregner barnebidrag basert på inntekten til foreldre og barnets alder. Returnerer 200 ved vellykket beregning.",
@@ -27,8 +44,8 @@ class BeregningController(private val beregningService: BeregningService) {
             ApiResponse(responseCode = "500", description = "Intern serverfeil")
         ]
     )
-    @PostMapping("/barnebidrag")
-    fun beregnBarnebidrag(@Valid @RequestBody request: BeregningRequestDto): BeregningsresultatDto {
+    @PostMapping("/beskyttet/barnebidrag")
+    fun beregnBarnebidragBeskyttet(@Valid @RequestBody request: BeregningRequestDto): BeregningsresultatDto {
         return beregningService.beregnBarnebidrag(request)
     }
 }
