@@ -4,6 +4,8 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
+**/application-local-nais.properties
+
 ### STS ###
 .apt_generated
 .classpath
@@ -37,3 +39,5 @@ out/
 
 ### Kotlin ###
 .kotlin
+src/test/resources/application-local-nais.properties
+src/main/resources/application-local-nais.properties
