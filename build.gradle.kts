@@ -9,8 +9,7 @@ val bidragFellesVersion = "2025.03.14.125946"
 val kotlinLoggingJvmVersion = "7.0.3"
 val springDocWebmvcVersion = "2.8.5"
 val mockkVersion = "4.0.2"
-val mockOAuth2ServerVersion = "2.1.10"
-val tokenSupportVersion = "5.0.20"
+val tokenSupportVersion = "5.0.19"
 
 plugins {
     id("org.jetbrains.kotlin.plugin.spring") version "1.9.25"
@@ -65,7 +64,6 @@ dependencies {
     testImplementation("com.ninja-squad:springmockk:$mockkVersion")
 
     testImplementation("no.nav.security:token-validation-spring-test:$tokenSupportVersion")
-    testImplementation("no.nav.security:mock-oauth2-server:$mockOAuth2ServerVersion")
     testImplementation("org.springframework.security:spring-security-test")
 }
 
