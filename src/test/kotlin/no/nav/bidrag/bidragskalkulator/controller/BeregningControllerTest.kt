@@ -41,6 +41,7 @@ class BeregningControllerTest {
     @BeforeEach
     fun setupMocks() {
         every { beregningService.beregnBarnebidrag(mockGyldigRequest) } returns mockRespons
+
     }
 
     @Test
@@ -97,7 +98,7 @@ class BeregningControllerTest {
 
         val mockRespons = BeregningsresultatDto(
             resultater = listOf(
-                BeregningsresultatBarnDto(sum = BigDecimal(100), barnetsAlder = mockGyldigRequest.barn.first().alder, underholdskostnad = BigDecimal(8471))
+                BeregningsresultatBarnDto(sum = BigDecimal(100), barnetsAlder = mockGyldigRequest.barn.first().alder, underholdskostnad = BigDecimal(8471), bidragstype = mockGyldigRequest.barn.first().bidragstype)
             )
         )
     }

@@ -36,6 +36,7 @@ class BeregningsgrunnlagMapper {
         return dto.barn.mapIndexed { index, søknadsbarn ->
             GrunnlagOgAlder(
                 barnetsAlder = søknadsbarn.alder,
+                bidragsType = søknadsbarn.bidragstype,
                 grunnlag = BeregnGrunnlag(
                     periode = beregningsperiode,
                     søknadsbarnReferanse = "Person_Søknadsbarn_$index",
@@ -68,7 +69,7 @@ class BeregningsgrunnlagMapper {
             ),
             lagInntektsgrunnlag("Inntekt_$søknadsbarnReferanse", BigDecimal.ZERO, søknadsbarnReferanse),
             lagBostatusgrunnlag(
-                "Bostatus_" + søknadsbarnReferanse,
+                "Bostatus_$søknadsbarnReferanse",
                 Bostatuskode.IKKE_MED_FORELDER,
                 søknadsbarnReferanse,
                 BIDRAGSPLIKTIG_REFERANSE
@@ -139,5 +140,6 @@ class BeregningsgrunnlagMapper {
 
 data class GrunnlagOgAlder(
     val barnetsAlder: Int,
+    val bidragsType: BidragsType,
     val grunnlag: BeregnGrunnlag
 )
