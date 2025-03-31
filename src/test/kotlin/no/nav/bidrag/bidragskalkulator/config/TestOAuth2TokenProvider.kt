@@ -5,8 +5,10 @@ import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Profile
 
 @Configuration
+@Profile("test")
 class TestOAuth2TokenProvider(private val mockOAuth2Server: MockOAuth2Server) {
 
     private val clientId = "aud-localhost"

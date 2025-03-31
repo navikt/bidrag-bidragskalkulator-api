@@ -10,6 +10,9 @@ val kotlinLoggingJvmVersion = "7.0.3"
 val springDocWebmvcVersion = "2.8.5"
 val mockkVersion = "4.0.2"
 val tokenSupportVersion = "5.0.19"
+val jacksonVersion = "2.18.2"
+val junitJupiterVersion = "5.9.3"
+val mockitoKotlinVersion = "5.2.0"
 
 plugins {
     id("org.jetbrains.kotlin.plugin.spring") version "1.9.25"
@@ -50,19 +53,16 @@ dependencies {
     api("no.nav.security:token-validation-spring:$tokenSupportVersion")
 
 
-    api("io.github.oshai:kotlin-logging-jvm:${kotlinLoggingJvmVersion}")
-    api("com.fasterxml.jackson.module:jackson-module-kotlin:2.18.2")
-    api("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.18.2")
+    api("io.github.oshai:kotlin-logging-jvm:$kotlinLoggingJvmVersion")
+    api("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
+    api("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testImplementation("org.mockito:mockito-core:5.7.0")
-    testImplementation("org.mockito:mockito-inline:5.2.0")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.9.3")
-    testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.0")
+    testImplementation("org.junit.jupiter:junit-jupiter:$junitJupiterVersion")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion")
     testImplementation("com.ninja-squad:springmockk:$mockkVersion")
-
     testImplementation("no.nav.security:token-validation-spring-test:$tokenSupportVersion")
     testImplementation("org.springframework.security:spring-security-test")
 }
