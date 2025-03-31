@@ -11,7 +11,7 @@ spring.config.activate.on-profile: local
 BIDRAG_SJABLON_URL: https://bidrag-sjablon.dev-fss-pub.nais.io/bidrag-sjablon
 
 ---
-spring.config.activate.on-profile: local-nais
+spring.config.activate.on-profile: dev, local-nais
 BIDRAG_SJABLON_URL: https://bidrag-sjablon.dev-fss-pub.nais.io/bidrag-sjablon
 
 no.nav.security.jwt:

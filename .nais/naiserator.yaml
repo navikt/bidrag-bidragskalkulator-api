@@ -14,6 +14,11 @@ spec:
   {{/each}}
   image: {{ image }}
   port: 8080
+  azure:
+    application:
+      enabled: true
+  tokenx:
+    enabled: true
   replicas:
     max: 2
     min: 2
@@ -22,6 +27,10 @@ spec:
       cpu: 50m
       memory: 384Mi
   env:
+    - name: SPRING_PROFILES_ACTIVE
+      value: dev
+    - name: JAVA_TOOL_OPTIONS
+      value: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
     - name: BIDRAG_SJABLON_URL
       value: {{BIDRAG_SJABLON_URL}}
   secureLogs:
@@ -31,16 +40,19 @@ spec:
       rules:
         - application: bidrag-bidragskalkulator-v2
           namespace: bidrag
+        - application: tokenx-token-generator
+          namespace: nais
+          cluster: dev-gcp
     outbound:
       external:
         - host: {{outbound_access_host}}
   liveness:
-    path: /api/internal/isalive
+    path: /actuator/health
     initialDelay: 15
     timeout: 1
     periodSeconds: 5
     failureThreshold: 10
   readiness:
-    path: /api/internal/isready
+    path: /actuator/health
     initialDelay: 15
     timeout: 1
