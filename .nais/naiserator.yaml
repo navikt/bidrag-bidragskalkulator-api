@@ -28,7 +28,7 @@ spec:
       memory: 384Mi
   env:
     - name: SPRING_PROFILES_ACTIVE
-      value: dev
+      value: {{SPRING_PROFILES_ACTIVE}}
     - name: JAVA_TOOL_OPTIONS
       value: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
     - name: BIDRAG_SJABLON_URL

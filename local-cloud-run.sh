@@ -65,7 +65,7 @@ fi
 # 🔑 Fetch secrets and store them in the properties file
 echo "🔑 Fetching secrets..."
 kubectl exec --tty deployment/bidrag-bidragskalkulator-api -- printenv \
-  | grep -E 'TOKEN_X_WELL_KNOWN_URL|TOKEN_X_CLIENT_ID' \
+  | grep -E 'TOKEN_X_WELL_KNOWN_URL|TOKEN_X_CLIENT_ID|BIDRAG_SJABLON_URL' \
   > "$SECRETS_FILE"
 
 echo "✅ Secrets saved to $SECRETS_FILE"
