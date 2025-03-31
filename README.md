@@ -80,7 +80,7 @@ For å hente nødvendige secrets, kjør følgende kommando:
 
 ```bash
 kubectl exec --tty deployment/bidrag-bidragskalkulator-api -- printenv \
-  | grep -E 'TOKEN_X_WELL_KNOWN_URL|TOKEN_X_CLIENT_ID' \
+  | grep -E 'TOKEN_X_WELL_KNOWN_URL|TOKEN_X_CLIENT_ID|BIDRAG_SJABLON_URL' \
   > src/test/resources/application-local-nais.properties
 ```
 
