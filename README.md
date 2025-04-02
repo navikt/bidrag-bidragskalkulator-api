@@ -101,7 +101,7 @@ Du kan starte applikasjonen på to måter:
 
 For å generere et gyldig token, gå til:
 
-🔗 https://tokenx-token-generator.intern.dev.nav.no/api/obo?aud=<audience>
+🔗 https://tokenx-token-generator.intern.dev.nav.no/api/obo?aud=`<audience>`
 
 Erstatt <audience> med verdien av `TOKEN_X_CLIENT_ID` fra application-local-nais.properties (steg 2).
 Eller settes til:
