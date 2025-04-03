@@ -5,53 +5,61 @@ metadata:
   name: bidrag-bidragskalkulator-api
   namespace: bidrag
   labels:
-      team: bidrag
+    team: bidrag
 
 spec:
   ingresses:
-  {{#each ingresses as |url|}}
-     - {{url}}
-  {{/each}}
+    {{#each ingresses}}
+    - {{this}}
+    {{/each}}
+
   image: {{ image }}
   port: 8080
+
   azure:
     application:
       enabled: true
+
   tokenx:
     enabled: true
-  replicas:
-    max: 2
-    min: 2
+
+  replicas: 2
+
   resources:
     requests:
       cpu: 50m
       memory: 384Mi
+
   env:
-    - name: SPRING_PROFILES_ACTIVE
-      value: {{SPRING_PROFILES_ACTIVE}}
-    - name: JAVA_TOOL_OPTIONS
-      value: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
-    - name: BIDRAG_SJABLON_URL
-      value: {{BIDRAG_SJABLON_URL}}
+    {{#each env}}
+    - name: {{@key}}
+      value: "{{this}}"
+    {{/each}}
+
   secureLogs:
     enabled: true
+
   accessPolicy:
     inbound:
       rules:
-        - application: bidrag-bidragskalkulator-v2
-          namespace: bidrag
-        - application: tokenx-token-generator
-          namespace: nais
-          cluster: dev-gcp
+        {{#each inbound_application}}
+        - application: "{{application}}"
+          namespace: "{{namespace}}"
+          cluster: "{{cluster}}"
+        {{/each}}
     outbound:
       external:
-        - host: {{outbound_access_host}}
+        {{#each outbound_external_host}}
+        - host: "{{this}}"
+        {{/each}}
+
   liveness:
     path: /actuator/health
     initialDelay: 15
     timeout: 1
     periodSeconds: 5
     failureThreshold: 10
+
   readiness:
     path: /actuator/health
     initialDelay: 15
