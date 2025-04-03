@@ -1,7 +1,18 @@
-outbound_access_host: bidrag-sjablon.prod-fss-pub.nais.io
 ingresses:
   - https://bidragskalkulator-api.intern.nav.no
 
-BIDRAG_SJABLON_URL: https://bidrag-sjablon.prod-fss-pub.nais.io/bidrag-sjablon
-
-SPRING_PROFILES_ACTIVE: prod
+env:
+  SPRING_PROFILES_ACTIVE: prod
+  BIDRAG_SJABLON_URL: https://bidrag-sjablon.prod-fss-pub.nais.io/bidrag-sjablon
+  BIDRAG_PERSON_URL: https://bidrag-person.prod-fss-pub.nais.io
+  BIDRAG_PERSON_SCOPE: prod-fss.bidrag.bidrag-person
+inbound_application:
+  - application: bidrag-bidragskalkulator-v2
+    namespace: bidrag
+    cluster: prod-gcp
+  - application: tokenx-token-generator
+    namespace: nais
+    cluster: prod-gcp
+outbound_external_host:
+  - bidrag-sjablon.prod-fss-pub.nais.io
+  - bidrag-person.prod-fss-pub.nais.io
