@@ -10,9 +10,6 @@ inbound_application:
   - application: bidrag-bidragskalkulator-v2
     namespace: bidrag
     cluster: prod-gcp
-  - application: tokenx-token-generator
-    namespace: nais
-    cluster: prod-gcp
 outbound_external_host:
   - bidrag-sjablon.prod-fss-pub.nais.io
   - bidrag-person.prod-fss-pub.nais.io
