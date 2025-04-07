@@ -13,6 +13,7 @@ BIDRAG_SJABLON_URL: https://bidrag-sjablon.dev-fss-pub.nais.io/bidrag-sjablon
 ---
 spring.config.activate.on-profile: prod, dev, local-nais
 BIDRAG_SJABLON_URL: ${BIDRAG_SJABLON_URL}
+NAIS_APP_NAME: bidrag-bidragskalkulator
 
 no.nav.security.jwt:
   client:
@@ -20,12 +21,12 @@ no.nav.security.jwt:
       bidrag-person:
         resource-url: ${BIDRAG_PERSON_URL}
         token-endpoint-url: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/oauth2/v2.0/token
-        grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
+        grant-type: client_credentials
         scope: api://${BIDRAG_PERSON_SCOPE}/.default
         authentication:
           client-id: ${AZURE_APP_CLIENT_ID}
           client-secret: ${AZURE_APP_CLIENT_SECRET}
-          client-auth-method: client_secret_post
+          client-auth-method: client_secret_basic
   issuer:
     tokenx:
       discoveryurl: ${TOKEN_X_WELL_KNOWN_URL}
