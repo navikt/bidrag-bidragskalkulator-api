@@ -1,6 +1,7 @@
 package no.nav.bidrag.bidragskalkulator.service
 
 import no.nav.bidrag.bidragskalkulator.consumer.BidragPersonConsumer
+import no.nav.bidrag.bidragskalkulator.exception.NoContentException
 import no.nav.bidrag.commons.security.utils.TokenUtils
 import no.nav.bidrag.commons.util.secureLogger
 import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
@@ -13,10 +14,14 @@ class PersonService(private val personConsumer: BidragPersonConsumer) {
         val personIdent: String = TokenUtils.hentBruker()
             ?: throw IllegalArgumentException("Brukerident er ikke tilgjengelig i token")
 
-        return runCatching {
-            personConsumer.hentFamilierelasjon(personIdent)
-        }.onFailure { e ->
-            secureLogger.error(e) { "Feil ved henting av familierelasjon for ident $personIdent" }
-        }.getOrNull()
+        val familierelasjon = personConsumer.hentFamilierelasjon(personIdent)
+
+        if (familierelasjon == null) {
+            secureLogger.error { "Fant ikke person med ident $personIdent" }
+            throw NoContentException("Fant ikke person med ident $personIdent")
+        }
+
+        return familierelasjon
+
     }
 }

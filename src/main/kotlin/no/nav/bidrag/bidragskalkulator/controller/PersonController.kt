@@ -6,11 +6,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import no.nav.bidrag.bidragskalkulator.config.SecurityConstants
 import no.nav.bidrag.bidragskalkulator.service.PersonService
-import no.nav.bidrag.commons.security.utils.TokenUtils
 import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
 import no.nav.security.token.support.core.api.ProtectedWithClaims
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -31,6 +28,7 @@ class PersonController(private val personService: PersonService) {
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "Familierelasjoner hentet vellykket"),
+            ApiResponse(responseCode = "204", description = "Person eksisterer ikke"),
             ApiResponse(responseCode = "400", description = "Ugyldig forespørsel - mangler eller feil i inputdata"),
             ApiResponse(responseCode = "401", description = "Uautorisert tilgang - ugyldig eller utløpt token"),
             ApiResponse(responseCode = "404", description = "Ingen familierelasjoner funnet"),
@@ -38,18 +36,7 @@ class PersonController(private val personService: PersonService) {
         ]
     )
     @GetMapping("/familierelasjon")
-    fun hentFamilierelasjon(): ResponseEntity<MotpartBarnRelasjonDto> {
-        return try {
-            val familierelasjon = personService.hentFamilierelasjon()
-            familierelasjon?.let {
-                ResponseEntity.ok(it)
-            } ?: run {
-                logger.warn("Ingen familierelasjoner funnet for pålogget bruker")
-                ResponseEntity.status(HttpStatus.NOT_FOUND).build()
-            }
-        } catch (e: Exception) {
-            logger.error("Feil ved henting av familierelasjon for pålogget bruker", e)
-            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
-        }
+    fun hentFamilierelasjon(): MotpartBarnRelasjonDto? {
+        return personService.hentFamilierelasjon()
     }
 }

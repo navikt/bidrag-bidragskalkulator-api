@@ -8,23 +8,14 @@ import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.media.Schema
 import no.nav.bidrag.beregn.barnebidrag.BeregnBarnebidragApi
 import no.nav.bidrag.commons.security.api.EnableSecurityConfiguration
-import no.nav.bidrag.commons.security.service.SecurityTokenService
 import no.nav.bidrag.commons.service.AppContext
-import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
 import no.nav.bidrag.commons.web.config.RestOperationsAzure
 import no.nav.bidrag.domene.enums.beregning.Samværsklasse
+import no.nav.security.token.support.client.spring.oauth2.EnableOAuth2Client
 import no.nav.security.token.support.spring.api.EnableJwtTokenValidation
 import org.springdoc.core.customizers.OpenApiCustomizer
-import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.web.client.RestTemplateBuilder
-import org.springframework.boot.web.client.RootUriTemplateHandler
 import org.springframework.context.annotation.*
-import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.http.client.observation.DefaultClientRequestObservationConvention
-import org.springframework.web.client.RestTemplate
-import java.time.Duration
-import java.time.temporal.ChronoUnit
 
 @OpenAPIDefinition(
     info = io.swagger.v3.oas.annotations.info.Info(title = "bidrag-bidragskalkulator-api", version = "v1"),
@@ -38,9 +29,12 @@ import java.time.temporal.ChronoUnit
 )
 @EnableJwtTokenValidation
 @Configuration
+@EnableOAuth2Client(cacheEnabled = true)
 @EnableSecurityConfiguration
 @Import(RestOperationsAzure::class, AppContext::class, BeregnBarnebidragApi::class)
 class BeregnBarnebidragConfig {
+    @Bean
+    fun clientRequestObservationConvention() = DefaultClientRequestObservationConvention()
 
     @Bean
     fun customOpenApi(): OpenApiCustomizer {
@@ -56,24 +50,6 @@ class BeregnBarnebidragConfig {
                 .addSchemas("Samværsklasse", samværsklasseSchema)
         }
     }
-
-    @Bean
-    fun clientRequestObservationConvention() = DefaultClientRequestObservationConvention()
-
-    @Bean
-    @Primary
-    fun restTemplateBuilder(restTemplateBuilder: RestTemplateBuilder): RestTemplate {
-        return restTemplateBuilder
-            .setConnectTimeout(Duration.of(30, ChronoUnit.SECONDS))
-            .setReadTimeout(Duration.of(30, ChronoUnit.SECONDS))
-            .build()  // Make sure to build the RestTemplate object after setting the timeouts
-    }
-
-    @Bean
-    fun bidragPersonClientCredentialsTokenInterceptor(securityTokenService: SecurityTokenService): ClientHttpRequestInterceptor? {
-        return securityTokenService.serviceUserAuthTokenInterceptor("bidrag-person")
-    }
-
 }
 
 object SecurityConstants {

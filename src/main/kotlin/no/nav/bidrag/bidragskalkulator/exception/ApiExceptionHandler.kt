@@ -16,4 +16,10 @@ class ApiExceptionHandler {
         }
         return ResponseEntity(mapOf("errors" to errors), HttpStatus.BAD_REQUEST)
     }
+
+    // Handle the custom NoContentException and return a 204 No Content
+    @ExceptionHandler(NoContentException::class)
+    fun handleNoContentException(ex: NoContentException): ResponseEntity<Void> {
+        return ResponseEntity.noContent().build()  // This returns a 204 No Content response
+    }
 }
