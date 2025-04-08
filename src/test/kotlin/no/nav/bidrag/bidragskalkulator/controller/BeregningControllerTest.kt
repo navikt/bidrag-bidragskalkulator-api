@@ -75,7 +75,7 @@ class BeregningControllerTest {
     fun `skal returnere 400 for negativ inntekt`() {
         val request = mockGyldigRequest.copy(inntektForelder1 = -500000.0)
 
-        mockMvc.postJson("/api/v1/beregning/barnebidrag", request, validOAuth2Token)
+        mockMvc.postJson("/api/v1/beregning/beskyttet/barnebidrag", request, validOAuth2Token)
             .andExpect(status().isBadRequest)
             .andExpect(jsonPath("$.errors[0]").value("inntektForelder1: Inntekt for forelder 1 kan ikke være negativ"))
     }
@@ -84,7 +84,7 @@ class BeregningControllerTest {
     fun `skal returnere 400 for et tom barn liste`() {
         val request = mockGyldigRequest.copy(barn = emptyList())
 
-        mockMvc.postJson("/api/v1/beregning/barnebidrag", request, validOAuth2Token)
+        mockMvc.postJson("/api/v1/beregning/beskyttet/barnebidrag", request, validOAuth2Token)
             .andExpect(status().isBadRequest)
             .andExpect(jsonPath("$.errors[0]").value("barn: Liste over barn kan ikke være tom"))
     }
