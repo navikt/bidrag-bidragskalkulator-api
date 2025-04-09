@@ -16,7 +16,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPat
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDate
 
-class PersonControllerTest: ControllerTestRunner() {
+class PersonControllerTest: AbstractControllerTest() {
 
     @MockkBean
     private lateinit var personService: PersonService
@@ -25,7 +25,7 @@ class PersonControllerTest: ControllerTestRunner() {
     fun `skal returnere 200 OK og familierelasjon når person eksisterer`() {
         every { personService.hentFamilierelasjon() } returns mockResponsPersonMedBarn
 
-        mockMvc.getRequest("/api/v1/person/familierelasjon", gyldigOAuth2Token)
+        getRequest("/api/v1/person/familierelasjon", gyldigOAuth2Token)
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.personensMotpartBarnRelasjon").isNotEmpty())
             .andExpect(jsonPath("$.personensMotpartBarnRelasjon[0].motpart.visningsnavn").value(motpart.visningsnavn))
@@ -35,13 +35,13 @@ class PersonControllerTest: ControllerTestRunner() {
     fun `skal returnere 204 No Content når personen ikke finnes`() {
         every { personService.hentFamilierelasjon() } throws NoContentException("Fant ikke person")
 
-        mockMvc.getRequest("/api/v1/person/familierelasjon", gyldigOAuth2Token)
+        getRequest("/api/v1/person/familierelasjon", gyldigOAuth2Token)
             .andExpect(status().isNoContent)
     }
 
     @Test
     fun `skal returnere 401 Unauthorized når token mangler`() {
-        mockMvc.getRequest("/api/v1/person/familierelasjon", "")
+        getRequest("/api/v1/person/familierelasjon", "")
             .andExpect(status().isUnauthorized)
     }
 
