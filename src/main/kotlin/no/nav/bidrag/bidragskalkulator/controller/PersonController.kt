@@ -6,19 +6,17 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import no.nav.bidrag.bidragskalkulator.config.SecurityConstants
 import no.nav.bidrag.bidragskalkulator.service.PersonService
+import no.nav.bidrag.commons.security.utils.TokenUtils
 import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import org.slf4j.LoggerFactory
 
 @RestController
 @RequestMapping("/api/v1/person")
 @ProtectedWithClaims(issuer = SecurityConstants.TOKENX)
 class PersonController(private val personService: PersonService) {
-
-    private val logger = LoggerFactory.getLogger(PersonController::class.java)
 
     @Operation(
         summary = "Henter familierelasjoner",
@@ -37,6 +35,9 @@ class PersonController(private val personService: PersonService) {
     )
     @GetMapping("/familierelasjon")
     fun hentFamilierelasjon(): MotpartBarnRelasjonDto? {
-        return personService.hentFamilierelasjon()
+        val personIdent: String = TokenUtils.hentBruker()
+            ?: throw IllegalArgumentException("Brukerident er ikke tilgjengelig i token")
+
+        return personService.hentFamilierelasjon(personIdent)
     }
 }
