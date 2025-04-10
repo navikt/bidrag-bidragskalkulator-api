@@ -4,10 +4,10 @@ ingresses:
 env:
   SPRING_PROFILES_ACTIVE: dev
   BIDRAG_SJABLON_URL: https://bidrag-sjablon.dev-fss-pub.nais.io/bidrag-sjablon
-  BIDRAG_PERSON_URL: https://bidrag-person-q4.dev-fss-pub.nais.io/bidrag-person
-  BIDRAG_PERSON_SCOPE: dev-fss.bidrag.bidrag-person-q4
   BIDRAG_GRUNNLAG_URL: https://bidrag-grunnlag.dev-gcp.nais.io/
-  BIDRAG_GRUNNLAG_SCOPE: dec-gcp.bidrag.bidrag-grunnlag
+  BIDRAG_GRUNNLAG_SCOPE: dev-gcp.bidrag.bidrag-grunnlag
+  BIDRAG_PERSON_URL: https://bidrag-person-q1.dev-fss-pub.nais.io/bidrag-person
+  BIDRAG_PERSON_SCOPE: dev-fss.bidrag.bidrag-person-q1
 inbound_application:
   - application: bidrag-bidragskalkulator-v2
     namespace: bidrag
@@ -17,5 +17,5 @@ inbound_application:
     cluster: dev-gcp
 outbound_external_host:
   - bidrag-sjablon.dev-fss-pub.nais.io
-  - bidrag-person-q4.dev-fss-pub.nais.io
   - bidrag-grunnlag.dev-gcp.nais.io
+  - bidrag-person-q1.dev-fss-pub.nais.io

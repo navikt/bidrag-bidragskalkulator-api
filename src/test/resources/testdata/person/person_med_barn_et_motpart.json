@@ -1,0 +1,73 @@
+{
+  "person": {
+    "ident": "03848797048",
+    "navn": "LIGGESTOL, EKSAKT",
+    "fornavn": "Eksakt",
+    "mellomnavn": "",
+    "etternavn": "Liggestol",
+    "kjønn": "KVINNE",
+    "kjoenn": "KVINNE",
+    "fødselsdato": "1987-04-03",
+    "foedselsdato": "1987-04-03",
+    "aktørId": "2995022845225",
+    "aktoerId": "2995022845225",
+    "kortnavn": "Eksakt Liggestol",
+    "kortNavn": "Eksakt Liggestol",
+    "visningsnavn": "Eksakt Liggestol"
+  },
+  "personensMotpartBarnRelasjon": [
+    {
+      "forelderrolleMotpart": "FAR",
+      "motpart": {
+        "ident": "21828597504",
+        "navn": "TREGRENSE, NORMAL",
+        "fornavn": "Normal",
+        "mellomnavn": "",
+        "etternavn": "Tregrense",
+        "kjønn": "MANN",
+        "kjoenn": "MANN",
+        "fødselsdato": "1985-02-21",
+        "foedselsdato": "1985-02-21",
+        "aktørId": "2506308456558",
+        "aktoerId": "2506308456558",
+        "kortnavn": "Normal Tregrense",
+        "kortNavn": "Normal Tregrense",
+        "visningsnavn": "Normal Tregrense"
+      },
+      "fellesBarn": [
+        {
+          "ident": "20892098426",
+          "navn": "TREGRENSE, TRÅDLØS",
+          "fornavn": "Trådløs",
+          "mellomnavn": "",
+          "etternavn": "Tregrense",
+          "kjønn": "KVINNE",
+          "kjoenn": "KVINNE",
+          "fødselsdato": "2020-09-20",
+          "foedselsdato": "2020-09-20",
+          "aktørId": "2046359567767",
+          "aktoerId": "2046359567767",
+          "kortnavn": "Trådløs Tregrense",
+          "kortNavn": "Trådløs Tregrense",
+          "visningsnavn": "Trådløs Tregrense"
+        },
+        {
+          "ident": "29891198289",
+          "navn": "TREGRENSE, NØDVENDIG",
+          "fornavn": "Nødvendig",
+          "mellomnavn": "",
+          "etternavn": "Tregrense",
+          "kjønn": "KVINNE",
+          "kjoenn": "KVINNE",
+          "fødselsdato": "2011-09-29",
+          "foedselsdato": "2011-09-29",
+          "aktørId": "2223945105690",
+          "aktoerId": "2223945105690",
+          "kortnavn": "Nødvendig Tregrense",
+          "kortNavn": "Nødvendig Tregrense",
+          "visningsnavn": "Nødvendig Tregrense"
+        }
+      ]
+    }
+  ]
+}

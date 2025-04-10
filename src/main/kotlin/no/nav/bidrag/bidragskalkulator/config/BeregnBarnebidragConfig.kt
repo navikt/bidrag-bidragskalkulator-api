@@ -7,12 +7,15 @@ import io.swagger.v3.oas.models.Components
 import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.media.Schema
 import no.nav.bidrag.beregn.barnebidrag.BeregnBarnebidragApi
+import no.nav.bidrag.commons.security.api.EnableSecurityConfiguration
+import no.nav.bidrag.commons.service.AppContext
+import no.nav.bidrag.commons.web.config.RestOperationsAzure
 import no.nav.bidrag.domene.enums.beregning.Samværsklasse
+import no.nav.security.token.support.client.spring.oauth2.EnableOAuth2Client
 import no.nav.security.token.support.spring.api.EnableJwtTokenValidation
 import org.springdoc.core.customizers.OpenApiCustomizer
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Import
+import org.springframework.context.annotation.*
+import org.springframework.http.client.observation.DefaultClientRequestObservationConvention
 
 @OpenAPIDefinition(
     info = io.swagger.v3.oas.annotations.info.Info(title = "bidrag-bidragskalkulator-api", version = "v1"),
@@ -26,8 +29,12 @@ import org.springframework.context.annotation.Import
 )
 @EnableJwtTokenValidation
 @Configuration
-@Import(BeregnBarnebidragApi::class)
+@EnableOAuth2Client(cacheEnabled = true)
+@EnableSecurityConfiguration
+@Import(RestOperationsAzure::class, AppContext::class, BeregnBarnebidragApi::class)
 class BeregnBarnebidragConfig {
+    @Bean
+    fun clientRequestObservationConvention() = DefaultClientRequestObservationConvention()
 
     @Bean
     fun customOpenApi(): OpenApiCustomizer {
