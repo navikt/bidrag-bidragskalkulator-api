@@ -23,7 +23,7 @@ class TestOAuth2TokenProvider(private val mockOAuth2Server: MockOAuth2Server) {
             "acr" to "Level4",
             "idp" to "idporten",
             "client_id" to clientId,
-            "pid" to påloggetPerson.ident,
+            "pid" to påloggetPerson.ident.toString(),
         )
 
         return mockOAuth2Server.issueToken(
