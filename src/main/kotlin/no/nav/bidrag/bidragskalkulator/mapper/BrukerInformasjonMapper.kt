@@ -5,6 +5,7 @@ import no.nav.bidrag.commons.util.secureLogger
 import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
 import java.time.LocalDate
 import java.time.Period
+import java.time.format.DateTimeParseException
 
 object BrukerInformasjonMapper {
 
@@ -33,7 +34,7 @@ object BrukerInformasjonMapper {
     private fun kalkulereAlder(fødselsdato: LocalDate): Int {
         return try {
             Period.between(fødselsdato, LocalDate.now()).years
-        } catch (e: Exception) {
+        } catch (e: DateTimeParseException) {
             secureLogger.warn(e) { "Feil ved kalkulering av alder for fødselsdato $fødselsdato" }
             0
         }
