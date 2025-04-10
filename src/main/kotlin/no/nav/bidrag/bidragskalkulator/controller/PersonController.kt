@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import no.nav.bidrag.bidragskalkulator.config.SecurityConstants
+import no.nav.bidrag.bidragskalkulator.dto.BrukerInfomasjonDto
 import no.nav.bidrag.bidragskalkulator.service.PersonService
 import no.nav.bidrag.commons.security.utils.TokenUtils
 import no.nav.bidrag.commons.util.secureLogger
@@ -36,7 +37,7 @@ class PersonController(private val personService: PersonService) {
         ]
     )
     @GetMapping("/informasjon")
-    fun hentInformasjon(): MotpartBarnRelasjonDto? {
+    fun hentInformasjon(): BrukerInfomasjonDto {
         logger.info("Henter informasjon om pålogget person og relasjoner til barn")
 
         val personIdent: String = TokenUtils.hentBruker()
@@ -44,7 +45,7 @@ class PersonController(private val personService: PersonService) {
 
         secureLogger.info { "Henter informasjon om pålogget person $personIdent og relasjoner til barn for person" }
 
-        val respons = personService.hentFamilierelasjon(personIdent)
+        val respons = personService.hentInformasjon(personIdent)
 
         secureLogger.info { "Henter informasjon om pålogget person $personIdent og relasjoner til barn er fullført" }
         return respons
