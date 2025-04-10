@@ -12,10 +12,9 @@ object BrukerInformasjonMapper {
         return BrukerInfomasjonDto(
             paaloggetPerson = dto.person.toPersonDto(),
             barnRelasjon = dto.personensMotpartBarnRelasjon
-                .filter { it.motpart != null }
                 .map {
                     BarneRelasjonDto(
-                        motpart = it.motpart!!.toPersonDto(),
+                        motpart = it.motpart?.toPersonDto(),
                         fellesBarn = it.fellesBarn.map { barn -> barn.toPersonDto() }
                     )
                 }

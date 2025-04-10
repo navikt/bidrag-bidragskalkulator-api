@@ -20,8 +20,9 @@ data class PersonDto(
 
 @Schema(description = "Representerer en foreldre-barn-relasjon, med felles barn og motpart")
 data class BarneRelasjonDto(
+    // I enkelte tilfeller er ikke motpart registrert, og feltet kan derfor være null.
     @Schema(description = "Motparten i relasjonen, vanligvis den andre forelderen")
-    val motpart: PersonDto,
+    val motpart: PersonDto?,
 
     @Schema(description = "Liste over felles barn mellom pålogget person og motparten")
     val fellesBarn: List<PersonDto>

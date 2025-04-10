@@ -42,7 +42,7 @@ class PersonServiceTest {
         every { mockPersonConsumer.hentFamilierelasjon(identSomIkkeFinnes) } returns null
 
         val exception = assertThrows<NoContentException> {
-            personService.hentFamilierelasjon(identSomIkkeFinnes)
+            personService.hentInformasjon(identSomIkkeFinnes)
         }
 
         assertEquals("Fant ikke person med ident $identSomIkkeFinnes", exception.message)
@@ -52,10 +52,10 @@ class PersonServiceTest {
     fun `skal returnere én barn-relasjon når person har barn med én motpart`() {
         every { mockPersonConsumer.hentFamilierelasjon(identMedEttBarn) } returns responsMedEttBarn
 
-        val resultat = personService.hentFamilierelasjon(identMedEttBarn)
-        assertNotNull(resultat)
+        val resultat = personService.hentInformasjon(identMedEttBarn)
 
-        val relasjoner = resultat!!.personensMotpartBarnRelasjon
+        val relasjoner = resultat.barnRelasjon
+
         assertAll(
             "Verifiser én relasjon",
             { assertEquals(1, relasjoner.size) },
@@ -67,10 +67,9 @@ class PersonServiceTest {
     fun `skal returnere tom barn-relasjonsliste når person ikke har barn`() {
         every { mockPersonConsumer.hentFamilierelasjon(identUtenBarn) } returns responsUtenBarn
 
-        val resultat = personService.hentFamilierelasjon(identUtenBarn)
-        assertNotNull(resultat)
+        val resultat = personService.hentInformasjon(identUtenBarn)
 
-        val relasjoner = resultat!!.personensMotpartBarnRelasjon
+        val relasjoner = resultat.barnRelasjon
         assertEquals(0, relasjoner.size)
     }
 
@@ -78,10 +77,9 @@ class PersonServiceTest {
     fun `skal returnere flere barn-relasjoner når person har barn med flere motparter`() {
         every { mockPersonConsumer.hentFamilierelasjon(identMedFlereBarn) } returns responsMedFlereBarn
 
-        val resultat = personService.hentFamilierelasjon(identMedFlereBarn)
-        assertNotNull(resultat)
+        val resultat = personService.hentInformasjon(identMedFlereBarn)
+        val relasjoner = resultat.barnRelasjon
 
-        val relasjoner = resultat!!.personensMotpartBarnRelasjon
         assertTrue(relasjoner.size > 1)
     }
 }

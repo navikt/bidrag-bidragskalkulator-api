@@ -3,7 +3,7 @@ package no.nav.bidrag.bidragskalkulator.service
 import no.nav.bidrag.bidragskalkulator.consumer.BidragPersonConsumer
 import no.nav.bidrag.bidragskalkulator.dto.BrukerInfomasjonDto
 import no.nav.bidrag.bidragskalkulator.exception.NoContentException
-import no.nav.bidrag.bidragskalkulator.mapper.BrukerInformasjonMapper.tilBrukerInformasjonDto
+import no.nav.bidrag.bidragskalkulator.mapper.BrukerInformasjonMapper
 import no.nav.bidrag.commons.util.secureLogger
 import org.springframework.stereotype.Service
 
@@ -18,6 +18,6 @@ class PersonService(private val personConsumer: BidragPersonConsumer) {
             throw NoContentException("Fant ikke person med ident $personIdent")
         }
 
-        return tilBrukerInformasjonDto(familierelasjon)
+        return BrukerInformasjonMapper.tilBrukerInformasjonDto(familierelasjon)
     }
 }
