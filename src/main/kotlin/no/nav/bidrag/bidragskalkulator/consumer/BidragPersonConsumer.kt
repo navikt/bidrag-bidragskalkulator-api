@@ -30,7 +30,7 @@ class BidragPersonConsumer(
             postForEntity<MotpartBarnRelasjonDto>(hentFamilierelasjonUri, PersonRequest(Personident(ident)))
         } catch (e: HttpServerErrorException) {
             if (e.statusCode.value() == 404) {
-                secureLogger.info("Fant ikke person med ident $ident")
+                secureLogger.warn("Fant ikke person med ident $ident")
                 null
             } else {
                 secureLogger.error("Feil ved serverkall til bidrag-person for ident $ident", e)

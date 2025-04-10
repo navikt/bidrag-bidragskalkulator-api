@@ -13,7 +13,7 @@ class PersonService(private val personConsumer: BidragPersonConsumer) {
         val familierelasjon = personConsumer.hentFamilierelasjon(personIdent)
 
         if (familierelasjon == null) {
-            secureLogger.info { "Fant ikke person med ident $personIdent" }
+            secureLogger.warn { "Fant ikke person med ident $personIdent" }
             throw NoContentException("Fant ikke person med ident $personIdent")
         }
 
