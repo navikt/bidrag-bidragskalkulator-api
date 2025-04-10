@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory.getLogger
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.math.RoundingMode
+import kotlin.random.Random
 
 @Service
 class BeregningService(
@@ -53,3 +54,4 @@ class BeregningService(
             ?.underholdskostnad
             ?: BigDecimal.ZERO
 }
+

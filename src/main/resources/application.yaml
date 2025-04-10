@@ -10,9 +10,21 @@ spring.main.banner-mode: off
 spring.config.activate.on-profile: local
 BIDRAG_SJABLON_URL: https://bidrag-sjablon.dev-fss-pub.nais.io/bidrag-sjablon
 
+bidrag:
+  grunnlag:
+    url: https://bidrag-grunnlag.dev-gcp.nais.io/
+    hentGrunnlagPath: hentgrunnlag
+
+    # Add other grunnlag-related properties as needed
 ---
 spring.config.activate.on-profile: prod, dev, local-nais
+
 BIDRAG_SJABLON_URL: ${BIDRAG_SJABLON_URL}
+
+bidrag:
+  grunnlag:
+    url: https://bidrag-grunnlag.dev-gcp.nais.io/
+    hentGrunnlagPath: hentgrunnlag
 
 no.nav.security.jwt:
   client:
@@ -26,7 +38,17 @@ no.nav.security.jwt:
           client-id: ${AZURE_APP_CLIENT_ID}
           client-secret: ${AZURE_APP_CLIENT_SECRET}
           client-auth-method: client_secret_post
+      bidrag-grunnlag:
+        resource-url: ${BIDRAG_GRUNNLAG_URL}
+        token-endpoint-url: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/oauth2/v2.0/token
+        grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
+        scope: api://${BIDRAG_GRUNNLAG_SCOPE}/.default
+        authentication:
+          client-id: ${AZURE_APP_CLIENT_ID}
+          client-secret: ${AZURE_APP_CLIENT_SECRET}
+          client-auth-method: client_secret_post
   issuer:
     tokenx:
       discoveryurl: ${TOKEN_X_WELL_KNOWN_URL}
       accepted_audience: ${TOKEN_X_CLIENT_ID}
+
