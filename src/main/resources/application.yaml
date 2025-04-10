@@ -5,6 +5,9 @@ springdoc:
     path: /
     showCommonExtensions: true
 
+logging.level:
+  secureLogger: DEBUG
+
 spring.main.banner-mode: off
 
 spring.config.activate.on-profile: local

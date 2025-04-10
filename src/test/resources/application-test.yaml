@@ -1,6 +1,6 @@
-BIDRAG_SJABLON_URL: https://bidrag-sjablon.dev-fss-pub.nais.io/bidrag-sjablon
-BIDRAG_PERSON_URL: https://bidrag-person-q4.dev-fss-pub.nais.io/bidrag-person
-BIDRAG_PERSON_SCOPE: dev-fss.bidrag.bidrag-person-q4
+BIDRAG_SJABLON_URL: bidrag_sjablon_url
+BIDRAG_PERSON_URL: bidrag_person_url
+BIDRAG_PERSON_SCOPE: bidrag_person_scope
 TOKEN_X_WELL_KNOWN_URL: http://localhost:${mock-oauth2-server.port}/tokenx/.well-known/openid-configuration
 AZURE_OPENID_CONFIG_TOKEN_ENDPOINT: http://localhost:${mock-oauth2-server.port}/aad/token
 AZURE_APP_TENANT_ID: tokenx
