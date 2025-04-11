@@ -11,8 +11,8 @@ data class PersonDto(
     @Schema(description = "Fornavn til personen", example = "Ola")
     val fornavn: String,
 
-    @Schema(description = "Visningsnavn, som er fornavn og etternavn kombinert", example = "Ola Nordmann")
-    val visningsnavn: String,
+    @Schema(description = "Fullt navn, som er fornavn og etternavn kombinert", example = "Ola Nordmann")
+    val fulltNavn: String,
 
     @Schema(description = "Alder til personen", example = "12",)
     val alder: Int
@@ -21,7 +21,7 @@ data class PersonDto(
 @Schema(description = "Representerer en foreldre-barn-relasjon, med felles barn og motpart")
 data class BarneRelasjonDto(
     // I enkelte tilfeller er ikke motpart registrert, og feltet kan derfor være null.
-    @Schema(description = "Motparten i relasjonen, vanligvis den andre forelderen")
+    @Schema(description = "Motparten i relasjonen, vanligvis den andre forelderen. I enkelte tilfeller er ikke motpart registrert, og feltet kan derfor være null.")
     val motpart: PersonDto?,
 
     @Schema(description = "Liste over felles barn mellom pålogget person og motparten")
