@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import no.nav.bidrag.bidragskalkulator.config.SecurityConstants
+import no.nav.bidrag.bidragskalkulator.dto.GrunnlagResponseDto
+import no.nav.bidrag.bidragskalkulator.service.GrunnlagService
 import no.nav.bidrag.bidragskalkulator.service.PersonService
 import no.nav.bidrag.commons.security.utils.TokenUtils
 import no.nav.bidrag.commons.util.secureLogger
@@ -14,11 +16,14 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.slf4j.LoggerFactory
+import org.springframework.http.HttpStatus
+import org.springframework.web.client.HttpClientErrorException
+import org.springframework.web.client.HttpClientErrorException.NotFound
 
 @RestController
 @RequestMapping("/api/v1/person")
 @ProtectedWithClaims(issuer = SecurityConstants.TOKENX)
-class PersonController(private val personService: PersonService) {
+class PersonController(private val personService: PersonService, private val grunnlagService: GrunnlagService) {
 
     private val logger = LoggerFactory.getLogger(PersonController::class.java)
 
@@ -50,5 +55,15 @@ class PersonController(private val personService: PersonService) {
 
         secureLogger.info { "Henting av familierelasjoner for person $personIdent er fullført" }
         return respons
+    }
+
+    @GetMapping("/inntekt")
+    fun hentInntekt(): GrunnlagResponseDto {
+        val personIdent: String = TokenUtils.hentBruker()
+            ?: throw IllegalArgumentException("Brukerident er ikke tilgjengelig i token")
+
+        return grunnlagService.hentInntektsGrunnlag(personIdent)
+            ?: throw HttpClientErrorException(HttpStatus.NOT_FOUND, "Fant ikke inntektsgrunnlag for person $personIdent")
+
     }
 }

@@ -12,10 +12,10 @@ spring.main.banner-mode: off
 
 spring.config.activate.on-profile: local
 BIDRAG_SJABLON_URL: https://bidrag-sjablon.dev-fss-pub.nais.io/bidrag-sjablon
-
+BIDRAG_GRUNNLAG_URL: https://bidrag-grunnlag.dev-gcp.nais.io/
 bidrag:
   grunnlag:
-    url: https://bidrag-grunnlag.dev-gcp.nais.io/
+    url: ${BIDRAG_GRUNNLAG_URL}
     hentGrunnlagPath: hentgrunnlag
 
     # Add other grunnlag-related properties as needed
@@ -23,10 +23,10 @@ bidrag:
 spring.config.activate.on-profile: prod, dev, local-nais
 BIDRAG_SJABLON_URL: ${BIDRAG_SJABLON_URL}
 NAIS_APP_NAME: bidrag-bidragskalkulator
-
+BIDRAG_GRUNNLAG_URL: https://bidrag-grunnlag.dev-gcp.nais.io/
 bidrag:
   grunnlag:
-    url: https://bidrag-grunnlag.dev-gcp.nais.io/
+    url: ${BIDRAG_GRUNNLAG_URL}
     hentGrunnlagPath: hentgrunnlag
 
 no.nav.security.jwt:

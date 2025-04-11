@@ -4,6 +4,7 @@ import no.nav.bidrag.bidragskalkulator.config.GrunnlagConfigurationProperties
 import no.nav.bidrag.bidragskalkulator.dto.GrunnlagRequestDto
 import no.nav.bidrag.bidragskalkulator.dto.GrunnlagRequestItemDto
 import no.nav.bidrag.bidragskalkulator.dto.GrunnlagResponseDto
+import no.nav.bidrag.commons.service.AppContext
 import no.nav.bidrag.commons.util.secureLogger
 import no.nav.bidrag.commons.web.client.AbstractRestClient
 import org.apache.logging.log4j.LogManager.getLogger
@@ -11,15 +12,15 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestOperations
 import org.springframework.web.client.RestTemplate
+import org.springframework.web.servlet.support.RequestContext
 import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-@Service
 class BidragGrunnlagConsumer(
     val grunnlagConfig: GrunnlagConfigurationProperties,
-    @Qualifier("azure") restTemplate: RestTemplate,
+    @Qualifier("azure") val restTemplate: RestTemplate,
 ) : AbstractRestClient(restTemplate, "bidrag.grunnlag") {
 
     val logger = getLogger(BidragGrunnlagConsumer::class.java)
@@ -38,9 +39,10 @@ class BidragGrunnlagConsumer(
 
     val grunnlagDatoFormatter by lazy { DateTimeFormatter.ofPattern("yyyy-MM-dd") }
 
-    fun hentGrunnlag(ident: String): String {
+    fun hentGrunnlag(ident: String): GrunnlagResponseDto? {
         // make post request to grunnlag api
-        postForEntity<GrunnlagResponseDto>(grunnlagUri, GrunnlagRequestDto("FORSKUDD", arrayListOf(
+
+        return postForEntity<GrunnlagResponseDto>(grunnlagUri, GrunnlagRequestDto("FORSKUDD", arrayListOf(
             GrunnlagRequestItemDto(
                 type = "AINNTEKT",
                 personId = ident,
@@ -48,7 +50,5 @@ class BidragGrunnlagConsumer(
                 periodeTil = LocalDate.now().format(grunnlagDatoFormatter).toString(),
             )
         )))
-        secureLogger.info("Henter grunnlag for person med ident: $ident")
-        return "Grunnlag"
     }
 }
