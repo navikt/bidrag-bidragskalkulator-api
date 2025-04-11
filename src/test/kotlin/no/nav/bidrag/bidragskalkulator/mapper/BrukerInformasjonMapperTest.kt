@@ -18,17 +18,17 @@ class BrukerInformasjonMapperTest {
 
         assertNotNull(resultat)
         assertNotNull(resultat.paaloggetPerson)
-        // Forventet visningsnavn fra testdata
-        assertEquals(motpartBarnRelasjonDto.person.visningsnavn, resultat.paaloggetPerson.visningsnavn)
+        // Forventet fullt navn fra testdata
+        assertEquals(motpartBarnRelasjonDto.person.visningsnavn, resultat.paaloggetPerson.fulltNavn)
         assertTrue(resultat.barnRelasjon.isNotEmpty(), "Barn-relasjon skal ikke være tom")
 
         val barnRelasjon = resultat.barnRelasjon.first()
         assertNotNull(barnRelasjon.motpart)
-        // Forventet ident for motpart fra testdata
-        assertEquals(motpartBarnRelasjonDto.personensMotpartBarnRelasjon.first().motpart?.visningsnavn, barnRelasjon.motpart?.visningsnavn)
+        // Forventet fullt navn for motpart fra testdata
+        assertEquals(motpartBarnRelasjonDto.personensMotpartBarnRelasjon.first().motpart?.visningsnavn, barnRelasjon.motpart?.fulltNavn)
         assertTrue(barnRelasjon.fellesBarn.isNotEmpty(), "Felles barn skal ikke være tomt")
-        // Forventet ident for barn
-        assertEquals(motpartBarnRelasjonDto.personensMotpartBarnRelasjon.first().fellesBarn.first().visningsnavn, barnRelasjon.fellesBarn.first().visningsnavn)
+        // Forventet fullt navn for barn
+        assertEquals(motpartBarnRelasjonDto.personensMotpartBarnRelasjon.first().fellesBarn.first().visningsnavn, barnRelasjon.fellesBarn.first().fulltNavn)
     }
 
     @Test

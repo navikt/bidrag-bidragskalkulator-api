@@ -26,7 +26,7 @@ object BrukerInformasjonMapper {
         return PersonDto(
             ident = this.ident,
             fornavn = this.fornavn ?: "",
-            visningsnavn = this.visningsnavn,
+            fulltNavn = this.visningsnavn,
             alder = this.fødselsdato?.let { kalkulereAlder(it) } ?: 0
         )
     }
