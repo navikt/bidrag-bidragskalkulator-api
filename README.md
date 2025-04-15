@@ -53,7 +53,7 @@ Bygg og start applikasjonen med **local profilen** ved å kjøre:
 
 ### ☁️ Kjøre applikasjonen lokalt mot sky (nais)
 
-NB: `gcloud` og `kubectl` må være installert. (Se [cammand line access](https://doc.nais.io/operate/how-to/command-line-access/))
+**Merk**: `gcloud` og `kubectl` må være installert. (Se [cammand line access](https://doc.nais.io/operate/how-to/command-line-access/))
 
 For å kjøre applikasjonen lokalt mot sky, følg disse stegene:
 
