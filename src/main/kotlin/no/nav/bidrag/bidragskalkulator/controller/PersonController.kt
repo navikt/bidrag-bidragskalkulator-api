@@ -9,7 +9,6 @@ import no.nav.bidrag.bidragskalkulator.dto.BrukerInfomasjonDto
 import no.nav.bidrag.bidragskalkulator.service.PersonService
 import no.nav.bidrag.commons.security.utils.TokenUtils
 import no.nav.bidrag.commons.util.secureLogger
-import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -38,16 +37,16 @@ class PersonController(private val personService: PersonService) {
     )
     @GetMapping("/informasjon")
     fun hentInformasjon(): BrukerInfomasjonDto {
-        logger.info("Henter informasjon om pålogget person og relasjoner til barn")
+        logger.info("Henter informasjon om pålogget person og personens barn")
 
-        val personIdent: String = TokenUtils.hentBruker()
-            ?: throw IllegalArgumentException("Brukerident er ikke tilgjengelig i token")
+        val personIdent: String = requireNotNull(TokenUtils.hentBruker()) {
+            "Brukerident er ikke tilgjengelig i token"
+        }
 
-        secureLogger.info { "Henter informasjon om pålogget person $personIdent og relasjoner til barn for person" }
+        secureLogger.info { "Henter informasjon om pålogget person $personIdent og personens barn" }
 
-        val respons = personService.hentInformasjon(personIdent)
-
-        secureLogger.info { "Henter informasjon om pålogget person $personIdent og relasjoner til barn er fullført" }
-        return respons
+        return personService.hentInformasjon(personIdent).also {
+            secureLogger.info { "Henter informasjon om pålogget person $personIdent fullført" }
+        }
     }
 }
