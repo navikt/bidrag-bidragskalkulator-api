@@ -14,7 +14,7 @@ object BrukerInformasjonMapper {
 
     fun tilBrukerInformasjonDto(motpartBarnRelasjondto: MotpartBarnRelasjonDto, detaljertInformasjonDto: PersondetaljerDto): BrukerInfomasjonDto {
         return BrukerInfomasjonDto(
-            paaloggetPerson = detaljertInformasjonDto.tilPåloggetPersonDto(),
+            påloggetPerson = detaljertInformasjonDto.tilPåloggetPersonDto(),
             barnRelasjon = motpartBarnRelasjondto.personensMotpartBarnRelasjon
                 .map {
                     BarneRelasjonDto(

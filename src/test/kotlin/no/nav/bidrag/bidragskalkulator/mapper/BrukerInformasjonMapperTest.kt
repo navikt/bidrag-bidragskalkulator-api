@@ -23,9 +23,9 @@ open class BrukerInformasjonMapperTest {
         val resultat: BrukerInfomasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(motpartBarnRelasjonDto, motpartBarnRelasjonDto.tilMockPersondetaljerDto())
 
         assertNotNull(resultat)
-        assertNotNull(resultat.paaloggetPerson)
+        assertNotNull(resultat.påloggetPerson)
         // Forventet fullt navn fra testdata
-        assertEquals(motpartBarnRelasjonDto.person.visningsnavn, resultat.paaloggetPerson.fulltNavn)
+        assertEquals(motpartBarnRelasjonDto.person.visningsnavn, resultat.påloggetPerson.fulltNavn)
         assertTrue(resultat.barnRelasjon.isNotEmpty(), "Barn-relasjon skal ikke være tom")
 
         val barnRelasjon = resultat.barnRelasjon.first()

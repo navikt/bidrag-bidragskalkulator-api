@@ -46,7 +46,7 @@ data class BarneRelasjonDto(
 @Schema(description = "Informasjon om pålogget person og relasjoner til barn")
 data class BrukerInfomasjonDto(
     @Schema(description = "Informasjon om pålogget person")
-    val paaloggetPerson: PåloggetPersonDto,
+    val påloggetPerson: PåloggetPersonDto,
 
     @Schema(description = "Liste over barn til pålogget person, gruppert med motpart")
     val barnRelasjon: List<BarneRelasjonDto>
