@@ -11,6 +11,7 @@ import no.nav.bidrag.commons.security.api.EnableSecurityConfiguration
 import no.nav.bidrag.commons.service.AppContext
 import no.nav.bidrag.commons.web.config.RestOperationsAzure
 import no.nav.bidrag.domene.enums.beregning.Samværsklasse
+import no.nav.bidrag.domene.enums.diverse.Språk
 import no.nav.security.token.support.client.spring.oauth2.EnableOAuth2Client
 import no.nav.security.token.support.spring.api.EnableJwtTokenValidation
 import org.springdoc.core.customizers.OpenApiCustomizer
@@ -46,8 +47,16 @@ class BeregnBarnebidragConfig {
                     enum = Samværsklasse.entries.map { it.name }
                 }
 
+            val språkspreferanseSchema = Schema<String>()
+                .description("Språkspreferanse hentet fra KRR")
+                .example(Språk.NB.name)
+                .apply {
+                    enum = Språk.entries.map { it.name }
+                }
+
             openApi.components = (openApi.components ?: Components())
                 .addSchemas("Samværsklasse", samværsklasseSchema)
+                .addSchemas("Språkspreferanse", språkspreferanseSchema)
         }
     }
 }
