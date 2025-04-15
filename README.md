@@ -19,12 +19,17 @@ Applikasjonen fungerer som backend for [bidrag-bidragskalkulator-ui](https://git
 
 ### 🚧 Krav
 
-For å kjøre applikasjonen lokalt, må du ha installert:
+For å kjøre applikasjonen lokalt, må følgende være installert:
 
-- **Java 21**
-- **Gradle**
+- Java 21
+- Gradle
+- (Ved kjøring mot sky) `gcloud` og `kubectl` (Se [cammand line access](https://doc.nais.io/operate/how-to/command-line-access/))
+
+---
 
 ### 📌 Kjøre applikasjonen lokalt
+
+**Merk**: Ved lokal kjøring vil du kun ha tilgang til endepunkter som ikke er beskyttet (altså åpne endepunkter). For å kalle beskyttede endepunkter kreves autentisering via gyldig token. Se **Kjøre applikasjonen lokalt mot sky (nais)**
 
 Du kan starte applikasjonen lokalt enten via terminalen eller direkte i din IDE.
 
@@ -44,49 +49,25 @@ Bygg og start applikasjonen med **local profilen** ved å kjøre:
 5. Klikk **Apply** og deretter **OK**
 6. Start BidragBidragskalkulatorApiApplication.kt
 
-### 📌 Kjøre applikasjonen lokalt mot sky
+---
 
-For å kjøre applikasjonen lokalt mot sky, følg disse stegene:  
+### ☁️ Kjøre applikasjonen lokalt mot sky (nais)
 
-#### 🖥️ Alternativ 1: Kjøre skript
+NB: `gcloud` og `kubectl` må være installert. (Se [cammand line access](https://doc.nais.io/operate/how-to/command-line-access/))
 
-Skripten vil sette nødvendige miljøvariabler, starte applikasjonen, og deretter åpne både Swagger og TokenX generator (se punkt 4. Generer token nedenfor).
+For å kjøre applikasjonen lokalt mot sky, følg disse stegene:
 
+##### 1. Logg inn i gcp
 ```bash
-./local-cloud-run.sh
+gcloud auth login
 ```
 
-#### 🖥️ Alternativ 2: Manuell kjøring av applikasjon
-
-### 1. Konfigurer kubectl til `dev-gcp`
-
-Åpne terminalen i rotmappen til `bidrag-bidragskalkulator-api` og konfigurer kubectl til å bruke `dev-gcp`-klusteret:
-
+##### 2. Sette nødvendige miljøvariabler med skripten
 ```bash
-# Sett cluster til dev-gcp
-kubectx dev-gcp
-
-# Sett namespace til bidrag
-kubens bidrag 
-
-# -- Eller hvis du ikke har kubectx/kubens installert 
-# (da må -n=bidrag legges til etter exec i neste kommando)
-kubectl config use dev-gcp
+./setup-local-nais-env.sh
 ```
 
-### 2. Importer secrets
-
-For å hente nødvendige secrets, kjør følgende kommando:
-
-```bash
-kubectl exec --tty deployment/bidrag-bidragskalkulator-api -- printenv \
-  | grep -E 'TOKEN_X_WELL_KNOWN_URL|TOKEN_X_CLIENT_ID|AZURE_APP_TENANT_ID|AZURE_APP_CLIENT_SECRET|AZURE_APP_CLIENT_ID|AZURE_APP_WELL_KNOWN_URL|AZURE_OPENID_CONFIG_TOKEN_ENDPOINT|BIDRAG_SJABLON_URL|BIDRAG_PERSON_URL|SCOPE' \
-  > src/test/resources/application-local-nais.properties
-```
-
-⚠ **_Viktig_**: Filen som opprettes (application-local-nais.properties) må ikke committes til Git.
-
-### 3. Start applikasjonen med local-nais-profil
+#### 3. Start applikasjonen med local-nais-profil
 
 Du kan starte applikasjonen på to måter:
 
@@ -97,20 +78,15 @@ Du kan starte applikasjonen på to måter:
 
 ✅ **Eller kjør BidragBidragskalkulatorApiApplication.kt** i en IDE med profilen local-nais.
 
-### 4. Generer token
+#### 4. Generer token for autentisering
 
-For å generere et gyldig token, gå til:
+For å kunne autentisere deg mot API-et via Swagger (Authorize), må du generere et gyldig token.
 
-🔗 https://tokenx-token-generator.intern.dev.nav.no/api/obo?aud=`<audience>`
+Gå til TokenX Token Generator:
 
-Erstatt <audience> med verdien av `TOKEN_X_CLIENT_ID` fra application-local-nais.properties (steg 2).
-Eller settes til:
+🔗 [TokenX Token Generator](https://tokenx-token-generator.intern.dev.nav.no/api/obo?aud=dev-gcp:bidrag:bidrag-bidragskalkulator-api)
 
-`<cluster>:<namespace>:<application>`
-
-Eksempel:
-
-`dev-gcp:my-team:my-app`
+---
 
 ### 🧪 Testing
 
@@ -122,21 +98,32 @@ Alle pull requests kjører automatisk gjennom en test-pipeline som:
 ```bash
 ./gradlew test
 ```
+---
 
 ### 📜 API-dokumentasjon
 
-API-dokumentasjonen er tilgjengelig via Swagger UI når applikasjonen kjører **lokalt**:
+- **Lokal:** http://localhost:8080/swagger-ui/index.html
+- **Dev:** https://bidragskalkulator-api.intern.dev.nav.no/swagger-ui/index.html
+- **Prod:** https://bidragskalkulator-api.intern.nav.no/swagger-ui/index.html
 
-🔗 http://localhost:8080/swagger-ui/index.html
-
-I **Dev-miljøet** er dokumentasjonen tilgjengelig her:
-
-🔗 https://bidragskalkulator-api.intern.dev.nav.no/swagger-ui/index.html
+---
 
 ### 🚀 Deployments
 
-Per nå er applikasjonen ikke i produksjon.
+#### Automatisk deploy til dev
 
+Applikasjonen deployer automatisk til dev miljøet når man merger en pull request til main-branchen.
+
+#### Deploy til prod
+Prod-deploy skjer ved å opprette en GitHub-release:
+
+1. Gå til "Releases" i GitHub
+2. Klikk på "Create a new release"
+3. Velg en tag (f.eks. v1.2.3)
+4. Skriv en tittel og beskrivelse av endringene
+5. Klikk "Publish release"
+
+Når releasen er publisert, vil applikasjonen automatisk deployes til prod-miljøet.
 
 ### 👥 Eierskap
 
