@@ -1,0 +1,341 @@
+{
+  "versjon": "2025.04.02.210507_4872aa9a",
+  "summertMånedsinntektListe": [
+    {
+      "gjelderÅrMåned": "2023-04",
+      "sumInntekt": 53000,
+      "inntektPostListe": [
+        {
+          "kode": "fastloenn",
+          "inntekstype": null,
+          "beløp": 53000
+        }
+      ],
+      "grunnlagsreferanseListe": [
+        ""
+      ]
+    },
+    {
+      "gjelderÅrMåned": "2023-05",
+      "sumInntekt": 53000,
+      "inntektPostListe": [
+        {
+          "kode": "fastloenn",
+          "inntekstype": null,
+          "beløp": 53000
+        }
+      ],
+      "grunnlagsreferanseListe": [
+        ""
+      ]
+    },
+    {
+      "gjelderÅrMåned": "2023-06",
+      "sumInntekt": 53000,
+      "inntektPostListe": [
+        {
+          "kode": "fastloenn",
+          "inntekstype": null,
+          "beløp": 53000
+        }
+      ],
+      "grunnlagsreferanseListe": [
+        ""
+      ]
+    },
+    {
+      "gjelderÅrMåned": "2023-07",
+      "sumInntekt": 53000,
+      "inntektPostListe": [
+        {
+          "kode": "fastloenn",
+          "inntekstype": null,
+          "beløp": 53000
+        }
+      ],
+      "grunnlagsreferanseListe": [
+        ""
+      ]
+    },
+    {
+      "gjelderÅrMåned": "2023-08",
+      "sumInntekt": 53000,
+      "inntektPostListe": [
+        {
+          "kode": "fastloenn",
+          "inntekstype": null,
+          "beløp": 53000
+        }
+      ],
+      "grunnlagsreferanseListe": [
+        ""
+      ]
+    },
+    {
+      "gjelderÅrMåned": "2023-09",
+      "sumInntekt": 53000,
+      "inntektPostListe": [
+        {
+          "kode": "fastloenn",
+          "inntekstype": null,
+          "beløp": 53000
+        }
+      ],
+      "grunnlagsreferanseListe": [
+        ""
+      ]
+    },
+    {
+      "gjelderÅrMåned": "2023-10",
+      "sumInntekt": 54000,
+      "inntektPostListe": [
+        {
+          "kode": "fastloenn",
+          "inntekstype": null,
+          "beløp": 54000
+        }
+      ],
+      "grunnlagsreferanseListe": [
+        ""
+      ]
+    },
+    {
+      "gjelderÅrMåned": "2023-11",
+      "sumInntekt": 54000,
+      "inntektPostListe": [
+        {
+          "kode": "fastloenn",
+          "inntekstype": null,
+          "beløp": 54000
+        }
+      ],
+      "grunnlagsreferanseListe": [
+        ""
+      ]
+    },
+    {
+      "gjelderÅrMåned": "2023-12",
+      "sumInntekt": 54000,
+      "inntektPostListe": [
+        {
+          "kode": "fastloenn",
+          "inntekstype": null,
+          "beløp": 54000
+        }
+      ],
+      "grunnlagsreferanseListe": [
+        ""
+      ]
+    },
+    {
+      "gjelderÅrMåned": "2024-01",
+      "sumInntekt": 54000,
+      "inntektPostListe": [
+        {
+          "kode": "fastloenn",
+          "inntekstype": null,
+          "beløp": 54000
+        }
+      ],
+      "grunnlagsreferanseListe": [
+        ""
+      ]
+    },
+    {
+      "gjelderÅrMåned": "2024-02",
+      "sumInntekt": 54000,
+      "inntektPostListe": [
+        {
+          "kode": "fastloenn",
+          "inntekstype": null,
+          "beløp": 54000
+        }
+      ],
+      "grunnlagsreferanseListe": [
+        ""
+      ]
+    },
+    {
+      "gjelderÅrMåned": "2024-03",
+      "sumInntekt": 54000,
+      "inntektPostListe": [
+        {
+          "kode": "fastloenn",
+          "inntekstype": null,
+          "beløp": 54000
+        }
+      ],
+      "grunnlagsreferanseListe": [
+        ""
+      ]
+    },
+    {
+      "gjelderÅrMåned": "2024-04",
+      "sumInntekt": 54000,
+      "inntektPostListe": [
+        {
+          "kode": "fastloenn",
+          "inntekstype": null,
+          "beløp": 54000
+        }
+      ],
+      "grunnlagsreferanseListe": [
+        ""
+      ]
+    },
+    {
+      "gjelderÅrMåned": "2024-05",
+      "sumInntekt": 54000,
+      "inntektPostListe": [
+        {
+          "kode": "fastloenn",
+          "inntekstype": null,
+          "beløp": 54000
+        }
+      ],
+      "grunnlagsreferanseListe": [
+        ""
+      ]
+    },
+    {
+      "gjelderÅrMåned": "2024-06",
+      "sumInntekt": 54000,
+      "inntektPostListe": [
+        {
+          "kode": "fastloenn",
+          "inntekstype": null,
+          "beløp": 54000
+        }
+      ],
+      "grunnlagsreferanseListe": [
+        ""
+      ]
+    },
+    {
+      "gjelderÅrMåned": "2024-07",
+      "sumInntekt": 54000,
+      "inntektPostListe": [
+        {
+          "kode": "fastloenn",
+          "inntekstype": null,
+          "beløp": 54000
+        }
+      ],
+      "grunnlagsreferanseListe": [
+        ""
+      ]
+    },
+    {
+      "gjelderÅrMåned": "2024-08",
+      "sumInntekt": 54000,
+      "inntektPostListe": [
+        {
+          "kode": "fastloenn",
+          "inntekstype": null,
+          "beløp": 54000
+        }
+      ],
+      "grunnlagsreferanseListe": [
+        ""
+      ]
+    },
+    {
+      "gjelderÅrMåned": "2024-09",
+      "sumInntekt": 54000,
+      "inntektPostListe": [
+        {
+          "kode": "fastloenn",
+          "inntekstype": null,
+          "beløp": 54000
+        }
+      ],
+      "grunnlagsreferanseListe": [
+        ""
+      ]
+    },
+    {
+      "gjelderÅrMåned": "2024-10",
+      "sumInntekt": 54000,
+      "inntektPostListe": [
+        {
+          "kode": "fastloenn",
+          "inntekstype": null,
+          "beløp": 54000
+        }
+      ],
+      "grunnlagsreferanseListe": [
+        ""
+      ]
+    }
+  ],
+  "summertÅrsinntektListe": [
+    {
+      "inntektRapportering": "AINNTEKT",
+      "sumInntekt": 480000,
+      "periode": {
+        "fom": "2023-01",
+        "til": "2023-12"
+      },
+      "gjelderBarnPersonId": "",
+      "inntektPostListe": [
+        {
+          "kode": "fastloenn",
+          "inntekstype": null,
+          "beløp": 480000
+        }
+      ],
+      "grunnlagsreferanseListe": [
+        ""
+      ]
+    },
+    {
+      "inntektRapportering": "AINNTEKT",
+      "sumInntekt": 540000,
+      "periode": {
+        "fom": "2024-01",
+        "til": "2024-12"
+      },
+      "gjelderBarnPersonId": "",
+      "inntektPostListe": [
+        {
+          "kode": "fastloenn",
+          "inntekstype": null,
+          "beløp": 540000
+        }
+      ],
+      "grunnlagsreferanseListe": [
+        ""
+      ]
+    },
+    {
+      "inntektRapportering": "AINNTEKT_BEREGNET_12MND",
+      "sumInntekt": 378000,
+      "periode": {
+        "fom": "2024-04",
+        "til": "2025-03"
+      },
+      "gjelderBarnPersonId": "",
+      "inntektPostListe": [
+        {
+          "kode": "fastloenn",
+          "inntekstype": null,
+          "beløp": 378000
+        }
+      ],
+      "grunnlagsreferanseListe": [
+        ""
+      ]
+    },
+    {
+      "inntektRapportering": "AINNTEKT_BEREGNET_3MND",
+      "sumInntekt": 0,
+      "periode": {
+        "fom": "2025-01",
+        "til": "2025-03"
+      },
+      "gjelderBarnPersonId": "",
+      "inntektPostListe": [],
+      "grunnlagsreferanseListe": []
+    }
+  ]
+}
