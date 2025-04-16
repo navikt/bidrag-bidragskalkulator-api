@@ -9,12 +9,14 @@ import no.nav.bidrag.transport.behandling.grunnlag.request.HentGrunnlagRequestDt
 import no.nav.bidrag.transport.behandling.grunnlag.response.HentGrunnlagDto
 import org.apache.logging.log4j.LogManager.getLogger
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
 import java.time.LocalDate
 
+@Service
 class BidragGrunnlagConsumer(
     val grunnlagConfig: GrunnlagConfigurationProperties,
     @Qualifier("azure") val restTemplate: RestTemplate,

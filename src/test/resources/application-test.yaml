@@ -6,6 +6,13 @@ AZURE_OPENID_CONFIG_TOKEN_ENDPOINT: http://localhost:${mock-oauth2-server.port}/
 AZURE_APP_TENANT_ID: tokenx
 
 NAIS_APP_NAME: bidrag-bidragskalkulator
+BIDRAG_GRUNNLAG_URL: https://bidrag-grunnlag.intern.dev.nav.no
+KODEVERK_URL: https://kodeverk.dev-fss-pub.nais.io
+
+bidrag:
+  grunnlag:
+    url: ${BIDRAG_GRUNNLAG_URL}
+    hentGrunnlagPath: hentgrunnlag
 
 no.nav.security.jwt:
   client:

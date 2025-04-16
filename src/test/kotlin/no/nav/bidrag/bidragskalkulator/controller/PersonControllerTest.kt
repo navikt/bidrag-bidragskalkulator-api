@@ -5,9 +5,12 @@ import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.unmockkAll
 import no.nav.bidrag.bidragskalkulator.exception.NoContentException
+import no.nav.bidrag.bidragskalkulator.service.GrunnlagService
 import no.nav.bidrag.bidragskalkulator.service.PersonService
 import no.nav.bidrag.bidragskalkulator.utils.JsonUtils
 import no.nav.bidrag.commons.security.utils.TokenUtils
+import no.nav.bidrag.inntekt.InntektApi
+import no.nav.bidrag.transport.behandling.inntekt.response.TransformerInntekterResponse
 import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
 import org.junit.jupiter.api.Test
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
@@ -18,8 +21,14 @@ class PersonControllerTest: AbstractControllerTest() {
     @MockkBean
     private lateinit var personService: PersonService
 
+    @MockkBean
+    private lateinit var grunnlagService: GrunnlagService
+
     private val mockResponsPersonMedEnBarnRelasjon: MotpartBarnRelasjonDto =
         JsonUtils.readJsonFile("/person/person_med_barn_et_motpart.json")
+
+    private val mockTransofmerInntekterResponse: TransformerInntekterResponse =
+        JsonUtils.readJsonFile("/grunnlag/transformer_inntekter_respons.json")
 
     @Test
     fun `skal returnere 200 OK og familierelasjon når person eksisterer`() {
@@ -47,5 +56,14 @@ class PersonControllerTest: AbstractControllerTest() {
     fun `skal returnere 401 Unauthorized når token mangler`() {
         getRequest("/api/v1/person/familierelasjon", "")
             .andExpect(status().isUnauthorized)
+    }
+
+    @Test
+    fun `skal returnere 200 OK når person har et gyldig grunnlag`() {
+        every { grunnlagService.hentInntektsGrunnlag(any()) } returns mockTransofmerInntekterResponse
+
+        getRequest("/api/v1/person/inntekt", gyldigOAuth2Token)
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$").isNotEmpty)
     }
 }

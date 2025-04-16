@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.client.HttpClientErrorException
-import org.springframework.web.client.HttpClientErrorException.NotFound
 
 @RestController
 @RequestMapping("/api/v1/person")
