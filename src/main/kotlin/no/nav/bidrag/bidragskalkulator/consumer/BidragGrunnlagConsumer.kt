@@ -16,7 +16,7 @@ import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
 import java.time.LocalDate
 
-@Service
+@Service("bidragGrunnlagConsumer")
 class BidragGrunnlagConsumer(
     val grunnlagConfig: GrunnlagConfigurationProperties,
     @Qualifier("azure") val restTemplate: RestTemplate,

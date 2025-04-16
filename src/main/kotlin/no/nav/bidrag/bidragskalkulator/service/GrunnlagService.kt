@@ -9,11 +9,12 @@ import no.nav.bidrag.transport.behandling.grunnlag.response.HentGrunnlagDto
 import no.nav.bidrag.transport.behandling.inntekt.request.TransformerInntekterRequest
 import no.nav.bidrag.transport.behandling.inntekt.response.TransformerInntekterResponse
 import org.apache.logging.log4j.LogManager.getLogger
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 
-@Service
+@Service()
 class GrunnlagService(
-    private val grunnlagConsumer: BidragGrunnlagConsumer,
+    @Qualifier("bidragGrunnlagConsumer") private val grunnlagConsumer: BidragGrunnlagConsumer,
     private val inntektApi: InntektApi,
 ) {
 
