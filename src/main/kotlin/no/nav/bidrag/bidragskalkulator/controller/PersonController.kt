@@ -10,7 +10,7 @@ import no.nav.bidrag.bidragskalkulator.service.PersonService
 import no.nav.bidrag.commons.security.utils.TokenUtils
 import no.nav.bidrag.commons.util.secureLogger
 import no.nav.bidrag.transport.behandling.inntekt.response.TransformerInntekterResponse
-import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
+import no.nav.bidrag.bidragskalkulator.dto.BrukerInfomasjonDto
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -27,33 +27,31 @@ class PersonController(private val personService: PersonService, private val gru
     private val logger = LoggerFactory.getLogger(PersonController::class.java)
 
     @Operation(
-        summary = "Henter familierelasjoner",
-        description = "Henter familierelasjoner for pålogget person. Returnerer 200 ved vellykket henting, eller passende feilkoder.",
+        summary = "Henter informasjon om pålogget person og relasjoner til barn",
+        description = "Henter informasjon om pålogget person og relasjoner til barn. Returnerer 200 ved vellykket henting, eller passende feilkoder.",
         security = [SecurityRequirement(name = SecurityConstants.BEARER_KEY)]
     )
     @ApiResponses(
         value = [
-            ApiResponse(responseCode = "200", description = "Familierelasjoner hentet vellykket"),
+            ApiResponse(responseCode = "200", description = "Brukerinformasjon hentet vellykket"),
             ApiResponse(responseCode = "204", description = "Person eksisterer ikke"),
-            ApiResponse(responseCode = "400", description = "Ugyldig forespørsel - mangler eller feil i inputdata"),
             ApiResponse(responseCode = "401", description = "Uautorisert tilgang - ugyldig eller utløpt token"),
-            ApiResponse(responseCode = "404", description = "Ingen familierelasjoner funnet"),
             ApiResponse(responseCode = "500", description = "Intern serverfeil")
         ]
     )
-    @GetMapping("/familierelasjon")
-    fun hentFamilierelasjon(): MotpartBarnRelasjonDto? {
-        logger.info("Henter familierelasjoner")
+    @GetMapping("/informasjon")
+    fun hentInformasjon(): BrukerInfomasjonDto {
+        logger.info("Henter informasjon om pålogget person og personens barn")
 
-        val personIdent: String = TokenUtils.hentBruker()
-            ?: throw IllegalArgumentException("Brukerident er ikke tilgjengelig i token")
+        val personIdent: String = requireNotNull(TokenUtils.hentBruker()) {
+            "Brukerident er ikke tilgjengelig i token"
+        }
 
-        secureLogger.info { "Henter familierelasjoner for person $personIdent" }
+        secureLogger.info { "Henter informasjon om pålogget person $personIdent og personens barn" }
 
-        val respons = personService.hentFamilierelasjon(personIdent)
-
-        secureLogger.info { "Henting av familierelasjoner for person $personIdent er fullført" }
-        return respons
+        return personService.hentInformasjon(personIdent).also {
+            secureLogger.info { "Henter informasjon om pålogget person $personIdent fullført" }
+        }
     }
 
     @Operation(

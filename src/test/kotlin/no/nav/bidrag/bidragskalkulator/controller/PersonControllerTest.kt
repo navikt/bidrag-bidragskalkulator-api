@@ -6,10 +6,11 @@ import io.mockk.mockkObject
 import io.mockk.unmockkAll
 import no.nav.bidrag.bidragskalkulator.exception.NoContentException
 import no.nav.bidrag.bidragskalkulator.service.GrunnlagService
+import no.nav.bidrag.bidragskalkulator.mapper.BrukerInformasjonMapper
+import no.nav.bidrag.bidragskalkulator.mapper.tilMockPersondetaljerDto
 import no.nav.bidrag.bidragskalkulator.service.PersonService
 import no.nav.bidrag.bidragskalkulator.utils.JsonUtils
 import no.nav.bidrag.commons.security.utils.TokenUtils
-import no.nav.bidrag.inntekt.InntektApi
 import no.nav.bidrag.transport.behandling.inntekt.response.TransformerInntekterResponse
 import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
 import org.junit.jupiter.api.Test
@@ -32,11 +33,13 @@ class PersonControllerTest: AbstractControllerTest() {
 
     @Test
     fun `skal returnere 200 OK og familierelasjon når person eksisterer`() {
-        every { personService.hentFamilierelasjon(any()) } returns mockResponsPersonMedEnBarnRelasjon
+        every { personService.hentInformasjon(any()) } returns
+                BrukerInformasjonMapper
+                    .tilBrukerInformasjonDto(mockResponsPersonMedEnBarnRelasjon, mockResponsPersonMedEnBarnRelasjon.tilMockPersondetaljerDto())
 
-        getRequest("/api/v1/person/familierelasjon", gyldigOAuth2Token)
+        getRequest("/api/v1/person/informasjon", gyldigOAuth2Token)
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.personensMotpartBarnRelasjon").isNotEmpty())
+            .andExpect(jsonPath("$.barnRelasjon").isNotEmpty())
     }
 
     @Test
@@ -44,9 +47,9 @@ class PersonControllerTest: AbstractControllerTest() {
         mockkObject(TokenUtils)
 
         every { TokenUtils.hentBruker() } returns null
-        every { personService.hentFamilierelasjon(any()) } throws NoContentException("Fant ikke person")
+        every { personService.hentInformasjon(any()) } throws NoContentException("Fant ikke person")
 
-        getRequest("/api/v1/person/familierelasjon", gyldigOAuth2Token)
+        getRequest("/api/v1/person/informasjon", gyldigOAuth2Token)
             .andExpect(status().isNoContent)
 
         unmockkAll()
@@ -54,7 +57,7 @@ class PersonControllerTest: AbstractControllerTest() {
 
     @Test
     fun `skal returnere 401 Unauthorized når token mangler`() {
-        getRequest("/api/v1/person/familierelasjon", "")
+        getRequest("/api/v1/person/informasjon", "")
             .andExpect(status().isUnauthorized)
     }
 

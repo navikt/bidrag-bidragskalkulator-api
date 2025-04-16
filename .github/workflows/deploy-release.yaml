@@ -1,8 +1,8 @@
-name: Build and deploy
+name: Deploy release to prod
 on:
-  push:
-    branches:
-      - main
+  release:
+    types: [published]
+
 jobs:
   build:
     name: Build and publish Docker image
@@ -34,12 +34,11 @@ jobs:
     outputs:
       image: ${{ steps.docker-build-push.outputs.image }}
 
-  deploy-dev:
-    name: Deploy to dev
+  deploy-prod:
+    name: Deploy to prod
     needs: [ build ]
-    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    environment: dev-gcp
+    environment: prod-gcp
     permissions:
       contents: read
       id-token: write
@@ -48,8 +47,8 @@ jobs:
       - uses: nais/deploy/actions/deploy@v2
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: dev-gcp
+          CLUSTER: prod-gcp
           RESOURCE: .nais/naiserator.yaml
           VAR: image=${{ needs.build.outputs.image }}
-          VARS: .nais/dev.yaml
+          VARS: .nais/prod.yaml
           TELEMETRY: ${{ steps.docker-build-push.outputs.telemetry }}

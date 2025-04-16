@@ -1,0 +1,31 @@
+{
+  "person": {
+    "ident": "03848797048",
+    "navn": "LIGGESTOL, EKSAKT",
+    "fornavn": "Eksakt",
+    "mellomnavn": "",
+    "etternavn": "Liggestol",
+    "kjønn": "KVINNE",
+    "kjoenn": "KVINNE",
+    "fødselsdato": "1987-04-03",
+    "foedselsdato": "1987-04-03",
+    "aktørId": "2995022845225",
+    "aktoerId": "2995022845225",
+    "kortnavn": "Eksakt Liggestol",
+    "kortNavn": "Eksakt Liggestol",
+    "visningsnavn": "Eksakt Liggestol"
+  },
+  "adresse": {
+    "adressetype": "BOSTEDSADRESSE",
+    "adresselinje1": "Åsvegen 446",
+    "bruksenhetsnummer": "H0101",
+    "postnummer": "2332",
+    "poststed": "ÅSVANG",
+    "land": "NO",
+    "land3": "NOR"
+  },
+  "kontonummer": null,
+  "dødsbo": null,
+  "språk": "nb",
+  "tidligereIdenter": null
+}

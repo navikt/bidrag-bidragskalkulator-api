@@ -5,6 +5,7 @@ import io.mockk.mockk
 import io.mockk.unmockkAll
 import no.nav.bidrag.bidragskalkulator.consumer.BidragPersonConsumer
 import no.nav.bidrag.bidragskalkulator.exception.NoContentException
+import no.nav.bidrag.bidragskalkulator.mapper.tilMockPersondetaljerDto
 import no.nav.bidrag.bidragskalkulator.utils.JsonUtils
 import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
 import org.junit.jupiter.api.*
@@ -39,10 +40,10 @@ class PersonServiceTest {
 
     @Test
     fun `skal kaste NoContentException hvis person ikke finnes`() {
-        every { mockPersonConsumer.hentFamilierelasjon(identSomIkkeFinnes) } returns null
+        every { mockPersonConsumer.hentFamilierelasjon(identSomIkkeFinnes) } throws NoContentException("Fant ikke person med ident $identSomIkkeFinnes")
 
         val exception = assertThrows<NoContentException> {
-            personService.hentFamilierelasjon(identSomIkkeFinnes)
+            personService.hentInformasjon(identSomIkkeFinnes)
         }
 
         assertEquals("Fant ikke person med ident $identSomIkkeFinnes", exception.message)
@@ -51,11 +52,12 @@ class PersonServiceTest {
     @Test
     fun `skal returnere én barn-relasjon når person har barn med én motpart`() {
         every { mockPersonConsumer.hentFamilierelasjon(identMedEttBarn) } returns responsMedEttBarn
+        every { mockPersonConsumer.hentDetaljertInformasjon(identMedEttBarn) } returns responsMedEttBarn.tilMockPersondetaljerDto()
 
-        val resultat = personService.hentFamilierelasjon(identMedEttBarn)
-        assertNotNull(resultat)
+        val resultat = personService.hentInformasjon(identMedEttBarn)
 
-        val relasjoner = resultat!!.personensMotpartBarnRelasjon
+        val relasjoner = resultat.barnRelasjon
+
         assertAll(
             "Verifiser én relasjon",
             { assertEquals(1, relasjoner.size) },
@@ -66,22 +68,22 @@ class PersonServiceTest {
     @Test
     fun `skal returnere tom barn-relasjonsliste når person ikke har barn`() {
         every { mockPersonConsumer.hentFamilierelasjon(identUtenBarn) } returns responsUtenBarn
+        every { mockPersonConsumer.hentDetaljertInformasjon(identUtenBarn) } returns responsUtenBarn.tilMockPersondetaljerDto()
 
-        val resultat = personService.hentFamilierelasjon(identUtenBarn)
-        assertNotNull(resultat)
+        val resultat = personService.hentInformasjon(identUtenBarn)
 
-        val relasjoner = resultat!!.personensMotpartBarnRelasjon
+        val relasjoner = resultat.barnRelasjon
         assertEquals(0, relasjoner.size)
     }
 
     @Test
     fun `skal returnere flere barn-relasjoner når person har barn med flere motparter`() {
         every { mockPersonConsumer.hentFamilierelasjon(identMedFlereBarn) } returns responsMedFlereBarn
+        every { mockPersonConsumer.hentDetaljertInformasjon(identMedFlereBarn) } returns responsMedFlereBarn.tilMockPersondetaljerDto()
 
-        val resultat = personService.hentFamilierelasjon(identMedFlereBarn)
-        assertNotNull(resultat)
+        val resultat = personService.hentInformasjon(identMedFlereBarn)
+        val relasjoner = resultat.barnRelasjon
 
-        val relasjoner = resultat!!.personensMotpartBarnRelasjon
         assertTrue(relasjoner.size > 1)
     }
 }
