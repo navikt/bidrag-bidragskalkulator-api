@@ -5,11 +5,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import no.nav.bidrag.bidragskalkulator.config.SecurityConstants
-import no.nav.bidrag.bidragskalkulator.dto.GrunnlagResponseDto
 import no.nav.bidrag.bidragskalkulator.service.GrunnlagService
 import no.nav.bidrag.bidragskalkulator.service.PersonService
 import no.nav.bidrag.commons.security.utils.TokenUtils
 import no.nav.bidrag.commons.util.secureLogger
+import no.nav.bidrag.transport.behandling.inntekt.response.TransformerInntekterResponse
 import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.web.bind.annotation.GetMapping
@@ -57,13 +57,32 @@ class PersonController(private val personService: PersonService, private val gru
         return respons
     }
 
+    @Operation(
+        summary = "Henter inntektsgrunnlag",
+        description = "Henter inntektsgrunnlaget for en person. Returnerer 200 ved vellykket henting, eller passende feilkoder.",
+        security = [SecurityRequirement(name = SecurityConstants.BEARER_KEY)]
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "Inntektsgrnunlag hentet vellykket"),
+            ApiResponse(responseCode = "400", description = "Ugyldig forespørsel - mangler eller feil i inputdata"),
+            ApiResponse(responseCode = "401", description = "Uautorisert tilgang - ugyldig eller utløpt token"),
+            ApiResponse(responseCode = "404", description = "Ingen inntektsgrnunlag funnet"),
+            ApiResponse(responseCode = "500", description = "Intern serverfeil")
+        ]
+    )
     @GetMapping("/inntekt")
-    fun hentInntekt(): GrunnlagResponseDto {
+    fun hentInntekt(): TransformerInntekterResponse {
         val personIdent: String = TokenUtils.hentBruker()
             ?: throw IllegalArgumentException("Brukerident er ikke tilgjengelig i token")
 
-        return grunnlagService.hentInntektsGrunnlag(personIdent)
+        secureLogger.info { "Henter inntektsgrunnlag for ident $personIdent" }
+
+        val result = grunnlagService.hentInntektsGrunnlag(personIdent)
             ?: throw HttpClientErrorException(HttpStatus.NOT_FOUND, "Fant ikke inntektsgrunnlag for person $personIdent")
 
+        secureLogger.info { "Henting av inntektsgrunnlag for ident $personIdent fullførte OK" }
+
+        return result
     }
 }

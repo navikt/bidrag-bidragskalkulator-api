@@ -1,0 +1,170 @@
+{
+  "ainntektListe": [
+    {
+      "personId": "10107400090",
+      "periodeFra": "2024-04-01",
+      "periodeTil": "2024-05-01",
+      "ainntektspostListe": [
+        {
+          "utbetalingsperiode": "2024-04",
+          "opptjeningsperiodeFra": null,
+          "opptjeningsperiodeTil": null,
+          "opplysningspliktigId": "810007702",
+          "virksomhetId": "810007842",
+          "fordelType": "kontantytelse",
+          "beskrivelse": "fastloenn",
+          "etterbetalingsperiodeFra": null,
+          "etterbetalingsperiodeTil": null,
+          "inntektType": "LOENNSINNTEKT",
+          "kategori": "LOENNSINNTEKT",
+          "belop": 54000,
+          "beløp": 54000
+        }
+      ]
+    },
+    {
+      "personId": "10107400090",
+      "periodeFra": "2024-05-01",
+      "periodeTil": "2024-06-01",
+      "ainntektspostListe": [
+        {
+          "utbetalingsperiode": "2024-05",
+          "opptjeningsperiodeFra": null,
+          "opptjeningsperiodeTil": null,
+          "opplysningspliktigId": "810007702",
+          "virksomhetId": "810007842",
+          "fordelType": "kontantytelse",
+          "beskrivelse": "fastloenn",
+          "etterbetalingsperiodeFra": null,
+          "etterbetalingsperiodeTil": null,
+          "inntektType": "LOENNSINNTEKT",
+          "kategori": "LOENNSINNTEKT",
+          "belop": 54000,
+          "beløp": 54000
+        }
+      ]
+    },
+    {
+      "personId": "10107400090",
+      "periodeFra": "2024-06-01",
+      "periodeTil": "2024-07-01",
+      "ainntektspostListe": [
+        {
+          "utbetalingsperiode": "2024-06",
+          "opptjeningsperiodeFra": null,
+          "opptjeningsperiodeTil": null,
+          "opplysningspliktigId": "810007702",
+          "virksomhetId": "810007842",
+          "fordelType": "kontantytelse",
+          "beskrivelse": "fastloenn",
+          "etterbetalingsperiodeFra": null,
+          "etterbetalingsperiodeTil": null,
+          "inntektType": "LOENNSINNTEKT",
+          "kategori": "LOENNSINNTEKT",
+          "belop": 54000,
+          "beløp": 54000
+        }
+      ]
+    },
+    {
+      "personId": "10107400090",
+      "periodeFra": "2024-07-01",
+      "periodeTil": "2024-08-01",
+      "ainntektspostListe": [
+        {
+          "utbetalingsperiode": "2024-07",
+          "opptjeningsperiodeFra": null,
+          "opptjeningsperiodeTil": null,
+          "opplysningspliktigId": "810007702",
+          "virksomhetId": "810007842",
+          "fordelType": "kontantytelse",
+          "beskrivelse": "fastloenn",
+          "etterbetalingsperiodeFra": null,
+          "etterbetalingsperiodeTil": null,
+          "inntektType": "LOENNSINNTEKT",
+          "kategori": "LOENNSINNTEKT",
+          "belop": 54000,
+          "beløp": 54000
+        }
+      ]
+    },
+    {
+      "personId": "10107400090",
+      "periodeFra": "2024-08-01",
+      "periodeTil": "2024-09-01",
+      "ainntektspostListe": [
+        {
+          "utbetalingsperiode": "2024-08",
+          "opptjeningsperiodeFra": null,
+          "opptjeningsperiodeTil": null,
+          "opplysningspliktigId": "810007702",
+          "virksomhetId": "810007842",
+          "fordelType": "kontantytelse",
+          "beskrivelse": "fastloenn",
+          "etterbetalingsperiodeFra": null,
+          "etterbetalingsperiodeTil": null,
+          "inntektType": "LOENNSINNTEKT",
+          "kategori": "LOENNSINNTEKT",
+          "belop": 54000,
+          "beløp": 54000
+        }
+      ]
+    },
+    {
+      "personId": "10107400090",
+      "periodeFra": "2024-09-01",
+      "periodeTil": "2024-10-01",
+      "ainntektspostListe": [
+        {
+          "utbetalingsperiode": "2024-09",
+          "opptjeningsperiodeFra": null,
+          "opptjeningsperiodeTil": null,
+          "opplysningspliktigId": "810007702",
+          "virksomhetId": "810007842",
+          "fordelType": "kontantytelse",
+          "beskrivelse": "fastloenn",
+          "etterbetalingsperiodeFra": null,
+          "etterbetalingsperiodeTil": null,
+          "inntektType": "LOENNSINNTEKT",
+          "kategori": "LOENNSINNTEKT",
+          "belop": 54000,
+          "beløp": 54000
+        }
+      ]
+    },
+    {
+      "personId": "10107400090",
+      "periodeFra": "2024-10-01",
+      "periodeTil": "2024-11-01",
+      "ainntektspostListe": [
+        {
+          "utbetalingsperiode": "2024-10",
+          "opptjeningsperiodeFra": null,
+          "opptjeningsperiodeTil": null,
+          "opplysningspliktigId": "810007702",
+          "virksomhetId": "810007842",
+          "fordelType": "kontantytelse",
+          "beskrivelse": "fastloenn",
+          "etterbetalingsperiodeFra": null,
+          "etterbetalingsperiodeTil": null,
+          "inntektType": "LOENNSINNTEKT",
+          "kategori": "LOENNSINNTEKT",
+          "belop": 54000,
+          "beløp": 54000
+        }
+      ]
+    }
+  ],
+  "skattegrunnlagListe": [],
+  "utvidetBarnetrygdListe": [],
+  "småbarnstilleggListe": [],
+  "barnetilleggListe": [],
+  "kontantstøtteListe": [],
+  "husstandsmedlemmerOgEgneBarnListe": [],
+  "sivilstandListe": [],
+  "barnetilsynListe": [],
+  "arbeidsforholdListe": [],
+  "tilleggsstønadBarnetilsynListe": [],
+  "feilrapporteringListe": [],
+  "hentetTidspunkt": "2025-04-15T12:31:24.37937621"
+}
