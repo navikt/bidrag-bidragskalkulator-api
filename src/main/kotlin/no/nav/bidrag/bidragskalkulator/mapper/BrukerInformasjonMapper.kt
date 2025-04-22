@@ -15,7 +15,7 @@ object BrukerInformasjonMapper {
         return BrukerInfomasjonDto(
             påloggetPerson = motpartBarnRelasjondto.tilPåloggetPersonDto(),
             barnRelasjon = motpartBarnRelasjondto.personensMotpartBarnRelasjon
-                .filter { it.motpart?.dødsdato != null }
+                .filter { it.motpart?.dødsdato == null }
                 .map {
                     BarneRelasjonDto(
                         motpart = it.motpart?.tilPersonInformasjonDto(),

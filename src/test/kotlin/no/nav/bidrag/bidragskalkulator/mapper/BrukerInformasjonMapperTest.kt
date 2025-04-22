@@ -32,6 +32,42 @@ open class BrukerInformasjonMapperTest {
     }
 
     @Test
+    fun `skal filtere ut døde barn`() {
+        val motpartBarnRelasjonDto: MotpartBarnRelasjonDto = JsonUtils.readJsonFile("/person/person_med_doede_barn.json")
+
+        val resultat: BrukerInfomasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(motpartBarnRelasjonDto)
+
+        assertNotNull(resultat)
+
+        // Forventer at døde barn er filtrert ut
+        assertEquals(1, resultat.barnRelasjon.size)
+    }
+
+    @Test
+    fun `skal filtere ut døde motparter`() {
+        val motpartBarnRelasjonDto: MotpartBarnRelasjonDto = JsonUtils.readJsonFile("/person/person_med_doed_motpart.json")
+
+        val resultat: BrukerInfomasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(motpartBarnRelasjonDto)
+
+        assertNotNull(resultat)
+
+        // Forventer at døde motparter er filtrert ut
+        assertEquals(2, resultat.barnRelasjon.size)
+    }
+
+    @Test
+    fun `skal filtere ut barn med strengt fortrolig adresse`() {
+        val motpartBarnRelasjonDto: MotpartBarnRelasjonDto = JsonUtils.readJsonFile("/person/person_med_barn_med_strengt_fortrolig_adresse.json")
+
+        val resultat: BrukerInfomasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(motpartBarnRelasjonDto)
+
+        assertNotNull(resultat)
+
+        // Forventer at døde motparter er filtrert ut
+        assertEquals(0, resultat.barnRelasjon.get(0).fellesBarn.size)
+    }
+
+    @Test
     fun `skal håndtere null-motpart på barn-relasjon`() {
         val motpartBarnRelasjonDto: MotpartBarnRelasjonDto = JsonUtils.readJsonFile("/person/person_med_barn_flere_motpart.json")
 
