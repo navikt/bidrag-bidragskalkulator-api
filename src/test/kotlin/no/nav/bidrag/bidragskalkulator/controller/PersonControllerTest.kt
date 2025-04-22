@@ -6,7 +6,6 @@ import io.mockk.mockkObject
 import io.mockk.unmockkAll
 import no.nav.bidrag.bidragskalkulator.exception.NoContentException
 import no.nav.bidrag.bidragskalkulator.mapper.BrukerInformasjonMapper
-import no.nav.bidrag.bidragskalkulator.mapper.tilMockPersondetaljerDto
 import no.nav.bidrag.bidragskalkulator.service.PersonService
 import no.nav.bidrag.bidragskalkulator.utils.JsonUtils
 import no.nav.bidrag.commons.security.utils.TokenUtils
@@ -27,7 +26,7 @@ class PersonControllerTest: AbstractControllerTest() {
     fun `skal returnere 200 OK og familierelasjon når person eksisterer`() {
         every { personService.hentInformasjon(any()) } returns
                 BrukerInformasjonMapper
-                    .tilBrukerInformasjonDto(mockResponsPersonMedEnBarnRelasjon, mockResponsPersonMedEnBarnRelasjon.tilMockPersondetaljerDto())
+                    .tilBrukerInformasjonDto(mockResponsPersonMedEnBarnRelasjon)
 
         getRequest("/api/v1/person/informasjon", gyldigOAuth2Token)
             .andExpect(status().isOk)

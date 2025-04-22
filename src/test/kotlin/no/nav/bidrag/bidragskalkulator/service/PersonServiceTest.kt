@@ -5,7 +5,6 @@ import io.mockk.mockk
 import io.mockk.unmockkAll
 import no.nav.bidrag.bidragskalkulator.consumer.BidragPersonConsumer
 import no.nav.bidrag.bidragskalkulator.exception.NoContentException
-import no.nav.bidrag.bidragskalkulator.mapper.tilMockPersondetaljerDto
 import no.nav.bidrag.bidragskalkulator.utils.JsonUtils
 import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
 import org.junit.jupiter.api.*
@@ -52,7 +51,6 @@ class PersonServiceTest {
     @Test
     fun `skal returnere én barn-relasjon når person har barn med én motpart`() {
         every { mockPersonConsumer.hentFamilierelasjon(identMedEttBarn) } returns responsMedEttBarn
-        every { mockPersonConsumer.hentDetaljertInformasjon(identMedEttBarn) } returns responsMedEttBarn.tilMockPersondetaljerDto()
 
         val resultat = personService.hentInformasjon(identMedEttBarn)
 
@@ -68,7 +66,6 @@ class PersonServiceTest {
     @Test
     fun `skal returnere tom barn-relasjonsliste når person ikke har barn`() {
         every { mockPersonConsumer.hentFamilierelasjon(identUtenBarn) } returns responsUtenBarn
-        every { mockPersonConsumer.hentDetaljertInformasjon(identUtenBarn) } returns responsUtenBarn.tilMockPersondetaljerDto()
 
         val resultat = personService.hentInformasjon(identUtenBarn)
 
@@ -79,7 +76,6 @@ class PersonServiceTest {
     @Test
     fun `skal returnere flere barn-relasjoner når person har barn med flere motparter`() {
         every { mockPersonConsumer.hentFamilierelasjon(identMedFlereBarn) } returns responsMedFlereBarn
-        every { mockPersonConsumer.hentDetaljertInformasjon(identMedFlereBarn) } returns responsMedFlereBarn.tilMockPersondetaljerDto()
 
         val resultat = personService.hentInformasjon(identMedFlereBarn)
         val relasjoner = resultat.barnRelasjon

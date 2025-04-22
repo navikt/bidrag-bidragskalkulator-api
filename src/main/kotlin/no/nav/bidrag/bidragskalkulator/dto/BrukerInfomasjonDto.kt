@@ -13,9 +13,6 @@ data class PåloggetPersonDto(
 
     @Schema(description = "Fullt navn, som er fornavn og etternavn kombinert", example = "Ola Nordmann")
     val fulltNavn: String,
-
-    @Schema(ref = "#/components/schemas/Språkspreferanse")
-    val språkspreferanse: String
 )
 
 @Schema(description = "Inneholder informasjon om en person")

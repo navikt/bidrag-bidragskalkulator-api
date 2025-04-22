@@ -2,19 +2,17 @@ package no.nav.bidrag.bidragskalkulator.mapper
 
 import no.nav.bidrag.bidragskalkulator.dto.*
 import no.nav.bidrag.commons.util.secureLogger
-import no.nav.bidrag.domene.enums.diverse.Språk
 import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
 import no.nav.bidrag.transport.person.PersonDto
-import no.nav.bidrag.transport.person.PersondetaljerDto
 import java.time.LocalDate
 import java.time.Period
 import java.time.format.DateTimeParseException
 
 object BrukerInformasjonMapper {
 
-    fun tilBrukerInformasjonDto(motpartBarnRelasjondto: MotpartBarnRelasjonDto, detaljertInformasjonDto: PersondetaljerDto): BrukerInfomasjonDto {
+    fun tilBrukerInformasjonDto(motpartBarnRelasjondto: MotpartBarnRelasjonDto): BrukerInfomasjonDto {
         return BrukerInfomasjonDto(
-            påloggetPerson = detaljertInformasjonDto.tilPåloggetPersonDto(),
+            påloggetPerson = motpartBarnRelasjondto.tilPåloggetPersonDto(),
             barnRelasjon = motpartBarnRelasjondto.personensMotpartBarnRelasjon
                 .map {
                     BarneRelasjonDto(
@@ -34,12 +32,11 @@ object BrukerInformasjonMapper {
         )
     }
 
-    private fun PersondetaljerDto.tilPåloggetPersonDto(): PåloggetPersonDto {
+    private fun MotpartBarnRelasjonDto.tilPåloggetPersonDto(): PåloggetPersonDto {
         return PåloggetPersonDto(
             ident = this.person.ident,
             fornavn = this.person.fornavn ?: "",
             fulltNavn = this.person.visningsnavn,
-            språkspreferanse = this.språk ?: Språk.NB.name
         )
     }
 
