@@ -49,9 +49,7 @@ class GrunnlagServiceTest {
         val response = service.hentInntektsGrunnlag("12345678910")
         checkNotNull(response)
         assertEquals(BigDecimal(378000), response
-            .summertÅrsinntektListe
-            .filter { it.inntektRapportering === Inntektsrapportering.AINNTEKT_BEREGNET_12MND }
-            .first()
+            .summertÅrsinntektListe.first { it.inntektRapportering === Inntektsrapportering.AINNTEKT_BEREGNET_12MND }
             .sumInntekt)
     }
 

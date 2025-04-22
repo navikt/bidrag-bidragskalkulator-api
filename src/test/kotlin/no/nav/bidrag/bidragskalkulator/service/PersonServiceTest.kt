@@ -57,7 +57,7 @@ class PersonServiceTest {
     fun `skal returnere én barn-relasjon når person har barn med én motpart`() {
         every { mockPersonConsumer.hentFamilierelasjon(identMedEttBarn) } returns responsMedEttBarn
         every { mockPersonConsumer.hentDetaljertInformasjon(identMedEttBarn) } returns responsMedEttBarn.tilMockPersondetaljerDto()
-        every { mockGrunnlagService.hentInntektsGrunnlag(identSomIkkeFinnes) } returns responsInntektsGrunnlag
+        every { mockGrunnlagService.hentInntektsGrunnlag(identMedEttBarn) } returns responsInntektsGrunnlag
 
         val resultat = personService.hentInformasjon(identMedEttBarn)
 
@@ -74,7 +74,7 @@ class PersonServiceTest {
     fun `skal returnere tom barn-relasjonsliste når person ikke har barn`() {
         every { mockPersonConsumer.hentFamilierelasjon(identUtenBarn) } returns responsUtenBarn
         every { mockPersonConsumer.hentDetaljertInformasjon(identUtenBarn) } returns responsUtenBarn.tilMockPersondetaljerDto()
-        every { mockGrunnlagService.hentInntektsGrunnlag(identSomIkkeFinnes) } returns responsInntektsGrunnlag
+        every { mockGrunnlagService.hentInntektsGrunnlag(identUtenBarn) } returns responsInntektsGrunnlag
 
         val resultat = personService.hentInformasjon(identUtenBarn)
 
@@ -86,7 +86,7 @@ class PersonServiceTest {
     fun `skal returnere flere barn-relasjoner når person har barn med flere motparter`() {
         every { mockPersonConsumer.hentFamilierelasjon(identMedFlereBarn) } returns responsMedFlereBarn
         every { mockPersonConsumer.hentDetaljertInformasjon(identMedFlereBarn) } returns responsMedFlereBarn.tilMockPersondetaljerDto()
-        every { mockGrunnlagService.hentInntektsGrunnlag(identSomIkkeFinnes) } returns responsInntektsGrunnlag
+        every { mockGrunnlagService.hentInntektsGrunnlag(identMedFlereBarn) } returns responsInntektsGrunnlag
 
         val resultat = personService.hentInformasjon(identMedFlereBarn)
         val relasjoner = resultat.barnRelasjon
