@@ -6,7 +6,6 @@ import no.nav.bidrag.bidragskalkulator.consumer.BidragPersonConsumer
 import no.nav.bidrag.bidragskalkulator.exception.NoContentException
 import no.nav.bidrag.bidragskalkulator.utils.JsonUtils
 import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
-import no.nav.bidrag.transport.person.PersondetaljerDto
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
@@ -41,20 +40,6 @@ class BidragPersonbidragPersonConsumerTest {
        mockPostCall(forventetRespons)
 
         val faktisk = bidragPersonConsumer.hentFamilierelasjon(ident)
-
-        assertThat(faktisk).isEqualTo(forventetRespons)
-    }
-
-    @Test
-    fun `skal returnere detaljert informasjon`() {
-        val ident = "12345678901"
-
-        val forventetRespons: PersondetaljerDto =
-            JsonUtils.readJsonFile("/person/person_detaljert_informasjon.json")
-
-        mockPostCall(forventetRespons)
-
-        val faktisk = bidragPersonConsumer.hentDetaljertInformasjon(ident)
 
         assertThat(faktisk).isEqualTo(forventetRespons)
     }

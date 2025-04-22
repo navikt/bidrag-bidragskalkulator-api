@@ -5,7 +5,6 @@ import no.nav.bidrag.commons.web.client.AbstractRestClient
 import no.nav.bidrag.domene.ident.Personident
 import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
 import no.nav.bidrag.transport.person.PersonRequest
-import no.nav.bidrag.transport.person.PersondetaljerDto
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
@@ -20,16 +19,10 @@ class BidragPersonConsumer(
 ) : AbstractRestClient(restTemplate, "bidrag-person") {
 
     private val hentFamilierelasjonUri = URI.create("$bidragPersonUrl/motpartbarnrelasjon")
-    private val hentDetaljertInformasjonUri = URI.create("$bidragPersonUrl/informasjon/detaljer")
 
     fun hentFamilierelasjon(ident: String): MotpartBarnRelasjonDto {
         secureLogger.info("Henter familierelasjon for person $ident")
         return postSafely(hentFamilierelasjonUri, PersonRequest(Personident(ident)), ident)
-    }
-
-    fun hentDetaljertInformasjon(ident: String): PersondetaljerDto {
-        secureLogger.info("Henter detaljert informasjon for person $ident")
-        return postSafely(hentDetaljertInformasjonUri, PersonRequest(Personident(ident)), ident)
     }
 
     private inline fun <reified T : Any> postSafely(uri: URI, request: Any, ident: String): T {
