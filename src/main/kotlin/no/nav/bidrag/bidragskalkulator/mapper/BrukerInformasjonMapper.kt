@@ -14,10 +14,14 @@ object BrukerInformasjonMapper {
         return BrukerInfomasjonDto(
             påloggetPerson = motpartBarnRelasjondto.tilPåloggetPersonDto(),
             barnRelasjon = motpartBarnRelasjondto.personensMotpartBarnRelasjon
+                .filter { it.motpart?.dødsdato != null }
                 .map {
                     BarneRelasjonDto(
                         motpart = it.motpart?.tilPersonInformasjonDto(),
-                        fellesBarn = it.fellesBarn.map { barn -> barn.tilPersonInformasjonDto() }
+                        fellesBarn = it.fellesBarn
+                            .filter { barn -> barn.dødsdato == null }
+                            .map { barn -> barn.tilPersonInformasjonDto() }
+                            .sortedByDescending { barn -> barn.alder }
                     )
                 }
         )
