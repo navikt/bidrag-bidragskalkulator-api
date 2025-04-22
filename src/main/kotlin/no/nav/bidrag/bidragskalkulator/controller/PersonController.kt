@@ -56,32 +56,4 @@ class PersonController(private val personService: PersonService, private val gru
         }
     }
 
-    @Operation(
-        summary = "Henter inntektsgrunnlag",
-        description = "Henter inntektsgrunnlaget for en person. Returnerer 200 ved vellykket henting, eller passende feilkoder.",
-        security = [SecurityRequirement(name = SecurityConstants.BEARER_KEY)]
-    )
-    @ApiResponses(
-        value = [
-            ApiResponse(responseCode = "200", description = "Inntektsgrnunlag hentet vellykket"),
-            ApiResponse(responseCode = "400", description = "Ugyldig forespørsel - mangler eller feil i inputdata"),
-            ApiResponse(responseCode = "401", description = "Uautorisert tilgang - ugyldig eller utløpt token"),
-            ApiResponse(responseCode = "404", description = "Ingen inntektsgrnunlag funnet"),
-            ApiResponse(responseCode = "500", description = "Intern serverfeil")
-        ]
-    )
-    @GetMapping("/inntekt")
-    fun hentInntekt(): InntektResultatDto {
-        val personIdent: String = TokenUtils.hentBruker()
-            ?: throw IllegalArgumentException("Brukerident er ikke tilgjengelig i token")
-
-        secureLogger.info { "Henter inntektsgrunnlag for ident $personIdent" }
-
-        val result = grunnlagService.hentInntektsGrunnlag(personIdent)?.toInntektResultatDto()
-            ?: throw HttpClientErrorException(HttpStatus.NOT_FOUND, "Fant ikke inntektsgrunnlag for person $personIdent")
-
-        secureLogger.info { "Henting av inntektsgrunnlag for ident $personIdent fullførte OK" }
-
-        return result
-    }
 }

@@ -64,13 +64,4 @@ class PersonControllerTest: AbstractControllerTest() {
         getRequest("/api/v1/person/informasjon", "")
             .andExpect(status().isUnauthorized)
     }
-
-    @Test
-    fun `skal returnere 200 OK når person har et gyldig grunnlag`() {
-        every { grunnlagService.hentInntektsGrunnlag(any()) } returns mockTransofmerInntekterResponse
-
-        getRequest("/api/v1/person/inntekt", gyldigOAuth2Token)
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$").isNotEmpty)
-    }
 }
