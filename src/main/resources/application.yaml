@@ -24,12 +24,17 @@ no.nav.security.jwt:
       bidrag-person:
         resource-url: ${BIDRAG_PERSON_URL}
         token-endpoint-url: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/oauth2/v2.0/token
+        token-x-url: ${TOKEN_X_TOKEN_ENDPOINT}
         grant-type: client_credentials
         scope: api://${BIDRAG_PERSON_SCOPE}/.default
         authentication:
           client-id: ${AZURE_APP_CLIENT_ID}
           client-secret: ${AZURE_APP_CLIENT_SECRET}
           client-auth-method: client_secret_basic
+        authentication-token-x:
+          client-id: ${TOKEN_X_CLIENT_ID}
+          client-jwk: ${TOKEN_X_PRIVATE_JWK}
+          client-auth-method: private_key_jwt
   issuer:
     tokenx:
       discoveryurl: ${TOKEN_X_WELL_KNOWN_URL}
