@@ -11,8 +11,7 @@ class PersonService(private val personConsumer: BidragPersonConsumer, private va
 
     fun hentInformasjon(personIdent: String): BrukerInfomasjonDto {
         val familierelasjon = personConsumer.hentFamilierelasjon(personIdent)
-        val detaljertInformasjon = personConsumer.hentDetaljertInformasjon(personIdent)
         val inntektsGrunnlag = grunnlagService.hentInntektsGrunnlag(personIdent)
-        return BrukerInformasjonMapper.tilBrukerInformasjonDto(familierelasjon, detaljertInformasjon, inntektsGrunnlag)
+        return BrukerInformasjonMapper.tilBrukerInformasjonDto(familierelasjon, inntektsGrunnlag)
     }
 }

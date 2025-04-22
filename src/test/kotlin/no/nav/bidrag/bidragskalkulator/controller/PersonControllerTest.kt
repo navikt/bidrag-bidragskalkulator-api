@@ -7,7 +7,6 @@ import io.mockk.unmockkAll
 import no.nav.bidrag.bidragskalkulator.exception.NoContentException
 import no.nav.bidrag.bidragskalkulator.service.GrunnlagService
 import no.nav.bidrag.bidragskalkulator.mapper.BrukerInformasjonMapper
-import no.nav.bidrag.bidragskalkulator.mapper.tilMockPersondetaljerDto
 import no.nav.bidrag.bidragskalkulator.service.PersonService
 import no.nav.bidrag.bidragskalkulator.utils.JsonUtils
 import no.nav.bidrag.commons.security.utils.TokenUtils
@@ -37,7 +36,6 @@ class PersonControllerTest: AbstractControllerTest() {
                 BrukerInformasjonMapper
                     .tilBrukerInformasjonDto(
                         mockResponsPersonMedEnBarnRelasjon,
-                        mockResponsPersonMedEnBarnRelasjon.tilMockPersondetaljerDto(),
                         mockTransofmerInntekterResponse
                     )
 
