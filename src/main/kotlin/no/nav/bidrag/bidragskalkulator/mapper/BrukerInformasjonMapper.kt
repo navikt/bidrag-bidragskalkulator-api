@@ -2,6 +2,7 @@ package no.nav.bidrag.bidragskalkulator.mapper
 
 import no.nav.bidrag.bidragskalkulator.dto.*
 import no.nav.bidrag.commons.util.secureLogger
+import no.nav.bidrag.domene.enums.person.Diskresjonskode
 import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
 import no.nav.bidrag.transport.person.PersonDto
 import java.time.LocalDate
@@ -19,7 +20,10 @@ object BrukerInformasjonMapper {
                     BarneRelasjonDto(
                         motpart = it.motpart?.tilPersonInformasjonDto(),
                         fellesBarn = it.fellesBarn
+                            // Ekskluder døde barn
                             .filter { barn -> barn.dødsdato == null }
+                            // Ekskluder barn med strengt fortrolig adresse
+                            .filterNot { barn -> listOf(Diskresjonskode.P19, Diskresjonskode.SPFO, Diskresjonskode.SPSF).contains(barn.diskresjonskode) }
                             .map { barn -> barn.tilPersonInformasjonDto() }
                             .sortedByDescending { barn -> barn.alder }
                     )
