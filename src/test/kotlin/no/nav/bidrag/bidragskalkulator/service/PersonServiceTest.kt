@@ -11,6 +11,7 @@ import no.nav.bidrag.transport.behandling.inntekt.response.TransformerInntekterR
 import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
+import java.math.BigDecimal
 
 class PersonServiceTest {
 
@@ -92,5 +93,19 @@ class PersonServiceTest {
         val relasjoner = resultat.barnRelasjon
 
         assertTrue(relasjoner.size > 1)
+    }
+
+    @Test
+    fun `skal returnere og mappe gyldig inntekt for person`() {
+        every { mockPersonConsumer.hentFamilierelasjon(identMedFlereBarn) } returns responsMedFlereBarn
+        every { mockPersonConsumer.hentDetaljertInformasjon(identMedFlereBarn) } returns responsMedFlereBarn.tilMockPersondetaljerDto()
+        every { mockGrunnlagService.hentInntektsGrunnlag(identMedFlereBarn) } returns responsInntektsGrunnlag
+
+        val resultat = personService.hentInformasjon(identMedFlereBarn)
+        val inntekt12mnd = resultat.inntekt.inntektSiste12Mnd
+        val inntekt3mnd = resultat.inntekt.inntektSiste3Mnd
+
+        assertEquals(BigDecimal(378000), inntekt12mnd)
+        assertEquals(BigDecimal(0), inntekt3mnd)
     }
 }
