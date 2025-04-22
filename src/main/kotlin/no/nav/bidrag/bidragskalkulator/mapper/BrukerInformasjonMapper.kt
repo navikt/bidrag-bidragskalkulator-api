@@ -3,25 +3,32 @@ package no.nav.bidrag.bidragskalkulator.mapper
 import no.nav.bidrag.bidragskalkulator.dto.*
 import no.nav.bidrag.commons.util.secureLogger
 import no.nav.bidrag.domene.enums.diverse.Språk
+import no.nav.bidrag.transport.behandling.inntekt.response.TransformerInntekterResponse
 import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
 import no.nav.bidrag.transport.person.PersonDto
 import no.nav.bidrag.transport.person.PersondetaljerDto
+import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.Period
 import java.time.format.DateTimeParseException
 
 object BrukerInformasjonMapper {
 
-    fun tilBrukerInformasjonDto(motpartBarnRelasjondto: MotpartBarnRelasjonDto, detaljertInformasjonDto: PersondetaljerDto): BrukerInfomasjonDto {
+    fun tilBrukerInformasjonDto(
+        motpartBarnRelasjondto: MotpartBarnRelasjonDto,
+        detaljertInformasjonDto: PersondetaljerDto,
+        inntektsGrunnlag: TransformerInntekterResponse
+    ): BrukerInfomasjonDto {
         return BrukerInfomasjonDto(
             påloggetPerson = detaljertInformasjonDto.tilPåloggetPersonDto(),
             barnRelasjon = motpartBarnRelasjondto.personensMotpartBarnRelasjon
                 .map {
                     BarneRelasjonDto(
                         motpart = it.motpart?.tilPersonInformasjonDto(),
-                        fellesBarn = it.fellesBarn.map { barn -> barn.tilPersonInformasjonDto() }
+                        fellesBarn = it.fellesBarn.map { barn -> barn.tilPersonInformasjonDto() },
                     )
-                }
+                },
+            inntekt = inntektsGrunnlag.toInntektResultatDto() ?: InntektResultatDto(BigDecimal.ZERO, BigDecimal.ZERO)
         )
     }
 

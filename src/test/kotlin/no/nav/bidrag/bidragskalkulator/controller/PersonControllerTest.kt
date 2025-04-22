@@ -35,7 +35,11 @@ class PersonControllerTest: AbstractControllerTest() {
     fun `skal returnere 200 OK og familierelasjon når person eksisterer`() {
         every { personService.hentInformasjon(any()) } returns
                 BrukerInformasjonMapper
-                    .tilBrukerInformasjonDto(mockResponsPersonMedEnBarnRelasjon, mockResponsPersonMedEnBarnRelasjon.tilMockPersondetaljerDto())
+                    .tilBrukerInformasjonDto(
+                        mockResponsPersonMedEnBarnRelasjon,
+                        mockResponsPersonMedEnBarnRelasjon.tilMockPersondetaljerDto(),
+                        mockTransofmerInntekterResponse
+                    )
 
         getRequest("/api/v1/person/informasjon", gyldigOAuth2Token)
             .andExpect(status().isOk)

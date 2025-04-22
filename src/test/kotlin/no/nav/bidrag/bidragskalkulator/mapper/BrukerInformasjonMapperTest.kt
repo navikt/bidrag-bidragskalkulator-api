@@ -8,6 +8,7 @@ import no.nav.bidrag.domene.enums.adresse.Adressetype
 import no.nav.bidrag.domene.enums.diverse.Språk
 import no.nav.bidrag.domene.land.Landkode2
 import no.nav.bidrag.domene.land.Landkode3
+import no.nav.bidrag.transport.behandling.inntekt.response.TransformerInntekterResponse
 import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
 import no.nav.bidrag.transport.person.PersonAdresseDto
 import no.nav.bidrag.transport.person.PersondetaljerDto
@@ -16,11 +17,19 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 open class BrukerInformasjonMapperTest {
+
+    private val responsInntektsGrunnlag: TransformerInntekterResponse =
+        JsonUtils.readJsonFile("/grunnlag/transformer_inntekter_respons.json")
+
     @Test
     fun `skal mappe MotpartBarnRelasjonDto til BrukerInfomasjonDto`() {
         val motpartBarnRelasjonDto: MotpartBarnRelasjonDto = JsonUtils.readJsonFile("/person/person_med_barn_et_motpart.json")
 
-        val resultat: BrukerInfomasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(motpartBarnRelasjonDto, motpartBarnRelasjonDto.tilMockPersondetaljerDto())
+        val resultat: BrukerInfomasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(
+            motpartBarnRelasjonDto,
+            motpartBarnRelasjonDto.tilMockPersondetaljerDto(),
+            responsInntektsGrunnlag
+        )
 
         assertNotNull(resultat)
         assertNotNull(resultat.påloggetPerson)
@@ -41,7 +50,11 @@ open class BrukerInformasjonMapperTest {
     fun `skal håndtere null-motpart på barn-relasjon`() {
         val motpartBarnRelasjonDto: MotpartBarnRelasjonDto = JsonUtils.readJsonFile("/person/person_med_barn_flere_motpart.json")
 
-        val resultat: BrukerInfomasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(motpartBarnRelasjonDto, motpartBarnRelasjonDto.tilMockPersondetaljerDto())
+        val resultat: BrukerInfomasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(
+            motpartBarnRelasjonDto,
+            motpartBarnRelasjonDto.tilMockPersondetaljerDto(),
+            responsInntektsGrunnlag
+        )
 
         assertNotNull(resultat)
         assertTrue(resultat.barnRelasjon.isNotEmpty(), "Barn-relasjon skal ikke være tom")
@@ -54,7 +67,11 @@ open class BrukerInformasjonMapperTest {
     fun `skal håndtere tomt personensMotpartBarnRelasjon`() {
         val motpartBarnRelasjonDto: MotpartBarnRelasjonDto = JsonUtils.readJsonFile("/person/person_ingen_barn.json")
 
-        val resultat: BrukerInfomasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(motpartBarnRelasjonDto, motpartBarnRelasjonDto.tilMockPersondetaljerDto())
+        val resultat: BrukerInfomasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(
+            motpartBarnRelasjonDto,
+            motpartBarnRelasjonDto.tilMockPersondetaljerDto(),
+            responsInntektsGrunnlag
+        )
 
         assertNotNull(resultat)
         assertTrue(resultat.barnRelasjon.isEmpty(), "Barn-relasjon skal være tom hvis personensMotpartBarnRelasjon er tomt")

@@ -10,6 +10,7 @@ import no.nav.bidrag.transport.behandling.grunnlag.response.HentGrunnlagDto
 import org.apache.logging.log4j.LogManager.getLogger
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
+import org.springframework.web.client.HttpClientErrorException.NotFound
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
@@ -43,9 +44,9 @@ class BidragGrunnlagConsumer(
         .toUri()
     }
 
-    fun hentGrunnlag(ident: String, antallAar: Int = HENT_INNTEKT_ANTALl_ÅR_DEFAULT): HentGrunnlagDto? {
+    fun hentGrunnlag(ident: String, antallAar: Int = HENT_INNTEKT_ANTALl_ÅR_DEFAULT): HentGrunnlagDto {
         return try {
-            postForEntity<HentGrunnlagDto>(grunnlagUri,
+            postForNonNullEntity<HentGrunnlagDto>(grunnlagUri,
                 HentGrunnlagRequestDto(
                     Formål.FORSKUDD,
                     listOf(GrunnlagRequestDto(
@@ -57,12 +58,15 @@ class BidragGrunnlagConsumer(
                 )
             )
         } catch(e: HttpServerErrorException) {
-            if (e.statusCode.value() == 404) {
-                secureLogger.warn("Fant ikke person med ident $ident")
-                null
-            } else {
-                secureLogger.error("Feil ved serverkall til bidrag-grunnlag for ident $ident", e)
-                throw e
+            when (e.statusCode.value()) {
+                404 -> {
+                    secureLogger.warn("Fant ikke person med ident $ident")
+                    throw e
+                }
+                else -> {
+                    secureLogger.error("Feil ved serverkall til bidrag-grunnlag for ident $ident", e)
+                    throw e
+                }
             }
         } catch (e: Exception) {
             secureLogger.error("Uventet feil ved kall til bidrag-grunnlag for ident $ident", e)

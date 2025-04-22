@@ -11,6 +11,8 @@ import no.nav.bidrag.commons.security.utils.TokenUtils
 import no.nav.bidrag.commons.util.secureLogger
 import no.nav.bidrag.transport.behandling.inntekt.response.TransformerInntekterResponse
 import no.nav.bidrag.bidragskalkulator.dto.BrukerInfomasjonDto
+import no.nav.bidrag.bidragskalkulator.dto.InntektResultatDto
+import no.nav.bidrag.bidragskalkulator.mapper.toInntektResultatDto
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -69,13 +71,13 @@ class PersonController(private val personService: PersonService, private val gru
         ]
     )
     @GetMapping("/inntekt")
-    fun hentInntekt(): TransformerInntekterResponse {
+    fun hentInntekt(): InntektResultatDto {
         val personIdent: String = TokenUtils.hentBruker()
             ?: throw IllegalArgumentException("Brukerident er ikke tilgjengelig i token")
 
         secureLogger.info { "Henter inntektsgrunnlag for ident $personIdent" }
 
-        val result = grunnlagService.hentInntektsGrunnlag(personIdent)
+        val result = grunnlagService.hentInntektsGrunnlag(personIdent)?.toInntektResultatDto()
             ?: throw HttpClientErrorException(HttpStatus.NOT_FOUND, "Fant ikke inntektsgrunnlag for person $personIdent")
 
         secureLogger.info { "Henting av inntektsgrunnlag for ident $personIdent fullførte OK" }

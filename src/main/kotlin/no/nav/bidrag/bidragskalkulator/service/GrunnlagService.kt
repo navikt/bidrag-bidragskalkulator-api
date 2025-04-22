@@ -3,6 +3,7 @@ package no.nav.bidrag.bidragskalkulator.service
 import no.nav.bidrag.bidragskalkulator.consumer.BidragGrunnlagConsumer
 import no.nav.bidrag.bidragskalkulator.mapper.tilAinntektsposter
 import no.nav.bidrag.commons.security.SikkerhetsKontekst
+import no.nav.bidrag.commons.util.secureLogger
 import no.nav.bidrag.domene.enums.rolle.Rolle
 import no.nav.bidrag.inntekt.InntektApi
 import no.nav.bidrag.transport.behandling.grunnlag.response.HentGrunnlagDto
@@ -20,12 +21,17 @@ class GrunnlagService(
 
     val logger = getLogger(GrunnlagService::class.java)
 
-    fun hentInntektsGrunnlag(ident: String): TransformerInntekterResponse? {
+    fun hentInntektsGrunnlag(ident: String): TransformerInntekterResponse {
         return SikkerhetsKontekst.medApplikasjonKontekst {
-            grunnlagConsumer.hentGrunnlag(ident)?.let { transformerInntekter(
-                it,
-                rolleInnhentetFor = Rolle.BIDRAGSPLIKTIG
-            ) }
+            runCatching {
+                transformerInntekter(
+                    grunnlagConsumer.hentGrunnlag(ident),
+                    rolleInnhentetFor = Rolle.BIDRAGSPLIKTIG
+                )
+            }.getOrElse {
+
+                TransformerInntekterResponse()
+            }
         }
     }
 

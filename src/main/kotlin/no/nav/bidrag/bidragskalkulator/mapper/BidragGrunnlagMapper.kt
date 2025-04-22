@@ -17,3 +17,4 @@ fun List<AinntektspostDto>.tilAinntektsposter(rolle: Rolle) =
             etterbetalingsperiodeFra = it.etterbetalingsperiodeFra,
         )
     }
+

@@ -3,6 +3,7 @@ package no.nav.bidrag.bidragskalkulator.service
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.bidrag.bidragskalkulator.consumer.BidragGrunnlagConsumer
+import no.nav.bidrag.bidragskalkulator.mapper.toInntektResultatDto
 import no.nav.bidrag.bidragskalkulator.utils.JsonUtils.readJsonFile
 import no.nav.bidrag.domene.enums.inntekt.Inntektsrapportering
 import no.nav.bidrag.inntekt.InntektApi
@@ -10,6 +11,9 @@ import no.nav.bidrag.transport.behandling.grunnlag.response.HentGrunnlagDto
 import no.nav.bidrag.transport.behandling.inntekt.response.TransformerInntekterResponse
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.springframework.http.HttpStatusCode
+import org.springframework.web.client.HttpClientErrorException
+import org.springframework.web.client.HttpClientErrorException.NotFound
 import java.math.BigDecimal
 import kotlin.test.assertEquals
 
@@ -49,5 +53,13 @@ class GrunnlagServiceTest {
             .filter { it.inntektRapportering === Inntektsrapportering.AINNTEKT_BEREGNET_12MND }
             .first()
             .sumInntekt)
+    }
+
+    @Test
+    fun `skal returnere 0 inntekt hvis grunnlagsconsumer feiler`() {
+        every { mockConsumer.hentGrunnlag(any(), any()) } throws HttpClientErrorException(HttpStatusCode.valueOf(404), "Not Found")
+        val response = service.hentInntektsGrunnlag("123").toInntektResultatDto()
+        assertEquals(BigDecimal.ZERO, response.inntektSiste12Mnd)
+        assertEquals(BigDecimal.ZERO, response.inntektSiste3Mnd)
     }
 }
