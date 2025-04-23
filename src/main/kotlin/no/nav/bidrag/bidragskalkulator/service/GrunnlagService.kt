@@ -29,7 +29,6 @@ class GrunnlagService(
                     rolleInnhentetFor = Rolle.BIDRAGSPLIKTIG
                 )
             }.getOrElse {
-
                 TransformerInntekterResponse()
             }
         }
