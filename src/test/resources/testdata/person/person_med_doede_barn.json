@@ -36,6 +36,24 @@
       },
       "fellesBarn": [
         {
+          "ident": "20892098426",
+          "navn": "TREGRENSE, TRÅDLØS",
+          "fornavn": "Trådløs",
+          "mellomnavn": "",
+          "etternavn": "Tregrense",
+          "kjønn": "KVINNE",
+          "kjoenn": "KVINNE",
+          "fødselsdato": "2020-09-20",
+          "foedselsdato": "2020-09-20",
+          "dødsdato": "2021-01-01",
+          "doedsdato": "2021-01-01",
+          "aktørId": "2046359567767",
+          "aktoerId": "2046359567767",
+          "kortnavn": "Trådløs Tregrense",
+          "kortNavn": "Trådløs Tregrense",
+          "visningsnavn": "Trådløs Tregrense"
+        },
+        {
           "ident": "29891198289",
           "navn": "TREGRENSE, NØDVENDIG",
           "fornavn": "Nødvendig",
@@ -50,22 +68,6 @@
           "kortnavn": "Nødvendig Tregrense",
           "kortNavn": "Nødvendig Tregrense",
           "visningsnavn": "Nødvendig Tregrense"
-        },
-        {
-          "ident": "20892098426",
-          "navn": "TREGRENSE, TRÅDLØS",
-          "fornavn": "Trådløs",
-          "mellomnavn": "",
-          "etternavn": "Tregrense",
-          "kjønn": "KVINNE",
-          "kjoenn": "KVINNE",
-          "fødselsdato": "2020-09-20",
-          "foedselsdato": "2020-09-20",
-          "aktørId": "2046359567767",
-          "aktoerId": "2046359567767",
-          "kortnavn": "Trådløs Tregrense",
-          "kortNavn": "Trådløs Tregrense",
-          "visningsnavn": "Trådløs Tregrense"
         }
       ]
     }
