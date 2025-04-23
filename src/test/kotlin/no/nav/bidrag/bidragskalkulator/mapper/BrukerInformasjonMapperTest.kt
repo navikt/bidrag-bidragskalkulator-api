@@ -13,12 +13,12 @@ import kotlin.test.assertTrue
 
 open class BrukerInformasjonMapperTest {
 
-    private val responsInntektsGrunnlag: TransformerInntekterResponse =
-        JsonUtils.readJsonFile("/grunnlag/transformer_inntekter_respons.json")
 
     @Test
     fun `skal mappe MotpartBarnRelasjonDto til BrukerInfomasjonDto`() {
         val motpartBarnRelasjonDto: MotpartBarnRelasjonDto = JsonUtils.readJsonFile("/person/person_med_barn_et_motpart.json")
+        val responsInntektsGrunnlag: TransformerInntekterResponse =
+            JsonUtils.readJsonFile("/grunnlag/transformer_inntekter_respons.json")
 
         val resultat: BrukerInfomasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(
             motpartBarnRelasjonDto,
@@ -43,8 +43,11 @@ open class BrukerInformasjonMapperTest {
     @Test
     fun `skal filtere ut døde barn`() {
         val motpartBarnRelasjonDto: MotpartBarnRelasjonDto = JsonUtils.readJsonFile("/person/person_med_doede_barn.json")
+        val responsInntektsGrunnlag: TransformerInntekterResponse =
+            JsonUtils.readJsonFile("/grunnlag/transformer_inntekter_respons.json")
 
-        val resultat: BrukerInfomasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(motpartBarnRelasjonDto)
+
+        val resultat: BrukerInfomasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(motpartBarnRelasjonDto, responsInntektsGrunnlag)
 
         assertNotNull(resultat)
 
@@ -55,8 +58,10 @@ open class BrukerInformasjonMapperTest {
     @Test
     fun `skal filtere ut døde motparter`() {
         val motpartBarnRelasjonDto: MotpartBarnRelasjonDto = JsonUtils.readJsonFile("/person/person_med_doed_motpart.json")
+        val responsInntektsGrunnlag: TransformerInntekterResponse =
+            JsonUtils.readJsonFile("/grunnlag/transformer_inntekter_respons.json")
 
-        val resultat: BrukerInfomasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(motpartBarnRelasjonDto)
+        val resultat: BrukerInfomasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(motpartBarnRelasjonDto, responsInntektsGrunnlag)
 
         assertNotNull(resultat)
 
@@ -67,8 +72,10 @@ open class BrukerInformasjonMapperTest {
     @Test
     fun `skal filtere ut barn med strengt fortrolig adresse`() {
         val motpartBarnRelasjonDto: MotpartBarnRelasjonDto = JsonUtils.readJsonFile("/person/person_med_barn_med_strengt_fortrolig_adresse.json")
+        val responsInntektsGrunnlag: TransformerInntekterResponse =
+            JsonUtils.readJsonFile("/grunnlag/transformer_inntekter_respons.json")
 
-        val resultat: BrukerInfomasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(motpartBarnRelasjonDto)
+        val resultat: BrukerInfomasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(motpartBarnRelasjonDto, responsInntektsGrunnlag)
 
         assertNotNull(resultat)
 
@@ -79,6 +86,9 @@ open class BrukerInformasjonMapperTest {
     @Test
     fun `skal håndtere null-motpart på barn-relasjon`() {
         val motpartBarnRelasjonDto: MotpartBarnRelasjonDto = JsonUtils.readJsonFile("/person/person_med_barn_flere_motpart.json")
+        val responsInntektsGrunnlag: TransformerInntekterResponse =
+            JsonUtils.readJsonFile("/grunnlag/transformer_inntekter_respons.json")
+
 
         val resultat: BrukerInfomasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(
             motpartBarnRelasjonDto,
@@ -95,6 +105,8 @@ open class BrukerInformasjonMapperTest {
     @Test
     fun `skal håndtere tomt personensMotpartBarnRelasjon`() {
         val motpartBarnRelasjonDto: MotpartBarnRelasjonDto = JsonUtils.readJsonFile("/person/person_ingen_barn.json")
+        val responsInntektsGrunnlag: TransformerInntekterResponse =
+            JsonUtils.readJsonFile("/grunnlag/transformer_inntekter_respons.json")
 
         val resultat: BrukerInfomasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(
             motpartBarnRelasjonDto,
