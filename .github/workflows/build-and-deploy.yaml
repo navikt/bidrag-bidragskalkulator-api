@@ -1,5 +1,6 @@
 name: Build and deploy
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -37,7 +38,7 @@ jobs:
   deploy-dev:
     name: Deploy to dev
     needs: [ build ]
-    if: github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev-gcp')
+    if: github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' )
     runs-on: ubuntu-latest
     environment: dev-gcp
     permissions:
