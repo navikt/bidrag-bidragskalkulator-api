@@ -1,0 +1,46 @@
+name: Legg til deploy-knapp i PR
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  add-comment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Legg til deploy-knapp i PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const workflowId = 'build-and-deploy.yaml';
+
+            // Hent eksisterende kommentarer
+            const kommentarer = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number
+            });
+
+            // Sjekk om vi allerede har en deploy-kommentar
+            const harAlleredeLagetDeployKommentar = kommentarer.data.some(kommentar => 
+              kommentar.body.includes('🚀 Deploy til dev-miljø')
+            );
+
+            if (!harAlleredeLagetDeployKommentar) {
+              const kommentar = `## 🚀 Deploy til dev-miljø
+
+              Vil du deploye denne branchen til dev-miljøet?
+
+              [![Deploy til dev](https://img.shields.io/badge/Deploy-til_dev-blue?style=for-the-badge)](${context.payload.repository.html_url}/actions/workflows/${workflowId})
+
+              Klikk på knappen over, trykk "Run workflow", velg branchen "${context.payload.pull_request.head.ref}" og trykk på den grønne knappen.`;
+
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: kommentar
+              });
+            }
