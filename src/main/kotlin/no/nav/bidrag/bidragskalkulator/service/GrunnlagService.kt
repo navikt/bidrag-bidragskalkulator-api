@@ -24,31 +24,25 @@ class GrunnlagService(
     fun hentInntektsGrunnlag(ident: String): TransformerInntekterResponse {
         return SikkerhetsKontekst.medApplikasjonKontekst {
             runCatching {
-                transformerInntekter(
-                    grunnlagConsumer.hentGrunnlag(ident),
-                    rolleInnhentetFor = Rolle.BIDRAGSPLIKTIG
-                )
+                transformerInntekter(grunnlagConsumer.hentGrunnlag(ident))
             }.getOrElse {
                 TransformerInntekterResponse()
             }
         }
     }
 
-    private fun transformerInntekter(hentGrunnlagDto: HentGrunnlagDto, rolleInnhentetFor: Rolle): TransformerInntekterResponse {
-        return inntektApi.transformerInntekter(opprettTransformerInntekterRequest(hentGrunnlagDto, rolleInnhentetFor))
+    private fun transformerInntekter(hentGrunnlagDto: HentGrunnlagDto): TransformerInntekterResponse {
+        return inntektApi.transformerInntekter(opprettTransformerInntekterRequest(hentGrunnlagDto))
     }
 
     private fun opprettTransformerInntekterRequest(
-        innhentetGrunnlag: HentGrunnlagDto,
-        rolleInhentetFor: Rolle,
+        innhentetGrunnlag: HentGrunnlagDto
     ) = TransformerInntekterRequest(
         ainntektHentetDato = innhentetGrunnlag.hentetTidspunkt.toLocalDate(),
         vedtakstidspunktOpprinneligeVedtak = emptyList(),
         ainntektsposter =
             innhentetGrunnlag.ainntektListe.flatMap {
-                it.ainntektspostListe.tilAinntektsposter(
-                    rolleInhentetFor,
-                )
+                it.ainntektspostListe.tilAinntektsposter()
             },
         barnetilleggsliste = emptyList(),
         kontantstøtteliste = emptyList(),
