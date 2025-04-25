@@ -69,7 +69,7 @@ class BidragGrunnlagConsumer(
                 }
             }
         } catch (e: Exception) {
-            secureLogger.error("Uventet feil ved kall til bidrag-grunnlag for ident $ident", e)
+            secureLogger.error("Uventet feil ved kall til bidrag-grunnlag for ident $ident - ${e.localizedMessage}", e)
             throw e
         }
     }

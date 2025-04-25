@@ -29,7 +29,7 @@ class GrunnlagService(
                 secureLogger.info { "Transformerer inntekter for ident: $ident" }
                 transformerInntekter(grunnlag)
             }.getOrElse {
-                secureLogger.error(it) { "Ved ved transformering av inntekter for ident: $ident" }
+                secureLogger.error(it) { "Feil ved transformering av inntekter for ident: $ident - returnerer tom inntekt" }
                 TransformerInntekterResponse()
             }
         }
