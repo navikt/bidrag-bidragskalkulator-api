@@ -41,7 +41,7 @@ class PersonControllerTest: AbstractControllerTest() {
 
         getRequest("/api/v1/person/informasjon", gyldigOAuth2Token)
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.barnRelasjon").isNotEmpty())
+            .andExpect(jsonPath("$.relasjoner.barneRelasjoner").isNotEmpty())
     }
 
     @Test

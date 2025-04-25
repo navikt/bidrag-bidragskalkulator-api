@@ -15,26 +15,29 @@ object BrukerInformasjonMapper {
 
     fun tilBrukerInformasjonDto(
         motpartBarnRelasjondto: MotpartBarnRelasjonDto,
-        inntektsGrunnlag: TransformerInntekterResponse
+        inntektsGrunnlag: TransformerInntekterResponse?
     ): BrukerInfomasjonDto {
 
         return BrukerInfomasjonDto(
-            påloggetPerson = motpartBarnRelasjondto.tilPåloggetPersonDto(),
-            barnRelasjon = motpartBarnRelasjondto.personensMotpartBarnRelasjon
-                .filter { it.motpart?.dødsdato == null }
-                .map {
-                    BarneRelasjonDto(
-                        motpart = it.motpart?.tilPersonInformasjonDto(),
-                        fellesBarn = it.fellesBarn
-                            // Ekskluder døde barn
-                            .filter { barn -> barn.dødsdato == null }
-                            // Ekskluder barn med strengt fortrolig adresse
-                            .filterNot { barn -> listOf(Diskresjonskode.P19, Diskresjonskode.SPFO, Diskresjonskode.SPSF).contains(barn.diskresjonskode) }
-                            .map { barn -> barn.tilPersonInformasjonDto() }
-                            .sortedByDescending { barn -> barn.alder }
-                    )
-                },
-            inntekt = inntektsGrunnlag.toInntektResultatDto() ?: InntektResultatDto(BigDecimal.ZERO, BigDecimal.ZERO)
+            påloggetBruker = motpartBarnRelasjondto.tilPåloggetPersonDto().apply {
+                inntekt = inntektsGrunnlag?.toInntektResultatDto()?.inntektSiste12Mnd
+            },
+            relasjoner = RelasjonerDto(
+                barneRelasjoner = motpartBarnRelasjondto.personensMotpartBarnRelasjon
+                    .filter { it.motpart?.dødsdato == null }
+                    .map {
+                        BarneRelasjonDto(
+                            motpart = it.motpart?.tilPersonInformasjonDto(),
+                            fellesBarn = it.fellesBarn
+                                // Ekskluder døde barn
+                                .filter { barn -> barn.dødsdato == null }
+                                // Ekskluder barn med strengt fortrolig adresse
+                                .filterNot { barn -> listOf(Diskresjonskode.P19, Diskresjonskode.SPFO, Diskresjonskode.SPSF).contains(barn.diskresjonskode) }
+                                .map { barn -> barn.tilPersonInformasjonDto() }
+                                .sortedByDescending { barn -> barn.alder }
+                        )
+                    },
+            )
         )
     }
 
@@ -47,8 +50,8 @@ object BrukerInformasjonMapper {
         )
     }
 
-    private fun MotpartBarnRelasjonDto.tilPåloggetPersonDto(): PåloggetPersonDto {
-        return PåloggetPersonDto(
+    private fun MotpartBarnRelasjonDto.tilPåloggetPersonDto(): PåloggetBrukerDto {
+        return PåloggetBrukerDto(
             ident = this.person.ident,
             fornavn = this.person.fornavn ?: "",
             fulltNavn = this.person.visningsnavn,

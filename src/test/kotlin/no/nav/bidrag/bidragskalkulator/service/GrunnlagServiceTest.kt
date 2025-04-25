@@ -54,10 +54,9 @@ class GrunnlagServiceTest {
     }
 
     @Test
-    fun `skal returnere 0 inntekt hvis grunnlagsconsumer feiler`() {
+    fun `skal returnere null som inntekt hvis grunnlagsconsumer feiler`() {
         every { mockConsumer.hentGrunnlag(any(), any()) } throws HttpClientErrorException(HttpStatusCode.valueOf(404), "Not Found")
-        val response = service.hentInntektsGrunnlag("123").toInntektResultatDto()
-        assertEquals(BigDecimal.ZERO, response.inntektSiste12Mnd)
-        assertEquals(BigDecimal.ZERO, response.inntektSiste3Mnd)
+        val response = service.hentInntektsGrunnlag("123")?.toInntektResultatDto()
+        assertEquals(null, response?.inntektSiste12Mnd)
     }
 }

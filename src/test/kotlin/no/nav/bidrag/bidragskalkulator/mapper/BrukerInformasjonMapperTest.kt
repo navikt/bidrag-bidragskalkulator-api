@@ -26,12 +26,12 @@ open class BrukerInformasjonMapperTest {
         )
 
         assertNotNull(resultat)
-        assertNotNull(resultat.påloggetPerson)
+        assertNotNull(resultat.påloggetBruker)
         // Forventet fullt navn fra testdata
-        assertEquals(motpartBarnRelasjonDto.person.visningsnavn, resultat.påloggetPerson.fulltNavn)
-        assertTrue(resultat.barnRelasjon.isNotEmpty(), "Barn-relasjon skal ikke være tom")
+        assertEquals(motpartBarnRelasjonDto.person.visningsnavn, resultat.påloggetBruker.fulltNavn)
+        assertTrue(resultat.relasjoner.barneRelasjoner.isNotEmpty(), "Barn-relasjon skal ikke være tom")
 
-        val barnRelasjon = resultat.barnRelasjon.first()
+        val barnRelasjon = resultat.relasjoner.barneRelasjoner.first()
         assertNotNull(barnRelasjon.motpart)
         // Forventet fullt navn for motpart fra testdata
         assertEquals(motpartBarnRelasjonDto.personensMotpartBarnRelasjon.first().motpart?.visningsnavn, barnRelasjon.motpart?.fulltNavn)
@@ -52,7 +52,7 @@ open class BrukerInformasjonMapperTest {
         assertNotNull(resultat)
 
         // Forventer at døde barn er filtrert ut
-        assertEquals(1, resultat.barnRelasjon.size)
+        assertEquals(1, resultat.relasjoner.barneRelasjoner.size)
     }
 
     @Test
@@ -66,7 +66,7 @@ open class BrukerInformasjonMapperTest {
         assertNotNull(resultat)
 
         // Forventer at døde motparter er filtrert ut
-        assertEquals(2, resultat.barnRelasjon.size)
+        assertEquals(2, resultat.relasjoner.barneRelasjoner.size)
     }
 
     @Test
@@ -80,7 +80,7 @@ open class BrukerInformasjonMapperTest {
         assertNotNull(resultat)
 
         // Forventer at døde motparter er filtrert ut
-        assertEquals(0, resultat.barnRelasjon.get(0).fellesBarn.size)
+        assertEquals(0, resultat.relasjoner.barneRelasjoner.get(0).fellesBarn.size)
     }
 
     @Test
@@ -96,9 +96,9 @@ open class BrukerInformasjonMapperTest {
         )
 
         assertNotNull(resultat)
-        assertTrue(resultat.barnRelasjon.isNotEmpty(), "Barn-relasjon skal ikke være tom")
+        assertTrue(resultat.relasjoner.barneRelasjoner.isNotEmpty(), "Barn-relasjon skal ikke være tom")
 
-        val barnRelasjon = resultat.barnRelasjon.first()
+        val barnRelasjon = resultat.relasjoner.barneRelasjoner.first()
         assertNull(barnRelasjon.motpart, "Motpart skal være null i denne testen")
     }
 
@@ -114,6 +114,6 @@ open class BrukerInformasjonMapperTest {
         )
 
         assertNotNull(resultat)
-        assertTrue(resultat.barnRelasjon.isEmpty(), "Barn-relasjon skal være tom hvis personensMotpartBarnRelasjon er tomt")
+        assertTrue(resultat.relasjoner.barneRelasjoner.isEmpty(), "Barn-relasjon skal være tom hvis personensMotpartBarnRelasjon er tomt")
     }
 }
