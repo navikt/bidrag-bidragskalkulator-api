@@ -5,20 +5,26 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import no.nav.bidrag.bidragskalkulator.config.SecurityConstants
-import no.nav.bidrag.bidragskalkulator.dto.BrukerInfomasjonDto
+import no.nav.bidrag.bidragskalkulator.service.GrunnlagService
 import no.nav.bidrag.bidragskalkulator.service.PersonService
 import no.nav.bidrag.commons.security.utils.TokenUtils
 import no.nav.bidrag.commons.util.secureLogger
+import no.nav.bidrag.transport.behandling.inntekt.response.TransformerInntekterResponse
+import no.nav.bidrag.bidragskalkulator.dto.BrukerInfomasjonDto
+import no.nav.bidrag.bidragskalkulator.dto.InntektResultatDto
+import no.nav.bidrag.bidragskalkulator.mapper.toInntektResultatDto
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.slf4j.LoggerFactory
+import org.springframework.http.HttpStatus
+import org.springframework.web.client.HttpClientErrorException
 
 @RestController
 @RequestMapping("/api/v1/person")
 @ProtectedWithClaims(issuer = SecurityConstants.TOKENX)
-class PersonController(private val personService: PersonService) {
+class PersonController(private val personService: PersonService, private val grunnlagService: GrunnlagService) {
 
     private val logger = LoggerFactory.getLogger(PersonController::class.java)
 
@@ -49,4 +55,5 @@ class PersonController(private val personService: PersonService) {
             secureLogger.info { "Henter informasjon om pålogget person $personIdent fullført" }
         }
     }
+
 }

@@ -46,5 +46,8 @@ data class BrukerInfomasjonDto(
     val påloggetPerson: PåloggetPersonDto,
 
     @Schema(description = "Liste over barn til pålogget person, gruppert med motpart")
-    val barnRelasjon: List<BarneRelasjonDto>
+    val barnRelasjon: List<BarneRelasjonDto>,
+
+    @Schema(description = "Summerte inntekter for pålogget person")
+    val inntekt: InntektResultatDto
 )
