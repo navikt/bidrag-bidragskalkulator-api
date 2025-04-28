@@ -30,7 +30,7 @@ data class BarneRelasjonDto(
 )
 
 @Schema(description = "Informasjon om pålogget person og relasjoner til barn")
-data class BrukerInfomasjonDto(
+data class BrukerInformasjonDto(
     @Schema(description = "Personinformasjon for pålogget bruker")
     val person: PersonInformasjonDto,
 

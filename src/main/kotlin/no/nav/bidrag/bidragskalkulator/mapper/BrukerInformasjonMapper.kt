@@ -15,9 +15,9 @@ object BrukerInformasjonMapper {
     fun tilBrukerInformasjonDto(
         motpartBarnRelasjondto: MotpartBarnRelasjonDto,
         inntektsGrunnlag: TransformerInntekterResponse?
-    ): BrukerInfomasjonDto {
+    ): BrukerInformasjonDto {
 
-        return BrukerInfomasjonDto(
+        return BrukerInformasjonDto(
             person = motpartBarnRelasjondto.tilPersonInformasjonDto(),
             inntekt = inntektsGrunnlag?.toInntektResultatDto()?.inntektSiste12Mnd,
             barnerelasjoner = motpartBarnRelasjondto.personensMotpartBarnRelasjon

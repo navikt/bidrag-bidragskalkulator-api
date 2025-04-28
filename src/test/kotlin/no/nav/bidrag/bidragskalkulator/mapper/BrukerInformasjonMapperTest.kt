@@ -2,7 +2,7 @@ package no.nav.bidrag.bidragskalkulator.mapper
 
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
-import no.nav.bidrag.bidragskalkulator.dto.BrukerInfomasjonDto
+import no.nav.bidrag.bidragskalkulator.dto.BrukerInformasjonDto
 import no.nav.bidrag.bidragskalkulator.utils.JsonUtils
 import no.nav.bidrag.transport.behandling.inntekt.response.TransformerInntekterResponse
 
@@ -20,7 +20,7 @@ open class BrukerInformasjonMapperTest {
         val responsInntektsGrunnlag: TransformerInntekterResponse =
             JsonUtils.readJsonFile("/grunnlag/transformer_inntekter_respons.json")
 
-        val resultat: BrukerInfomasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(
+        val resultat: BrukerInformasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(
             motpartBarnRelasjonDto,
             responsInntektsGrunnlag
         )
@@ -47,7 +47,7 @@ open class BrukerInformasjonMapperTest {
             JsonUtils.readJsonFile("/grunnlag/transformer_inntekter_respons.json")
 
 
-        val resultat: BrukerInfomasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(motpartBarnRelasjonDto, responsInntektsGrunnlag)
+        val resultat: BrukerInformasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(motpartBarnRelasjonDto, responsInntektsGrunnlag)
 
         assertNotNull(resultat)
 
@@ -61,7 +61,7 @@ open class BrukerInformasjonMapperTest {
         val responsInntektsGrunnlag: TransformerInntekterResponse =
             JsonUtils.readJsonFile("/grunnlag/transformer_inntekter_respons.json")
 
-        val resultat: BrukerInfomasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(motpartBarnRelasjonDto, responsInntektsGrunnlag)
+        val resultat: BrukerInformasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(motpartBarnRelasjonDto, responsInntektsGrunnlag)
 
         assertNotNull(resultat)
 
@@ -75,7 +75,7 @@ open class BrukerInformasjonMapperTest {
         val responsInntektsGrunnlag: TransformerInntekterResponse =
             JsonUtils.readJsonFile("/grunnlag/transformer_inntekter_respons.json")
 
-        val resultat: BrukerInfomasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(motpartBarnRelasjonDto, responsInntektsGrunnlag)
+        val resultat: BrukerInformasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(motpartBarnRelasjonDto, responsInntektsGrunnlag)
 
         assertNotNull(resultat)
 
@@ -90,7 +90,7 @@ open class BrukerInformasjonMapperTest {
             JsonUtils.readJsonFile("/grunnlag/transformer_inntekter_respons.json")
 
 
-        val resultat: BrukerInfomasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(
+        val resultat: BrukerInformasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(
             motpartBarnRelasjonDto,
             responsInntektsGrunnlag
         )
@@ -108,7 +108,7 @@ open class BrukerInformasjonMapperTest {
         val responsInntektsGrunnlag: TransformerInntekterResponse =
             JsonUtils.readJsonFile("/grunnlag/transformer_inntekter_respons.json")
 
-        val resultat: BrukerInfomasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(
+        val resultat: BrukerInformasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(
             motpartBarnRelasjonDto,
             responsInntektsGrunnlag
         )
