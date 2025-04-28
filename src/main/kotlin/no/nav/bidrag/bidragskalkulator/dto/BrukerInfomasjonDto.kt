@@ -4,21 +4,6 @@ import io.swagger.v3.oas.annotations.media.Schema
 import no.nav.bidrag.domene.ident.Personident
 import java.math.BigDecimal
 
-@Schema(description = "Inneholder informasjon om pålogget bruker")
-data class PåloggetBrukerDto(
-    @Schema(description = "Unik identifikator for personen (fødselsnummer eller D-nummer)", example = "12345678901")
-    val ident: Personident,
-
-    @Schema(description = "Fornavn til personen", example = "Ola")
-    val fornavn: String,
-
-    @Schema(description = "Fullt navn, som er fornavn og etternavn kombinert", example = "Ola Nordmann")
-    val fulltNavn: String,
-
-    @Schema(description = "Summert inntekt for pålogget bruker", example = "500000.0")
-    var inntekt: BigDecimal? = null
-)
-
 @Schema(description = "Inneholder informasjon om en person")
 data class PersonInformasjonDto(
     @Schema(description = "Unik identifikator for barnet (fødselsnummer eller D-nummer)", example = "12345678901")
@@ -46,16 +31,12 @@ data class BarneRelasjonDto(
 
 @Schema(description = "Informasjon om pålogget person og relasjoner til barn")
 data class BrukerInfomasjonDto(
-    @Schema(description = "Informasjon om pålogget person")
-    val påloggetBruker: PåloggetBrukerDto,
+    @Schema(description = "Personinformasjon for pålogget bruker")
+    val person: PersonInformasjonDto,
+
+    @Schema(description = "Summert inntekt for pålogget bruker", example = "500000.0")
+    var inntekt: BigDecimal? = null,
 
     @Schema(description = "Liste over barn til pålogget person, gruppert med motpart")
-    val relasjoner: RelasjonerDto,
-)
-
-
-@Schema(description = "Inneholder informasjon om relasjoner")
-data class RelasjonerDto(
-    @Schema(description = "Liste over barn til pålogget person, gruppert med motpart")
-    val barneRelasjoner: List<BarneRelasjonDto>,
+    val barnerelasjoner: List<BarneRelasjonDto>,
 )

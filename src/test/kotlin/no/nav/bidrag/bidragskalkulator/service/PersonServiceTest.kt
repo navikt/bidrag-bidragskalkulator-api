@@ -60,7 +60,7 @@ class PersonServiceTest {
 
         val resultat = personService.hentInformasjon(identMedEttBarn)
 
-        val relasjoner = resultat.relasjoner.barneRelasjoner
+        val relasjoner = resultat.barnerelasjoner
 
         assertAll(
             "Verifiser én relasjon",
@@ -76,7 +76,7 @@ class PersonServiceTest {
 
         val resultat = personService.hentInformasjon(identUtenBarn)
 
-        val relasjoner = resultat.relasjoner.barneRelasjoner
+        val relasjoner = resultat.barnerelasjoner
         assertEquals(0, relasjoner.size)
     }
 
@@ -86,7 +86,7 @@ class PersonServiceTest {
         every { mockGrunnlagService.hentInntektsGrunnlag(identMedFlereBarn) } returns responsInntektsGrunnlag
 
         val resultat = personService.hentInformasjon(identMedFlereBarn)
-        val relasjoner = resultat.relasjoner.barneRelasjoner
+        val relasjoner = resultat.barnerelasjoner
 
         assertTrue(relasjoner.size > 1)
     }
@@ -97,7 +97,7 @@ class PersonServiceTest {
         every { mockGrunnlagService.hentInntektsGrunnlag(identMedFlereBarn) } returns responsInntektsGrunnlag
 
         val resultat = personService.hentInformasjon(identMedFlereBarn)
-        val inntekt12mnd = resultat.påloggetBruker.inntekt
+        val inntekt12mnd = resultat.inntekt
 
         assertEquals(BigDecimal(378000), inntekt12mnd)
     }
