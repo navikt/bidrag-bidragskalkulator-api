@@ -2,6 +2,7 @@ package no.nav.bidrag.bidragskalkulator.mapper
 
 import no.nav.bidrag.bidragskalkulator.dto.*
 import no.nav.bidrag.commons.util.secureLogger
+import no.nav.bidrag.transport.behandling.inntekt.response.TransformerInntekterResponse
 import no.nav.bidrag.domene.enums.person.Diskresjonskode
 import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
 import no.nav.bidrag.transport.person.PersonDto
@@ -11,10 +12,15 @@ import java.time.format.DateTimeParseException
 
 object BrukerInformasjonMapper {
 
-    fun tilBrukerInformasjonDto(motpartBarnRelasjondto: MotpartBarnRelasjonDto): BrukerInfomasjonDto {
-        return BrukerInfomasjonDto(
-            påloggetPerson = motpartBarnRelasjondto.tilPåloggetPersonDto(),
-            barnRelasjon = motpartBarnRelasjondto.personensMotpartBarnRelasjon
+    fun tilBrukerInformasjonDto(
+        motpartBarnRelasjondto: MotpartBarnRelasjonDto,
+        inntektsGrunnlag: TransformerInntekterResponse?
+    ): BrukerInformasjonDto {
+
+        return BrukerInformasjonDto(
+            person = motpartBarnRelasjondto.tilPersonInformasjonDto(),
+            inntekt = inntektsGrunnlag?.toInntektResultatDto()?.inntektSiste12Mnd,
+            barnerelasjoner = motpartBarnRelasjondto.personensMotpartBarnRelasjon
                 .filter { it.motpart?.dødsdato == null }
                 .map {
                     BarneRelasjonDto(
@@ -23,7 +29,13 @@ object BrukerInformasjonMapper {
                             // Ekskluder døde barn
                             .filter { barn -> barn.dødsdato == null }
                             // Ekskluder barn med strengt fortrolig adresse
-                            .filterNot { barn -> listOf(Diskresjonskode.P19, Diskresjonskode.SPFO, Diskresjonskode.SPSF).contains(barn.diskresjonskode) }
+                            .filterNot { barn ->
+                                listOf(
+                                    Diskresjonskode.P19,
+                                    Diskresjonskode.SPFO,
+                                    Diskresjonskode.SPSF
+                                ).contains(barn.diskresjonskode)
+                            }
                             .map { barn -> barn.tilPersonInformasjonDto() }
                             .sortedByDescending { barn -> barn.alder }
                     )
@@ -40,11 +52,12 @@ object BrukerInformasjonMapper {
         )
     }
 
-    private fun MotpartBarnRelasjonDto.tilPåloggetPersonDto(): PåloggetPersonDto {
-        return PåloggetPersonDto(
+    private fun MotpartBarnRelasjonDto.tilPersonInformasjonDto(): PersonInformasjonDto {
+        return PersonInformasjonDto(
             ident = this.person.ident,
             fornavn = this.person.fornavn ?: "",
             fulltNavn = this.person.visningsnavn,
+            alder = this.person.fødselsdato?.let { kalkulereAlder(it) } ?: 0
         )
     }
 

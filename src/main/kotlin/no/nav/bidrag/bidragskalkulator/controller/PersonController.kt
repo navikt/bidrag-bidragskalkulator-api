@@ -5,10 +5,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import no.nav.bidrag.bidragskalkulator.config.SecurityConstants
-import no.nav.bidrag.bidragskalkulator.dto.BrukerInfomasjonDto
+import no.nav.bidrag.bidragskalkulator.service.GrunnlagService
 import no.nav.bidrag.bidragskalkulator.service.PersonService
 import no.nav.bidrag.commons.security.utils.TokenUtils
 import no.nav.bidrag.commons.util.secureLogger
+import no.nav.bidrag.bidragskalkulator.dto.BrukerInformasjonDto
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -18,7 +19,7 @@ import org.slf4j.LoggerFactory
 @RestController
 @RequestMapping("/api/v1/person")
 @ProtectedWithClaims(issuer = SecurityConstants.TOKENX)
-class PersonController(private val personService: PersonService) {
+class PersonController(private val personService: PersonService, private val grunnlagService: GrunnlagService) {
 
     private val logger = LoggerFactory.getLogger(PersonController::class.java)
 
@@ -36,7 +37,7 @@ class PersonController(private val personService: PersonService) {
         ]
     )
     @GetMapping("/informasjon")
-    fun hentInformasjon(): BrukerInfomasjonDto {
+    fun hentInformasjon(): BrukerInformasjonDto {
         logger.info("Henter informasjon om pålogget person og personens barn")
 
         val personIdent: String = requireNotNull(TokenUtils.hentBruker()) {
@@ -49,4 +50,5 @@ class PersonController(private val personService: PersonService) {
             secureLogger.info { "Henter informasjon om pålogget person $personIdent fullført" }
         }
     }
+
 }

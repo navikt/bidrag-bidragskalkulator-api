@@ -4,7 +4,7 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 group = "com.github.navikt"
 version = "0.0.1-SNAPSHOT"
 
-val bidragBeregnFellesVersion = "2025.04.07.140149"
+val bidragBeregnFellesVersion = "2025.04.16.131242"
 val bidragFellesVersion = "2025.04.22.161649"
 val kotlinLoggingJvmVersion = "7.0.3"
 val springDocWebmvcVersion = "2.8.5"
@@ -13,6 +13,7 @@ val tokenSupportVersion = "5.0.19"
 val jacksonVersion = "2.18.2"
 val junitJupiterVersion = "5.9.3"
 val mockitoKotlinVersion = "5.2.0"
+val bidragInntektVersion = "2025.04.16.131242"
 
 plugins {
     id("org.jetbrains.kotlin.plugin.spring") version "1.9.25"
@@ -52,7 +53,10 @@ dependencies {
         exclude(group = "io.github.oshai", module = "kotlin-logging-jvm")
     }
     api("no.nav.security:token-validation-spring:$tokenSupportVersion")
-
+    api("no.nav.bidrag:bidrag-inntekt:${bidragInntektVersion}") {
+        exclude(group = "com.google.errorprone", module = "error_prone_annotations")
+        exclude(group = "io.github.oshai", module = "kotlin-logging-jvm")
+    }
 
     api("io.github.oshai:kotlin-logging-jvm:$kotlinLoggingJvmVersion")
     api("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")

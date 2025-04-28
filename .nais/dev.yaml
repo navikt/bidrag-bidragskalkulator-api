@@ -6,6 +6,10 @@ env:
   BIDRAG_SJABLON_URL: https://bidrag-sjablon.dev-fss-pub.nais.io/bidrag-sjablon
   BIDRAG_PERSON_URL: https://bidrag-person-q1.dev-fss-pub.nais.io/bidrag-person
   BIDRAG_PERSON_SCOPE: dev-fss.bidrag.bidrag-person-q1
+  BIDRAG_GRUNNLAG_URL: https://bidrag-grunnlag.intern.dev.nav.no
+  BIDRAG_GRUNNLAG_SCOPE: dev-gcp.bidrag.bidrag-grunnlag
+  KODEVERK_URL: https://kodeverk.dev-fss-pub.nais.io
+  NAIS_APP_NAME: bidrag-bidragskalkulator-api
 inbound_application:
   - application: bidrag-bidragskalkulator-v2
     namespace: bidrag
@@ -15,4 +19,5 @@ inbound_application:
     cluster: dev-gcp
 outbound_external_host:
   - bidrag-sjablon.dev-fss-pub.nais.io
+  - bidrag-grunnlag.intern.dev.nav.no
   - bidrag-person-q1.dev-fss-pub.nais.io
