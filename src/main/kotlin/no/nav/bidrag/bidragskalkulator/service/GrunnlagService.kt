@@ -21,7 +21,7 @@ class GrunnlagService(
 
     val logger = getLogger(GrunnlagService::class.java)
 
-    fun hentInntektsGrunnlag(ident: String): TransformerInntekterResponse {
+    fun hentInntektsGrunnlag(ident: String): TransformerInntekterResponse? {
         return SikkerhetsKontekst.medApplikasjonKontekst {
             runCatching {
                 secureLogger.info { "Henter grunnlag for ident: $ident" }
@@ -30,7 +30,7 @@ class GrunnlagService(
                 transformerInntekter(grunnlag)
             }.getOrElse {
                 secureLogger.error(it) { "Feil ved transformering av inntekter for ident: $ident - returnerer tom inntekt" }
-                TransformerInntekterResponse()
+                null
             }
         }
     }

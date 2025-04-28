@@ -13,9 +13,5 @@ fun TransformerInntekterResponse.toInntektResultatDto() =
         inntektSiste12Mnd = this.summertÅrsinntektListe
             .find { it.inntektRapportering == Inntektsrapportering.AINNTEKT_BEREGNET_12MND }
             ?.sumInntekt
-            ?: BigDecimal(0),
-        inntektSiste3Mnd = this.summertÅrsinntektListe
-            .find { it.inntektRapportering == Inntektsrapportering.AINNTEKT_BEREGNET_3MND }
-            ?.sumInntekt
-            ?: BigDecimal(0),
+            ?: BigDecimal(0)
     )

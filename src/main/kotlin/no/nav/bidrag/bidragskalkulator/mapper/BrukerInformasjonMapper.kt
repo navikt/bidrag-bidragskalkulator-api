@@ -6,7 +6,6 @@ import no.nav.bidrag.transport.behandling.inntekt.response.TransformerInntekterR
 import no.nav.bidrag.domene.enums.person.Diskresjonskode
 import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
 import no.nav.bidrag.transport.person.PersonDto
-import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.Period
 import java.time.format.DateTimeParseException
@@ -15,12 +14,13 @@ object BrukerInformasjonMapper {
 
     fun tilBrukerInformasjonDto(
         motpartBarnRelasjondto: MotpartBarnRelasjonDto,
-        inntektsGrunnlag: TransformerInntekterResponse
-    ): BrukerInfomasjonDto {
+        inntektsGrunnlag: TransformerInntekterResponse?
+    ): BrukerInformasjonDto {
 
-        return BrukerInfomasjonDto(
-            påloggetPerson = motpartBarnRelasjondto.tilPåloggetPersonDto(),
-            barnRelasjon = motpartBarnRelasjondto.personensMotpartBarnRelasjon
+        return BrukerInformasjonDto(
+            person = motpartBarnRelasjondto.tilPersonInformasjonDto(),
+            inntekt = inntektsGrunnlag?.toInntektResultatDto()?.inntektSiste12Mnd,
+            barnerelasjoner = motpartBarnRelasjondto.personensMotpartBarnRelasjon
                 .filter { it.motpart?.dødsdato == null }
                 .map {
                     BarneRelasjonDto(
@@ -29,12 +29,17 @@ object BrukerInformasjonMapper {
                             // Ekskluder døde barn
                             .filter { barn -> barn.dødsdato == null }
                             // Ekskluder barn med strengt fortrolig adresse
-                            .filterNot { barn -> listOf(Diskresjonskode.P19, Diskresjonskode.SPFO, Diskresjonskode.SPSF).contains(barn.diskresjonskode) }
+                            .filterNot { barn ->
+                                listOf(
+                                    Diskresjonskode.P19,
+                                    Diskresjonskode.SPFO,
+                                    Diskresjonskode.SPSF
+                                ).contains(barn.diskresjonskode)
+                            }
                             .map { barn -> barn.tilPersonInformasjonDto() }
                             .sortedByDescending { barn -> barn.alder }
                     )
-                },
-            inntekt = inntektsGrunnlag.toInntektResultatDto() ?: InntektResultatDto(BigDecimal.ZERO, BigDecimal.ZERO)
+                }
         )
     }
 
@@ -47,11 +52,12 @@ object BrukerInformasjonMapper {
         )
     }
 
-    private fun MotpartBarnRelasjonDto.tilPåloggetPersonDto(): PåloggetPersonDto {
-        return PåloggetPersonDto(
+    private fun MotpartBarnRelasjonDto.tilPersonInformasjonDto(): PersonInformasjonDto {
+        return PersonInformasjonDto(
             ident = this.person.ident,
             fornavn = this.person.fornavn ?: "",
             fulltNavn = this.person.visningsnavn,
+            alder = this.person.fødselsdato?.let { kalkulereAlder(it) } ?: 0
         )
     }
 

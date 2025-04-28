@@ -2,7 +2,7 @@ package no.nav.bidrag.bidragskalkulator.mapper
 
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
-import no.nav.bidrag.bidragskalkulator.dto.BrukerInfomasjonDto
+import no.nav.bidrag.bidragskalkulator.dto.BrukerInformasjonDto
 import no.nav.bidrag.bidragskalkulator.utils.JsonUtils
 import no.nav.bidrag.transport.behandling.inntekt.response.TransformerInntekterResponse
 
@@ -20,18 +20,18 @@ open class BrukerInformasjonMapperTest {
         val responsInntektsGrunnlag: TransformerInntekterResponse =
             JsonUtils.readJsonFile("/grunnlag/transformer_inntekter_respons.json")
 
-        val resultat: BrukerInfomasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(
+        val resultat: BrukerInformasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(
             motpartBarnRelasjonDto,
             responsInntektsGrunnlag
         )
 
         assertNotNull(resultat)
-        assertNotNull(resultat.påloggetPerson)
+        assertNotNull(resultat.person)
         // Forventet fullt navn fra testdata
-        assertEquals(motpartBarnRelasjonDto.person.visningsnavn, resultat.påloggetPerson.fulltNavn)
-        assertTrue(resultat.barnRelasjon.isNotEmpty(), "Barn-relasjon skal ikke være tom")
+        assertEquals(motpartBarnRelasjonDto.person.visningsnavn, resultat.person.fulltNavn)
+        assertTrue(resultat.barnerelasjoner.isNotEmpty(), "Barn-relasjon skal ikke være tom")
 
-        val barnRelasjon = resultat.barnRelasjon.first()
+        val barnRelasjon = resultat.barnerelasjoner.first()
         assertNotNull(barnRelasjon.motpart)
         // Forventet fullt navn for motpart fra testdata
         assertEquals(motpartBarnRelasjonDto.personensMotpartBarnRelasjon.first().motpart?.visningsnavn, barnRelasjon.motpart?.fulltNavn)
@@ -47,12 +47,12 @@ open class BrukerInformasjonMapperTest {
             JsonUtils.readJsonFile("/grunnlag/transformer_inntekter_respons.json")
 
 
-        val resultat: BrukerInfomasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(motpartBarnRelasjonDto, responsInntektsGrunnlag)
+        val resultat: BrukerInformasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(motpartBarnRelasjonDto, responsInntektsGrunnlag)
 
         assertNotNull(resultat)
 
         // Forventer at døde barn er filtrert ut
-        assertEquals(1, resultat.barnRelasjon.size)
+        assertEquals(1, resultat.barnerelasjoner.size)
     }
 
     @Test
@@ -61,12 +61,12 @@ open class BrukerInformasjonMapperTest {
         val responsInntektsGrunnlag: TransformerInntekterResponse =
             JsonUtils.readJsonFile("/grunnlag/transformer_inntekter_respons.json")
 
-        val resultat: BrukerInfomasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(motpartBarnRelasjonDto, responsInntektsGrunnlag)
+        val resultat: BrukerInformasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(motpartBarnRelasjonDto, responsInntektsGrunnlag)
 
         assertNotNull(resultat)
 
         // Forventer at døde motparter er filtrert ut
-        assertEquals(2, resultat.barnRelasjon.size)
+        assertEquals(2, resultat.barnerelasjoner.size)
     }
 
     @Test
@@ -75,12 +75,12 @@ open class BrukerInformasjonMapperTest {
         val responsInntektsGrunnlag: TransformerInntekterResponse =
             JsonUtils.readJsonFile("/grunnlag/transformer_inntekter_respons.json")
 
-        val resultat: BrukerInfomasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(motpartBarnRelasjonDto, responsInntektsGrunnlag)
+        val resultat: BrukerInformasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(motpartBarnRelasjonDto, responsInntektsGrunnlag)
 
         assertNotNull(resultat)
 
         // Forventer at døde motparter er filtrert ut
-        assertEquals(0, resultat.barnRelasjon.get(0).fellesBarn.size)
+        assertEquals(0, resultat.barnerelasjoner.get(0).fellesBarn.size)
     }
 
     @Test
@@ -90,15 +90,15 @@ open class BrukerInformasjonMapperTest {
             JsonUtils.readJsonFile("/grunnlag/transformer_inntekter_respons.json")
 
 
-        val resultat: BrukerInfomasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(
+        val resultat: BrukerInformasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(
             motpartBarnRelasjonDto,
             responsInntektsGrunnlag
         )
 
         assertNotNull(resultat)
-        assertTrue(resultat.barnRelasjon.isNotEmpty(), "Barn-relasjon skal ikke være tom")
+        assertTrue(resultat.barnerelasjoner.isNotEmpty(), "Barn-relasjon skal ikke være tom")
 
-        val barnRelasjon = resultat.barnRelasjon.first()
+        val barnRelasjon = resultat.barnerelasjoner.first()
         assertNull(barnRelasjon.motpart, "Motpart skal være null i denne testen")
     }
 
@@ -108,12 +108,12 @@ open class BrukerInformasjonMapperTest {
         val responsInntektsGrunnlag: TransformerInntekterResponse =
             JsonUtils.readJsonFile("/grunnlag/transformer_inntekter_respons.json")
 
-        val resultat: BrukerInfomasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(
+        val resultat: BrukerInformasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(
             motpartBarnRelasjonDto,
             responsInntektsGrunnlag
         )
 
         assertNotNull(resultat)
-        assertTrue(resultat.barnRelasjon.isEmpty(), "Barn-relasjon skal være tom hvis personensMotpartBarnRelasjon er tomt")
+        assertTrue(resultat.barnerelasjoner.isEmpty(), "Barn-relasjon skal være tom hvis personensMotpartBarnRelasjon er tomt")
     }
 }

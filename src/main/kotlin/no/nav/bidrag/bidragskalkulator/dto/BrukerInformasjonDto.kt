@@ -2,18 +2,7 @@ package no.nav.bidrag.bidragskalkulator.dto
 
 import io.swagger.v3.oas.annotations.media.Schema
 import no.nav.bidrag.domene.ident.Personident
-
-@Schema(description = "Inneholder informasjon om pålogget bruker")
-data class PåloggetPersonDto(
-    @Schema(description = "Unik identifikator for personen (fødselsnummer eller D-nummer)", example = "12345678901")
-    val ident: Personident,
-
-    @Schema(description = "Fornavn til personen", example = "Ola")
-    val fornavn: String,
-
-    @Schema(description = "Fullt navn, som er fornavn og etternavn kombinert", example = "Ola Nordmann")
-    val fulltNavn: String,
-)
+import java.math.BigDecimal
 
 @Schema(description = "Inneholder informasjon om en person")
 data class PersonInformasjonDto(
@@ -41,13 +30,13 @@ data class BarneRelasjonDto(
 )
 
 @Schema(description = "Informasjon om pålogget person og relasjoner til barn")
-data class BrukerInfomasjonDto(
-    @Schema(description = "Informasjon om pålogget person")
-    val påloggetPerson: PåloggetPersonDto,
+data class BrukerInformasjonDto(
+    @Schema(description = "Personinformasjon for pålogget bruker")
+    val person: PersonInformasjonDto,
+
+    @Schema(description = "Summert inntekt for pålogget bruker", example = "500000.0")
+    var inntekt: BigDecimal? = null,
 
     @Schema(description = "Liste over barn til pålogget person, gruppert med motpart")
-    val barnRelasjon: List<BarneRelasjonDto>,
-
-    @Schema(description = "Summerte inntekter for pålogget person")
-    val inntekt: InntektResultatDto
+    val barnerelasjoner: List<BarneRelasjonDto>,
 )
