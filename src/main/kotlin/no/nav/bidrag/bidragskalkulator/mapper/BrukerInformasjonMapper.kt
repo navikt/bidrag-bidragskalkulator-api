@@ -40,6 +40,7 @@ object BrukerInformasjonMapper {
                             .sortedByDescending { barn -> barn.alder }
                     )
                 }
+                .filter { it.fellesBarn.isNotEmpty() }
         )
     }
 

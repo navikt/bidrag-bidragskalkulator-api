@@ -36,39 +36,6 @@
           "kortNavn": "Konvensjonell Dugnad",
           "visningsnavn": "Konvensjonell Dugnad",
           "diskresjonskode": "SPSF"
-        },
-        {
-          "ident": "16441876924",
-          "navn": "Tannbørste, Klartenkt",
-          "fornavn": "Klartenkt",
-          "mellomnavn": "",
-          "etternavn": "Tannbørste",
-          "kjønn": "MANN",
-          "kjoenn": "MANN",
-          "fødselsdato": "2018-04-16",
-          "foedselsdato": "2018-04-16",
-          "aktørId": "2088757611240",
-          "aktoerId": "2088757611240",
-          "kortnavn": "Klartenkt Tannbørste",
-          "kortNavn": "Klartenkt Tannbørste",
-          "visningsnavn": "Klartenkt Tannbørste",
-          "diskresjonskode": "SPFO"
-        },
-        {
-          "ident": "22461675194",
-          "navn": "Bil, Handlekraftig",
-          "fornavn": "Handlekraftig",
-          "mellomnavn": "",
-          "etternavn": "Bil",
-          "kjønn": "MANN",
-          "kjoenn": "MANN",
-          "fødselsdato": "2016-06-22",
-          "foedselsdato": "2016-06-22",
-          "aktørId": "2050978840829",
-          "aktoerId": "2050978840829",
-          "kortnavn": "Handlekraftig Bil",
-          "kortNavn": "Handlekraftig Bil",
-          "visningsnavn": "Handlekraftig Bil"
         }
       ]
     }

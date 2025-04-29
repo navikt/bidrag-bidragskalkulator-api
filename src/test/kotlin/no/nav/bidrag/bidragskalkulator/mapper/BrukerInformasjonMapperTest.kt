@@ -79,8 +79,22 @@ open class BrukerInformasjonMapperTest {
 
         assertNotNull(resultat)
 
-        // Forventer at døde motparter er filtrert ut
-        assertEquals(0, resultat.barnerelasjoner.get(0).fellesBarn.size)
+        // Forventer barn med strengt fortrolig adresse er filtrert ut
+        assertEquals(1, resultat.barnerelasjoner.get(0).fellesBarn.size)
+    }
+
+    @Test
+    fun `skal filtere ut motparter hvor alle barn har strengt fortrolig adresse`() {
+        val motpartBarnRelasjonDto: MotpartBarnRelasjonDto = JsonUtils.readJsonFile("/person/person_med_alle_barn_med_strengt_fortrolig_adresse.json")
+        val responsInntektsGrunnlag: TransformerInntekterResponse =
+            JsonUtils.readJsonFile("/grunnlag/transformer_inntekter_respons.json")
+
+        val resultat: BrukerInformasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(motpartBarnRelasjonDto, responsInntektsGrunnlag)
+
+        assertNotNull(resultat)
+
+        // Forventer at barnerelasjoner er tom fordi alle felles barn har strengt fortrolig adresse
+        assertEquals(0, resultat.barnerelasjoner.size)
     }
 
     @Test
