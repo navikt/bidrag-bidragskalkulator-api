@@ -10,6 +10,13 @@ import java.time.LocalDate
 import java.time.Period
 import java.time.format.DateTimeParseException
 
+
+private var FORTROLIG_ADRESSE_DISKRESJONSKODER = listOf(
+    Diskresjonskode.P19,
+    Diskresjonskode.SPFO,
+    Diskresjonskode.SPSF
+);
+
 object BrukerInformasjonMapper {
 
     fun tilBrukerInformasjonDto(
@@ -21,27 +28,27 @@ object BrukerInformasjonMapper {
             person = motpartBarnRelasjondto.tilPersonInformasjonDto(),
             inntekt = inntektsGrunnlag?.toInntektResultatDto()?.inntektSiste12Mnd,
             barnerelasjoner = motpartBarnRelasjondto.personensMotpartBarnRelasjon
-                .filter { it.motpart?.dødsdato == null }
+                .filterNot { it.motpart?.erDød() ?: false }
                 .map {
                     BarneRelasjonDto(
                         motpart = it.motpart?.tilPersonInformasjonDto(),
                         fellesBarn = it.fellesBarn
-                            // Ekskluder døde barn
-                            .filter { barn -> barn.dødsdato == null }
-                            // Ekskluder barn med strengt fortrolig adresse
-                            .filterNot { barn ->
-                                listOf(
-                                    Diskresjonskode.P19,
-                                    Diskresjonskode.SPFO,
-                                    Diskresjonskode.SPSF
-                                ).contains(barn.diskresjonskode)
-                            }
+                            .filterNot { barn -> barn.erDød() }
+                            .filterNot { barn -> barn.harFortroligAdresse() }
                             .map { barn -> barn.tilPersonInformasjonDto() }
                             .sortedByDescending { barn -> barn.alder }
                     )
                 }
-                .filter { it.fellesBarn.isNotEmpty() }
+                .filterNot { it.fellesBarn.isEmpty() }
         )
+    }
+
+    private fun PersonDto.erDød(): Boolean {
+        return this.dødsdato != null
+    }
+
+    private fun PersonDto.harFortroligAdresse(): Boolean {
+        return FORTROLIG_ADRESSE_DISKRESJONSKODER.contains(this.diskresjonskode)
     }
 
     private fun PersonDto.tilPersonInformasjonDto(): PersonInformasjonDto {
