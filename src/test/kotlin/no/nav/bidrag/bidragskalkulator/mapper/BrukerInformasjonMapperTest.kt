@@ -70,6 +70,20 @@ open class BrukerInformasjonMapperTest {
     }
 
     @Test
+    fun `skal filtere ut motparter med fortrolig adresse`() {
+        val motpartBarnRelasjonDto: MotpartBarnRelasjonDto = JsonUtils.readJsonFile("/person/person_med_motpart_med_fortrolig_adresse.json")
+        val responsInntektsGrunnlag: TransformerInntekterResponse =
+            JsonUtils.readJsonFile("/grunnlag/transformer_inntekter_respons.json")
+
+        val resultat: BrukerInformasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(motpartBarnRelasjonDto, responsInntektsGrunnlag)
+
+        assertNotNull(resultat)
+
+        // Forventer at motparter med fortrolig adresse er filtrert ut
+        assertEquals(1, resultat.barnerelasjoner.size)
+    }
+
+    @Test
     fun `skal filtere ut barn med strengt fortrolig adresse`() {
         val motpartBarnRelasjonDto: MotpartBarnRelasjonDto = JsonUtils.readJsonFile("/person/person_med_barn_med_strengt_fortrolig_adresse.json")
         val responsInntektsGrunnlag: TransformerInntekterResponse =

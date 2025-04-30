@@ -29,6 +29,7 @@ object BrukerInformasjonMapper {
             inntekt = inntektsGrunnlag?.toInntektResultatDto()?.inntektSiste12Mnd,
             barnerelasjoner = motpartBarnRelasjondto.personensMotpartBarnRelasjon
                 .filterNot { it.motpart?.erDød() ?: false }
+                .filterNot { it.motpart?.harFortroligAdresse() ?: false }
                 .map {
                     BarneRelasjonDto(
                         motpart = it.motpart?.tilPersonInformasjonDto(),
