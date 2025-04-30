@@ -1,14 +1,11 @@
 package no.nav.bidrag.bidragskalkulator.mapper
 
 import no.nav.bidrag.bidragskalkulator.dto.*
-import no.nav.bidrag.commons.util.secureLogger
+import no.nav.bidrag.bidragskalkulator.utils.kalkulereAlder
 import no.nav.bidrag.transport.behandling.inntekt.response.TransformerInntekterResponse
 import no.nav.bidrag.domene.enums.person.Diskresjonskode
 import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
 import no.nav.bidrag.transport.person.PersonDto
-import java.time.LocalDate
-import java.time.Period
-import java.time.format.DateTimeParseException
 
 object BrukerInformasjonMapper {
 
@@ -60,14 +57,5 @@ object BrukerInformasjonMapper {
             fulltNavn = this.person.visningsnavn,
             alder = this.person.fødselsdato?.let { kalkulereAlder(it) } ?: 0
         )
-    }
-
-    private fun kalkulereAlder(fødselsdato: LocalDate): Int {
-        return try {
-            Period.between(fødselsdato, LocalDate.now()).years
-        } catch (e: DateTimeParseException) {
-            secureLogger.warn(e) { "Feil ved kalkulering av alder for fødselsdato $fødselsdato" }
-            0
-        }
     }
 }

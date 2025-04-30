@@ -6,19 +6,24 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import no.nav.bidrag.bidragskalkulator.dto.BarnDto
 import no.nav.bidrag.bidragskalkulator.dto.BeregningRequestDto
 import no.nav.bidrag.bidragskalkulator.dto.BidragsType
+import no.nav.bidrag.bidragskalkulator.service.PersonService
+import no.nav.bidrag.bidragskalkulator.utils.kalkulereAlder
+import no.nav.bidrag.commons.security.SikkerhetsKontekst
 import no.nav.bidrag.domene.enums.grunnlag.Grunnlagstype
 import no.nav.bidrag.domene.enums.inntekt.Inntektsrapportering
 import no.nav.bidrag.domene.enums.person.Bostatuskode
 import no.nav.bidrag.domene.enums.vedtak.Stønadstype
+import no.nav.bidrag.domene.ident.Personident
 import no.nav.bidrag.domene.tid.ÅrMånedsperiode
 import no.nav.bidrag.transport.behandling.beregning.felles.BeregnGrunnlag
 import no.nav.bidrag.transport.behandling.felles.grunnlag.*
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
+import java.time.LocalDate
 import java.time.YearMonth
 
 @Component
-class BeregningsgrunnlagMapper {
+class BeregningsgrunnlagMapper(private val personService: PersonService) {
 
     companion object {
         private const val BIDRAGSMOTTAKER_REFERANSE = "Person_Bidragsmottaker"
@@ -30,18 +35,25 @@ class BeregningsgrunnlagMapper {
         registerModule(JavaTimeModule())
     }
 
-    fun mapTilBeregningsgrunnlag(dto: BeregningRequestDto): List<GrunnlagOgAlder> {
+    fun mapTilBeregningsgrunnlag(dto: BeregningRequestDto): List<GrunnlagOgIdent> {
         val beregningsperiode = ÅrMånedsperiode(YearMonth.now(), YearMonth.now().plusMonths(1))
 
         return dto.barn.mapIndexed { index, søknadsbarn ->
-            GrunnlagOgAlder(
-                barnetsAlder = søknadsbarn.alder,
+            val barnetsInformasjon = SikkerhetsKontekst.medApplikasjonKontekst {
+                personService.hentNavnFoedselDoed(søknadsbarn.ident)
+            }
+            val barnetsAlder = kalkulereAlder(søknadsbarn.ident.fødselsdato())
+
+            GrunnlagOgIdent(
+                ident = søknadsbarn.ident,
+                fulltNavn = barnetsInformasjon.navn,
+                barnetsAlder = barnetsAlder,
                 bidragsType = søknadsbarn.bidragstype,
                 grunnlag = BeregnGrunnlag(
                     periode = beregningsperiode,
                     søknadsbarnReferanse = "Person_Søknadsbarn_$index",
-                    stønadstype = if(søknadsbarn.alder > 18) Stønadstype.BIDRAG18AAR else Stønadstype.BIDRAG,
-                    grunnlagListe = lagGrunnlagsliste(søknadsbarn, dto, "Person_Søknadsbarn_$index")
+                    stønadstype = if(barnetsAlder > 18) Stønadstype.BIDRAG18AAR else Stønadstype.BIDRAG,
+                    grunnlagListe = lagGrunnlagsliste(søknadsbarn,  dto, "Person_Søknadsbarn_$index")
                 )
             )
         }
@@ -56,7 +68,7 @@ class BeregningsgrunnlagMapper {
             lagTomtGrunnlag(BIDRAGSMOTTAKER_REFERANSE, Grunnlagstype.PERSON_BIDRAGSMOTTAKER),
             lagTomtGrunnlag(BIDRAGSPLIKTIG_REFERANSE, Grunnlagstype.PERSON_BIDRAGSPLIKTIG),
             lagBostatusgrunnlag("Bostatus_Bidragspliktig", Bostatuskode.BOR_IKKE_MED_ANDRE_VOKSNE, null, BIDRAGSPLIKTIG_REFERANSE),
-            lagSøknadsbarngrunnlag(søknadsbarnReferanse, søknadsbarn),
+            lagSøknadsbarngrunnlag(søknadsbarnReferanse, søknadsbarn.ident.fødselsdato()),
             lagInntektsgrunnlag(
                 "Inntekt_Bidragspliktig",
                 lønnBidragspliktig.toBigDecimal(),
@@ -81,11 +93,11 @@ class BeregningsgrunnlagMapper {
     private fun lagTomtGrunnlag(referanse: String, type: Grunnlagstype) =
         GrunnlagDto(referanse, type, objectMapper.createObjectNode())
 
-    private fun lagSøknadsbarngrunnlag(søknadsbarnReferanse: String, søknadsbarn: BarnDto) =
+    private fun lagSøknadsbarngrunnlag(søknadsbarnReferanse: String, søknadsbarnsfødselsdato: LocalDate) =
         GrunnlagDto(
             referanse = søknadsbarnReferanse,
             type = Grunnlagstype.PERSON_SØKNADSBARN,
-            innhold = objectMapper.valueToTree(Person(fødselsdato = søknadsbarn.getEstimertFødselsdato()))
+            innhold = objectMapper.valueToTree(Person(fødselsdato = søknadsbarnsfødselsdato))
         )
 
     private fun lagInntektsgrunnlag(referanse: String, beløp: BigDecimal, eierReferanse: String) =
@@ -138,7 +150,9 @@ class BeregningsgrunnlagMapper {
         )
 }
 
-data class GrunnlagOgAlder(
+data class GrunnlagOgIdent(
+    val ident: Personident,
+    val fulltNavn: String,
     val barnetsAlder: Int,
     val bidragsType: BidragsType,
     val grunnlag: BeregnGrunnlag
