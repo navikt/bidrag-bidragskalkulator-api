@@ -6,13 +6,11 @@ import no.nav.bidrag.bidragskalkulator.dto.BeregningRequestDto
 import no.nav.bidrag.bidragskalkulator.dto.BeregningsresultatBarnDto
 import no.nav.bidrag.bidragskalkulator.mapper.BeregningsgrunnlagMapper
 import no.nav.bidrag.domene.enums.grunnlag.Grunnlagstype
-import no.nav.bidrag.transport.behandling.beregning.felles.BeregnGrunnlag
 import no.nav.bidrag.transport.behandling.felles.grunnlag.*
 import org.slf4j.LoggerFactory.getLogger
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.math.RoundingMode
-import kotlin.random.Random
 
 @Service
 class BeregningService(
@@ -27,16 +25,21 @@ class BeregningService(
 
         val start = System.currentTimeMillis()
         val beregningsresultat = beregningsgrunnlag.parallelStream().map { data ->
-            val beregnetSum = beregnBarnebidragApi.beregn(data.grunnlag)
+            val beregningsResult = beregnBarnebidragApi.beregn(data.grunnlag)
+            val beregnetSum = beregningsResult
                 .beregnetBarnebidragPeriodeListe
                 .sumOf { it.resultat.beløp ?: BigDecimal.ZERO }
 
+            val underholdskostnad = beregningsResult.grunnlagListe
+                .firstOrNull { it.type == Grunnlagstype.DELBEREGNING_UNDERHOLDSKOSTNAD }
+                ?.innholdTilObjekt<DelberegningUnderholdskostnad>()?.underholdskostnad ?: BigDecimal.ZERO
+
             BeregningsresultatBarnDto(
-                sum = beregnetSum.divide(BigDecimal(100))
-                    .setScale(0, RoundingMode.HALF_UP)
-                    .multiply(BigDecimal(100)),
-                barnetsAlder = data.barnetsAlder,
-                underholdskostnad = hentUnderholdskostnad(data.grunnlag),
+                sum = beregnetSum.avrundeTilNærmesteHundre(),
+                ident = data.ident,
+                fulltNavn = data.fulltNavn,
+                alder = data.alder,
+                underholdskostnad = underholdskostnad,
                 bidragstype = data.bidragsType,
             )
         }.toList()
@@ -47,11 +50,8 @@ class BeregningService(
         return BeregningsresultatDto(beregningsresultat)
     }
 
-    internal fun hentUnderholdskostnad(grunnlag: BeregnGrunnlag): BigDecimal =
-        beregnBarnebidragApi.beregnUnderholdskostnad(grunnlag)
-            .firstOrNull { it.type == Grunnlagstype.DELBEREGNING_UNDERHOLDSKOSTNAD }
-            ?.innholdTilObjekt<DelberegningUnderholdskostnad>()
-            ?.underholdskostnad
-            ?: BigDecimal.ZERO
+    fun BigDecimal.avrundeTilNærmesteHundre() = this.divide(BigDecimal(100))
+        .setScale(0, RoundingMode.HALF_UP)
+        .multiply(BigDecimal(100))
 }
 

@@ -3,12 +3,12 @@
   "inntektForelder2": 700000.0,
   "barn": [
     {
-      "alder": 10,
+      "ident": "06451759610",
       "samværsklasse": "SAMVÆRSKLASSE_1",
       "bidragstype": "PLIKTIG"
     },
     {
-      "alder": 6,
+      "ident": "26411966126",
       "samværsklasse": "SAMVÆRSKLASSE_1",
       "bidragstype": "PLIKTIG"
     }

@@ -9,20 +9,19 @@ data class PersonInformasjonDto(
     @Schema(description = "Unik identifikator for barnet (fødselsnummer eller D-nummer)", example = "12345678901")
     val ident: Personident,
 
-    @Schema(description = "Fornavn til barnet", example = "Ola")
+    @Schema(description = "Fornavn til person", example = "Ola")
     val fornavn: String,
 
-    @Schema(description = "Fullt navn til barnet", example = "Ola Nordmann")
+    @Schema(description = "Fullt navn til person", example = "Ola Nordmann")
     val fulltNavn: String,
 
-    @Schema(description = "Alder til barnet", example = "12")
+    @Schema(description = "Alder til person", example = "12")
     val alder: Int
 )
 
 @Schema(description = "Representerer en foreldre-barn-relasjon, med felles barn og motpart")
 data class BarneRelasjonDto(
-    // I enkelte tilfeller er ikke motpart registrert, og feltet kan derfor være null.
-    @Schema(description = "Motparten i relasjonen, vanligvis den andre forelderen. I enkelte tilfeller er ikke motpart registrert, og feltet kan derfor være null.")
+    @Schema(description = "Motparten i relasjonen, vanligvis den andre forelderen.")
     val motpart: PersonInformasjonDto?,
 
     @Schema(description = "Liste over felles barn mellom pålogget person og motparten")
