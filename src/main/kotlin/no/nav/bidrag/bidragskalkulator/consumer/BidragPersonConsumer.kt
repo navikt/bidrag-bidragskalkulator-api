@@ -20,7 +20,7 @@ class BidragPersonConsumer(
 ) : AbstractRestClient(restTemplate, "bidrag-person") {
 
     private val hentFamilierelasjonUri = URI.create("$bidragPersonUrl/motpartbarnrelasjon")
-    private val hentNavnFoedselDoedUri = URI.create("$bidragPersonUrl/navnfoedseldoed")
+    private val hentNavnFødselDødUri = URI.create("$bidragPersonUrl/navnfoedseldoed")
 
 
     fun hentFamilierelasjon(ident: String): MotpartBarnRelasjonDto {
@@ -28,9 +28,9 @@ class BidragPersonConsumer(
         return postSafely(hentFamilierelasjonUri, PersonRequest(Personident(ident)), Personident(ident))
     }
 
-    fun hentNavnFoedselDoed(ident: Personident): NavnFødselDødDto {
+    fun hentNavnFødselDød(ident: Personident): NavnFødselDødDto {
         secureLogger.info("Henter navn, fødselsdata og eventuell død for person $ident")
-        return postSafely(hentNavnFoedselDoedUri, PersonRequest(ident), ident)
+        return postSafely(hentNavnFødselDødUri, PersonRequest(ident), ident)
     }
 
     private inline fun <reified T : Any> postSafely(uri: URI, request: Any, ident: Personident): T {

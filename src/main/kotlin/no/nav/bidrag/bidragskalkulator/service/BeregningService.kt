@@ -35,7 +35,7 @@ class BeregningService(
                 ?.innholdTilObjekt<DelberegningUnderholdskostnad>()?.underholdskostnad ?: BigDecimal.ZERO
 
             BeregningsresultatBarnDto(
-                sum = beregnetSum.avrundeTilNærsteHundre(),
+                sum = beregnetSum.avrundeTilNærmesteHundre(),
                 ident = data.ident,
                 fulltNavn = data.fulltNavn,
                 alder = data.alder,
@@ -50,7 +50,7 @@ class BeregningService(
         return BeregningsresultatDto(beregningsresultat)
     }
 
-    fun BigDecimal.avrundeTilNærsteHundre() = this.divide(BigDecimal(100))
+    fun BigDecimal.avrundeTilNærmesteHundre() = this.divide(BigDecimal(100))
         .setScale(0, RoundingMode.HALF_UP)
         .multiply(BigDecimal(100))
 }

@@ -19,9 +19,9 @@ class PersonService(private val personConsumer: BidragPersonConsumer, private va
         return BrukerInformasjonMapper.tilBrukerInformasjonDto(familierelasjon, inntektsGrunnlag)
     }
 
-    fun hentNavnFoedselDoed(personIdent: Personident): NavnFødselDødDto {
+    fun hentNavnFødselDød(personIdent: Personident): NavnFødselDødDto {
         return  SikkerhetsKontekst.medApplikasjonKontekst {
-            personConsumer.hentNavnFoedselDoed(personIdent)
+            personConsumer.hentNavnFødselDød(personIdent)
         }
     }
 }

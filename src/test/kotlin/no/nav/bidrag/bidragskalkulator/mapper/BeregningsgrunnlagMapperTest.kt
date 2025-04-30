@@ -21,7 +21,7 @@ class BeregningsgrunnlagMapperTest {
         val mockPersonService = mockk<PersonService>(relaxed = true)
         val fødselsdato = LocalDate.now().minusYears(10)
 
-        every { mockPersonService.hentNavnFoedselDoed(any()) } returns NavnFødselDødDto(
+        every { mockPersonService.hentNavnFødselDød(any()) } returns NavnFødselDødDto(
             navn = "Navn Navnesen",
             fødselsdato = fødselsdato,
             fødselsår = fødselsdato.year,
