@@ -17,6 +17,9 @@ data class BeregningsresultatBarnDto(
     @Schema(description = "Fullt navn til barnet", example = "Ola Nordmann")
     val fulltNavn: String,
 
+    @Schema(description = "Alder til barnet", example = "5")
+    val alder: Int,
+
     @Schema(description = "Beregnet barnebidrag", example = "3200")
     val sum: BigDecimal,
 

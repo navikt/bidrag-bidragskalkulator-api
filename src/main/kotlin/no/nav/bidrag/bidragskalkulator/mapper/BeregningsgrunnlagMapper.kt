@@ -35,7 +35,7 @@ class BeregningsgrunnlagMapper(private val personService: PersonService) {
         registerModule(JavaTimeModule())
     }
 
-    fun mapTilBeregningsgrunnlag(dto: BeregningRequestDto): List<GrunnlagOgIdent> {
+    fun mapTilBeregningsgrunnlag(dto: BeregningRequestDto): List<GrunnlagOgBarnInformasjon> {
         val beregningsperiode = ÅrMånedsperiode(YearMonth.now(), YearMonth.now().plusMonths(1))
 
         return dto.barn.mapIndexed { index, søknadsbarn ->
@@ -43,17 +43,18 @@ class BeregningsgrunnlagMapper(private val personService: PersonService) {
                 personService.hentNavnFoedselDoed(søknadsbarn.ident)
             }
             val barnetsAlder = kalkulereAlder(søknadsbarn.ident.fødselsdato())
+            val søknadsbarnReferanse = "Person_Søknadsbarn_$index"
 
-            GrunnlagOgIdent(
+            GrunnlagOgBarnInformasjon(
                 ident = søknadsbarn.ident,
                 fulltNavn = barnetsInformasjon.navn,
-                barnetsAlder = barnetsAlder,
+                alder = barnetsAlder,
                 bidragsType = søknadsbarn.bidragstype,
                 grunnlag = BeregnGrunnlag(
                     periode = beregningsperiode,
-                    søknadsbarnReferanse = "Person_Søknadsbarn_$index",
-                    stønadstype = if(barnetsAlder > 18) Stønadstype.BIDRAG18AAR else Stønadstype.BIDRAG,
-                    grunnlagListe = lagGrunnlagsliste(søknadsbarn,  dto, "Person_Søknadsbarn_$index")
+                    søknadsbarnReferanse = søknadsbarnReferanse,
+                    stønadstype = if(barnetsAlder >= 18) Stønadstype.BIDRAG18AAR else Stønadstype.BIDRAG,
+                    grunnlagListe = lagGrunnlagsliste(søknadsbarn,  dto, søknadsbarnReferanse)
                 )
             )
         }
@@ -150,10 +151,10 @@ class BeregningsgrunnlagMapper(private val personService: PersonService) {
         )
 }
 
-data class GrunnlagOgIdent(
+data class GrunnlagOgBarnInformasjon(
     val ident: Personident,
     val fulltNavn: String,
-    val barnetsAlder: Int,
+    val alder: Int,
     val bidragsType: BidragsType,
     val grunnlag: BeregnGrunnlag
 )
