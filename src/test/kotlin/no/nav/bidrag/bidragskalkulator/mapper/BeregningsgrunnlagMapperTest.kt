@@ -5,7 +5,6 @@ import io.mockk.mockk
 import no.nav.bidrag.bidragskalkulator.dto.BeregningRequestDto
 import no.nav.bidrag.bidragskalkulator.service.PersonService
 import no.nav.bidrag.bidragskalkulator.utils.JsonUtils
-import no.nav.bidrag.bidragskalkulator.utils.kalkulereAlder
 import no.nav.bidrag.domene.enums.vedtak.Stønadstype
 import no.nav.bidrag.transport.person.NavnFødselDødDto
 import org.junit.jupiter.api.Assertions.*
@@ -71,11 +70,19 @@ class BeregningsgrunnlagMapperTest {
     @Test
     fun `skal sette stønadstype til BIDRAG18AAR for barn over 18`() {
         val beregningRequest: BeregningRequestDto = JsonUtils.readJsonFile("/barnebidrag/beregning_barn_over_18.json")
-        println("---test-----" + kalkulereAlder(beregningRequest.barn.first().ident.fødselsdato()))
         val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(beregningRequest)
 
         assertEquals(1, result.size, "Forventet én beregning")
         assertEquals(Stønadstype.BIDRAG18AAR, result.first().grunnlag.stønadstype, "Stønadstype skal være BIDRAG18AAR for barn over 18")
+    }
+
+
+    @Test
+    fun `skal sette stønadstype til BIDRAG for barn under 18`() {
+        val beregningRequest: BeregningRequestDto = JsonUtils.readJsonFile("/barnebidrag/beregning_et_barn.json")
+        val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(beregningRequest)
+
+        assertEquals(Stønadstype.BIDRAG, result.first().grunnlag.stønadstype)
     }
 
     private fun assertBarnetsAlderOgReferanse(
