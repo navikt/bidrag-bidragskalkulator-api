@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service
 @Service
 class PersonService(private val personConsumer: BidragPersonConsumer, private val grunnlagService: GrunnlagService) {
 
-    fun hentInformasjon(personIdent: String): BrukerInformasjonDto = runBlocking(Dispatchers.Default) {
+    fun hentInformasjon(personIdent: String): BrukerInformasjonDto = runBlocking(Dispatchers.IO) {
         val inntektsGrunnlag = async { grunnlagService.hentInntektsGrunnlag(personIdent) }
         val familierelasjon =  async {
             SikkerhetsKontekst.medApplikasjonKontekst {
