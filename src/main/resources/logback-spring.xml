@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
+
     <appender name="stdout_json" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
             <providers>
@@ -42,19 +43,26 @@
         </appender>
     </springProfile>
 
-    <springProfile name="test">
-        <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
-            <layout class="ch.qos.logback.classic.PatternLayout">
-                <Pattern>
-                    %d{yyyy-MM-dd HH:mm:ss} %X{correlationId} [%thread] %-5level %logger{70} - %msg%n
-                </Pattern>
-            </layout>
-        </appender>
+    <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>
+                %d{yyyy-MM-dd HH:mm:ss} %X{correlationId} [%thread] %-5level %logger{70} - %msg%n
+            </Pattern>
+        </layout>
+    </appender>
+
+    <springProfile name="test,local,local-nais">
+        <root level="info">
+            <appender-ref ref="stdout"/>
+        </root>
     </springProfile>
 
-    <root level="info">
-        <appender-ref ref="stdout_json"/>
-    </root>
+    <springProfile name="dev,prod">
+        <root level="info">
+            <appender-ref ref="stdout_json"/>
+        </root>
+    </springProfile>
+
 
     <logger name="secureLogger" level="INFO" additivity="false" >
         <appender-ref ref="secureLog" />
