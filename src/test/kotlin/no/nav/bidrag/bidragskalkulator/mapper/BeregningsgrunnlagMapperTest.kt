@@ -1,11 +1,16 @@
 package no.nav.bidrag.bidragskalkulator.mapper
 
+import io.mockk.every
+import io.mockk.mockk
 import no.nav.bidrag.bidragskalkulator.dto.BeregningRequestDto
+import no.nav.bidrag.bidragskalkulator.service.PersonService
 import no.nav.bidrag.bidragskalkulator.utils.JsonUtils
 import no.nav.bidrag.domene.enums.vedtak.Stønadstype
+import no.nav.bidrag.transport.person.NavnFødselDødDto
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
 
 class BeregningsgrunnlagMapperTest {
 
@@ -13,7 +18,20 @@ class BeregningsgrunnlagMapperTest {
 
     @BeforeEach
     fun setup() {
-        beregningsgrunnlagMapper = BeregningsgrunnlagMapper()
+        val mockPersonService = mockk<PersonService>(relaxed = true)
+        val fødselsdato = LocalDate.now().minusYears(10)
+
+        every { mockPersonService.hentNavnFødselDød(any()) } returns NavnFødselDødDto(
+            navn = "Navn Navnesen",
+            fødselsdato = fødselsdato,
+            fødselsår = fødselsdato.year,
+            dødsdato = null,
+            foedselsdato = fødselsdato,
+            foedselsaar = fødselsdato.year,
+            doedsdato = null
+        )
+
+        beregningsgrunnlagMapper = BeregningsgrunnlagMapper(mockPersonService)
     }
 
     @Test
@@ -52,19 +70,27 @@ class BeregningsgrunnlagMapperTest {
     @Test
     fun `skal sette stønadstype til BIDRAG18AAR for barn over 18`() {
         val beregningRequest: BeregningRequestDto = JsonUtils.readJsonFile("/barnebidrag/beregning_barn_over_18.json")
-
         val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(beregningRequest)
 
         assertEquals(1, result.size, "Forventet én beregning")
         assertEquals(Stønadstype.BIDRAG18AAR, result.first().grunnlag.stønadstype, "Stønadstype skal være BIDRAG18AAR for barn over 18")
     }
 
+
+    @Test
+    fun `skal sette stønadstype til BIDRAG for barn under 18`() {
+        val beregningRequest: BeregningRequestDto = JsonUtils.readJsonFile("/barnebidrag/beregning_et_barn.json")
+        val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(beregningRequest)
+
+        assertEquals(Stønadstype.BIDRAG, result.first().grunnlag.stønadstype)
+    }
+
     private fun assertBarnetsAlderOgReferanse(
-        grunnlagOgAlder: GrunnlagOgAlder,
+        grunnlagOgBarnInformasjon: GrunnlagOgBarnInformasjon,
         beregningRequest: BeregningRequestDto,
         index: Int
     ) {
-        assertEquals(beregningRequest.barn[index].alder, grunnlagOgAlder.barnetsAlder)
-        assertEquals("Person_Søknadsbarn_$index", grunnlagOgAlder.grunnlag.søknadsbarnReferanse)
+        assertEquals(beregningRequest.barn[index].ident, grunnlagOgBarnInformasjon.ident)
+        assertEquals("Person_Søknadsbarn_$index", grunnlagOgBarnInformasjon.grunnlag.søknadsbarnReferanse)
     }
 }

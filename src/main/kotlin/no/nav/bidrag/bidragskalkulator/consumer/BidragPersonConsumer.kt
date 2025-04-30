@@ -4,6 +4,7 @@ import no.nav.bidrag.bidragskalkulator.exception.NoContentException
 import no.nav.bidrag.commons.web.client.AbstractRestClient
 import no.nav.bidrag.domene.ident.Personident
 import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
+import no.nav.bidrag.transport.person.NavnFødselDødDto
 import no.nav.bidrag.transport.person.PersonRequest
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
@@ -19,13 +20,20 @@ class BidragPersonConsumer(
 ) : AbstractRestClient(restTemplate, "bidrag-person") {
 
     private val hentFamilierelasjonUri = URI.create("$bidragPersonUrl/motpartbarnrelasjon")
+    private val hentNavnFødselDødUri = URI.create("$bidragPersonUrl/navnfoedseldoed")
+
 
     fun hentFamilierelasjon(ident: String): MotpartBarnRelasjonDto {
         secureLogger.info("Henter familierelasjon for person $ident")
-        return postSafely(hentFamilierelasjonUri, PersonRequest(Personident(ident)), ident)
+        return postSafely(hentFamilierelasjonUri, PersonRequest(Personident(ident)), Personident(ident))
     }
 
-    private inline fun <reified T : Any> postSafely(uri: URI, request: Any, ident: String): T {
+    fun hentNavnFødselDød(ident: Personident): NavnFødselDødDto {
+        secureLogger.info("Henter navn, fødselsdata og eventuell død for person $ident")
+        return postSafely(hentNavnFødselDødUri, PersonRequest(ident), ident)
+    }
+
+    private inline fun <reified T : Any> postSafely(uri: URI, request: Any, ident: Personident): T {
         return try {
             postForNonNullEntity<T>(uri, request)
         } catch (e: HttpServerErrorException) {

@@ -1,6 +1,5 @@
 package no.nav.bidrag.bidragskalkulator.mapper
 
-import no.nav.bidrag.domene.enums.rolle.Rolle
 import no.nav.bidrag.transport.behandling.grunnlag.response.AinntektspostDto
 import no.nav.bidrag.transport.behandling.inntekt.request.Ainntektspost
 

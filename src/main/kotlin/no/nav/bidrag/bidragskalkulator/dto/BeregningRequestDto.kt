@@ -1,14 +1,12 @@
 package no.nav.bidrag.bidragskalkulator.dto
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Min
-import jakarta.validation.constraints.Max
 import no.nav.bidrag.domene.enums.beregning.Samværsklasse
-import java.time.LocalDate
+import no.nav.bidrag.domene.ident.Personident
 
 @Schema(description = "Type bidrag")
 enum class BidragsType {
@@ -18,27 +16,18 @@ enum class BidragsType {
 
 @Schema(description = "Informasjon om et barn i beregningen")
 data class BarnDto(
-    @field:NotNull(message = "Alder må være satt")
-    @field:Min(value = 0, message = "Alder kan ikke være negativ")
-    @field:Max(value = 25, message = "Alder kan ikke være høyere enn 25")
-    @Schema(description = "Alder til barnet", required = true, example = "10")
-    val alder: Int,
+    @field:NotNull(message = "Unik identifikator for barnet")
+    @Schema(description = "Unik identifikator for barnet", required = true, example = "12345678901")
+    val ident: Personident,
 
     @field:NotNull(message = "samværsklasse må være satt")
-    @Schema(ref = "#/components/schemas/Samværsklasse") // Reference dynamically registered schema. See OpenApiConfig
+    @Schema(ref = "#/components/schemas/Samværsklasse") // Reference dynamically registered schema. See BeregnBarnebidragConfig
     val samværsklasse: Samværsklasse,
 
     @field:NotNull(message = "bidragstype må være satt")
     @Schema(description = "Type bidrag", required = true)
     val bidragstype: BidragsType
-){
-    @JsonIgnore
-    @Schema(hidden = true) // Hides from Swagger
-    //Når barnet har alder = 15, blir fødselsmåneden alltid satt til juli, uavhengig av den faktiske fødselsdatoen (usikkert hvor denne regelen stammer fra).
-    // Dette betyr at barnet ikke anses som 15 år før juli.
-    // I alle beregningsperioder før juli vil barnet derfor fortsatt regnes som 14 år.
-    fun getEstimertFødselsdato(): LocalDate = LocalDate.now().minusYears(alder.toLong())
-}
+)
 
 @Schema(description = "Modellen brukes til å beregne barnebidrag")
 data class BeregningRequestDto(

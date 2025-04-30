@@ -12,11 +12,13 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import com.fasterxml.jackson.databind.JsonMappingException
+import no.nav.bidrag.domene.ident.Personident
 
 class BeregningServiceValidationTest {
 
     private lateinit var validator: Validator
     private lateinit var objectMapper: ObjectMapper
+    private val personIdent = "12345678910"
 
     @BeforeEach
     fun setup() {
@@ -32,7 +34,7 @@ class BeregningServiceValidationTest {
             inntektForelder2 = 600000.0,
             barn = listOf(
                 BarnDto(
-                    alder = 12,
+                    ident = Personident(personIdent),
                     samværsklasse = Samværsklasse.SAMVÆRSKLASSE_1,
                     bidragstype = BidragsType.PLIKTIG
                 )
@@ -49,7 +51,7 @@ class BeregningServiceValidationTest {
                 "inntektForelder2": 600000.0,
                 "barn": [
                     {
-                        "alder": 12,
+                        "ident": "14429546002",
                         "samværsklasse": "SAMVÆRSKLASSE_1"
                     }
                 ]
@@ -79,7 +81,7 @@ class BeregningServiceValidationTest {
         val request = BeregningRequestDto(
             inntektForelder1 = -50000.0, // Ugyldig
             inntektForelder2 = 600000.0,
-            barn = listOf(BarnDto(8, Samværsklasse.SAMVÆRSKLASSE_1, BidragsType.PLIKTIG))
+            barn = listOf(BarnDto(Personident(personIdent), Samværsklasse.SAMVÆRSKLASSE_1, BidragsType.PLIKTIG))
         )
 
         val violations = validator.validate(request)
@@ -87,23 +89,11 @@ class BeregningServiceValidationTest {
     }
 
     @Test
-    fun `skal returnere valideringsfeil dersom barnets alder er utenfor gyldig intervall`() {
-        val request = BeregningRequestDto(
-            inntektForelder1 = 500000.0,
-            inntektForelder2 = 600000.0,
-            barn = listOf(BarnDto(30, Samværsklasse.SAMVÆRSKLASSE_1, BidragsType.PLIKTIG)) // Alder for høy
-        )
-
-        val violations = validator.validate(request)
-        assertTrue(violations.any { it.message.contains("Alder kan ikke være høyere enn 25") })
-    }
-
-    @Test
     fun `skal håndtere ekstremt høye inntekter korrekt`() {
         val request = BeregningRequestDto(
             inntektForelder1 = 1_000_000_000.0,  // 1 milliard
             inntektForelder2 = 900_000_000.0,  // 900 millioner
-            barn = listOf(BarnDto(12, Samværsklasse.SAMVÆRSKLASSE_1, BidragsType.MOTTAKER))
+            barn = listOf(BarnDto(Personident(personIdent), Samværsklasse.SAMVÆRSKLASSE_1, BidragsType.MOTTAKER))
         )
 
         val violations = validator.validate(request)
