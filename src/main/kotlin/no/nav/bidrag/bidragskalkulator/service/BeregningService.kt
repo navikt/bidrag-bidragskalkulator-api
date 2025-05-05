@@ -1,5 +1,9 @@
 package no.nav.bidrag.bidragskalkulator.service
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.runBlocking
 import no.nav.bidrag.beregn.barnebidrag.BeregnBarnebidragApi
 import no.nav.bidrag.bidragskalkulator.dto.BeregningsresultatDto
 import no.nav.bidrag.bidragskalkulator.dto.BeregningRequestDto
@@ -20,34 +24,37 @@ class BeregningService(
 
     private val logger = getLogger(BeregningsgrunnlagMapper::class.java)
 
-    fun beregnBarnebidrag(beregningRequest: BeregningRequestDto): BeregningsresultatDto {
+    fun beregnBarnebidrag(beregningRequest: BeregningRequestDto): BeregningsresultatDto = runBlocking(context = Dispatchers.IO) {
         val beregningsgrunnlag = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(beregningRequest)
 
         val start = System.currentTimeMillis()
-        val beregningsresultat = beregningsgrunnlag.parallelStream().map { data ->
-            val beregningsResult = beregnBarnebidragApi.beregn(data.grunnlag)
-            val beregnetSum = beregningsResult
-                .beregnetBarnebidragPeriodeListe
-                .sumOf { it.resultat.beløp ?: BigDecimal.ZERO }
+        val beregningsJobber = beregningsgrunnlag.map { data ->
+            async {
+                val beregningsResult = beregnBarnebidragApi.beregn(data.grunnlag)
+                val beregnetSum = beregningsResult
+                    .beregnetBarnebidragPeriodeListe
+                    .sumOf { it.resultat.beløp ?: BigDecimal.ZERO }
 
-            val underholdskostnad = beregningsResult.grunnlagListe
-                .firstOrNull { it.type == Grunnlagstype.DELBEREGNING_UNDERHOLDSKOSTNAD }
-                ?.innholdTilObjekt<DelberegningUnderholdskostnad>()?.underholdskostnad ?: BigDecimal.ZERO
+                val underholdskostnad = beregningsResult.grunnlagListe
+                    .firstOrNull { it.type == Grunnlagstype.DELBEREGNING_UNDERHOLDSKOSTNAD }
+                    ?.innholdTilObjekt<DelberegningUnderholdskostnad>()?.underholdskostnad ?: BigDecimal.ZERO
 
-            BeregningsresultatBarnDto(
-                sum = beregnetSum.avrundeTilNærmesteHundre(),
-                ident = data.ident,
-                fulltNavn = data.fulltNavn,
-                alder = data.alder,
-                underholdskostnad = underholdskostnad,
-                bidragstype = data.bidragsType,
-            )
-        }.toList()
-        
+                BeregningsresultatBarnDto(
+                    sum = beregnetSum.avrundeTilNærmesteHundre(),
+                    ident = data.ident,
+                    fulltNavn = data.fulltNavn,
+                    alder = data.alder,
+                    underholdskostnad = underholdskostnad,
+                    bidragstype = data.bidragsType,
+                )
+            }
+        }
+        val beregningsresultat = beregningsJobber.awaitAll()
         val duration = System.currentTimeMillis() - start;
         logger.info("Beregning av ${beregningsresultat.size} barn tok $duration ms")
 
-        return BeregningsresultatDto(beregningsresultat)
+        // returner resultat
+        BeregningsresultatDto(beregningsresultat)
     }
 
     fun BigDecimal.avrundeTilNærmesteHundre() = this.divide(BigDecimal(100))
