@@ -17,17 +17,9 @@ class PersonService(private val personConsumer: BidragPersonConsumer, private va
 
     fun hentInformasjon(personIdent: String): BrukerInformasjonDto = runBlocking(Dispatchers.IO) {
         val inntektsGrunnlag = async { grunnlagService.hentInntektsGrunnlag(personIdent) }
-        val familierelasjon =  async {
-            SikkerhetsKontekst.medApplikasjonKontekst {
-                personConsumer.hentFamilierelasjon(personIdent)
-            }
-        }
+        val familierelasjon =  async { personConsumer.hentFamilierelasjon(personIdent) }
         BrukerInformasjonMapper.tilBrukerInformasjonDto(familierelasjon.await(), inntektsGrunnlag.await())
     }
 
-    fun hentNavnFødselDød(personIdent: Personident): NavnFødselDødDto {
-        return  SikkerhetsKontekst.medApplikasjonKontekst {
-            personConsumer.hentNavnFødselDød(personIdent)
-        }
-    }
+    fun hentNavnFødselDød(personIdent: Personident): NavnFødselDødDto = personConsumer.hentNavnFødselDød(personIdent)
 }
