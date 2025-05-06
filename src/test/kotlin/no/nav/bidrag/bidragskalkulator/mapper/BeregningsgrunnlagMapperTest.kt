@@ -22,7 +22,7 @@ class BeregningsgrunnlagMapperTest {
         val mockPersonService = mockk<PersonService>(relaxed = true)
         val fødselsdato = LocalDate.now().minusYears(10)
 
-        every { mockPersonService.hentPersonInformasjon(any()) } returns PersonDto(
+        every { mockPersonService.hentPersoninformasjon(any()) } returns PersonDto(
             fødselsdato = fødselsdato,
             ident = Personident("06451759610"),
             fornavn = "Navn",
