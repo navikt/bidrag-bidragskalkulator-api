@@ -17,6 +17,9 @@ data class BeregningsresultatBarnDto(
     @Schema(description = "Fullt navn til barnet", example = "Ola Nordmann")
     val fulltNavn: String,
 
+    @Schema(description = "Fornavn til barnet", example = "Ola")
+    val fornavn: String,
+
     @Schema(description = "Alder til barnet", example = "5")
     val alder: Int,
 
