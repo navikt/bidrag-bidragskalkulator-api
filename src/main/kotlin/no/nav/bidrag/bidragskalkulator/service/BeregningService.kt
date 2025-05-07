@@ -38,6 +38,7 @@ class BeregningService(
                 sum = beregnetSum.avrundeTilNærmesteHundre(),
                 ident = data.ident,
                 fulltNavn = data.fulltNavn,
+                fornavn = data.fornavn,
                 alder = data.alder,
                 underholdskostnad = underholdskostnad,
                 bidragstype = data.bidragsType,

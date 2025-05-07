@@ -6,7 +6,8 @@ import no.nav.bidrag.bidragskalkulator.dto.BeregningRequestDto
 import no.nav.bidrag.bidragskalkulator.service.PersonService
 import no.nav.bidrag.bidragskalkulator.utils.JsonUtils
 import no.nav.bidrag.domene.enums.vedtak.Stønadstype
-import no.nav.bidrag.transport.person.NavnFødselDødDto
+import no.nav.bidrag.domene.ident.Personident
+import no.nav.bidrag.transport.person.PersonDto
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -21,14 +22,11 @@ class BeregningsgrunnlagMapperTest {
         val mockPersonService = mockk<PersonService>(relaxed = true)
         val fødselsdato = LocalDate.now().minusYears(10)
 
-        every { mockPersonService.hentNavnFødselDød(any()) } returns NavnFødselDødDto(
-            navn = "Navn Navnesen",
+        every { mockPersonService.hentPersoninformasjon(any()) } returns PersonDto(
             fødselsdato = fødselsdato,
-            fødselsår = fødselsdato.year,
-            dødsdato = null,
-            foedselsdato = fødselsdato,
-            foedselsaar = fødselsdato.year,
-            doedsdato = null
+            ident = Personident("06451759610"),
+            fornavn = "Navn",
+            visningsnavn = "Navn Navnesen",
         )
 
         beregningsgrunnlagMapper = BeregningsgrunnlagMapper(mockPersonService)

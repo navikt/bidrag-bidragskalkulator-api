@@ -7,7 +7,7 @@ import no.nav.bidrag.bidragskalkulator.consumer.BidragPersonConsumer
 import no.nav.bidrag.bidragskalkulator.dto.BrukerInformasjonDto
 import no.nav.bidrag.bidragskalkulator.mapper.BrukerInformasjonMapper
 import no.nav.bidrag.domene.ident.Personident
-import no.nav.bidrag.transport.person.NavnFødselDødDto
+import no.nav.bidrag.transport.person.PersonDto
 import org.springframework.stereotype.Service
 
 @Service
@@ -19,5 +19,6 @@ class PersonService(private val personConsumer: BidragPersonConsumer, private va
         BrukerInformasjonMapper.tilBrukerInformasjonDto(familierelasjon.await(), inntektsGrunnlag.await())
     }
 
-    fun hentNavnFødselDød(personIdent: Personident): NavnFødselDødDto = personConsumer.hentNavnFødselDød(personIdent)
+
+    fun hentPersoninformasjon(personIdent: Personident): PersonDto = personConsumer.hentPerson(personIdent)
 }

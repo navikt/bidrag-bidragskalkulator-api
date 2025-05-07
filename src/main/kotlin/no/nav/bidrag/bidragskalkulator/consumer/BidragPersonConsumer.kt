@@ -5,7 +5,7 @@ import no.nav.bidrag.commons.security.SikkerhetsKontekst
 import no.nav.bidrag.commons.web.client.AbstractRestClient
 import no.nav.bidrag.domene.ident.Personident
 import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
-import no.nav.bidrag.transport.person.NavnFødselDødDto
+import no.nav.bidrag.transport.person.PersonDto
 import no.nav.bidrag.transport.person.PersonRequest
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
@@ -21,8 +21,7 @@ class BidragPersonConsumer(
 ) : AbstractRestClient(restTemplate, "bidrag-person") {
 
     private val hentFamilierelasjonUri = URI.create("$bidragPersonUrl/motpartbarnrelasjon")
-    private val hentNavnFødselDødUri = URI.create("$bidragPersonUrl/navnfoedseldoed")
-
+    private val hentPersonUri = URI.create("$bidragPersonUrl/informasjon")
 
     fun <T : Any> medApplikasjonsKontekts(fn: () -> T): T {
         return SikkerhetsKontekst.medApplikasjonKontekst {
@@ -36,9 +35,9 @@ class BidragPersonConsumer(
         }
 
 
-    fun hentNavnFødselDød(ident: Personident): NavnFødselDødDto = medApplikasjonsKontekts {
-        secureLogger.info("Henter navn, fødselsdata og eventuell død for person $ident")
-        postSafely(hentNavnFødselDødUri, PersonRequest(ident), ident)
+    fun hentPerson(ident: Personident): PersonDto = medApplikasjonsKontekts{
+        secureLogger.info("Henter informasjon for person $ident")
+        postSafely(hentPersonUri, PersonRequest(ident), ident)
     }
 
     private inline fun <reified T : Any> postSafely(uri: URI, request: Any, ident: Personident): T {

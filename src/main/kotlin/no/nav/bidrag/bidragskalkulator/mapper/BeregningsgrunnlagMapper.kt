@@ -40,14 +40,15 @@ class BeregningsgrunnlagMapper(private val personService: PersonService) {
 
         return dto.barn.mapIndexed { index, søknadsbarn ->
             val barnetsInformasjon = SikkerhetsKontekst.medApplikasjonKontekst {
-                personService.hentNavnFødselDød(søknadsbarn.ident)
+                personService.hentPersoninformasjon(søknadsbarn.ident)
             }
             val barnetsAlder = kalkulereAlder(søknadsbarn.ident.fødselsdato())
             val søknadsbarnReferanse = "Person_Søknadsbarn_$index"
 
             GrunnlagOgBarnInformasjon(
                 ident = søknadsbarn.ident,
-                fulltNavn = barnetsInformasjon.navn,
+                fulltNavn = barnetsInformasjon.visningsnavn,
+                fornavn = barnetsInformasjon.fornavn ?: barnetsInformasjon.visningsnavn,
                 alder = barnetsAlder,
                 bidragsType = søknadsbarn.bidragstype,
                 grunnlag = BeregnGrunnlag(
@@ -154,6 +155,7 @@ class BeregningsgrunnlagMapper(private val personService: PersonService) {
 data class GrunnlagOgBarnInformasjon(
     val ident: Personident,
     val fulltNavn: String,
+    val fornavn: String,
     val alder: Int,
     val bidragsType: BidragsType,
     val grunnlag: BeregnGrunnlag

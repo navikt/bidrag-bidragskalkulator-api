@@ -51,6 +51,7 @@ class BeregningServiceTest {
                 GrunnlagOgBarnInformasjon(
                     ident = barnDto.ident,
                     fulltNavn = "Navn Navnesen",
+                    fornavn = "Navn",
                     alder = kalkulereAlder(barnDto.ident.fødselsdato()),
                     bidragsType = barnDto.bidragstype,
                     grunnlag = BeregnGrunnlag(
@@ -116,6 +117,7 @@ class BeregningServiceTest {
             GrunnlagOgBarnInformasjon(
                 ident = barnDto.ident,
                 fulltNavn = "Navn Navnesen",
+                fornavn = "Navn",
                 alder = kalkulereAlder(barnDto.ident.fødselsdato()),
                 bidragsType = barnDto.bidragstype,
                 grunnlag = BeregnGrunnlag(
