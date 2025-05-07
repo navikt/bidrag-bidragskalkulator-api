@@ -4,8 +4,6 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.runBlocking
 import no.nav.bidrag.bidragskalkulator.config.SecurityConstants
 import no.nav.bidrag.bidragskalkulator.service.GrunnlagService
 import no.nav.bidrag.bidragskalkulator.service.PersonService

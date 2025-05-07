@@ -23,19 +23,19 @@ class BidragPersonConsumer(
     private val hentFamilierelasjonUri = URI.create("$bidragPersonUrl/motpartbarnrelasjon")
     private val hentPersonUri = URI.create("$bidragPersonUrl/informasjon")
 
-    fun <T : Any> medApplikasjonsKontekts(fn: () -> T): T {
+    fun <T : Any> medApplikasjonsKontekst(fn: () -> T): T {
         return SikkerhetsKontekst.medApplikasjonKontekst {
             fn()
         }
     }
 
-    fun hentFamilierelasjon(ident: String): MotpartBarnRelasjonDto = medApplikasjonsKontekts {
+    fun hentFamilierelasjon(ident: String): MotpartBarnRelasjonDto = medApplikasjonsKontekst {
             secureLogger.info("Henter familierelasjon for person $ident")
             postSafely(hentFamilierelasjonUri, PersonRequest(Personident(ident)), Personident(ident))
         }
 
 
-    fun hentPerson(ident: Personident): PersonDto = medApplikasjonsKontekts{
+    fun hentPerson(ident: Personident): PersonDto = medApplikasjonsKontekst{
         secureLogger.info("Henter informasjon for person $ident")
         postSafely(hentPersonUri, PersonRequest(ident), ident)
     }
