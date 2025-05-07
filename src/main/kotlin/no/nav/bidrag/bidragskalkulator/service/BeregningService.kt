@@ -1,9 +1,5 @@
 package no.nav.bidrag.bidragskalkulator.service
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.runBlocking
 import no.nav.bidrag.beregn.barnebidrag.BeregnBarnebidragApi
 import no.nav.bidrag.bidragskalkulator.dto.BeregningsresultatDto
 import no.nav.bidrag.bidragskalkulator.dto.BeregningRequestDto
