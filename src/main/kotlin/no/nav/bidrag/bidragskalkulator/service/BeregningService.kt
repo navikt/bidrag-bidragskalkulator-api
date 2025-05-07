@@ -44,7 +44,7 @@ class BeregningService(
                 bidragstype = data.bidragsType,
             )
         }.toList()
-        
+
         val duration = System.currentTimeMillis() - start;
         logger.info("Beregning av ${beregningsresultat.size} barn tok $duration ms")
 

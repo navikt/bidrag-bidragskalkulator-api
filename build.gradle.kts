@@ -14,6 +14,7 @@ val jacksonVersion = "2.18.2"
 val junitJupiterVersion = "5.9.3"
 val mockitoKotlinVersion = "5.2.0"
 val bidragInntektVersion = "2025.04.16.131242"
+val coroutinesVersion = "1.10.2"
 
 plugins {
     id("org.jetbrains.kotlin.plugin.spring") version "1.9.25"
@@ -58,6 +59,11 @@ dependencies {
         exclude(group = "io.github.oshai", module = "kotlin-logging-jvm")
     }
 
+    // Kotlin Coroutines
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:${coroutinesVersion}")
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:${coroutinesVersion}")
+
+    // Annet
     api("io.github.oshai:kotlin-logging-jvm:$kotlinLoggingJvmVersion")
     api("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
     api("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
