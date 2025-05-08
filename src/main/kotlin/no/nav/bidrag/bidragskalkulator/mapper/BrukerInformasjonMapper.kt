@@ -1,9 +1,10 @@
 package no.nav.bidrag.bidragskalkulator.mapper
 
 import no.nav.bidrag.bidragskalkulator.dto.*
+import no.nav.bidrag.bidragskalkulator.mapper.BrukerInformasjonMapper.tilPersonInformasjonDto
 import no.nav.bidrag.bidragskalkulator.utils.kalkulereAlder
-import no.nav.bidrag.transport.behandling.inntekt.response.TransformerInntekterResponse
 import no.nav.bidrag.domene.enums.person.Diskresjonskode
+import no.nav.bidrag.transport.behandling.inntekt.response.TransformerInntekterResponse
 import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
 import no.nav.bidrag.transport.person.PersonDto
 import org.slf4j.LoggerFactory
@@ -28,7 +29,14 @@ object BrukerInformasjonMapper {
             person = motpartBarnRelasjondto.tilPersonInformasjonDto(),
             inntekt = inntektsGrunnlag?.toInntektResultatDto()?.inntektSiste12Mnd,
             barnerelasjoner = motpartBarnRelasjondto.personensMotpartBarnRelasjon
-                .filter { if (it.motpart != null) true else false.also { logger.info("Fjerner releasjon hvor motpart == null") } }
+                .filterNot {
+                    if (it.motpart == null) {
+                        logger.info("Fjerner relasjon hvor motpart == null")
+                        true
+                    } else {
+                        false
+                    }
+                }
                 .filterNot { it.motpart?.erDød() ?: false }
                 .filterNot { it.motpart?.harFortroligAdresse() ?: false }
                 .map {
