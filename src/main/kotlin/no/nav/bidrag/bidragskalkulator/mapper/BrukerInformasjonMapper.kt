@@ -28,7 +28,7 @@ object BrukerInformasjonMapper {
             person = motpartBarnRelasjondto.tilPersonInformasjonDto(),
             inntekt = inntektsGrunnlag?.toInntektResultatDto()?.inntektSiste12Mnd,
             barnerelasjoner = motpartBarnRelasjondto.personensMotpartBarnRelasjon
-                .filterNot { if (it.motpart == null) true else false.also { logger.info("Fjernet barneralsjon hvor motpart == null") } }
+                .filter { if (it.motpart != null) true else false.also { logger.info("Fjerner releasjon hvor motpart == null") } }
                 .filterNot { it.motpart?.erDød() ?: false }
                 .filterNot { it.motpart?.harFortroligAdresse() ?: false }
                 .map {
