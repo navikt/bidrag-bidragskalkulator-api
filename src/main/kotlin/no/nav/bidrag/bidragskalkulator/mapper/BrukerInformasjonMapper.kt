@@ -6,6 +6,7 @@ import no.nav.bidrag.transport.behandling.inntekt.response.TransformerInntekterR
 import no.nav.bidrag.domene.enums.person.Diskresjonskode
 import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
 import no.nav.bidrag.transport.person.PersonDto
+import org.slf4j.LoggerFactory
 
 
 private var FORTROLIG_ADRESSE_DISKRESJONSKODER = listOf(
@@ -16,6 +17,8 @@ private var FORTROLIG_ADRESSE_DISKRESJONSKODER = listOf(
 
 object BrukerInformasjonMapper {
 
+    val logger = LoggerFactory.getLogger(BrukerInformasjonMapper::class.java)
+
     fun tilBrukerInformasjonDto(
         motpartBarnRelasjondto: MotpartBarnRelasjonDto,
         inntektsGrunnlag: TransformerInntekterResponse?
@@ -25,6 +28,7 @@ object BrukerInformasjonMapper {
             person = motpartBarnRelasjondto.tilPersonInformasjonDto(),
             inntekt = inntektsGrunnlag?.toInntektResultatDto()?.inntektSiste12Mnd,
             barnerelasjoner = motpartBarnRelasjondto.personensMotpartBarnRelasjon
+                .filterNot { if (it.motpart == null) true else false.also { logger.info("Fjernet barneralsjon hvor motpart == null") } }
                 .filterNot { it.motpart?.erDød() ?: false }
                 .filterNot { it.motpart?.harFortroligAdresse() ?: false }
                 .map {
