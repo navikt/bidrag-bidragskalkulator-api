@@ -31,6 +31,7 @@ object BrukerInformasjonMapper {
             barnerelasjoner = motpartBarnRelasjondto.personensMotpartBarnRelasjon
                 .filterNot {
                     if (it.motpart == null) {
+                        // logger for innhenting av statistikk
                         logger.info("Fjerner relasjon hvor motpart == null")
                         true
                     } else {

@@ -18,22 +18,7 @@
   "personensMotpartBarnRelasjon": [
     {
       "forelderrolleMotpart": "FAR",
-      "motpart": {
-        "ident": "21828597504",
-        "navn": "TREGRENSE, NORMAL",
-        "fornavn": "Normal",
-        "mellomnavn": "",
-        "etternavn": "Tregrense",
-        "kjønn": "MANN",
-        "kjoenn": "MANN",
-        "fødselsdato": "1985-02-21",
-        "foedselsdato": "1985-02-21",
-        "aktørId": "2506308456558",
-        "aktoerId": "2506308456558",
-        "kortnavn": "Normal Tregrense",
-        "kortNavn": "Normal Tregrense",
-        "visningsnavn": "Normal Tregrense"
-      },
+      "motpart": null,
       "fellesBarn": [
         {
           "ident": "16482086857",
@@ -49,9 +34,14 @@
           "aktoerId": "2728125664634",
           "kortnavn": "Konvensjonell Dugnad",
           "kortNavn": "Konvensjonell Dugnad",
-          "visningsnavn": "Konvensjonell Dugnad",
-          "diskresjonskode": "SPSF"
-        },
+          "visningsnavn": "Konvensjonell Dugnad"
+        }
+      ]
+    },
+    {
+      "forelderrolleMotpart": "FAR",
+      "motpart": null,
+      "fellesBarn": [
         {
           "ident": "16441876924",
           "navn": "Tannbørste, Klartenkt",
@@ -66,24 +56,7 @@
           "aktoerId": "2088757611240",
           "kortnavn": "Klartenkt Tannbørste",
           "kortNavn": "Klartenkt Tannbørste",
-          "visningsnavn": "Klartenkt Tannbørste",
-          "diskresjonskode": "SPFO"
-        },
-        {
-          "ident": "22461675194",
-          "navn": "Bil, Handlekraftig",
-          "fornavn": "Handlekraftig",
-          "mellomnavn": "",
-          "etternavn": "Bil",
-          "kjønn": "MANN",
-          "kjoenn": "MANN",
-          "fødselsdato": "2016-06-22",
-          "foedselsdato": "2016-06-22",
-          "aktørId": "2050978840829",
-          "aktoerId": "2050978840829",
-          "kortnavn": "Handlekraftig Bil",
-          "kortNavn": "Handlekraftig Bil",
-          "visningsnavn": "Handlekraftig Bil"
+          "visningsnavn": "Klartenkt Tannbørste"
         }
       ]
     }
