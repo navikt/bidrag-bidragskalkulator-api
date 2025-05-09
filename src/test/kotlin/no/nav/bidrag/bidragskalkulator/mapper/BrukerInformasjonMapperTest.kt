@@ -112,25 +112,6 @@ open class BrukerInformasjonMapperTest {
     }
 
     @Test
-    fun `skal håndtere null-motpart på barn-relasjon`() {
-        val motpartBarnRelasjonDto: MotpartBarnRelasjonDto = JsonUtils.readJsonFile("/person/person_med_barn_flere_motpart.json")
-        val responsInntektsGrunnlag: TransformerInntekterResponse =
-            JsonUtils.readJsonFile("/grunnlag/transformer_inntekter_respons.json")
-
-
-        val resultat: BrukerInformasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(
-            motpartBarnRelasjonDto,
-            responsInntektsGrunnlag
-        )
-
-        assertNotNull(resultat)
-        assertTrue(resultat.barnerelasjoner.isNotEmpty(), "Barn-relasjon skal ikke være tom")
-
-        val barnRelasjon = resultat.barnerelasjoner.first()
-        assertNull(barnRelasjon.motpart, "Motpart skal være null i denne testen")
-    }
-
-    @Test
     fun `skal håndtere tomt personensMotpartBarnRelasjon`() {
         val motpartBarnRelasjonDto: MotpartBarnRelasjonDto = JsonUtils.readJsonFile("/person/person_ingen_barn.json")
         val responsInntektsGrunnlag: TransformerInntekterResponse =
@@ -143,5 +124,20 @@ open class BrukerInformasjonMapperTest {
 
         assertNotNull(resultat)
         assertTrue(resultat.barnerelasjoner.isEmpty(), "Barn-relasjon skal være tom hvis personensMotpartBarnRelasjon er tomt")
+    }
+
+    @Test
+    fun `skal filtrere vekk relasjoner hvor motpart er null`() {
+        val motpartBarnRelasjonDto: MotpartBarnRelasjonDto = JsonUtils.readJsonFile("/person/person_med_null_motpart.json")
+        val responsInntektsGrunnlag: TransformerInntekterResponse =
+            JsonUtils.readJsonFile("/grunnlag/transformer_inntekter_respons.json")
+
+        val resultat: BrukerInformasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(
+            motpartBarnRelasjonDto,
+            responsInntektsGrunnlag
+        )
+
+        assertNotNull(resultat)
+        assertTrue(resultat.barnerelasjoner.isEmpty(), "Skal være tom hvis motpart er null")
     }
 }
