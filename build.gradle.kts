@@ -62,6 +62,7 @@ dependencies {
     // Kotlin Coroutines
     api("org.jetbrains.kotlinx:kotlinx-coroutines-core:${coroutinesVersion}")
     api("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:${coroutinesVersion}")
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:${coroutinesVersion}")
 
     // Annet
     api("io.github.oshai:kotlin-logging-jvm:$kotlinLoggingJvmVersion")

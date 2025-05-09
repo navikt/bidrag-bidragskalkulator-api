@@ -10,6 +10,7 @@
                 <threadName/>
                 <logLevel/>
                 <callerData/>
+                <correlationId/>
                 <arguments/>
                 <stackTrace/>
             </providers>
