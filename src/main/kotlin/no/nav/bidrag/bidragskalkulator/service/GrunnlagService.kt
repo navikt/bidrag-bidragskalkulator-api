@@ -27,7 +27,7 @@ class GrunnlagService(
                 secureLogger.info { "Henter grunnlag for ident: $ident" }
                 val grunnlag = grunnlagConsumer.hentGrunnlag(ident)
                 secureLogger.info { "Transformerer inntekter for ident: $ident" }
-                transformerInntekter(grunnlag)
+                transformerInntekter(grunnlag).also { logger.info("Transformering av inntekt fullført") }
             }.getOrElse {
                 secureLogger.error(it) { "Feil ved transformering av inntekter for ident: $ident - returnerer tom inntekt" }
                 null
