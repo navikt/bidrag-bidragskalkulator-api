@@ -56,7 +56,22 @@
     },
     {
       "forelderrolleMotpart": "FAR",
-      "motpart": null,
+      "motpart": {
+        "ident": "21828597504",
+        "navn": "TREGRENSE, NORMAL",
+        "fornavn": "Normal",
+        "mellomnavn": "",
+        "etternavn": "Tregrense",
+        "kjønn": "MANN",
+        "kjoenn": "MANN",
+        "fødselsdato": "1985-02-21",
+        "foedselsdato": "1985-02-21",
+        "aktørId": "2506308456558",
+        "aktoerId": "2506308456558",
+        "kortnavn": "Normal Tregrense",
+        "kortNavn": "Normal Tregrense",
+        "visningsnavn": "Normal Tregrense"
+      },
       "fellesBarn": [
         {
           "ident": "22461675194",
