@@ -7,6 +7,7 @@ import no.nav.bidrag.domene.ident.Personident
 import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
 import no.nav.bidrag.transport.person.PersonDto
 import no.nav.bidrag.transport.person.PersonRequest
+import org.apache.logging.log4j.LogManager.getLogger
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
@@ -20,6 +21,8 @@ class BidragPersonConsumer(
     @Qualifier("azure") restTemplate: RestTemplate
 ) : AbstractRestClient(restTemplate, "bidrag-person") {
 
+    private val logger = getLogger(BidragPersonConsumer::class.java)
+
     private val hentFamilierelasjonUri = URI.create("$bidragPersonUrl/motpartbarnrelasjon")
     private val hentPersonUri = URI.create("$bidragPersonUrl/informasjon")
 
@@ -30,13 +33,13 @@ class BidragPersonConsumer(
     }
 
     fun hentFamilierelasjon(ident: String): MotpartBarnRelasjonDto = medApplikasjonsKontekst {
-            secureLogger.info("Henter familierelasjon for person $ident")
+            logger.info("Henter familierelasjon for person")
             postSafely(hentFamilierelasjonUri, PersonRequest(Personident(ident)), Personident(ident))
         }
 
 
     fun hentPerson(ident: Personident): PersonDto = medApplikasjonsKontekst{
-        secureLogger.info("Henter informasjon for person $ident")
+        logger.info("Henter informasjon for person")
         postSafely(hentPersonUri, PersonRequest(ident), ident)
     }
 
@@ -46,16 +49,16 @@ class BidragPersonConsumer(
         } catch (e: HttpServerErrorException) {
             when (e.statusCode.value()) {
                 404 -> {
-                    secureLogger.warn("Fant ikke person med ident $ident")
-                    throw NoContentException("Fant ikke person med ident $ident")
+                    logger.warn("Fant ikke person med ident")
+                    throw NoContentException("Fant ikke person med ident")
                 }
                 else -> {
-                    secureLogger.error("Serverfeil fra bidrag-person for ident $ident", e)
+                    logger.error("Serverfeil fra bidrag-person for ident med uri $uri", e)
                     throw e
                 }
             }
         } catch (e: Exception) {
-            secureLogger.error("Uventet feil ved kall til bidrag-person for ident $ident", e)
+            logger.error("Uventet feil ved kall til bidrag-person med uri $uri", e)
             throw e
         }
     }
