@@ -1,7 +1,6 @@
 package no.nav.bidrag.bidragskalkulator.mapper
 
 import no.nav.bidrag.bidragskalkulator.dto.*
-import no.nav.bidrag.bidragskalkulator.mapper.BrukerInformasjonMapper.tilPersonInformasjonDto
 import no.nav.bidrag.bidragskalkulator.utils.kalkulereAlder
 import no.nav.bidrag.domene.enums.person.Diskresjonskode
 import no.nav.bidrag.transport.behandling.inntekt.response.TransformerInntekterResponse

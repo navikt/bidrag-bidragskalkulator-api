@@ -9,7 +9,6 @@ import io.swagger.v3.oas.models.media.Schema
 import no.nav.bidrag.beregn.barnebidrag.BeregnBarnebidragApi
 import no.nav.bidrag.commons.security.api.EnableSecurityConfiguration
 import no.nav.bidrag.commons.service.AppContext
-import no.nav.bidrag.commons.web.config.RestOperationsAzure
 import no.nav.bidrag.domene.enums.beregning.Samværsklasse
 import no.nav.security.token.support.client.spring.oauth2.EnableOAuth2Client
 import no.nav.security.token.support.spring.api.EnableJwtTokenValidation
@@ -31,7 +30,7 @@ import org.springframework.http.client.observation.DefaultClientRequestObservati
 @Configuration
 @EnableOAuth2Client(cacheEnabled = true)
 @EnableSecurityConfiguration
-@Import(RestOperationsAzure::class, AppContext::class, BeregnBarnebidragApi::class)
+@Import(AppContext::class, BeregnBarnebidragApi::class)
 class BeregnBarnebidragConfig {
     @Bean
     fun clientRequestObservationConvention() = DefaultClientRequestObservationConvention()

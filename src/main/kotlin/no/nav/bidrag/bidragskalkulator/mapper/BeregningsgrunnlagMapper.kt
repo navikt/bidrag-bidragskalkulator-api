@@ -8,7 +8,6 @@ import no.nav.bidrag.bidragskalkulator.dto.BeregningRequestDto
 import no.nav.bidrag.bidragskalkulator.dto.BidragsType
 import no.nav.bidrag.bidragskalkulator.service.PersonService
 import no.nav.bidrag.bidragskalkulator.utils.kalkulereAlder
-import no.nav.bidrag.commons.security.SikkerhetsKontekst
 import no.nav.bidrag.domene.enums.grunnlag.Grunnlagstype
 import no.nav.bidrag.domene.enums.inntekt.Inntektsrapportering
 import no.nav.bidrag.domene.enums.person.Bostatuskode
@@ -39,9 +38,7 @@ class BeregningsgrunnlagMapper(private val personService: PersonService) {
         val beregningsperiode = ÅrMånedsperiode(YearMonth.now(), YearMonth.now().plusMonths(1))
 
         return dto.barn.mapIndexed { index, søknadsbarn ->
-            val barnetsInformasjon = SikkerhetsKontekst.medApplikasjonKontekst {
-                personService.hentPersoninformasjon(søknadsbarn.ident)
-            }
+            val barnetsInformasjon = personService.hentPersoninformasjon(søknadsbarn.ident)
             val barnetsAlder = kalkulereAlder(søknadsbarn.ident.fødselsdato())
             val søknadsbarnReferanse = "Person_Søknadsbarn_$index"
 
@@ -69,7 +66,7 @@ class BeregningsgrunnlagMapper(private val personService: PersonService) {
         return listOf(
             lagTomtGrunnlag(BIDRAGSMOTTAKER_REFERANSE, Grunnlagstype.PERSON_BIDRAGSMOTTAKER),
             lagTomtGrunnlag(BIDRAGSPLIKTIG_REFERANSE, Grunnlagstype.PERSON_BIDRAGSPLIKTIG),
-            lagBostatusgrunnlag("Bostatus_Bidragspliktig", Bostatuskode.BOR_IKKE_MED_ANDRE_VOKSNE, null, BIDRAGSPLIKTIG_REFERANSE),
+            lagBostatusgrunnlag("Bostatus_Bidragspliktig", Bostatuskode.BOR_MED_ANDRE_VOKSNE, null, BIDRAGSPLIKTIG_REFERANSE),
             lagSøknadsbarngrunnlag(søknadsbarnReferanse, søknadsbarn.ident.fødselsdato()),
             lagInntektsgrunnlag(
                 "Inntekt_Bidragspliktig",

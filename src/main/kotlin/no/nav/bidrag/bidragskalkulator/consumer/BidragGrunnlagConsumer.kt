@@ -7,10 +7,8 @@ import no.nav.bidrag.domene.enums.vedtak.Formål
 import no.nav.bidrag.transport.behandling.grunnlag.request.GrunnlagRequestDto
 import no.nav.bidrag.transport.behandling.grunnlag.request.HentGrunnlagRequestDto
 import no.nav.bidrag.transport.behandling.grunnlag.response.HentGrunnlagDto
-import org.apache.logging.log4j.LogManager.getLogger
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
-import org.springframework.web.client.HttpClientErrorException.NotFound
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
@@ -22,8 +20,6 @@ class BidragGrunnlagConsumer(
     val grunnlagConfig: GrunnlagConfigurationProperties,
     @Qualifier("azure") val restTemplate: RestTemplate,
 ) : AbstractRestClient(restTemplate, "bidrag.grunnlag") {
-
-    val logger = getLogger(BidragGrunnlagConsumer::class.java)
 
     companion object {
         /**
