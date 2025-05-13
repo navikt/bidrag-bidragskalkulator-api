@@ -24,12 +24,12 @@ class GrunnlagService(
     fun hentInntektsGrunnlag(ident: String): TransformerInntekterResponse? {
         return SikkerhetsKontekst.medApplikasjonKontekst {
             runCatching {
-                secureLogger.info { "Henter grunnlag for ident: $ident" }
+                logger.info("Henter grunnlag for ident")
                 val grunnlag = grunnlagConsumer.hentGrunnlag(ident)
-                secureLogger.info { "Transformerer inntekter for ident: $ident" }
+                logger.info("Transformerer inntekter for ident")
                 transformerInntekter(grunnlag).also { logger.info("Transformering av inntekt fullført") }
             }.getOrElse {
-                secureLogger.error(it) { "Feil ved transformering av inntekter for ident: $ident - returnerer tom inntekt" }
+                logger.error("Feil ved transformering av inntekter - returnerer tom inntekt", it)
                 null
             }
         }

@@ -10,7 +10,6 @@ import no.nav.bidrag.transport.behandling.grunnlag.response.HentGrunnlagDto
 import org.apache.logging.log4j.LogManager.getLogger
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
-import org.springframework.web.client.HttpClientErrorException.NotFound
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
@@ -60,16 +59,16 @@ class BidragGrunnlagConsumer(
         } catch(e: HttpServerErrorException) {
             when (e.statusCode.value()) {
                 404 -> {
-                    secureLogger.warn("Fant ikke person med ident $ident")
+                    logger.warn("Fant ikke person med ident")
                     throw e
                 }
                 else -> {
-                    secureLogger.error("Feil ved serverkall til bidrag-grunnlag for ident $ident", e)
+                    logger.error("Feil ved serverkall til bidrag-grunnlag med path: $grunnlagUri", e)
                     throw e
                 }
             }
         } catch (e: Exception) {
-            secureLogger.error("Uventet feil ved kall til bidrag-grunnlag for ident $ident - ${e.localizedMessage}", e)
+            logger.error("Uventet feil ved kall til bidrag-grunnlag - ${e.localizedMessage}", e)
             throw e
         }
     }
