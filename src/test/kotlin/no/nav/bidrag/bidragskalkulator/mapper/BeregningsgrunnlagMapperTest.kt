@@ -20,6 +20,8 @@ class BeregningsgrunnlagMapperTest {
     @BeforeEach
     fun setup() {
         val mockPersonService = mockk<PersonService>(relaxed = true)
+        val mockBeregningsgrunnlagBuilder = mockk<BeregningsgrunnlagBuilder>(relaxed = true)
+
         val fødselsdato = LocalDate.now().minusYears(10)
 
         every { mockPersonService.hentPersoninformasjon(any()) } returns PersonDto(
@@ -29,7 +31,7 @@ class BeregningsgrunnlagMapperTest {
             visningsnavn = "Navn Navnesen",
         )
 
-        beregningsgrunnlagMapper = BeregningsgrunnlagMapper(mockPersonService)
+        beregningsgrunnlagMapper = BeregningsgrunnlagMapper(mockPersonService, mockBeregningsgrunnlagBuilder)
     }
 
     @Test
