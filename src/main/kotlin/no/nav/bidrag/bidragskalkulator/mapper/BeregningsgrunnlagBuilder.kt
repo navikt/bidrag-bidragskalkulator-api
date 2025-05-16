@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import no.nav.bidrag.bidragskalkulator.dto.BarnDto
+import no.nav.bidrag.bidragskalkulator.dto.BidragsType
 import no.nav.bidrag.bidragskalkulator.mapper.BeregningsgrunnlagMapper.Referanser
 import no.nav.bidrag.domene.enums.grunnlag.Grunnlagstype
 import no.nav.bidrag.domene.enums.inntekt.Inntektsrapportering
@@ -55,7 +56,7 @@ class BeregningsgrunnlagBuilder(
             )
         }
 
-        val boforhold = if (data.erBidragspliktig) data.dto.dinBoforhold else data.dto.medforelderBoforhold
+        val boforhold = if (data.barn.bidragstype == BidragsType.PLIKTIG) data.dto.dinBoforhold else data.dto.medforelderBoforhold
         val BPBostatus = if(boforhold?.borMedAnnenVoksen == true) Bostatuskode.BOR_MED_ANDRE_VOKSNE else Bostatuskode.BOR_IKKE_MED_ANDRE_VOKSNE
 
         val bostatusBarn = buildList {
@@ -75,8 +76,9 @@ class BeregningsgrunnlagBuilder(
     }
 
     fun byggInntektsgrunnlag(data: Beregningskontekst): List<GrunnlagDto> {
-        val lønnBidragsmottaker = if (data.erBidragspliktig) data.dto.inntektForelder2 else data.dto.inntektForelder1
-        val lønnBidragspliktig = if (data.erBidragspliktig) data.dto.inntektForelder1 else data.dto.inntektForelder2
+        val erBidragspliktig = data.barn.bidragstype == BidragsType.PLIKTIG
+        val lønnBidragsmottaker = if (erBidragspliktig) data.dto.inntektForelder2 else data.dto.inntektForelder1
+        val lønnBidragspliktig = if (erBidragspliktig) data.dto.inntektForelder1 else data.dto.inntektForelder2
 
         fun nyttInntektsgrunnlag(referanse: String, beløp: BigDecimal, eierReferanse: String) =
             GrunnlagDto(

@@ -53,7 +53,7 @@ class BeregningsgrunnlagMapper(private val personService: PersonService, private
         dto: BeregningRequestDto,
         barnReferanse: String
     ): List<GrunnlagDto> {
-        val kontekst = Beregningskontekst(dto, søknadsbarn, barnReferanse, søknadsbarn.bidragstype == BidragsType.PLIKTIG)
+        val kontekst = Beregningskontekst(dto, søknadsbarn, barnReferanse)
 
         return buildList{
             add(grunnlagBuilder.byggPersongrunnlag(Referanser.BIDRAGSMOTTAKER,Grunnlagstype.PERSON_BIDRAGSMOTTAKER))
@@ -79,5 +79,4 @@ data class Beregningskontekst(
     val dto: BeregningRequestDto,
     val barn: BarnDto,
     val barnReferanse: String,
-    val erBidragspliktig: Boolean
 )

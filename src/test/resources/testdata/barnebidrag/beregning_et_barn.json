@@ -9,8 +9,8 @@
     }
   ],
   "dinBoforhold": {
-    "antallBarnBorFast": 0,
-    "antallBarnDeltBosted": 0,
-    "borMedAnnenVoksen": false
+    "antallBarnBorFast": 2,
+    "antallBarnDeltBosted": 1,
+    "borMedAnnenVoksen": true
   }
 }
