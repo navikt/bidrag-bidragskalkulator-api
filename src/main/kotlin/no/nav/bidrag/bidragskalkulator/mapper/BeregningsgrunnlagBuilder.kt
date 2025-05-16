@@ -56,7 +56,7 @@ class BeregningsgrunnlagBuilder(
         }
 
         val boforhold = if (data.erBidragspliktig) data.dto.dinBoforhold else data.dto.medforelderBoforhold
-        val BPBostatus = if(boforhold?.borMedAnnenVoksen == true) Bostatuskode.BOR_MED_ANDRE_VOKSNE else Bostatuskode.ALENE
+        val BPBostatus = if(boforhold?.borMedAnnenVoksen == true) Bostatuskode.BOR_MED_ANDRE_VOKSNE else Bostatuskode.BOR_IKKE_MED_ANDRE_VOKSNE
 
         val bostatusBarn = buildList {
             boforhold?.antallBarnBorFast?.takeIf { it > 0 }?.let {
