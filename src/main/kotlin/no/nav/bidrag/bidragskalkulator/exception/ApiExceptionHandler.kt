@@ -22,4 +22,11 @@ class ApiExceptionHandler {
     fun handleNoContentException(ex: NoContentException): ResponseEntity<Void> {
         return ResponseEntity.noContent().build()  // This returns a 204 No Content response
     }
+
+    // Handle the custom NoContentException and return a 400 Bad Request
+    @ExceptionHandler(UgyldigBeregningRequestException::class)
+    fun handleUgyldigBeregningRequestException(ex: UgyldigBeregningRequestException): ResponseEntity<Map<String, List<String>>> {
+        val errors = listOf(ex.message ?: "Ugyldig forespørsel")
+        return ResponseEntity(mapOf("errors" to errors), HttpStatus.BAD_REQUEST)
+    }
 }

@@ -14,7 +14,7 @@ import java.math.BigDecimal
 
 
 class BeregningControllerTest: AbstractControllerTest() {
-    @MockkBean
+    @MockkBean(relaxUnitFun = true)
     private lateinit var beregningService: BeregningService
 
 
@@ -39,6 +39,7 @@ class BeregningControllerTest: AbstractControllerTest() {
 
     @Test
     fun `skal returnere 401 Unauthorized når ingen token er gitt`() {
+
         postRequest("/api/v1/beregning/barnebidrag", mockGyldigRequest)
             .andExpect(status().isUnauthorized)
     }
@@ -61,13 +62,47 @@ class BeregningControllerTest: AbstractControllerTest() {
             .andExpect(jsonPath("$.errors[0]").value("barn: Liste over barn kan ikke være tom"))
     }
 
+    @Test
+    fun `skal returnere 400 hvis dinBoforhold mangler for PLIKTIG`() {
+        val ugyldigRequest = mockGyldigRequest.copy(dinBoforhold = null)
+
+        postRequest("/api/v1/beregning/barnebidrag", ugyldigRequest, gyldigOAuth2Token)
+            .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.errors[0]").value("Boforhold må være satt når det finnes barn med bidragstype PLIKTIG eller MOTTAKER"))
+    }
+
+    @Test
+    fun `skal returnere 400 hvis medforelderBoforhold mangler for MOTTAKER`() {
+        val ugyldigRequest = mockGyldigRequest.copy(
+            barn = listOf(BarnDto(ident = Personident(personIdent), samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0, bidragstype = BidragsType.MOTTAKER))
+        )
+
+        postRequest("/api/v1/beregning/barnebidrag", ugyldigRequest, gyldigOAuth2Token)
+            .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.errors[0]").value("Boforhold må være satt når det finnes barn med bidragstype PLIKTIG eller MOTTAKER"))
+    }
+
+    @Test
+    fun `skal returnere 400 hvis begge boforhold mangler`() {
+        val ugyldigRequest = mockGyldigRequest.copy(
+            barn = listOf(BarnDto(ident = Personident(personIdent), samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0, bidragstype = BidragsType.MOTTAKER)),
+            dinBoforhold = null,
+            medforelderBoforhold = null
+        )
+
+        postRequest("/api/v1/beregning/barnebidrag", ugyldigRequest, gyldigOAuth2Token)
+            .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.errors[0]").value("Boforhold må være satt når det finnes barn med bidragstype PLIKTIG eller MOTTAKER"))
+    }
+
     companion object TestData {
         private val personIdent = "12345678910"
 
         val mockGyldigRequest = BeregningRequestDto(
             inntektForelder1 = 500000.0,
             inntektForelder2 = 400000.0,
-            barn = listOf(BarnDto(ident = Personident(personIdent), samværsklasse = Samværsklasse.SAMVÆRSKLASSE_1, bidragstype = BidragsType.PLIKTIG))
+            barn = listOf(BarnDto(ident = Personident(personIdent), samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0, bidragstype = BidragsType.PLIKTIG)),
+            dinBoforhold = BoforholdDto(antallBarnBorFast = 0, antallBarnDeltBosted = 0, borMedAnnenVoksen = false)
         )
 
         val mockRespons = BeregningsresultatDto(

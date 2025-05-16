@@ -9,6 +9,7 @@ import no.nav.bidrag.bidragskalkulator.dto.BeregningRequestDto
 import jakarta.validation.Valid
 import no.nav.bidrag.bidragskalkulator.config.SecurityConstants
 import no.nav.bidrag.bidragskalkulator.service.BeregningService
+import no.nav.bidrag.bidragskalkulator.validering.BeregningRequestValidator
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.web.bind.annotation.*
 
@@ -29,6 +30,7 @@ class BeregningController(private val beregningService: BeregningService) {
     )
     @PostMapping("/barnebidrag")
     fun beregnBarnebidragBeskyttet(@Valid @RequestBody request: BeregningRequestDto): BeregningsresultatDto {
+        BeregningRequestValidator.valider(request)
         return beregningService.beregnBarnebidrag(request)
     }
 }
