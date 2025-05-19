@@ -46,10 +46,10 @@ data class BeregningRequestDto(
     @Schema(description = "Liste over barn som inngår i beregningen", required = true)
     val barn: List<BarnDto>,
 
-    @Schema(description = "Boforhold for den påloggede personen. Må være satt hvis bidragstype for barnet er PLIKTIG", required = false)
+    @Schema(description = "Boforhold for den påloggede personen. Må være satt hvis bidragstype for minst ett barn er PLIKTIG", required = false)
     val dittBoforhold: BoforholdDto? = null,
 
-    @Schema(description = "Boforhold for den andre forelderen. Må være satt hvis bidragstype for barnet er MOTTAKER", required = false)
+    @Schema(description = "Boforhold for den andre forelderen. Må være satt hvis bidragstype for minst ett barn er MOTTAKER", required = false)
     val medforelderBoforhold: BoforholdDto? = null,
 )
 
