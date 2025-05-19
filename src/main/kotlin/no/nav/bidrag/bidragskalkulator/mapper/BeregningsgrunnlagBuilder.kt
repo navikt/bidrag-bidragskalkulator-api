@@ -56,7 +56,7 @@ class BeregningsgrunnlagBuilder(
             )
         }
 
-        val boforhold = if (data.barn.bidragstype == BidragsType.PLIKTIG) data.dto.dinBoforhold else data.dto.medforelderBoforhold
+        val boforhold = if (data.barn.bidragstype == BidragsType.PLIKTIG) data.dto.dittBoforhold else data.dto.medforelderBoforhold
         val BPBostatus = if(boforhold?.borMedAnnenVoksen == true) Bostatuskode.BOR_MED_ANDRE_VOKSNE else Bostatuskode.BOR_IKKE_MED_ANDRE_VOKSNE
 
         val bostatusBarn = buildList {

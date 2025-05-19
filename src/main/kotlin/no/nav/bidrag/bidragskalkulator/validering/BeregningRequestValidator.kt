@@ -10,14 +10,14 @@ object BeregningRequestValidator {
         val harPliktigeBarn = dto.barn.any { it.bidragstype == PLIKTIG }
         val harMottakerBarn = dto.barn.any { it.bidragstype == MOTTAKER }
 
-        val manglerDinBoforhold = harPliktigeBarn && dto.dinBoforhold == null
+        val manglerDinBoforhold = harPliktigeBarn && dto.dittBoforhold == null
         val manglerMedforelderBoforhold = harMottakerBarn && dto.medforelderBoforhold == null
 
         when {
             manglerDinBoforhold && manglerMedforelderBoforhold ->
-                feil("Både 'dinBoforhold' og 'medforelderBoforhold' mangler, men må være satt når forespørselen inneholder barn der du er bidragspliktig og/eller bidragsmottaker.")
+                feil("Både 'dittBoforhold' og 'medforelderBoforhold' mangler, men må være satt når forespørselen inneholder barn der du er bidragspliktig og/eller bidragsmottaker.")
             manglerDinBoforhold ->
-                feil("'dinBoforhold' må være satt fordi forespørselen inneholder minst ett barn der du er bidragspliktig.")
+                feil("'dittBoforhold' må være satt fordi forespørselen inneholder minst ett barn der du er bidragspliktig.")
             manglerMedforelderBoforhold ->
                 feil("'medforelderBoforhold' må være satt fordi forespørselen inneholder minst ett barn der du er bidragsmottaker.")
         }

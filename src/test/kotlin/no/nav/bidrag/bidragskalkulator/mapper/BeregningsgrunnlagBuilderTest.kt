@@ -106,7 +106,7 @@ class BeregningsgrunnlagBuilderTest {
         }
 
         @Test
-        fun `skal bruke dinBoforhold for bidragspliktig og medforelderBoforhold for bidragsmottaker`() {
+        fun `skal bruke dittBoforhold for bidragspliktig og medforelderBoforhold for bidragsmottaker`() {
             val request: BeregningRequestDto = JsonUtils.readJsonFile("/barnebidrag/beregning_person_er_baade_bp_og_bm.json")
 
             // barn indeks 0 = personen er bidragspliktig
@@ -121,8 +121,8 @@ class BeregningsgrunnlagBuilderTest {
             val bostatusMottaker = grunnlagMottaker.filter { it.innholdTilObjekt<BostatusPeriode>().bostatus == Bostatuskode.MED_FORELDER }
 
             assertThat(bostatusPliktig.size)
-                .withFailMessage("Forventet antall barn fra dinBoforhold å være ${request.dinBoforhold?.antallBarnBorFast}")
-                .isEqualTo(request.dinBoforhold?.antallBarnBorFast)
+                .withFailMessage("Forventet antall barn fra dittBoforhold å være ${request.dittBoforhold?.antallBarnBorFast}")
+                .isEqualTo(request.dittBoforhold?.antallBarnBorFast)
 
             assertThat(bostatusMottaker.size)
                 .withFailMessage("Forventet antall barn fra medforelderBoforhold å være ${request.medforelderBoforhold?.antallBarnBorFast}")

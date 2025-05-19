@@ -13,7 +13,7 @@
       "bidragstype": "MOTTAKER"
     }
   ],
-  "dinBoforhold": {
+  "dittBoforhold": {
     "antallBarnBorFast": 3,
     "antallBarnDeltBosted": 0,
     "borMedAnnenVoksen": false

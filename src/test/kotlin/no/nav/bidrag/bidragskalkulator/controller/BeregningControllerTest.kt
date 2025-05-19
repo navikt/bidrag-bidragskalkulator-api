@@ -63,12 +63,12 @@ class BeregningControllerTest: AbstractControllerTest() {
     }
 
     @Test
-    fun `skal returnere 400 hvis dinBoforhold mangler for PLIKTIG`() {
-        val ugyldigRequest = mockGyldigRequest.copy(dinBoforhold = null)
+    fun `skal returnere 400 hvis dittBoforhold mangler for PLIKTIG`() {
+        val ugyldigRequest = mockGyldigRequest.copy(dittBoforhold = null)
 
         postRequest("/api/v1/beregning/barnebidrag", ugyldigRequest, gyldigOAuth2Token)
             .andExpect(status().isBadRequest)
-            .andExpect(jsonPath("$.errors[0]").value("'dinBoforhold' må være satt fordi forespørselen inneholder minst ett barn der du er bidragspliktig."))
+            .andExpect(jsonPath("$.errors[0]").value("'dittBoforhold' må være satt fordi forespørselen inneholder minst ett barn der du er bidragspliktig."))
     }
 
     @Test
@@ -89,13 +89,13 @@ class BeregningControllerTest: AbstractControllerTest() {
                 BarnDto(ident = Personident(personIdent), samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0, bidragstype = BidragsType.MOTTAKER),
                 BarnDto(ident = Personident(personIdent), samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0, bidragstype = BidragsType.PLIKTIG)
                 ),
-            dinBoforhold = null,
+            dittBoforhold = null,
             medforelderBoforhold = null
         )
 
         postRequest("/api/v1/beregning/barnebidrag", ugyldigRequest, gyldigOAuth2Token)
             .andExpect(status().isBadRequest)
-            .andExpect(jsonPath("$.errors[0]").value("Både 'dinBoforhold' og 'medforelderBoforhold' mangler, men må være satt når forespørselen inneholder barn der du er bidragspliktig og/eller bidragsmottaker."))
+            .andExpect(jsonPath("$.errors[0]").value("Både 'dittBoforhold' og 'medforelderBoforhold' mangler, men må være satt når forespørselen inneholder barn der du er bidragspliktig og/eller bidragsmottaker."))
     }
 
     companion object TestData {
@@ -105,7 +105,7 @@ class BeregningControllerTest: AbstractControllerTest() {
             inntektForelder1 = 500000.0,
             inntektForelder2 = 400000.0,
             barn = listOf(BarnDto(ident = Personident(personIdent), samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0, bidragstype = BidragsType.PLIKTIG)),
-            dinBoforhold = BoforholdDto(antallBarnBorFast = 0, antallBarnDeltBosted = 0, borMedAnnenVoksen = false)
+            dittBoforhold = BoforholdDto(antallBarnBorFast = 0, antallBarnDeltBosted = 0, borMedAnnenVoksen = false)
         )
 
         val mockRespons = BeregningsresultatDto(

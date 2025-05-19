@@ -8,7 +8,7 @@
       "bidragstype": "PLIKTIG"
     }
   ],
-  "dinBoforhold": {
+  "dittBoforhold": {
     "antallBarnBorFast": 0,
     "antallBarnDeltBosted": 0,
     "borMedAnnenVoksen": false
