@@ -68,7 +68,7 @@ class BeregningControllerTest: AbstractControllerTest() {
 
         postRequest("/api/v1/beregning/barnebidrag", ugyldigRequest, gyldigOAuth2Token)
             .andExpect(status().isBadRequest)
-            .andExpect(jsonPath("$.errors[0]").value("Boforhold må være satt når det finnes barn med bidragstype PLIKTIG eller MOTTAKER"))
+            .andExpect(jsonPath("$.errors[0]").value("'dinBoforhold' må være satt fordi forespørselen inneholder minst ett barn der du er bidragspliktig."))
     }
 
     @Test
@@ -79,20 +79,23 @@ class BeregningControllerTest: AbstractControllerTest() {
 
         postRequest("/api/v1/beregning/barnebidrag", ugyldigRequest, gyldigOAuth2Token)
             .andExpect(status().isBadRequest)
-            .andExpect(jsonPath("$.errors[0]").value("Boforhold må være satt når det finnes barn med bidragstype PLIKTIG eller MOTTAKER"))
+            .andExpect(jsonPath("$.errors[0]").value("'medforelderBoforhold' må være satt fordi forespørselen inneholder minst ett barn der du er bidragsmottaker."))
     }
 
     @Test
     fun `skal returnere 400 hvis begge boforhold mangler`() {
         val ugyldigRequest = mockGyldigRequest.copy(
-            barn = listOf(BarnDto(ident = Personident(personIdent), samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0, bidragstype = BidragsType.MOTTAKER)),
+            barn = listOf(
+                BarnDto(ident = Personident(personIdent), samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0, bidragstype = BidragsType.MOTTAKER),
+                BarnDto(ident = Personident(personIdent), samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0, bidragstype = BidragsType.PLIKTIG)
+                ),
             dinBoforhold = null,
             medforelderBoforhold = null
         )
 
         postRequest("/api/v1/beregning/barnebidrag", ugyldigRequest, gyldigOAuth2Token)
             .andExpect(status().isBadRequest)
-            .andExpect(jsonPath("$.errors[0]").value("Boforhold må være satt når det finnes barn med bidragstype PLIKTIG eller MOTTAKER"))
+            .andExpect(jsonPath("$.errors[0]").value("Både 'dinBoforhold' og 'medforelderBoforhold' mangler, men må være satt når forespørselen inneholder barn der du er bidragspliktig og/eller bidragsmottaker."))
     }
 
     companion object TestData {
