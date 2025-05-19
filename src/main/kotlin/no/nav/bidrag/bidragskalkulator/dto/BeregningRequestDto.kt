@@ -53,14 +53,14 @@ data class BeregningRequestDto(
     val medforelderBoforhold: BoforholdDto? = null,
 )
 
-@Schema(description = "Boforholdsinformasjon for en forelder, ekskludert barna som bor hos den andre forelderen")
+@Schema(description = "Boforholdsinformasjon for en forelder")
 data class BoforholdDto(
     @field:NotNull(message = "Antall barn som bor fast hos forelderen må være satt")
-    @Schema(description = "Antall barn under 18 år som bor fast hos forelderen, ekskludert barna som bor hos den andre forelderen", required = true, example = "3")
+    @Schema(description = "Antall barn under 18 år som bor fast hos forelderen", required = true, example = "3")
     val antallBarnBorFast: Int,
 
     @field:NotNull(message = "Antall barn som har avtalt delt bosted hos forelderen må være satt")
-    @Schema(description = "Antall barn under 18 år med delt bosted hos forelderen, ekskludert barna som bor hos den andre forelderen", required = true, example = "3")
+    @Schema(description = "Antall barn under 18 år med delt bosted hos forelderen", required = true, example = "3")
     val antallBarnDeltBosted: Int,
 
     @field:NotNull(message = "Indikator om forelderen deler bolig med en annen voksen må være satt")
