@@ -9,10 +9,12 @@ import no.nav.bidrag.bidragskalkulator.dto.BrukerInformasjonDto
 import no.nav.bidrag.bidragskalkulator.mapper.BrukerInformasjonMapper
 import no.nav.bidrag.domene.ident.Personident
 import no.nav.bidrag.transport.person.PersonDto
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 
 @Service
-class PersonService(private val personConsumer: BidragPersonConsumer, private val grunnlagService: GrunnlagService) {
+class PersonService(
+    @Qualifier("bidragPersonConsumer") private val personConsumer: BidragPersonConsumer, private val grunnlagService: GrunnlagService) {
 
     fun hentInformasjon(personIdent: String): BrukerInformasjonDto = runBlocking(Dispatchers.IO + MDCContext()) {
         val inntektsGrunnlag = async { grunnlagService.hentInntektsGrunnlag(personIdent) }

@@ -2,6 +2,7 @@ package no.nav.bidrag.bidragskalkulator.bidragPersonConsumer
 
 import io.mockk.every
 import io.mockk.mockk
+import no.nav.bidrag.bidragskalkulator.config.BidragPersonConfigurationProperties
 import no.nav.bidrag.bidragskalkulator.consumer.BidragPersonConsumer
 import no.nav.bidrag.bidragskalkulator.exception.NoContentException
 import no.nav.bidrag.bidragskalkulator.utils.JsonUtils
@@ -19,16 +20,22 @@ import java.net.URI
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 
+
 class BidragPersonbidragPersonConsumerTest {
 
     private val restTemplate: RestTemplate = mockk()
     private lateinit var bidragPersonConsumer: BidragPersonConsumer
-
-    private val baseUrl = URI("http://localhost")
+    private lateinit var bidragPersonConfig: BidragPersonConfigurationProperties
 
     @BeforeEach
     fun setUp() {
-        bidragPersonConsumer = BidragPersonConsumer(baseUrl, restTemplate)
+        bidragPersonConfig = BidragPersonConfigurationProperties(
+            url = "http://dummy-url.no",
+            hentMotpartbarnrelasjonPath = "hentMotpartbarnrelasjon",
+            hentPersoninformasjonPath = "informasjon"
+        )
+
+        bidragPersonConsumer = BidragPersonConsumer(bidragPersonConfig, restTemplate)
     }
 
     @Test

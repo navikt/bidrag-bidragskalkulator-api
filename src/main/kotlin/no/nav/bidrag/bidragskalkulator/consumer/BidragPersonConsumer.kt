@@ -1,5 +1,6 @@
 package no.nav.bidrag.bidragskalkulator.consumer
 
+import no.nav.bidrag.bidragskalkulator.config.BidragPersonConfigurationProperties
 import no.nav.bidrag.bidragskalkulator.exception.NoContentException
 import no.nav.bidrag.commons.security.SikkerhetsKontekst
 import no.nav.bidrag.commons.web.client.AbstractRestClient
@@ -8,20 +9,37 @@ import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
 import no.nav.bidrag.transport.person.PersonDto
 import no.nav.bidrag.transport.person.PersonRequest
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
+import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
 
-@Service
+@Service("bidragPersonConsumer")
 class BidragPersonConsumer(
-    @Value("\${BIDRAG_PERSON_URL}") bidragPersonUrl: URI,
+    val bidragPersonConfig: BidragPersonConfigurationProperties,
     @Qualifier("azure") restTemplate: RestTemplate
-) : AbstractRestClient(restTemplate, "bidrag-person") {
+) : AbstractRestClient(restTemplate, "bidrag.person") {
 
-    private val hentFamilierelasjonUri = URI.create("$bidragPersonUrl/motpartbarnrelasjon")
-    private val hentPersonUri = URI.create("$bidragPersonUrl/informasjon")
+    init {
+        check(bidragPersonConfig.url.isNotEmpty()) { "bidrag.person.url mangler i konfigurasjon" }
+        check(bidragPersonConfig.hentMotpartbarnrelasjonPath.isNotEmpty()) { "bidrag.person.hentMotpartbarnrelasjonPath mangler i konfigurasjon" }
+        check(bidragPersonConfig.hentPersoninformasjonPath.isNotEmpty()) { "bidrag.person.hentPersoninformasjonPath mangler i konfigurasjon" }
+    }
+
+    private val hentFamilierelasjonUri by lazy { UriComponentsBuilder
+        .fromUri(URI.create(bidragPersonConfig.url))
+        .pathSegment(bidragPersonConfig.hentMotpartbarnrelasjonPath)
+        .build()
+        .toUri()
+    }
+    private val hentPersonUri by lazy { UriComponentsBuilder
+        .fromUri(URI.create(bidragPersonConfig.url))
+        .pathSegment(bidragPersonConfig.hentPersoninformasjonPath)
+        .build()
+        .toUri()
+    }
+
 
     fun <T : Any> medApplikasjonsKontekst(fn: () -> T): T {
         return SikkerhetsKontekst.medApplikasjonKontekst {

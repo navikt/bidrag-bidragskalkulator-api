@@ -28,6 +28,10 @@ bidrag:
   grunnlag:
     url: ${BIDRAG_GRUNNLAG_URL}
     hentGrunnlagPath: hentgrunnlag
+  person:
+    url: ${BIDRAG_PERSON_URL}
+    hentMotpartbarnrelasjonPath: motpartbarnrelasjon
+    hentPersoninformasjonPath: informasjon
 
 no.nav.security.jwt:
   client:
