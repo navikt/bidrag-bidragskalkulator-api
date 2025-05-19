@@ -23,7 +23,7 @@ class BidragPersonConsumer(
 
     init {
         check(bidragPersonConfig.url.isNotEmpty()) { "bidrag-person url mangler i konfigurasjon" }
-        check(bidragPersonConfig.hentMotpartbarnrelasjonPath.isNotEmpty()) { "hentMotpartbarnrelasjonPath mangler i konfigurasjon" }
+        check(bidragPersonConfig.hentMotpartbarnrelasjonPath.isNotEmpty()) { "bidrag.person.hentMotpartbarnrelasjonPath mangler i konfigurasjon" }
         check(bidragPersonConfig.hentPersoninformasjonPath.isNotEmpty()) { "hentPersoninformasjonPath mangler i konfigurasjon" }
     }
 
