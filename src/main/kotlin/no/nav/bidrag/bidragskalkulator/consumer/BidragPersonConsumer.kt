@@ -22,7 +22,7 @@ class BidragPersonConsumer(
 ) : AbstractRestClient(restTemplate, "bidrag.person") {
 
     init {
-        check(bidragPersonConfig.url.isNotEmpty()) { "bidrag.person url mangler i konfigurasjon" }
+        check(bidragPersonConfig.url.isNotEmpty()) { "bidrag.person.url mangler i konfigurasjon" }
         check(bidragPersonConfig.hentMotpartbarnrelasjonPath.isNotEmpty()) { "bidrag.person.hentMotpartbarnrelasjonPath mangler i konfigurasjon" }
         check(bidragPersonConfig.hentPersoninformasjonPath.isNotEmpty()) { "bidrag.person.hentPersoninformasjonPath mangler i konfigurasjon" }
     }
