@@ -66,7 +66,7 @@ class BeregningsgrunnlagMapper(private val personService: PersonService) {
         return listOf(
             lagTomtGrunnlag(BIDRAGSMOTTAKER_REFERANSE, Grunnlagstype.PERSON_BIDRAGSMOTTAKER),
             lagTomtGrunnlag(BIDRAGSPLIKTIG_REFERANSE, Grunnlagstype.PERSON_BIDRAGSPLIKTIG),
-            lagBostatusgrunnlag("Bostatus_Bidragspliktig", Bostatuskode.BOR_MED_ANDRE_VOKSNE, null, BIDRAGSPLIKTIG_REFERANSE),
+            lagBostatusgrunnlag("Bostatus_Bidragspliktig", Bostatuskode.BOR_IKKE_MED_ANDRE_VOKSNE, null, BIDRAGSPLIKTIG_REFERANSE),
             lagSøknadsbarngrunnlag(søknadsbarnReferanse, søknadsbarn.ident.fødselsdato()),
             lagInntektsgrunnlag(
                 "Inntekt_Bidragspliktig",
