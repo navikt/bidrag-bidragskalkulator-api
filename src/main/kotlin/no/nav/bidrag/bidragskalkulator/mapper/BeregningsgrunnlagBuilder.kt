@@ -57,7 +57,7 @@ class BeregningsgrunnlagBuilder(
         }
 
         val boforhold = if (data.barn.bidragstype == BidragsType.PLIKTIG) data.dto.dittBoforhold else data.dto.medforelderBoforhold
-        val BPBostatus = if(boforhold?.borMedAnnenVoksen == true) Bostatuskode.BOR_MED_ANDRE_VOKSNE else Bostatuskode.BOR_IKKE_MED_ANDRE_VOKSNE
+        val bostatusBidragspliktig = if(boforhold?.borMedAnnenVoksen == true) Bostatuskode.BOR_MED_ANDRE_VOKSNE else Bostatuskode.BOR_IKKE_MED_ANDRE_VOKSNE
 
         val bostatusBarn = buildList {
             boforhold?.antallBarnBorFast?.takeIf { it > 0 }?.let {
@@ -69,7 +69,7 @@ class BeregningsgrunnlagBuilder(
         }
 
         return buildList {
-            add(nyttBostatusgrunnlag("Bostatus_Bidragspliktig", BPBostatus, null, Referanser.BIDRAGSPLIKTIG))
+            add(nyttBostatusgrunnlag("Bostatus_Bidragspliktig", bostatusBidragspliktig, null, Referanser.BIDRAGSPLIKTIG))
             add(nyttBostatusgrunnlag("Bostatus_${data.barnReferanse}", Bostatuskode.IKKE_MED_FORELDER, data.barnReferanse, Referanser.BIDRAGSPLIKTIG))
             addAll(bostatusBarn)
         }
