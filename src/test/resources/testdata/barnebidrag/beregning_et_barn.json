@@ -7,5 +7,10 @@
       "samværsklasse": "SAMVÆRSKLASSE_1",
       "bidragstype": "PLIKTIG"
     }
-  ]
+  ],
+  "dittBoforhold": {
+    "antallBarnBorFast": 2,
+    "antallBarnDeltBosted": 1,
+    "borMedAnnenVoksen": true
+  }
 }

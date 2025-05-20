@@ -1,0 +1,26 @@
+{
+  "inntektForelder1": 400000.0,
+  "inntektForelder2": 900000.0,
+  "barn": [
+    {
+      "ident": "21501164140",
+      "samværsklasse": "SAMVÆRSKLASSE_0",
+      "bidragstype": "PLIKTIG"
+    },
+    {
+      "ident": "07471454529",
+      "samværsklasse": "SAMVÆRSKLASSE_0",
+      "bidragstype": "MOTTAKER"
+    }
+  ],
+  "dittBoforhold": {
+    "antallBarnBorFast": 3,
+    "antallBarnDeltBosted": 0,
+    "borMedAnnenVoksen": false
+  },
+  "medforelderBoforhold": {
+    "antallBarnBorFast": 1,
+    "antallBarnDeltBosted": 0,
+    "borMedAnnenVoksen": false
+  }
+}
