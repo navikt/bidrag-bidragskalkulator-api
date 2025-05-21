@@ -32,7 +32,7 @@ class BeregningController(private val beregningService: BeregningService) {
         ]
     )
     @PostMapping("/barnebidrag")
-    fun beregnBarnebidragBeskyttet(@Valid @RequestBody request: BeregningRequestDto): BeregningsresultatDto = runBlocking(
+    fun beregnBarnebidrag(@Valid @RequestBody request: BeregningRequestDto): BeregningsresultatDto = runBlocking(
         Dispatchers.IO + MDCContext()
     ) {
         BeregningRequestValidator.valider(request)
