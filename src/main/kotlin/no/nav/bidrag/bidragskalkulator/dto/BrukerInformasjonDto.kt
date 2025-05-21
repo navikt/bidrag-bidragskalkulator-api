@@ -6,7 +6,7 @@ import java.math.BigDecimal
 
 @Schema(description = "Inneholder informasjon om en person")
 data class PersonInformasjonDto(
-    @Schema(description = "Unik identifikator for barnet (fødselsnummer eller D-nummer)", example = "12345678901")
+    @Schema(description = "Unik identifikator for person (fødselsnummer eller D-nummer)", example = "12345678901")
     val ident: Personident,
 
     @Schema(description = "Fornavn til person", example = "Ola")
@@ -19,13 +19,31 @@ data class PersonInformasjonDto(
     val alder: Int
 )
 
+@Schema(description = "Inneholder informasjon om et barn")
+data class BarnInformasjonDto(
+    @Schema(description = "Unik identifikator for barnet (fødselsnummer eller D-nummer)", example = "12345678901")
+    val ident: Personident,
+
+    @Schema(description = "Fornavn til barnet", example = "Ola")
+    val fornavn: String,
+
+    @Schema(description = "Fullt navn til barnet", example = "Ola Nordmann")
+    val fulltNavn: String,
+
+    @Schema(description = "Alder til barnet", example = "12")
+    val alder: Int,
+
+    @Schema(description = "Underholdskostnad til barnet, gruppert etter aldersintervall (0-5, 6-10, 11-14, 15+)", example = "4738")
+    val underholdskostnad: BigDecimal,
+)
+
 @Schema(description = "Representerer en foreldre-barn-relasjon, med felles barn og motpart")
 data class BarneRelasjonDto(
     @Schema(description = "Motparten i relasjonen, vanligvis den andre forelderen.")
     val motpart: PersonInformasjonDto?,
 
     @Schema(description = "Liste over felles barn mellom pålogget person og motparten")
-    val fellesBarn: List<PersonInformasjonDto>
+    val fellesBarn: List<BarnInformasjonDto>
 )
 
 @Schema(description = "Informasjon om pålogget person og relasjoner til barn")
