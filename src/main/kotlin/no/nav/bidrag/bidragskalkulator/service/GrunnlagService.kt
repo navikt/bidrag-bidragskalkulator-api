@@ -4,7 +4,6 @@ import no.nav.bidrag.bidragskalkulator.consumer.BidragGrunnlagConsumer
 import no.nav.bidrag.bidragskalkulator.mapper.tilAinntektsposter
 import no.nav.bidrag.commons.security.SikkerhetsKontekst
 import no.nav.bidrag.commons.util.secureLogger
-import no.nav.bidrag.domene.enums.rolle.Rolle
 import no.nav.bidrag.inntekt.InntektApi
 import no.nav.bidrag.transport.behandling.grunnlag.response.HentGrunnlagDto
 import no.nav.bidrag.transport.behandling.inntekt.request.TransformerInntekterRequest
