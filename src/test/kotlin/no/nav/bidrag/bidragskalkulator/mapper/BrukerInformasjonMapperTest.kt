@@ -3,25 +3,27 @@ package no.nav.bidrag.bidragskalkulator.mapper
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
 import no.nav.bidrag.bidragskalkulator.dto.BrukerInformasjonDto
+import no.nav.bidrag.bidragskalkulator.service.BarnUnderholdskostnad
 import no.nav.bidrag.bidragskalkulator.utils.JsonUtils
+import no.nav.bidrag.bidragskalkulator.utils.TestDataUtils.lagBarnUnderholdskostnad
 import no.nav.bidrag.transport.behandling.inntekt.response.TransformerInntekterResponse
 
 import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
 import kotlin.test.Test
-import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 open class BrukerInformasjonMapperTest {
-
 
     @Test
     fun `skal mappe MotpartBarnRelasjonDto til BrukerInfomasjonDto`() {
         val motpartBarnRelasjonDto: MotpartBarnRelasjonDto = JsonUtils.readJsonFile("/person/person_med_barn_et_motpart.json")
         val responsInntektsGrunnlag: TransformerInntekterResponse =
             JsonUtils.readJsonFile("/grunnlag/transformer_inntekter_respons.json")
+        val underholdkostnad: List<BarnUnderholdskostnad> = lagBarnUnderholdskostnad(motpartBarnRelasjonDto)
 
         val resultat: BrukerInformasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(
             motpartBarnRelasjonDto,
+            underholdkostnad,
             responsInntektsGrunnlag
         )
 
@@ -45,9 +47,9 @@ open class BrukerInformasjonMapperTest {
         val motpartBarnRelasjonDto: MotpartBarnRelasjonDto = JsonUtils.readJsonFile("/person/person_med_doede_barn.json")
         val responsInntektsGrunnlag: TransformerInntekterResponse =
             JsonUtils.readJsonFile("/grunnlag/transformer_inntekter_respons.json")
+        val underholdkostnad: List<BarnUnderholdskostnad> = lagBarnUnderholdskostnad(motpartBarnRelasjonDto)
 
-
-        val resultat: BrukerInformasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(motpartBarnRelasjonDto, responsInntektsGrunnlag)
+        val resultat: BrukerInformasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(motpartBarnRelasjonDto, underholdkostnad, responsInntektsGrunnlag)
 
         assertNotNull(resultat)
 
@@ -60,8 +62,9 @@ open class BrukerInformasjonMapperTest {
         val motpartBarnRelasjonDto: MotpartBarnRelasjonDto = JsonUtils.readJsonFile("/person/person_med_doed_motpart.json")
         val responsInntektsGrunnlag: TransformerInntekterResponse =
             JsonUtils.readJsonFile("/grunnlag/transformer_inntekter_respons.json")
+        val underholdkostnad: List<BarnUnderholdskostnad> = lagBarnUnderholdskostnad(motpartBarnRelasjonDto)
 
-        val resultat: BrukerInformasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(motpartBarnRelasjonDto, responsInntektsGrunnlag)
+        val resultat: BrukerInformasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(motpartBarnRelasjonDto, underholdkostnad, responsInntektsGrunnlag)
 
         assertNotNull(resultat)
 
@@ -74,8 +77,9 @@ open class BrukerInformasjonMapperTest {
         val motpartBarnRelasjonDto: MotpartBarnRelasjonDto = JsonUtils.readJsonFile("/person/person_med_motpart_med_fortrolig_adresse.json")
         val responsInntektsGrunnlag: TransformerInntekterResponse =
             JsonUtils.readJsonFile("/grunnlag/transformer_inntekter_respons.json")
+        val underholdkostnad: List<BarnUnderholdskostnad> = lagBarnUnderholdskostnad(motpartBarnRelasjonDto)
 
-        val resultat: BrukerInformasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(motpartBarnRelasjonDto, responsInntektsGrunnlag)
+        val resultat: BrukerInformasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(motpartBarnRelasjonDto, underholdkostnad, responsInntektsGrunnlag)
 
         assertNotNull(resultat)
 
@@ -88,8 +92,9 @@ open class BrukerInformasjonMapperTest {
         val motpartBarnRelasjonDto: MotpartBarnRelasjonDto = JsonUtils.readJsonFile("/person/person_med_barn_med_strengt_fortrolig_adresse.json")
         val responsInntektsGrunnlag: TransformerInntekterResponse =
             JsonUtils.readJsonFile("/grunnlag/transformer_inntekter_respons.json")
+        val underholdkostnad: List<BarnUnderholdskostnad> = lagBarnUnderholdskostnad(motpartBarnRelasjonDto)
 
-        val resultat: BrukerInformasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(motpartBarnRelasjonDto, responsInntektsGrunnlag)
+        val resultat: BrukerInformasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(motpartBarnRelasjonDto, underholdkostnad, responsInntektsGrunnlag)
 
         assertNotNull(resultat)
 
@@ -102,8 +107,9 @@ open class BrukerInformasjonMapperTest {
         val motpartBarnRelasjonDto: MotpartBarnRelasjonDto = JsonUtils.readJsonFile("/person/person_med_alle_barn_med_strengt_fortrolig_adresse.json")
         val responsInntektsGrunnlag: TransformerInntekterResponse =
             JsonUtils.readJsonFile("/grunnlag/transformer_inntekter_respons.json")
+        val underholdkostnad: List<BarnUnderholdskostnad> = lagBarnUnderholdskostnad(motpartBarnRelasjonDto)
 
-        val resultat: BrukerInformasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(motpartBarnRelasjonDto, responsInntektsGrunnlag)
+        val resultat: BrukerInformasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(motpartBarnRelasjonDto, underholdkostnad, responsInntektsGrunnlag)
 
         assertNotNull(resultat)
 
@@ -116,9 +122,11 @@ open class BrukerInformasjonMapperTest {
         val motpartBarnRelasjonDto: MotpartBarnRelasjonDto = JsonUtils.readJsonFile("/person/person_ingen_barn.json")
         val responsInntektsGrunnlag: TransformerInntekterResponse =
             JsonUtils.readJsonFile("/grunnlag/transformer_inntekter_respons.json")
+        val underholdkostnad: List<BarnUnderholdskostnad> = lagBarnUnderholdskostnad(motpartBarnRelasjonDto)
 
         val resultat: BrukerInformasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(
             motpartBarnRelasjonDto,
+            underholdkostnad,
             responsInntektsGrunnlag
         )
 
@@ -131,9 +139,11 @@ open class BrukerInformasjonMapperTest {
         val motpartBarnRelasjonDto: MotpartBarnRelasjonDto = JsonUtils.readJsonFile("/person/person_med_null_motpart.json")
         val responsInntektsGrunnlag: TransformerInntekterResponse =
             JsonUtils.readJsonFile("/grunnlag/transformer_inntekter_respons.json")
+        val underholdkostnad: List<BarnUnderholdskostnad> = lagBarnUnderholdskostnad(motpartBarnRelasjonDto)
 
         val resultat: BrukerInformasjonDto = BrukerInformasjonMapper.tilBrukerInformasjonDto(
             motpartBarnRelasjonDto,
+            underholdkostnad,
             responsInntektsGrunnlag
         )
 

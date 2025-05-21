@@ -2,6 +2,7 @@ package no.nav.bidrag.bidragskalkulator.controller
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
+import kotlinx.coroutines.runBlocking
 import no.nav.bidrag.bidragskalkulator.dto.*
 import no.nav.bidrag.bidragskalkulator.service.BeregningService
 import no.nav.bidrag.domene.enums.beregning.Samværsklasse
@@ -12,15 +13,13 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPat
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.math.BigDecimal
 
-
 class BeregningControllerTest: AbstractControllerTest() {
     @MockkBean(relaxUnitFun = true)
     private lateinit var beregningService: BeregningService
 
-
     @BeforeEach
     fun setupMocks() {
-        every { beregningService.beregnBarnebidrag(mockGyldigRequest) } returns mockRespons
+        every { runBlocking { beregningService.beregnBarnebidrag(mockGyldigRequest) } } returns mockRespons
     }
 
     @Test
@@ -125,7 +124,7 @@ class BeregningControllerTest: AbstractControllerTest() {
 
         val mockRespons = BeregningsresultatDto(
             resultater = listOf(
-                BeregningsresultatBarnDto(sum = BigDecimal(100), ident = Personident(personIdent), fulltNavn = "Navn Navnesen", fornavn = "Navn", alder = 5, underholdskostnad = BigDecimal(8471), bidragstype = mockGyldigRequest.barn.first().bidragstype)
+                BeregningsresultatBarnDto(sum = BigDecimal(100), ident = Personident(personIdent), fulltNavn = "Navn Navnesen", fornavn = "Navn", bidragstype = mockGyldigRequest.barn.first().bidragstype)
             )
         )
     }
