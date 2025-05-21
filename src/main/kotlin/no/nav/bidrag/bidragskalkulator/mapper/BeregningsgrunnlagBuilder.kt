@@ -6,14 +6,17 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import no.nav.bidrag.bidragskalkulator.dto.BarnDto
 import no.nav.bidrag.bidragskalkulator.dto.BidragsType
 import no.nav.bidrag.bidragskalkulator.mapper.BeregningsgrunnlagMapper.Referanser
+import no.nav.bidrag.bidragskalkulator.utils.kalkulereAlder
 import no.nav.bidrag.domene.enums.grunnlag.Grunnlagstype
 import no.nav.bidrag.domene.enums.inntekt.Inntektsrapportering
 import no.nav.bidrag.domene.enums.person.Bostatuskode
+import no.nav.bidrag.domene.enums.vedtak.Stønadstype
+import no.nav.bidrag.domene.ident.Personident
 import no.nav.bidrag.domene.tid.ÅrMånedsperiode
+import no.nav.bidrag.transport.behandling.beregning.felles.BeregnGrunnlag
 import no.nav.bidrag.transport.behandling.felles.grunnlag.*
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
-import java.time.LocalDate
 import java.time.YearMonth
 
 @Component
@@ -21,10 +24,10 @@ class BeregningsgrunnlagBuilder(
     private val objectMapper: ObjectMapper = ObjectMapper().registerKotlinModule().registerModule(JavaTimeModule())
 ) {
 
-    fun byggPersongrunnlag(referanse: String, type: Grunnlagstype, fødselsdato: LocalDate? = null) = GrunnlagDto(
+    fun byggPersongrunnlag(referanse: String, type: Grunnlagstype, personident: Personident? = null) = GrunnlagDto(
         referanse = referanse,
         type = type,
-        innhold = fødselsdato?.let { objectMapper.valueToTree(Person(fødselsdato = it)) }
+        innhold = personident?.let { objectMapper.valueToTree(Person(fødselsdato = personident.fødselsdato())) }
             ?: objectMapper.createObjectNode()
     )
 
@@ -117,4 +120,17 @@ class BeregningsgrunnlagBuilder(
             gjelderBarnReferanse = gjelderBarnReferanse,
             gjelderReferanse = Referanser.BIDRAGSPLIKTIG
         )
+
+    fun byggFellesBeregnGrunnlag(barnReferanse: String, søknadsbarnIdent: Personident): BeregnGrunnlag {
+        val barnetsAlder = kalkulereAlder(søknadsbarnIdent.fødselsdato())
+
+        return BeregnGrunnlag(
+            periode = ÅrMånedsperiode(YearMonth.now(), YearMonth.now().plusMonths(1)),
+            søknadsbarnReferanse = barnReferanse,
+            stønadstype = when {
+                barnetsAlder >= 18 -> Stønadstype.BIDRAG18AAR
+                else -> Stønadstype.BIDRAG
+            })
+    }
+
 }
