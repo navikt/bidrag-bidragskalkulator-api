@@ -56,4 +56,17 @@ class PersonController(private val brukerinformasjonService: BrukerinformasjonSe
         }
 
     }
+
+    @GetMapping("/informasjon2")
+    fun hentInformasjon2(): BrukerInformasjonDto  {
+        logger.info("Henter informasjon om pålogget person og personens barn")
+
+        val personIdent: String = requireNotNull(TokenUtils.hentBruker()) {
+            "Brukerident er ikke tilgjengelig i token"
+        }
+
+        return brukerinformasjonService.hentInformasjon(personIdent).also {
+            secureLogger.info { "Henter informasjon om pålogget person $personIdent fullført" }
+        }
+    }
 }

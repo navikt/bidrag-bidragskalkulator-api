@@ -121,7 +121,7 @@ class BeregningsgrunnlagBuilder(
             gjelderReferanse = Referanser.BIDRAGSPLIKTIG
         )
 
-    fun byggFellesBeregnGrunnlag(barnReferanse: String, søknadsbarnIdent: Personident): BeregnGrunnlag {
+    fun byggFellesBeregnGrunnlag(barnReferanse: String, søknadsbarnIdent: Personident, grunnlagListe: List<GrunnlagDto>): BeregnGrunnlag {
         val barnetsAlder = kalkulereAlder(søknadsbarnIdent.fødselsdato())
 
         return BeregnGrunnlag(
@@ -130,7 +130,9 @@ class BeregningsgrunnlagBuilder(
             stønadstype = when {
                 barnetsAlder >= 18 -> Stønadstype.BIDRAG18AAR
                 else -> Stønadstype.BIDRAG
-            })
+            },
+            grunnlagListe = grunnlagListe
+        )
     }
 
 }

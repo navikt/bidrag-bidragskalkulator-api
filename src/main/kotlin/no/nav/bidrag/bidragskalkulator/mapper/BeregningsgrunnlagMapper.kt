@@ -24,9 +24,7 @@ class BeregningsgrunnlagMapper(
             PersonBeregningsgrunnlag(
                 ident = søknadsbarn.ident,
                 bidragsType = søknadsbarn.bidragstype,
-                grunnlag = beregningsgrunnlagBuilder.byggFellesBeregnGrunnlag(barnReferanse, søknadsbarn.ident).copy(
-                    grunnlagListe = lagGrunnlagsliste(søknadsbarn, dto, barnReferanse)
-                )
+                grunnlag = beregningsgrunnlagBuilder.byggFellesBeregnGrunnlag(barnReferanse, søknadsbarn.ident, lagGrunnlagsliste(søknadsbarn, dto, barnReferanse))
             )
         }
     }
@@ -48,14 +46,15 @@ class BeregningsgrunnlagMapper(
         }
     }
 
-    fun mapTilUnderholdkostnadsgrunnlag(søknadsbarnIdent: Personident, barnReferanse: String): BeregnGrunnlag =
-        beregningsgrunnlagBuilder.byggFellesBeregnGrunnlag(barnReferanse, søknadsbarnIdent).copy(
-            grunnlagListe = buildList{
-                add(beregningsgrunnlagBuilder.byggPersongrunnlag(BIDRAGSMOTTAKER,Grunnlagstype.PERSON_BIDRAGSMOTTAKER))
-                add(beregningsgrunnlagBuilder.byggPersongrunnlag(BIDRAGSPLIKTIG,Grunnlagstype.PERSON_BIDRAGSPLIKTIG))
-                add(beregningsgrunnlagBuilder.byggPersongrunnlag(barnReferanse,Grunnlagstype.PERSON_SØKNADSBARN, søknadsbarnIdent))
-            }
-        )
+    fun mapTilUnderholdkostnadsgrunnlag(søknadsbarnIdent: Personident, barnReferanse: String): BeregnGrunnlag {
+        val grunnlagListe = buildList{
+            add(beregningsgrunnlagBuilder.byggPersongrunnlag(BIDRAGSMOTTAKER,Grunnlagstype.PERSON_BIDRAGSMOTTAKER))
+            add(beregningsgrunnlagBuilder.byggPersongrunnlag(BIDRAGSPLIKTIG,Grunnlagstype.PERSON_BIDRAGSPLIKTIG))
+            add(beregningsgrunnlagBuilder.byggPersongrunnlag(barnReferanse,Grunnlagstype.PERSON_SØKNADSBARN, søknadsbarnIdent))
+        }
+
+        return beregningsgrunnlagBuilder.byggFellesBeregnGrunnlag(barnReferanse, søknadsbarnIdent, grunnlagListe)
+    }
 }
 
 data class PersonBeregningsgrunnlag(
