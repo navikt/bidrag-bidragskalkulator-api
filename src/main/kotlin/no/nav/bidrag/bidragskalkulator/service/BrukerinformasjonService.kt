@@ -30,7 +30,7 @@ class BrukerinformasjonService(
 
         val familierelasjon = familierelasjonJobb.await()
         val barnMedUnderholdskostnadJobb = asyncCatching(logger, "underholdskostnad") {
-            beregningService.beregnUnderholdskostnaderForBarnerelasjoner(familierelasjon.personensMotpartBarnRelasjon)
+            beregningService.beregnUnderholdskostnaderForBarnerelasjoner(familierelasjon.motpartsrelasjoner)
         }
 
         logger.info("Ferdig med henting av inntektsgrunnlag, familierelasjoner og underholdskostnad for barn for å utforme brukerinformasjon")

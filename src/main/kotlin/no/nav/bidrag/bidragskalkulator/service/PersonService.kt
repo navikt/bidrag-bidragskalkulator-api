@@ -4,9 +4,10 @@ import no.nav.bidrag.bidragskalkulator.consumer.BidragPersonConsumer
 import no.nav.bidrag.bidragskalkulator.mapper.erDød
 import no.nav.bidrag.bidragskalkulator.mapper.erLevendeOgIkkeSkjermet
 import no.nav.bidrag.bidragskalkulator.mapper.harFortroligAdresse
+import no.nav.bidrag.bidragskalkulator.model.FamilieRelasjon
+import no.nav.bidrag.bidragskalkulator.model.ForelderBarnRelasjon
 import no.nav.bidrag.domene.ident.Personident
 import no.nav.bidrag.transport.person.MotpartBarnRelasjon
-import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
 import no.nav.bidrag.transport.person.PersonDto
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
@@ -20,18 +21,18 @@ class PersonService(
 
     fun hentPersoninformasjon(personIdent: Personident): PersonDto = personConsumer.hentPerson(personIdent)
 
-    fun hentGyldigFamilierelasjon(personIdent: String): MotpartBarnRelasjonDto {
+    fun hentGyldigFamilierelasjon(personIdent: String): ForelderBarnRelasjon {
         val familierelasjon = personConsumer.hentFamilierelasjon(personIdent)
         val gyldigeRelasjoner = familierelasjon.personensMotpartBarnRelasjon.filtrerRelasjonerMedGyldigMotpartOgBarn()
 
-        return MotpartBarnRelasjonDto (
+        return ForelderBarnRelasjon (
             person = familierelasjon.person,
-            personensMotpartBarnRelasjon = gyldigeRelasjoner
+            motpartsrelasjoner = gyldigeRelasjoner
         )
 
     }
 
-    private fun List<MotpartBarnRelasjon>.filtrerRelasjonerMedGyldigMotpartOgBarn(): List<MotpartBarnRelasjon> =
+    private fun List<MotpartBarnRelasjon>.filtrerRelasjonerMedGyldigMotpartOgBarn(): List<FamilieRelasjon> =
         this.asSequence()
             .mapNotNull { relasjon ->
                 val motpart = relasjon.motpart
@@ -46,7 +47,7 @@ class PersonService(
 
                 val filtrerteBarn = relasjon.fellesBarn.filter { it.erLevendeOgIkkeSkjermet() }
                 if (filtrerteBarn.isEmpty()) return@mapNotNull null
-                relasjon
+                FamilieRelasjon(motpart, filtrerteBarn)
             }
             .toList()
 }

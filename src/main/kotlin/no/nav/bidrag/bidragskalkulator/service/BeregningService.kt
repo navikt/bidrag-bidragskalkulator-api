@@ -9,13 +9,13 @@ import no.nav.bidrag.bidragskalkulator.mapper.BeregningsgrunnlagMapper
 import no.nav.bidrag.bidragskalkulator.mapper.PersonBeregningsgrunnlag
 import no.nav.bidrag.bidragskalkulator.mapper.tilBarnInformasjonDto
 import no.nav.bidrag.bidragskalkulator.mapper.tilPersonInformasjonDto
+import no.nav.bidrag.bidragskalkulator.model.FamilieRelasjon
 import no.nav.bidrag.bidragskalkulator.utils.asyncCatching
 import no.nav.bidrag.bidragskalkulator.utils.avrundeTilNærmesteHundre
 import no.nav.bidrag.domene.enums.grunnlag.Grunnlagstype
 import no.nav.bidrag.domene.ident.Personident
 import no.nav.bidrag.transport.behandling.felles.grunnlag.DelberegningUnderholdskostnad
 import no.nav.bidrag.transport.behandling.felles.grunnlag.innholdTilObjekt
-import no.nav.bidrag.transport.person.MotpartBarnRelasjon
 import org.slf4j.LoggerFactory.getLogger
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
@@ -84,13 +84,13 @@ class BeregningService(
      * Posisjon brukes som referanse for grunnlagsbeskrivelse.
      */
     suspend fun beregnUnderholdskostnaderForBarnerelasjoner(
-        barnerelasjoner: List<MotpartBarnRelasjon>
+        barnerelasjoner: List<FamilieRelasjon>
     ): List<BarneRelasjonDto> = coroutineScope {
         barnerelasjoner.mapIndexed { i, relasjon ->  beregnUnderholdskostnadForRelasjon(relasjon, i) }
     }
 
     private suspend fun beregnUnderholdskostnadForRelasjon(
-        relasjon: MotpartBarnRelasjon,
+        relasjon: FamilieRelasjon,
         relasjonsIndex: Int
     ): BarneRelasjonDto = coroutineScope {
         val fellesBarnMedUnderholdskostnad = relasjon.fellesBarn.mapIndexed { barnIndex, barn ->
@@ -102,7 +102,7 @@ class BeregningService(
             }
         }.awaitAll().sortedByDescending { it.alder }
 
-        BarneRelasjonDto(relasjon.motpart?.tilPersonInformasjonDto(), fellesBarnMedUnderholdskostnad)
+        BarneRelasjonDto(relasjon.motpart.tilPersonInformasjonDto(), fellesBarnMedUnderholdskostnad)
     }
 
 }

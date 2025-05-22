@@ -40,7 +40,7 @@ data class BarnInformasjonDto(
 @Schema(description = "Representerer en foreldre-barn-relasjon, med felles barn og motpart")
 data class BarneRelasjonDto(
     @Schema(description = "Motparten i relasjonen, vanligvis den andre forelderen.")
-    val motpart: PersonInformasjonDto?,
+    val motpart: PersonInformasjonDto,
 
     @Schema(description = "Liste over felles barn mellom pålogget person og motparten")
     val fellesBarn: List<BarnInformasjonDto>
