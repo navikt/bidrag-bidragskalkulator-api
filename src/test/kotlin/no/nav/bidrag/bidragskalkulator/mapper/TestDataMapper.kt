@@ -1,8 +1,6 @@
-package no.nav.bidrag.bidragskalkulator.utils
+package no.nav.bidrag.bidragskalkulator.mapper
 
 import no.nav.bidrag.bidragskalkulator.dto.BarneRelasjonDto
-import no.nav.bidrag.bidragskalkulator.mapper.tilBarnInformasjonDto
-import no.nav.bidrag.bidragskalkulator.mapper.tilPersonInformasjonDto
 import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
 import org.jetbrains.annotations.TestOnly
 import java.math.BigDecimal
@@ -15,5 +13,3 @@ fun MotpartBarnRelasjonDto.mockBarnRelasjonMedUnderholdskostnad(): List<BarneRel
         val fellesBarn = relasjon.fellesBarn.map { it.tilBarnInformasjonDto(BigDecimal(5490)) }
         BarneRelasjonDto(motpart = motpart.tilPersonInformasjonDto(), fellesBarn = fellesBarn)
     }
-
-

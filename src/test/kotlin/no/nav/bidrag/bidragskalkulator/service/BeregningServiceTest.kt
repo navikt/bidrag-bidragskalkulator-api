@@ -6,6 +6,7 @@ import no.nav.bidrag.bidragskalkulator.dto.BeregningRequestDto
 import no.nav.bidrag.bidragskalkulator.dto.BeregningsresultatDto
 import no.nav.bidrag.bidragskalkulator.mapper.BeregningsgrunnlagBuilder
 import no.nav.bidrag.bidragskalkulator.mapper.BeregningsgrunnlagMapper
+import no.nav.bidrag.bidragskalkulator.mapper.tilFamilieRelasjon
 import no.nav.bidrag.bidragskalkulator.service.BeregningService
 import no.nav.bidrag.bidragskalkulator.service.PersonService
 import no.nav.bidrag.bidragskalkulator.utils.JsonUtils
@@ -144,7 +145,7 @@ class BeregningServiceTest {
             every { beregningService.beregnPersonUnderholdskostnad(barn2Ident, "Person_Søknadsbarn_2") } returns forventetUnderholdskostnad
 
             // Act
-            val resultat = beregningService.beregnUnderholdskostnaderForBarnerelasjoner(motpartBarnRelasjon.personensMotpartBarnRelasjon)
+            val resultat = beregningService.beregnUnderholdskostnaderForBarnerelasjoner(motpartBarnRelasjon.personensMotpartBarnRelasjon.tilFamilieRelasjon())
 
             // Assert
             assertEquals(1, resultat.size, "Skal være én relasjon til motpart med barn")

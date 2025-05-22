@@ -8,11 +8,11 @@ import kotlinx.coroutines.runBlocking
 import no.nav.bidrag.bidragskalkulator.dto.BarneRelasjonDto
 import no.nav.bidrag.bidragskalkulator.dto.BrukerInformasjonDto
 import no.nav.bidrag.bidragskalkulator.exception.NoContentException
+import no.nav.bidrag.bidragskalkulator.mapper.mockBarnRelasjonMedUnderholdskostnad
 import no.nav.bidrag.bidragskalkulator.mapper.tilPersonInformasjonDto
 import no.nav.bidrag.bidragskalkulator.mapper.toInntektResultatDto
 import no.nav.bidrag.bidragskalkulator.service.BrukerinformasjonService
 import no.nav.bidrag.bidragskalkulator.utils.JsonUtils
-import no.nav.bidrag.bidragskalkulator.utils.mockBarnRelasjonMedUnderholdskostnad
 import no.nav.bidrag.commons.security.utils.TokenUtils
 import no.nav.bidrag.transport.behandling.inntekt.response.TransformerInntekterResponse
 import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
