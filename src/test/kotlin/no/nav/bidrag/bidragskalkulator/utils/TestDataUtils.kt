@@ -1,15 +1,20 @@
 package no.nav.bidrag.bidragskalkulator.utils
 
-import no.nav.bidrag.bidragskalkulator.service.BarnUnderholdskostnad
+import no.nav.bidrag.bidragskalkulator.dto.BarnInformasjonDto
+import no.nav.bidrag.bidragskalkulator.dto.BarneRelasjonDto
+import no.nav.bidrag.bidragskalkulator.mapper.tilBarnInformasjonDto
+import no.nav.bidrag.bidragskalkulator.mapper.tilPersonInformasjonDto
 import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
 import org.jetbrains.annotations.TestOnly
 import java.math.BigDecimal
 
 @TestOnly
-object TestDataUtils {
-    fun lagBarnUnderholdskostnad(motpartBarnRelasjon: MotpartBarnRelasjonDto): List<BarnUnderholdskostnad> =
-        motpartBarnRelasjon.personensMotpartBarnRelasjon.flatMap { relasjon ->
-            relasjon.fellesBarn.map { barn -> BarnUnderholdskostnad(barn.ident, BigDecimal(5490)) }
-        }
-}
+fun MotpartBarnRelasjonDto.mockBarnRelasjonMedUnderholdskostnad(): List<BarneRelasjonDto> =
+    this.personensMotpartBarnRelasjon.mapNotNull { relasjon ->
+        val motpart = relasjon.motpart ?: return@mapNotNull null
+
+        val fellesBarn = relasjon.fellesBarn.map { it.tilBarnInformasjonDto(BigDecimal(5490)) }
+        BarneRelasjonDto(motpart = motpart.tilPersonInformasjonDto(), fellesBarn = fellesBarn)
+    }
+
 

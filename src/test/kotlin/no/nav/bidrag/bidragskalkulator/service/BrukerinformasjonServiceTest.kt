@@ -5,10 +5,9 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
 import kotlinx.coroutines.runBlocking
-import no.nav.bidrag.bidragskalkulator.consumer.BidragPersonConsumer
 import no.nav.bidrag.bidragskalkulator.exception.NoContentException
 import no.nav.bidrag.bidragskalkulator.utils.JsonUtils
-import no.nav.bidrag.bidragskalkulator.utils.TestDataUtils.lagBarnUnderholdskostnad
+import no.nav.bidrag.bidragskalkulator.utils.mockBarnRelasjonMedUnderholdskostnad
 import no.nav.bidrag.transport.behandling.inntekt.response.TransformerInntekterResponse
 import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
 import org.junit.jupiter.api.*
@@ -18,7 +17,7 @@ import java.math.BigDecimal
 class BrukerinformasjonServiceTest {
 
     private lateinit var brukerinformasjonService: BrukerinformasjonService
-    private val mockPersonConsumer = mockk<BidragPersonConsumer>()
+    private val mockPersonService = mockk<PersonService>()
     private val mockGrunnlagService = mockk<GrunnlagService>()
     private val mockberegnService = mockk<BeregningService>()
 
@@ -39,7 +38,7 @@ class BrukerinformasjonServiceTest {
 
     @BeforeEach
     fun setUp()  {
-        brukerinformasjonService = BrukerinformasjonService(mockPersonConsumer, mockGrunnlagService, mockberegnService)
+        brukerinformasjonService = BrukerinformasjonService(mockPersonService, mockGrunnlagService, mockberegnService)
     }
 
     @AfterEach
@@ -49,7 +48,7 @@ class BrukerinformasjonServiceTest {
 
     @Test
     fun `skal kaste NoContentException hvis person ikke finnes`() = runBlocking {
-        every { mockPersonConsumer.hentFamilierelasjon(identSomIkkeFinnes) } throws NoContentException("Fant ikke person med ident $identSomIkkeFinnes")
+        every { mockPersonService.hentGyldigFamilierelasjon(identSomIkkeFinnes) } throws NoContentException("Fant ikke person med ident $identSomIkkeFinnes")
         every { mockGrunnlagService.hentInntektsGrunnlag(identSomIkkeFinnes) } returns responsInntektsGrunnlag
 
         val exception = assertThrows<NoContentException> {
@@ -61,9 +60,9 @@ class BrukerinformasjonServiceTest {
 
     @Test
     fun `skal returnere én barn-relasjon når person har barn med én motpart`() = runBlocking {
-        every { mockPersonConsumer.hentFamilierelasjon(identMedEttBarn) } returns responsMedEttBarn
+        every { mockPersonService.hentGyldigFamilierelasjon(identMedEttBarn) } returns responsMedEttBarn
         every { mockGrunnlagService.hentInntektsGrunnlag(identMedEttBarn) } returns responsInntektsGrunnlag
-        coEvery { mockberegnService.beregnUnderholdskostnaderForBarnIFamilierelasjon(responsMedEttBarn) } returns lagBarnUnderholdskostnad(responsMedEttBarn)
+        coEvery { mockberegnService.beregnUnderholdskostnaderForBarnerelasjoner(responsMedEttBarn.personensMotpartBarnRelasjon) } returns responsMedEttBarn.mockBarnRelasjonMedUnderholdskostnad()
 
         val resultat = brukerinformasjonService.hentBrukerinformasjon(identMedEttBarn)
 
@@ -78,9 +77,9 @@ class BrukerinformasjonServiceTest {
 
     @Test
     fun `skal returnere tom barn-relasjonsliste når person ikke har barn`() = runBlocking {
-        every { mockPersonConsumer.hentFamilierelasjon(identUtenBarn) } returns responsUtenBarn
+        every { mockPersonService.hentGyldigFamilierelasjon(identUtenBarn) } returns responsUtenBarn
         every { mockGrunnlagService.hentInntektsGrunnlag(identUtenBarn) } returns responsInntektsGrunnlag
-        coEvery { mockberegnService.beregnUnderholdskostnaderForBarnIFamilierelasjon(responsUtenBarn) } returns lagBarnUnderholdskostnad(responsUtenBarn)
+        coEvery { mockberegnService.beregnUnderholdskostnaderForBarnerelasjoner(responsUtenBarn.personensMotpartBarnRelasjon) } returns responsUtenBarn.mockBarnRelasjonMedUnderholdskostnad()
 
         val resultat = brukerinformasjonService.hentBrukerinformasjon(identUtenBarn)
 
@@ -90,9 +89,9 @@ class BrukerinformasjonServiceTest {
 
     @Test
     fun `skal returnere flere barn-relasjoner når person har barn med flere motparter`() = runBlocking {
-        every { mockPersonConsumer.hentFamilierelasjon(identMedFlereBarn) } returns responsMedFlereBarn
+        every { mockPersonService.hentGyldigFamilierelasjon(identMedFlereBarn) } returns responsMedFlereBarn
         every { mockGrunnlagService.hentInntektsGrunnlag(identMedFlereBarn) } returns responsInntektsGrunnlag
-        coEvery { mockberegnService.beregnUnderholdskostnaderForBarnIFamilierelasjon(responsMedFlereBarn) } returns lagBarnUnderholdskostnad(responsMedFlereBarn)
+        coEvery { mockberegnService.beregnUnderholdskostnaderForBarnerelasjoner(responsMedFlereBarn.personensMotpartBarnRelasjon) } returns responsMedFlereBarn.mockBarnRelasjonMedUnderholdskostnad()
 
         val resultat = brukerinformasjonService.hentBrukerinformasjon(identMedFlereBarn)
         val relasjoner = resultat.barnerelasjoner
@@ -102,9 +101,9 @@ class BrukerinformasjonServiceTest {
 
     @Test
     fun `skal returnere og mappe gyldig inntekt for person`() = runBlocking {
-        every { mockPersonConsumer.hentFamilierelasjon(identMedFlereBarn) } returns responsMedFlereBarn
+        every { mockPersonService.hentGyldigFamilierelasjon(identMedFlereBarn) } returns responsMedFlereBarn
         every { mockGrunnlagService.hentInntektsGrunnlag(identMedFlereBarn) } returns responsInntektsGrunnlag
-        coEvery { mockberegnService.beregnUnderholdskostnaderForBarnIFamilierelasjon(responsMedFlereBarn) } returns lagBarnUnderholdskostnad(responsMedFlereBarn)
+        coEvery { mockberegnService.beregnUnderholdskostnaderForBarnerelasjoner(responsMedFlereBarn.personensMotpartBarnRelasjon) } returns responsMedFlereBarn.mockBarnRelasjonMedUnderholdskostnad()
 
         val resultat = brukerinformasjonService.hentBrukerinformasjon(identMedFlereBarn)
         val inntekt12mnd = resultat.inntekt

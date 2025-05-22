@@ -5,12 +5,14 @@ import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.unmockkAll
 import kotlinx.coroutines.runBlocking
+import no.nav.bidrag.bidragskalkulator.dto.BarneRelasjonDto
+import no.nav.bidrag.bidragskalkulator.dto.BrukerInformasjonDto
 import no.nav.bidrag.bidragskalkulator.exception.NoContentException
-import no.nav.bidrag.bidragskalkulator.mapper.BrukerInformasjonMapper
-import no.nav.bidrag.bidragskalkulator.service.BarnUnderholdskostnad
+import no.nav.bidrag.bidragskalkulator.mapper.tilPersonInformasjonDto
+import no.nav.bidrag.bidragskalkulator.mapper.toInntektResultatDto
 import no.nav.bidrag.bidragskalkulator.service.BrukerinformasjonService
 import no.nav.bidrag.bidragskalkulator.utils.JsonUtils
-import no.nav.bidrag.bidragskalkulator.utils.TestDataUtils.lagBarnUnderholdskostnad
+import no.nav.bidrag.bidragskalkulator.utils.mockBarnRelasjonMedUnderholdskostnad
 import no.nav.bidrag.commons.security.utils.TokenUtils
 import no.nav.bidrag.transport.behandling.inntekt.response.TransformerInntekterResponse
 import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
@@ -29,16 +31,15 @@ class PersonControllerTest: AbstractControllerTest() {
     private val mockTransofmerInntekterResponse: TransformerInntekterResponse =
         JsonUtils.readJsonFile("/grunnlag/transformer_inntekter_respons.json")
 
-    private val underholdkostnad: List<BarnUnderholdskostnad> = lagBarnUnderholdskostnad(mockResponsPersonMedEnBarnRelasjon)
+    private val barnerelasjoner: List<BarneRelasjonDto> = mockResponsPersonMedEnBarnRelasjon.mockBarnRelasjonMedUnderholdskostnad()
 
     @Test
     fun `skal returnere 200 OK og familierelasjon når person eksisterer`() {
         every { runBlocking { brukerinformasjonService.hentBrukerinformasjon(any()) } } returns
-            BrukerInformasjonMapper
-                .tilBrukerInformasjonDto(
-                    mockResponsPersonMedEnBarnRelasjon,
-                    underholdkostnad,
-                    mockTransofmerInntekterResponse
+                BrukerInformasjonDto(
+                    person = mockResponsPersonMedEnBarnRelasjon.person.tilPersonInformasjonDto(),
+                    inntekt = mockTransofmerInntekterResponse.toInntektResultatDto().inntektSiste12Mnd,
+                    barnerelasjoner = barnerelasjoner
                 )
 
         getRequest("/api/v1/person/informasjon", gyldigOAuth2Token)

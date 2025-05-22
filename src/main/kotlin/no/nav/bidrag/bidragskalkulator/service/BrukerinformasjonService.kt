@@ -2,6 +2,7 @@ package no.nav.bidrag.bidragskalkulator.service
 
 import kotlinx.coroutines.coroutineScope
 import no.nav.bidrag.bidragskalkulator.dto.BrukerInformasjonDto
+import no.nav.bidrag.bidragskalkulator.mapper.tilPersonInformasjonDto
 import no.nav.bidrag.bidragskalkulator.mapper.toInntektResultatDto
 import no.nav.bidrag.bidragskalkulator.utils.asyncCatching
 import org.slf4j.LoggerFactory
@@ -29,13 +30,13 @@ class BrukerinformasjonService(
 
         val familierelasjon = familierelasjonJobb.await()
         val barnMedUnderholdskostnadJobb = asyncCatching(logger, "underholdskostnad") {
-            beregningService.beregnUnderholdskostnaderForBarnerelasjoner(familierelasjon.barnerelasjoner)
+            beregningService.beregnUnderholdskostnaderForBarnerelasjoner(familierelasjon.personensMotpartBarnRelasjon)
         }
 
         logger.info("Ferdig med henting av inntektsgrunnlag, familierelasjoner og underholdskostnad for barn for å utforme brukerinformasjon")
 
         BrukerInformasjonDto(
-            person = familierelasjonJobb.await().person,
+            person = familierelasjonJobb.await().person.tilPersonInformasjonDto(),
             inntekt = inntektsGrunnlagJobb.await()?.toInntektResultatDto()?.inntektSiste12Mnd,
             barnerelasjoner = barnMedUnderholdskostnadJobb.await()
         )

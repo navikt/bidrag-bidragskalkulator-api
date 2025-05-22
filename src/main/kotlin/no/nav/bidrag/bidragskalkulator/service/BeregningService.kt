@@ -4,18 +4,18 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import no.nav.bidrag.beregn.barnebidrag.BeregnBarnebidragApi
-import no.nav.bidrag.bidragskalkulator.dto.BarneRelasjonDto
-import no.nav.bidrag.bidragskalkulator.dto.BeregningsresultatDto
-import no.nav.bidrag.bidragskalkulator.dto.BeregningRequestDto
-import no.nav.bidrag.bidragskalkulator.dto.BeregningsresultatBarnDto
+import no.nav.bidrag.bidragskalkulator.dto.*
 import no.nav.bidrag.bidragskalkulator.mapper.BeregningsgrunnlagMapper
 import no.nav.bidrag.bidragskalkulator.mapper.PersonBeregningsgrunnlag
+import no.nav.bidrag.bidragskalkulator.mapper.tilBarnInformasjonDto
+import no.nav.bidrag.bidragskalkulator.mapper.tilPersonInformasjonDto
 import no.nav.bidrag.bidragskalkulator.utils.asyncCatching
 import no.nav.bidrag.bidragskalkulator.utils.avrundeTilNærmesteHundre
 import no.nav.bidrag.domene.enums.grunnlag.Grunnlagstype
 import no.nav.bidrag.domene.ident.Personident
 import no.nav.bidrag.transport.behandling.felles.grunnlag.DelberegningUnderholdskostnad
 import no.nav.bidrag.transport.behandling.felles.grunnlag.innholdTilObjekt
+import no.nav.bidrag.transport.person.MotpartBarnRelasjon
 import org.slf4j.LoggerFactory.getLogger
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
@@ -84,29 +84,25 @@ class BeregningService(
      * Posisjon brukes som referanse for grunnlagsbeskrivelse.
      */
     suspend fun beregnUnderholdskostnaderForBarnerelasjoner(
-        barnerelasjoner: List<BarneRelasjonDto>
+        barnerelasjoner: List<MotpartBarnRelasjon>
     ): List<BarneRelasjonDto> = coroutineScope {
         barnerelasjoner.mapIndexed { i, relasjon ->  beregnUnderholdskostnadForRelasjon(relasjon, i) }
     }
 
     private suspend fun beregnUnderholdskostnadForRelasjon(
-        relasjon: BarneRelasjonDto,
+        relasjon: MotpartBarnRelasjon,
         relasjonsIndex: Int
     ): BarneRelasjonDto = coroutineScope {
         val fellesBarnMedUnderholdskostnad = relasjon.fellesBarn.mapIndexed { barnIndex, barn ->
             asyncCatching(logger, "underholdskostnad for relasjon") {
                 val beskrivelse = "Person_Søknadsbarn_${relasjonsIndex}${barnIndex}"
                 val underholdskostnad = beregnPersonUnderholdskostnad(barn.ident, beskrivelse)
-                barn.copy(underholdskostnad = underholdskostnad)
-            }
-        }.awaitAll()
 
-        relasjon.copy(fellesBarn = fellesBarnMedUnderholdskostnad)
+                barn.tilBarnInformasjonDto(underholdskostnad)
+            }
+        }.awaitAll().sortedByDescending { it.alder }
+
+        BarneRelasjonDto(relasjon.motpart?.tilPersonInformasjonDto(), fellesBarnMedUnderholdskostnad)
     }
 
 }
-
-data class BarnUnderholdskostnad(
-    val barnIdent: Personident,
-    val underholdskostnad: BigDecimal,
-)
