@@ -7,11 +7,13 @@ import no.nav.bidrag.bidragskalkulator.mapper.PersonBeregningsgrunnlag
 import no.nav.bidrag.bidragskalkulator.service.BeregningService
 import no.nav.bidrag.bidragskalkulator.service.PersonService
 import no.nav.bidrag.bidragskalkulator.utils.JsonUtils
+import no.nav.bidrag.domene.ident.Personident
 import no.nav.bidrag.domene.tid.ÅrMånedsperiode
 import no.nav.bidrag.transport.behandling.beregning.barnebidrag.BeregnetBarnebidragResultat
 import no.nav.bidrag.transport.behandling.beregning.barnebidrag.ResultatBeregning
 import no.nav.bidrag.transport.behandling.beregning.barnebidrag.ResultatPeriode
 import no.nav.bidrag.transport.behandling.beregning.felles.BeregnGrunnlag
+import no.nav.bidrag.transport.behandling.felles.grunnlag.GrunnlagDto
 import no.nav.bidrag.transport.person.PersonDto
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -44,7 +46,7 @@ class BeregningServiceTest {
     private lateinit var beregningService: BeregningService
 
     @Nested
-    inner class BeregningForEttBarn {
+    inner class BeregningBarnebidragForEttBarn {
 
         private lateinit var beregningRequest: BeregningRequestDto
         private lateinit var beregningResultat: BeregningsresultatDto
@@ -89,7 +91,7 @@ class BeregningServiceTest {
     }
 
     @Nested
-    inner class BeregningForToBarn {
+    inner class BeregningBarnebidragForToBarn {
 
         private lateinit var beregningRequest: BeregningRequestDto
         private lateinit var beregningResultat: BeregningsresultatDto
@@ -107,6 +109,41 @@ class BeregningServiceTest {
 
             assertEquals(2, resultat.resultater.size)
         }
+    }
+
+    @Nested
+    inner class BeregningUnderholdskostnad {
+
+        private lateinit var beregnUnderholdskostnadRespons: List<GrunnlagDto>
+
+        @BeforeEach
+        fun oppsett() {
+            beregnUnderholdskostnadRespons = JsonUtils.readJsonFile("/underholdskostnad/beregn_underholdskostnad_respons.json")
+            Mockito.`when`(beregnBarnebidragApi.beregnUnderholdskostnad(anyOrNull()))
+                .thenReturn(beregnUnderholdskostnadRespons)
+
+        }
+
+        @Test
+        fun `skal beregne underholdskostnad for en person`() {
+            val personident = Personident("12345678910")
+            val referanse = "Person_Søknadsbarn_1"
+            val forventetBeløp = BigDecimal(8471)
+
+            val resultat = beregningService.beregnPersonUnderholdskostnad(personident, referanse)
+
+            assertEquals(forventetBeløp, resultat)
+        }
+
+        @Test
+        fun `skal returnere 0 dersom ingen underholdskostnad finnes`() {
+            Mockito.`when`(beregnBarnebidragApi.beregnUnderholdskostnad(anyOrNull())).thenReturn(emptyList())
+
+            val result = beregningService.beregnPersonUnderholdskostnad(Personident("12345678910"), "Person_Søknadsbarn_1")
+
+            assertEquals(BigDecimal.ZERO, result, "Forventet underholdskostnad skal være 0 når ingen data finnes")
+        }
+
     }
 
     private fun lagResultatPeriode(): ResultatPeriode {
