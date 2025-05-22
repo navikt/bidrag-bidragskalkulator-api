@@ -68,7 +68,7 @@ class BeregningService(
 
 
     fun beregnPersonUnderholdskostnad(personident: Personident, referanse: String): BigDecimal {
-        logger.info("Beregn underholdskostnad for en person")
+        logger.info("Beregn underholdskostnad for en person ${personident.verdi}")
 
         val underholdskostnadGrunnlag = beregningsgrunnlagMapper.mapTilUnderholdkostnadsgrunnlag(personident, referanse)
 
@@ -76,7 +76,7 @@ class BeregningService(
             .firstOrNull { it.type == Grunnlagstype.DELBEREGNING_UNDERHOLDSKOSTNAD }
             ?.innholdTilObjekt<DelberegningUnderholdskostnad>()
             ?.underholdskostnad
-            ?: BigDecimal.ZERO.also { logger.info("Ferdig beregnet underholdskostnad for en person") }
+            ?: BigDecimal.ZERO.also { logger.info("Ferdig beregnet underholdskostnad for en person ${personident.verdi}") }
     }
 
     /**
@@ -94,7 +94,7 @@ class BeregningService(
         relasjonsIndex: Int
     ): BarneRelasjonDto = coroutineScope {
         val fellesBarnMedUnderholdskostnad = relasjon.fellesBarn.mapIndexed { barnIndex, barn ->
-            asyncCatching(logger, "underholdskostnad for relasjon") {
+            async {
                 val beskrivelse = "Person_Søknadsbarn_${relasjonsIndex}${barnIndex}"
                 val underholdskostnad = beregnPersonUnderholdskostnad(barn.ident, beskrivelse)
 

@@ -47,6 +47,7 @@ class BeregningsgrunnlagMapper(
     }
 
     fun mapTilUnderholdkostnadsgrunnlag(søknadsbarnIdent: Personident, barnReferanse: String): BeregnGrunnlag {
+
         val grunnlagListe = buildList{
             add(beregningsgrunnlagBuilder.byggPersongrunnlag(BIDRAGSMOTTAKER,Grunnlagstype.PERSON_BIDRAGSMOTTAKER))
             add(beregningsgrunnlagBuilder.byggPersongrunnlag(BIDRAGSPLIKTIG,Grunnlagstype.PERSON_BIDRAGSPLIKTIG))
