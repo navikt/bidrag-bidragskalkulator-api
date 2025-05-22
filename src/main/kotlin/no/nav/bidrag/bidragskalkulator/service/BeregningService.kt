@@ -68,7 +68,7 @@ class BeregningService(
 
 
     fun beregnPersonUnderholdskostnad(personident: Personident, referanse: String): BigDecimal {
-        logger.info("Beregn underholdskostnad for en person ${personident.verdi}")
+        logger.info("Beregn underholdskostnad for en person")
 
         val underholdskostnadGrunnlag = beregningsgrunnlagMapper.mapTilUnderholdkostnadsgrunnlag(personident, referanse)
 
@@ -76,7 +76,7 @@ class BeregningService(
             .firstOrNull { it.type == Grunnlagstype.DELBEREGNING_UNDERHOLDSKOSTNAD }
             ?.innholdTilObjekt<DelberegningUnderholdskostnad>()
             ?.underholdskostnad
-            ?: BigDecimal.ZERO.also { logger.info("Ferdig beregnet underholdskostnad for en person ${personident.verdi}") }
+            ?: BigDecimal.ZERO.also { logger.info("Ferdig beregnet underholdskostnad for en person") }
     }
 
     /**
