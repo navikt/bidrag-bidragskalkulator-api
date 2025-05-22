@@ -1,6 +1,5 @@
 package no.nav.bidrag.bidragskalkulator.utils
 
-import no.nav.bidrag.bidragskalkulator.dto.BarnInformasjonDto
 import no.nav.bidrag.bidragskalkulator.dto.BarneRelasjonDto
 import no.nav.bidrag.bidragskalkulator.mapper.tilBarnInformasjonDto
 import no.nav.bidrag.bidragskalkulator.mapper.tilPersonInformasjonDto
