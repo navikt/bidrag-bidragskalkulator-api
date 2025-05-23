@@ -87,8 +87,8 @@ class BeregningsgrunnlagBuilderTest {
             val request: BeregningRequestDto = JsonUtils.readJsonFile("/barnebidrag/beregning_person_er_baade_bp_og_bm.json")
 
             val bostatusgrunnlagAlleBarn = request.barn.flatMapIndexed { index, barn ->
-                val kontekst = Beregningskontekst(
-                    dto = request,
+                val kontekst = BeregningKontekst(
+                    request = request,
                     barn = barn,
                     barnReferanse = "Person_Søknadsbarn_$index",
                 )
@@ -163,9 +163,9 @@ class BeregningsgrunnlagBuilderTest {
         }
     }
 
-    private fun lagKontekst(dto: BeregningRequestDto, barnIndex: Int, referanse: String): Beregningskontekst {
-        return Beregningskontekst(
-            dto = dto,
+    private fun lagKontekst(dto: BeregningRequestDto, barnIndex: Int, referanse: String): BeregningKontekst {
+        return BeregningKontekst(
+            request = dto,
             barn = dto.barn[barnIndex],
             barnReferanse = referanse
         )

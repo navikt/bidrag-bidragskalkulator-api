@@ -31,7 +31,7 @@ class BeregningsgrunnlagBuilder(
             ?: objectMapper.createObjectNode()
     )
 
-    fun byggBostatusgrunnlag(data: Beregningskontekst): List<GrunnlagDto> {
+    fun byggBostatusgrunnlag(data: BeregningKontekst): List<GrunnlagDto> {
         fun nyttBostatusgrunnlag(referanse: String, bostatus: Bostatuskode, gjelderBarnReferanse: String?, gjelderReferanse: String? = null) =
             GrunnlagDto(
                 referanse = referanse,
@@ -59,7 +59,7 @@ class BeregningsgrunnlagBuilder(
             )
         }
 
-        val boforhold = if (data.barn.bidragstype == BidragsType.PLIKTIG) data.dto.dittBoforhold else data.dto.medforelderBoforhold
+        val boforhold = if (data.barn.bidragstype == BidragsType.PLIKTIG) data.request.dittBoforhold else data.request.medforelderBoforhold
         val bostatusBidragspliktig = if(boforhold?.borMedAnnenVoksen == true) Bostatuskode.BOR_MED_ANDRE_VOKSNE else Bostatuskode.BOR_IKKE_MED_ANDRE_VOKSNE
 
         val bostatusBarn = buildList {
@@ -78,10 +78,10 @@ class BeregningsgrunnlagBuilder(
         }
     }
 
-    fun byggInntektsgrunnlag(data: Beregningskontekst): List<GrunnlagDto> {
+    fun byggInntektsgrunnlag(data: BeregningKontekst): List<GrunnlagDto> {
         val erBidragspliktig = data.barn.bidragstype == BidragsType.PLIKTIG
-        val lønnBidragsmottaker = if (erBidragspliktig) data.dto.inntektForelder2 else data.dto.inntektForelder1
-        val lønnBidragspliktig = if (erBidragspliktig) data.dto.inntektForelder1 else data.dto.inntektForelder2
+        val lønnBidragsmottaker = if (erBidragspliktig) data.request.inntektForelder2 else data.request.inntektForelder1
+        val lønnBidragspliktig = if (erBidragspliktig) data.request.inntektForelder1 else data.request.inntektForelder2
 
         fun nyttInntektsgrunnlag(referanse: String, beløp: BigDecimal, eierReferanse: String) =
             GrunnlagDto(
