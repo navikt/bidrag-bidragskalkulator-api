@@ -16,7 +16,6 @@ class BrukerinformasjonService(
 ) {
     private val logger = LoggerFactory.getLogger(BrukerinformasjonService::class.java)
 
-
     suspend fun hentBrukerinformasjon(personIdent: String): BrukerInformasjonDto = coroutineScope {
         logger.info("Starter henting av inntektsgrunnlag, familierelasjoner og underholdskostnad for barn for å utforme brukerinformasjon")
 

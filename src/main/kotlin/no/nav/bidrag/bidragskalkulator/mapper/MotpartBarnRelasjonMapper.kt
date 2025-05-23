@@ -7,11 +7,10 @@ import org.slf4j.LoggerFactory
 val logger = LoggerFactory.getLogger("MotpartBarnRelasjonMapper")
 
 fun List<MotpartBarnRelasjon>.filtrerRelasjonerMedGyldigMotpartOgBarn(): List<FamilieRelasjon> =
-    this.asSequence()
-        .mapNotNull { relasjon ->
+    this.mapNotNull { relasjon ->
             val motpart = relasjon.motpart
             if(motpart == null) {
-                logger.info("Fjerner relasjon hvor motpart == null")
+                logger.info("Filtrerer bort relasjon: mangler motpart")
                 // Hopp over denne relasjonen og ikke inkluder dette elementet i resultatet. Fortsett med resten
                 return@mapNotNull null
             }
@@ -21,6 +20,7 @@ fun List<MotpartBarnRelasjon>.filtrerRelasjonerMedGyldigMotpartOgBarn(): List<Fa
 
             val filtrerteBarn = relasjon.fellesBarn.filter { it.erLevendeOgIkkeSkjermet() }
             if (filtrerteBarn.isEmpty()) return@mapNotNull null
+
             FamilieRelasjon(motpart, filtrerteBarn)
         }
         .toList()
