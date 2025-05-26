@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/v1/beregning")
-@ProtectedWithClaims(issuer = SecurityConstants.TOKENX)
 class BeregningController(private val beregningService: BeregningService) {
 
     @Operation(summary = "Beregner barnebidrag",
@@ -34,6 +33,7 @@ class BeregningController(private val beregningService: BeregningService) {
         ]
     )
     @PostMapping("/barnebidrag")
+    @ProtectedWithClaims(issuer = SecurityConstants.TOKENX)
     fun beregnBarnebidrag(@Valid @RequestBody request: BeregningRequestDto): BeregningsresultatDto = runBlocking(
         Dispatchers.IO + MDCContext()
     ) {
