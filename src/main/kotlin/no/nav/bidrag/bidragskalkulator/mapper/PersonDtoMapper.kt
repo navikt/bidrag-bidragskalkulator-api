@@ -24,7 +24,7 @@ fun PersonDto.tilBarnInformasjonDto(underholdskostnad: BigDecimal?): BarnInforma
     )
 
 fun PersonDto.erLevendeOgIkkeSkjermet(): Boolean =
-    this.dødsdato == null && !harFortroligAdresse()
+    !this.erDød() && !harFortroligAdresse()
 
 fun PersonDto.erDød(): Boolean = this.dødsdato != null
 
