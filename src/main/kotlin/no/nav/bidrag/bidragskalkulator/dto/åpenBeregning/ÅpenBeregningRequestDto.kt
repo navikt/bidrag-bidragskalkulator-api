@@ -14,6 +14,7 @@ import no.nav.bidrag.domene.enums.beregning.Samværsklasse
 import no.nav.bidrag.domene.ident.Personident
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import kotlin.random.Random
 
 @Schema(description = "Informasjon om et barn i beregningen")
 data class BarnForÅpenBeregningDto(
@@ -40,7 +41,7 @@ data class BarnForÅpenBeregningDto(
 
     @JsonIgnore
     @Schema(hidden = true)
-    fun getMockIdent(): Personident = Personident(genererMockFnr(getEstimertFødselsdato()))
+    fun getMockIdent(): Personident = Personident(mockPersonnummer(getEstimertFødselsdato()))
 }
 
 data class ÅpenBeregningRequestDto (
@@ -70,33 +71,15 @@ fun ÅpenBeregningRequestDto.tilBeregningRequestDto(): BeregningRequestDto =
         barn = this.barn.map { it.tilBarnDto() }
     )
 
-fun genererMockFnr(fodselsdato: LocalDate): String {
-    // Format: DDMMYY
-    val datoDel = fodselsdato.format(DateTimeFormatter.ofPattern("ddMMyy"))
 
-    // Lag et tilfeldig individnummer (3 siffer)
-    val individnummer = (100..999).random().toString()
+fun mockPersonnummer(fodselsdato: LocalDate): String {
+    val formatter = DateTimeFormatter.ofPattern("ddMMyy")
+    val fodselsnummerPrefix = fodselsdato.format(formatter)
 
-    // Kombiner dato + individnummer (9 siffer)
-    val niSiffer = datoDel + individnummer
+    // De neste 5 sifrene er vanligvis individuell del og kontrollsiffer, men vi mocker dem her
+    val tilfeldigSuffiks = (1..5)
+        .map { Random.nextInt(0, 10) }
+        .joinToString("")
 
-    // Kalkuler kontrollsifre (mod11)
-    val k1 = kalkulerKontrollsiffer(niSiffer, listOf(3, 7, 6, 1, 8, 9, 4, 5, 2))
-    val k2 = kalkulerKontrollsiffer(niSiffer + k1, listOf(5, 4, 3, 2, 7, 6, 5, 4, 3, 2))
-
-    return if (k1 == null || k2 == null) {
-        throw IllegalArgumentException("Klarte ikke å generere gyldige kontrollsifre")
-    } else {
-        niSiffer + k1 + k2
-    }
-}
-
-private fun kalkulerKontrollsiffer(sifre: String, vekter: List<Int>): Int? {
-    val sum = sifre.mapIndexed { index, c -> Character.getNumericValue(c) * vekter[index] }.sum()
-    val rest = sum % 11
-    return when (val kontrollsiffer = 11 - rest) {
-        11 -> 0
-        10 -> null // ugyldig – må forkastes
-        else -> kontrollsiffer
-    }
+    return fodselsnummerPrefix + tilfeldigSuffiks
 }
