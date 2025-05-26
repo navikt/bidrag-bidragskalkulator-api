@@ -21,3 +21,6 @@ outbound_external_host:
   - bidrag-sjablon.dev-fss-pub.nais.io
   - bidrag-grunnlag.intern.dev.nav.no
   - bidrag-person-q1.dev-fss-pub.nais.io
+
+min_replicas: 2
+max_replicas: 2

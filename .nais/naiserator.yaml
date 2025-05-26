@@ -24,8 +24,8 @@ spec:
     enabled: true
 
   replicas:
-    max: 2
-    min: 2
+    max: {{ max_replicas }}
+    min: {{ min_replicas }}
 
   resources:
     requests:
