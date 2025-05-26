@@ -34,12 +34,12 @@ class BeregningService(
         val beregningsgrunnlag = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(beregningRequest)
 
         val start = System.currentTimeMillis()
-        val resultatDefer =  asyncCatching(logger, "utførBarnebidragBeregning") {
+        val beregningsresultatJobb =  asyncCatching(logger, "utførBarnebidragBeregning") {
             utførBarnebidragBeregning(beregningsgrunnlag)
         }
         val duration = System.currentTimeMillis() - start
 
-        val resultat = resultatDefer.await()
+        val resultat = beregningsresultatJobb.await()
         logger.info("Ferdig beregnet barnebidrag. Beregning av ${resultat.size} barn tok $duration ms")
         BeregningsresultatDto(resultat)
     }
