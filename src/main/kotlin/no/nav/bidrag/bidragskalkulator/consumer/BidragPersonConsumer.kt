@@ -50,7 +50,7 @@ class BidragPersonConsumer(
     fun hentFamilierelasjon(ident: String): MotpartBarnRelasjonDto = medApplikasjonsKontekst {
             secureLogger.info("Henter familierelasjon for person $ident")
             postSafely(hentFamilierelasjonUri, PersonRequest(Personident(ident)), Personident(ident))
-        }
+    }
 
 
     fun hentPerson(ident: Personident): PersonDto = medApplikasjonsKontekst{

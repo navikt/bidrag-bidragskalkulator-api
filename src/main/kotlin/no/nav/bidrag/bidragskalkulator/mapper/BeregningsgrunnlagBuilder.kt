@@ -6,14 +6,17 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import no.nav.bidrag.bidragskalkulator.dto.BarnDto
 import no.nav.bidrag.bidragskalkulator.dto.BidragsType
 import no.nav.bidrag.bidragskalkulator.mapper.BeregningsgrunnlagMapper.Referanser
+import no.nav.bidrag.bidragskalkulator.utils.kalkulereAlder
 import no.nav.bidrag.domene.enums.grunnlag.Grunnlagstype
 import no.nav.bidrag.domene.enums.inntekt.Inntektsrapportering
 import no.nav.bidrag.domene.enums.person.Bostatuskode
+import no.nav.bidrag.domene.enums.vedtak.Stønadstype
+import no.nav.bidrag.domene.ident.Personident
 import no.nav.bidrag.domene.tid.ÅrMånedsperiode
+import no.nav.bidrag.transport.behandling.beregning.felles.BeregnGrunnlag
 import no.nav.bidrag.transport.behandling.felles.grunnlag.*
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
-import java.time.LocalDate
 import java.time.YearMonth
 
 @Component
@@ -21,14 +24,14 @@ class BeregningsgrunnlagBuilder(
     private val objectMapper: ObjectMapper = ObjectMapper().registerKotlinModule().registerModule(JavaTimeModule())
 ) {
 
-    fun byggPersongrunnlag(referanse: String, type: Grunnlagstype, fødselsdato: LocalDate? = null) = GrunnlagDto(
+    fun byggPersongrunnlag(referanse: String, type: Grunnlagstype, personident: Personident? = null) = GrunnlagDto(
         referanse = referanse,
         type = type,
-        innhold = fødselsdato?.let { objectMapper.valueToTree(Person(fødselsdato = it)) }
+        innhold = personident?.let { objectMapper.valueToTree(Person(fødselsdato = personident.fødselsdato())) }
             ?: objectMapper.createObjectNode()
     )
 
-    fun byggBostatusgrunnlag(data: Beregningskontekst): List<GrunnlagDto> {
+    fun byggBostatusgrunnlag(data: BeregningKontekst): List<GrunnlagDto> {
         fun nyttBostatusgrunnlag(referanse: String, bostatus: Bostatuskode, gjelderBarnReferanse: String?, gjelderReferanse: String? = null) =
             GrunnlagDto(
                 referanse = referanse,
@@ -56,7 +59,7 @@ class BeregningsgrunnlagBuilder(
             )
         }
 
-        val boforhold = if (data.barn.bidragstype == BidragsType.PLIKTIG) data.dto.dittBoforhold else data.dto.medforelderBoforhold
+        val boforhold = if (data.barn.bidragstype == BidragsType.PLIKTIG) data.request.dittBoforhold else data.request.medforelderBoforhold
         val bostatusBidragspliktig = if(boforhold?.borMedAnnenVoksen == true) Bostatuskode.BOR_MED_ANDRE_VOKSNE else Bostatuskode.BOR_IKKE_MED_ANDRE_VOKSNE
 
         val bostatusBarn = buildList {
@@ -75,10 +78,10 @@ class BeregningsgrunnlagBuilder(
         }
     }
 
-    fun byggInntektsgrunnlag(data: Beregningskontekst): List<GrunnlagDto> {
+    fun byggInntektsgrunnlag(data: BeregningKontekst): List<GrunnlagDto> {
         val erBidragspliktig = data.barn.bidragstype == BidragsType.PLIKTIG
-        val lønnBidragsmottaker = if (erBidragspliktig) data.dto.inntektForelder2 else data.dto.inntektForelder1
-        val lønnBidragspliktig = if (erBidragspliktig) data.dto.inntektForelder1 else data.dto.inntektForelder2
+        val lønnBidragsmottaker = if (erBidragspliktig) data.request.inntektForelder2 else data.request.inntektForelder1
+        val lønnBidragspliktig = if (erBidragspliktig) data.request.inntektForelder1 else data.request.inntektForelder2
 
         fun nyttInntektsgrunnlag(referanse: String, beløp: BigDecimal, eierReferanse: String) =
             GrunnlagDto(
@@ -117,4 +120,19 @@ class BeregningsgrunnlagBuilder(
             gjelderBarnReferanse = gjelderBarnReferanse,
             gjelderReferanse = Referanser.BIDRAGSPLIKTIG
         )
+
+    fun byggFellesBeregnGrunnlag(barnReferanse: String, søknadsbarnIdent: Personident, grunnlagListe: List<GrunnlagDto>): BeregnGrunnlag {
+        val barnetsAlder = kalkulereAlder(søknadsbarnIdent.fødselsdato())
+
+        return BeregnGrunnlag(
+            periode = ÅrMånedsperiode(YearMonth.now(), YearMonth.now().plusMonths(1)),
+            søknadsbarnReferanse = barnReferanse,
+            stønadstype = when {
+                barnetsAlder >= 18 -> Stønadstype.BIDRAG18AAR
+                else -> Stønadstype.BIDRAG
+            },
+            grunnlagListe = grunnlagListe
+        )
+    }
+
 }

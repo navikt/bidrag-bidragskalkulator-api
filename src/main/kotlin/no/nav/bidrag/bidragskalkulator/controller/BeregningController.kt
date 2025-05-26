@@ -7,6 +7,9 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import no.nav.bidrag.bidragskalkulator.dto.BeregningsresultatDto
 import no.nav.bidrag.bidragskalkulator.dto.BeregningRequestDto
 import jakarta.validation.Valid
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.slf4j.MDCContext
 import no.nav.bidrag.bidragskalkulator.config.SecurityConstants
 import no.nav.bidrag.bidragskalkulator.service.BeregningService
 import no.nav.bidrag.bidragskalkulator.validering.BeregningRequestValidator
@@ -29,8 +32,10 @@ class BeregningController(private val beregningService: BeregningService) {
         ]
     )
     @PostMapping("/barnebidrag")
-    fun beregnBarnebidragBeskyttet(@Valid @RequestBody request: BeregningRequestDto): BeregningsresultatDto {
+    fun beregnBarnebidrag(@Valid @RequestBody request: BeregningRequestDto): BeregningsresultatDto = runBlocking(
+        Dispatchers.IO + MDCContext()
+    ) {
         BeregningRequestValidator.valider(request)
-        return beregningService.beregnBarnebidrag(request)
+        beregningService.beregnBarnebidrag(request)
     }
 }

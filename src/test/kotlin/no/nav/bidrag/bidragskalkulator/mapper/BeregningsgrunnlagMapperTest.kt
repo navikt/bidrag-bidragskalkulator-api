@@ -37,7 +37,7 @@ class BeregningsgrunnlagMapperTest {
             visningsnavn = "Navn Navnesen",
         )
 
-        beregningsgrunnlagMapper = BeregningsgrunnlagMapper(mockPersonService, mockBeregningsgrunnlagBuilder)
+        beregningsgrunnlagMapper = BeregningsgrunnlagMapper(mockBeregningsgrunnlagBuilder)
     }
 
     @Test
@@ -92,7 +92,7 @@ class BeregningsgrunnlagMapperTest {
 
 
     private fun assertBarnetsAlderOgReferanse(
-        grunnlagOgBarnInformasjon: GrunnlagOgBarnInformasjon,
+        grunnlagOgBarnInformasjon: PersonBeregningsgrunnlag,
         beregningRequest: BeregningRequestDto,
         index: Int
     ) {
