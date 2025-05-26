@@ -17,3 +17,7 @@ inbound_application:
 outbound_external_host:
   - bidrag-sjablon.prod-fss-pub.nais.io
   - bidrag-person.prod-fss-pub.nais.io
+
+
+min_replicas: 0
+max_replicas: 0
