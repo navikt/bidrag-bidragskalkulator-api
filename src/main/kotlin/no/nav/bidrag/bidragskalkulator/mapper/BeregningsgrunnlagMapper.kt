@@ -1,6 +1,9 @@
 package no.nav.bidrag.bidragskalkulator.mapper
 
 import no.nav.bidrag.bidragskalkulator.dto.*
+import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.tilBarnDto
+import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.tilBeregningRequestDto
+import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningRequestDto
 import no.nav.bidrag.domene.enums.grunnlag.Grunnlagstype
 import no.nav.bidrag.domene.ident.Personident
 import no.nav.bidrag.transport.behandling.beregning.felles.BeregnGrunnlag
@@ -25,6 +28,19 @@ class BeregningsgrunnlagMapper(
                 ident = søknadsbarn.ident,
                 bidragsType = søknadsbarn.bidragstype,
                 grunnlag = beregningsgrunnlagBuilder.byggFellesBeregnGrunnlag(barnReferanse, søknadsbarn.ident, lagGrunnlagsliste(søknadsbarn, dto, barnReferanse))
+            )
+        }
+    }
+
+    fun mapTilBeregningsgrunnlagAnonym(dto: ÅpenBeregningRequestDto): List<PersonBeregningsgrunnlag> {
+        return dto.barn.mapIndexed { index, søknadsbarn ->
+            val barnReferanse = "Person_Søknadsbarn_$index"
+            val barn = søknadsbarn.tilBarnDto()
+
+            PersonBeregningsgrunnlag(
+                ident = barn.ident,
+                bidragsType = søknadsbarn.bidragstype,
+                grunnlag = beregningsgrunnlagBuilder.byggFellesBeregnGrunnlag(barnReferanse, barn.ident, lagGrunnlagsliste(barn, dto.tilBeregningRequestDto(), barnReferanse))
             )
         }
     }

@@ -5,6 +5,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import no.nav.bidrag.beregn.barnebidrag.BeregnBarnebidragApi
 import no.nav.bidrag.bidragskalkulator.dto.*
+import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningRequestDto
 import no.nav.bidrag.bidragskalkulator.mapper.BeregningsgrunnlagMapper
 import no.nav.bidrag.bidragskalkulator.mapper.PersonBeregningsgrunnlag
 import no.nav.bidrag.bidragskalkulator.mapper.tilBarnInformasjonDto
@@ -41,6 +42,21 @@ class BeregningService(
 
         val resultat = beregningsresultatJobb.await()
         logger.info("Ferdig beregnet barnebidrag. Beregning av ${resultat.size} barn tok $duration ms")
+        BeregningsresultatDto(resultat)
+    }
+
+    suspend fun beregnBarnebidragAnonym(beregningRequest: ÅpenBeregningRequestDto): BeregningsresultatDto = coroutineScope {
+        logger.info("Start beregning av barnebidrag anonym")
+        val beregningsgrunnlag = beregningsgrunnlagMapper.mapTilBeregningsgrunnlagAnonym(beregningRequest)
+
+        val start = System.currentTimeMillis()
+        val beregningsresultatJobb =  asyncCatching(logger, "utførBarnebidragBeregning") {
+            utførBarnebidragBeregning(beregningsgrunnlag)
+        }
+        val duration = System.currentTimeMillis() - start
+
+        val resultat = beregningsresultatJobb.await()
+        logger.info("Ferdig beregnet barnebidrag anonym. Beregning av ${resultat.size} barn tok $duration ms")
         BeregningsresultatDto(resultat)
     }
 
