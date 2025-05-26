@@ -76,7 +76,8 @@ class BeregningService(
                         ident = data.ident,
                         fulltNavn = barn.visningsnavn,
                         fornavn = barn.fornavn ?: barn.visningsnavn,
-                        bidragstype = data.bidragsType
+                        bidragstype = data.bidragsType,
+                        alder = data.alder
                     )
                 }
             }.awaitAll()

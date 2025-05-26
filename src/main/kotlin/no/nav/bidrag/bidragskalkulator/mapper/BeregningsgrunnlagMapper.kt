@@ -4,6 +4,7 @@ import no.nav.bidrag.bidragskalkulator.dto.*
 import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.tilBarnDto
 import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.tilBeregningRequestDto
 import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningRequestDto
+import no.nav.bidrag.bidragskalkulator.utils.kalkulereAlder
 import no.nav.bidrag.domene.enums.grunnlag.Grunnlagstype
 import no.nav.bidrag.domene.ident.Personident
 import no.nav.bidrag.transport.behandling.beregning.felles.BeregnGrunnlag
@@ -27,6 +28,7 @@ class BeregningsgrunnlagMapper(
             PersonBeregningsgrunnlag(
                 ident = søknadsbarn.ident,
                 bidragsType = søknadsbarn.bidragstype,
+                alder = kalkulereAlder(søknadsbarn.ident.fødselsdato()),
                 grunnlag = beregningsgrunnlagBuilder.byggFellesBeregnGrunnlag(barnReferanse, søknadsbarn.ident, lagGrunnlagsliste(søknadsbarn, dto, barnReferanse))
             )
         }
@@ -40,6 +42,7 @@ class BeregningsgrunnlagMapper(
             PersonBeregningsgrunnlag(
                 ident = barn.ident,
                 bidragsType = søknadsbarn.bidragstype,
+                alder = søknadsbarn.alder,
                 grunnlag = beregningsgrunnlagBuilder.byggFellesBeregnGrunnlag(barnReferanse, barn.ident, lagGrunnlagsliste(barn, dto.tilBeregningRequestDto(), barnReferanse))
             )
         }
@@ -77,6 +80,7 @@ class BeregningsgrunnlagMapper(
 
 data class PersonBeregningsgrunnlag(
     val ident: Personident,
+    val alder: Int,
     val bidragsType: BidragsType,
     val grunnlag: BeregnGrunnlag
 )

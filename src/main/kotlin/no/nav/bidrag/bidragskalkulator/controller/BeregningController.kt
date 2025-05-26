@@ -33,7 +33,7 @@ class BeregningController(private val beregningService: BeregningService) {
             ApiResponse(responseCode = "500", description = "Intern serverfeil")
         ]
     )
-    @PostMapping("/beskyttet/barnebidrag")
+    @PostMapping("/barnebidrag")
     fun beregnBarnebidrag(@Valid @RequestBody request: BeregningRequestDto): BeregningsresultatDto = runBlocking(
         Dispatchers.IO + MDCContext()
     ) {
@@ -50,7 +50,7 @@ class BeregningController(private val beregningService: BeregningService) {
             ApiResponse(responseCode = "500", description = "Intern serverfeil")
         ]
     )
-    @PostMapping("/barnebidrag")
+    @PostMapping("/anonym/barnebidrag")
     @Unprotected
     fun beregnBarnebidragÅpen(@Valid @RequestBody request: ÅpenBeregningRequestDto): BeregningsresultatDto  = runBlocking(
         Dispatchers.IO + MDCContext()

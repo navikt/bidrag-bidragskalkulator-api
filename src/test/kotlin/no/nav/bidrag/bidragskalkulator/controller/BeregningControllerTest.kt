@@ -5,6 +5,7 @@ import io.mockk.every
 import kotlinx.coroutines.runBlocking
 import no.nav.bidrag.bidragskalkulator.dto.*
 import no.nav.bidrag.bidragskalkulator.service.BeregningService
+import no.nav.bidrag.bidragskalkulator.utils.kalkulereAlder
 import no.nav.bidrag.domene.enums.beregning.Samværsklasse
 import no.nav.bidrag.domene.ident.Personident
 import org.junit.jupiter.api.BeforeEach
@@ -124,7 +125,7 @@ class BeregningControllerTest: AbstractControllerTest() {
 
         val mockRespons = BeregningsresultatDto(
             resultater = listOf(
-                BeregningsresultatBarnDto(sum = BigDecimal(100), ident = Personident(personIdent), fulltNavn = "Navn Navnesen", fornavn = "Navn", bidragstype = mockGyldigRequest.barn.first().bidragstype)
+                BeregningsresultatBarnDto(sum = BigDecimal(100), ident = Personident(personIdent), fulltNavn = "Navn Navnesen", fornavn = "Navn", alder = 10, bidragstype = mockGyldigRequest.barn.first().bidragstype)
             )
         )
     }

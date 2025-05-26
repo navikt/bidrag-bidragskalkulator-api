@@ -14,6 +14,9 @@ data class BeregningsresultatBarnDto(
     @Schema(description = "Unik identifikator for barnet (fødselsnummer eller D-nummer)", example = "12345678901")
     val ident: Personident,
 
+    @Schema(description = "Alder til barnet", required = true, example = "10")
+    val alder: Int,
+
     @Schema(description = "Fullt navn til barnet", example = "Ola Nordmann")
     val fulltNavn: String,
 
