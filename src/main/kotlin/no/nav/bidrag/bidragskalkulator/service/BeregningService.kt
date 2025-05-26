@@ -51,7 +51,7 @@ class BeregningService(
 
         val start = System.currentTimeMillis()
         val beregningsresultatJobb =  asyncCatching(logger, "utførBarnebidragBeregning") {
-            utførBarnebidragBeregning(beregningsgrunnlag)
+            utførBarnebidragBeregning(beregningsgrunnlag, false)
         }
         val duration = System.currentTimeMillis() - start
 
@@ -60,7 +60,7 @@ class BeregningService(
         BeregningsresultatDto(resultat)
     }
 
-    private suspend fun utførBarnebidragBeregning(grunnlag: List<PersonBeregningsgrunnlag>): List<BeregningsresultatBarnDto> =
+    private suspend fun utførBarnebidragBeregning(grunnlag: List<PersonBeregningsgrunnlag>, skalHentePersoninformasjon: Boolean? = true): List<BeregningsresultatBarnDto> =
         coroutineScope {
             grunnlag.map { data ->
                 async {
@@ -69,13 +69,23 @@ class BeregningService(
                         .sumOf { it.resultat.beløp ?: BigDecimal.ZERO }
                         .avrundeTilNærmesteHundre()
 
-                    val barn = personService.hentPersoninformasjon(data.ident)
+                    if(skalHentePersoninformasjon == true) {
+                        val barn = personService.hentPersoninformasjon(data.ident)
+                        BeregningsresultatBarnDto(
+                            sum = sum,
+                            ident = data.ident,
+                            fulltNavn = barn.visningsnavn,
+                            fornavn = barn.fornavn ?: barn.visningsnavn,
+                            bidragstype = data.bidragsType,
+                            alder = data.alder
+                        )
+                    }
 
                     BeregningsresultatBarnDto(
                         sum = sum,
                         ident = data.ident,
-                        fulltNavn = barn.visningsnavn,
-                        fornavn = barn.fornavn ?: barn.visningsnavn,
+                        fulltNavn = "",
+                        fornavn = "",
                         bidragstype = data.bidragsType,
                         alder = data.alder
                     )
