@@ -23,7 +23,9 @@ spec:
   tokenx:
     enabled: true
 
-  replicas: 2
+  replicas:
+    min: 1
+    max: 2
 
   resources:
     requests:
