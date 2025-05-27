@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service
 open class CachedUnderholdskostnadService(
     private val beregnBarnebidragApi: BeregnBarnebidragApi,
 ) {
-    @Cacheable(Cacher.UNDERHOLDSKOSTNAD)
+    @Cacheable(Cachenøkler.UNDERHOLDSKOSTNAD)
     open fun beregnCachedPersonUnderholdskostnad(grunnlag: BeregnGrunnlag): List<GrunnlagDto> {
         return beregnBarnebidragApi.beregnUnderholdskostnad(grunnlag)
     }

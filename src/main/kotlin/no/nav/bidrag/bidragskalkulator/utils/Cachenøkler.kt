@@ -1,3 +1,3 @@
-object Cacher {
+object Cachenøkler {
     const val UNDERHOLDSKOSTNAD = "underholdskostnad"
 }
