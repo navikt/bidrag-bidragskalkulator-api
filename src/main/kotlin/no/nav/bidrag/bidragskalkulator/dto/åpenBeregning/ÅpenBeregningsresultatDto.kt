@@ -1,25 +1,16 @@
-package no.nav.bidrag.bidragskalkulator.dto
+package no.nav.bidrag.bidragskalkulator.dto.åpenBeregning
 
 import io.swagger.v3.oas.annotations.media.Schema
-import no.nav.bidrag.domene.ident.Personident
+import no.nav.bidrag.bidragskalkulator.dto.BidragsType
 import java.math.BigDecimal
 
 @Schema(description = "Inneholder beregningsresultater for hvert barn i forespørselen")
-data class BeregningsresultatDto(
-    val resultater: List<BeregningsresultatBarnDto>
+data class ÅpenBeregningsresultatDto(
+    val resultater: List<ÅpenBeregningsresultatBarnDto>
 )
 
 @Schema(description = "Beregnet barnebidrag for et enkelt barn")
-data class BeregningsresultatBarnDto(
-    @Schema(description = "Unik identifikator for barnet (fødselsnummer eller D-nummer)", example = "12345678901")
-    val ident: Personident,
-
-    @Schema(description = "Fullt navn til barnet", example = "Ola Nordmann")
-    val fulltNavn: String,
-
-    @Schema(description = "Fornavn til barnet", example = "Ola")
-    val fornavn: String,
-
+data class ÅpenBeregningsresultatBarnDto(
     @Schema(description = "Alder til barnet", required = true, example = "10")
     val alder: Int,
 

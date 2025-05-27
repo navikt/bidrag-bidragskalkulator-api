@@ -12,6 +12,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.slf4j.MDCContext
 import no.nav.bidrag.bidragskalkulator.config.SecurityConstants
 import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningRequestDto
+import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningsresultatDto
 import no.nav.bidrag.bidragskalkulator.service.BeregningService
 import no.nav.bidrag.bidragskalkulator.validering.BeregningRequestValidator
 import no.nav.security.token.support.core.api.ProtectedWithClaims
@@ -52,7 +53,7 @@ class BeregningController(private val beregningService: BeregningService) {
     )
     @PostMapping("/anonym/barnebidrag")
     @Unprotected
-    fun beregnBarnebidragÅpen(@Valid @RequestBody request: ÅpenBeregningRequestDto): BeregningsresultatDto  = runBlocking(
+    fun beregnBarnebidragÅpen(@Valid @RequestBody request: ÅpenBeregningRequestDto): ÅpenBeregningsresultatDto  = runBlocking(
         Dispatchers.IO + MDCContext()
     ) {
         beregningService.beregnBarnebidragAnonym(request)
