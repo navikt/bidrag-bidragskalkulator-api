@@ -64,10 +64,15 @@ dependencies {
     api("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:${coroutinesVersion}")
     api("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:${coroutinesVersion}")
 
+    // Caching
+    api("org.springframework.boot:spring-boot-starter-cache")
+    api("com.github.ben-manes.caffeine:caffeine")
+
     // Annet
     api("io.github.oshai:kotlin-logging-jvm:$kotlinLoggingJvmVersion")
     api("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
     api("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
+
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")

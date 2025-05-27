@@ -4,7 +4,10 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import no.nav.bidrag.beregn.barnebidrag.BeregnBarnebidragApi
-import no.nav.bidrag.bidragskalkulator.dto.*
+import no.nav.bidrag.bidragskalkulator.dto.BarneRelasjonDto
+import no.nav.bidrag.bidragskalkulator.dto.BeregningRequestDto
+import no.nav.bidrag.bidragskalkulator.dto.BeregningsresultatBarnDto
+import no.nav.bidrag.bidragskalkulator.dto.BeregningsresultatDto
 import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningRequestDto
 import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningsresultatBarnDto
 import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningsresultatDto
@@ -24,6 +27,7 @@ import java.math.BigDecimal
 @Service
 class BeregningService(
     private val beregnBarnebidragApi: BeregnBarnebidragApi,
+    private val cachedUnderholdskostnadService: CachedUnderholdskostnadService,
     private val beregningsgrunnlagMapper: BeregningsgrunnlagMapper,
     private val personService: PersonService
 ) {
@@ -96,7 +100,7 @@ class BeregningService(
 
         val underholdskostnadGrunnlag = beregningsgrunnlagMapper.mapTilUnderholdkostnadsgrunnlag(personident.fødselsdato(), referanse)
 
-        return beregnBarnebidragApi.beregnUnderholdskostnad(underholdskostnadGrunnlag)
+        return cachedUnderholdskostnadService.beregnCachedPersonUnderholdskostnad(underholdskostnadGrunnlag)
             .firstOrNull { it.type == Grunnlagstype.DELBEREGNING_UNDERHOLDSKOSTNAD }
             ?.innholdTilObjekt<DelberegningUnderholdskostnad>()
             ?.underholdskostnad
