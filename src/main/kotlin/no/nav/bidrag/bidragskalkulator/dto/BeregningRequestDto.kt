@@ -14,13 +14,13 @@ enum class BidragsType {
     MOTTAKER // Pålogget person er bidragsmottaker
 }
 
-interface IBarnDto {
+interface IFellesBarnDto {
     val bidragstype: BidragsType
     val samværsklasse: Samværsklasse
 }
 
 @Schema(description = "Informasjon om et barn i beregningen")
-data class BarnDto(
+data class BarnMedIdentDto(
     @field:NotNull(message = "Barnets identifikator må være satt")
     @Schema(description = "Fødselsnummer eller D-nummer til barnet", required = true, example = "12345678901")
     val ident: Personident,
@@ -32,9 +32,9 @@ data class BarnDto(
     @field:NotNull(message = "Bidragstype må være satt")
     @Schema(description = "Angir om den påloggede personen er pliktig eller mottaker for dette barnet", required = true)
     override val bidragstype: BidragsType
-) : IBarnDto
+) : IFellesBarnDto
 
-@Schema(description = "Modellen brukes til å beregne barnebidrag")
+@Schema(description = "Modellen brukes til å beregne barnebidragbasert på barnets id")
 data class BeregningRequestDto(
     @field:NotNull(message = "Inntekt for forelder 1 må være satt")
     @field:Min(value = 0, message = "Inntekt for forelder 1 kan ikke være negativ")
@@ -48,15 +48,16 @@ data class BeregningRequestDto(
 
     @field:NotEmpty(message = "Liste over barn kan ikke være tom")
     @field:Valid
-    @Schema(description = "Liste over barn som inngår i beregningen", required = true)
-    override val barn: List<BarnDto>,
+    override val barn: List<BarnMedIdentDto>,
 
     @Schema(description = "Boforhold for den påloggede personen. Må være satt hvis bidragstype for minst ett barn er PLIKTIG", required = false)
-    val dittBoforhold: BoforholdDto? = null,
+    override val dittBoforhold: BoforholdDto? = null,
 
     @Schema(description = "Boforhold for den andre forelderen. Må være satt hvis bidragstype for minst ett barn er MOTTAKER", required = false)
-    val medforelderBoforhold: BoforholdDto? = null,
-) : IBeregningRequestDto<BarnDto>
+    override val medforelderBoforhold: BoforholdDto? = null,
+) : FellesBeregningRequestDto<BarnMedIdentDto>(
+    inntektForelder1, inntektForelder2, barn, dittBoforhold, medforelderBoforhold
+)
 
 @Schema(description = "Boforholdsinformasjon for en forelder")
 data class BoforholdDto(
@@ -73,8 +74,10 @@ data class BoforholdDto(
     val borMedAnnenVoksen: Boolean,
 )
 
-interface IBeregningRequestDto<T : IBarnDto> {
-    val inntektForelder1: Double
-    val inntektForelder2: Double
-    val barn: List<T>
-}
+abstract class FellesBeregningRequestDto<T : IFellesBarnDto>(
+    open val inntektForelder1: Double,
+    open val inntektForelder2: Double,
+    open val barn: List<T>,
+    open val dittBoforhold: BoforholdDto? = null,
+    open val medforelderBoforhold: BoforholdDto? = null
+)

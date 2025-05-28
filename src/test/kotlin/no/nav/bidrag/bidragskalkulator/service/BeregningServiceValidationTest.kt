@@ -4,7 +4,7 @@ import no.nav.bidrag.bidragskalkulator.dto.BeregningRequestDto
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import no.nav.bidrag.bidragskalkulator.dto.BarnDto
+import no.nav.bidrag.bidragskalkulator.dto.BarnMedIdentDto
 import no.nav.bidrag.bidragskalkulator.dto.BidragsType
 import no.nav.bidrag.domene.enums.beregning.Samværsklasse
 import org.junit.jupiter.api.Assertions.*
@@ -33,7 +33,7 @@ class BeregningServiceValidationTest {
             inntektForelder1 = 500000.0,
             inntektForelder2 = 600000.0,
             barn = listOf(
-                BarnDto(
+                BarnMedIdentDto(
                     ident = Personident(personIdent),
                     samværsklasse = Samværsklasse.SAMVÆRSKLASSE_1,
                     bidragstype = BidragsType.PLIKTIG
@@ -81,7 +81,7 @@ class BeregningServiceValidationTest {
         val request = BeregningRequestDto(
             inntektForelder1 = -50000.0, // Ugyldig
             inntektForelder2 = 600000.0,
-            barn = listOf(BarnDto(Personident(personIdent), Samværsklasse.SAMVÆRSKLASSE_1, BidragsType.PLIKTIG))
+            barn = listOf(BarnMedIdentDto(Personident(personIdent), Samværsklasse.SAMVÆRSKLASSE_1, BidragsType.PLIKTIG))
         )
 
         val violations = validator.validate(request)
@@ -93,7 +93,7 @@ class BeregningServiceValidationTest {
         val request = BeregningRequestDto(
             inntektForelder1 = 1_000_000_000.0,  // 1 milliard
             inntektForelder2 = 900_000_000.0,  // 900 millioner
-            barn = listOf(BarnDto(Personident(personIdent), Samværsklasse.SAMVÆRSKLASSE_1, BidragsType.MOTTAKER))
+            barn = listOf(BarnMedIdentDto(Personident(personIdent), Samværsklasse.SAMVÆRSKLASSE_1, BidragsType.MOTTAKER))
         )
 
         val violations = validator.validate(request)

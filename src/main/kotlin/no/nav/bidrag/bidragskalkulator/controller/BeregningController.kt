@@ -51,11 +51,12 @@ class BeregningController(private val beregningService: BeregningService) {
             ApiResponse(responseCode = "500", description = "Intern serverfeil")
         ]
     )
-    @PostMapping("/anonym/barnebidrag")
+    @PostMapping("/barnebidrag/åpen")
     @Unprotected
     fun beregnBarnebidragÅpen(@Valid @RequestBody request: ÅpenBeregningRequestDto): ÅpenBeregningsresultatDto  = runBlocking(
         Dispatchers.IO + MDCContext()
     ) {
+        BeregningRequestValidator.valider(request)
         beregningService.beregnBarnebidragAnonym(request)
     }
 }
