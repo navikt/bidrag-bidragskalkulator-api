@@ -4,16 +4,14 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 group = "com.github.navikt"
 version = "0.0.1-SNAPSHOT"
 
-val bidragBeregnFellesVersion = "2025.04.16.131242"
-val bidragFellesVersion = "2025.04.22.161649"
-val kotlinLoggingJvmVersion = "7.0.3"
-val springDocWebmvcVersion = "2.8.5"
+val bidragBeregnFellesVersion = "2025.05.26.111207"
+val bidragFellesVersion = "2025.05.28.071416"
+val kotlinLoggingJvmVersion = "7.0.7"
+val springDocWebmvcVersion = "2.8.8"
 val mockkVersion = "4.0.2"
-val tokenSupportVersion = "5.0.19"
+val tokenSupportVersion = "5.0.29"
 val jacksonVersion = "2.18.2"
-val junitJupiterVersion = "5.9.3"
-val mockitoKotlinVersion = "5.2.0"
-val bidragInntektVersion = "2025.04.16.131242"
+val junitJupiterVersion = "5.12.2"
 val coroutinesVersion = "1.10.2"
 
 plugins {
@@ -54,7 +52,7 @@ dependencies {
         exclude(group = "io.github.oshai", module = "kotlin-logging-jvm")
     }
     api("no.nav.security:token-validation-spring:$tokenSupportVersion")
-    api("no.nav.bidrag:bidrag-inntekt:${bidragInntektVersion}") {
+    api("no.nav.bidrag:bidrag-inntekt:${bidragBeregnFellesVersion}") {
         exclude(group = "com.google.errorprone", module = "error_prone_annotations")
         exclude(group = "io.github.oshai", module = "kotlin-logging-jvm")
     }
@@ -78,7 +76,6 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.junit.jupiter:junit-jupiter:$junitJupiterVersion")
-    testImplementation("org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion")
     testImplementation("com.ninja-squad:springmockk:$mockkVersion")
     testImplementation("no.nav.security:token-validation-spring-test:$tokenSupportVersion")
     testImplementation("org.springframework.security:spring-security-test")
