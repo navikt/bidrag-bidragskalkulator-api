@@ -15,16 +15,12 @@ import no.nav.bidrag.bidragskalkulator.mapper.*
 import no.nav.bidrag.bidragskalkulator.model.FamilieRelasjon
 import no.nav.bidrag.bidragskalkulator.utils.asyncCatching
 import no.nav.bidrag.bidragskalkulator.utils.avrundeTilNærmesteHundre
-import no.nav.bidrag.domene.enums.grunnlag.Grunnlagstype
+import no.nav.bidrag.bidragskalkulator.utils.kalkulerAlder
 import no.nav.bidrag.domene.ident.Personident
 import no.nav.bidrag.transport.behandling.beregning.barnebidrag.ResultatPeriode
-import no.nav.bidrag.transport.behandling.felles.grunnlag.DelberegningUnderholdskostnad
-import no.nav.bidrag.transport.behandling.felles.grunnlag.innholdTilObjekt
 import org.slf4j.LoggerFactory.getLogger
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
-import java.time.LocalDate
-import java.time.Period
 
 @Service
 class BeregningService(
@@ -98,7 +94,7 @@ class BeregningService(
         }
 
     fun beregnPersonUnderholdskostnad(personident: Personident): BigDecimal {
-        val alder = Period.between(personident.fødselsdato(), LocalDate.now()).years
+        val alder = kalkulerAlder(personident.fødselsdato())
         return cachedUnderholdskostnadService.beregnCachedPersonUnderholdskostnad(alder)
     }
 

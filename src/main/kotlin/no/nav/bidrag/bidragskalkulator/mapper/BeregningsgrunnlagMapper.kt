@@ -2,7 +2,7 @@ package no.nav.bidrag.bidragskalkulator.mapper
 
 import no.nav.bidrag.bidragskalkulator.dto.*
 import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningRequestDto
-import no.nav.bidrag.bidragskalkulator.utils.kalkulereAlder
+import no.nav.bidrag.bidragskalkulator.utils.kalkulerAlder
 import no.nav.bidrag.domene.enums.grunnlag.Grunnlagstype
 import no.nav.bidrag.domene.ident.Personident
 import no.nav.bidrag.transport.behandling.beregning.felles.BeregnGrunnlag
@@ -35,7 +35,7 @@ class BeregningsgrunnlagMapper(
             PersonBeregningsgrunnlag(
                 ident = søknadsbarn.ident,
                 bidragsType = søknadsbarn.bidragstype,
-                alder = kalkulereAlder(søknadsbarn.ident.fødselsdato()),
+                alder = kalkulerAlder(søknadsbarn.ident.fødselsdato()),
                 grunnlag = beregningsgrunnlagBuilder
                     .byggFellesBeregnGrunnlag(barnReferanse, søknadsbarn.ident.fødselsdato(), grunnlagListe)
             )

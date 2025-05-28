@@ -11,7 +11,7 @@ import no.nav.bidrag.bidragskalkulator.service.BeregningService
 import no.nav.bidrag.bidragskalkulator.service.CachedUnderholdskostnadService
 import no.nav.bidrag.bidragskalkulator.service.PersonService
 import no.nav.bidrag.bidragskalkulator.utils.JsonUtils
-import no.nav.bidrag.bidragskalkulator.utils.kalkulereAlder
+import no.nav.bidrag.bidragskalkulator.utils.kalkulerAlder
 import no.nav.bidrag.domene.ident.Personident
 import no.nav.bidrag.domene.tid.ÅrMånedsperiode
 import no.nav.bidrag.transport.behandling.beregning.barnebidrag.BeregnetBarnebidragResultat
@@ -156,7 +156,7 @@ class BeregningServiceTest {
 
             val forventetSortertAldre = fellesBarn
                 .mapNotNull { it.fødselsdato }
-                .map { kalkulereAlder(it) }
+                .map { kalkulerAlder(it) }
                 .sortedDescending()
 
             val faktiskeAldre = relasjon.fellesBarn.map { it.alder }
