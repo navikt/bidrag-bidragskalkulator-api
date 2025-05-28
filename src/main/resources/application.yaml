@@ -8,7 +8,13 @@ springdoc:
 logging.level:
   secureLogger: DEBUG
 
-spring.main.banner-mode: off
+spring:
+  main:
+    banner-mode: off
+  cache:
+    cache-names: underholdskostnad,personinformasjon
+    caffeine:
+      spec: maximumSize=500,expireAfterWrite=1h
 
 spring.config.activate.on-profile: local
 BIDRAG_SJABLON_URL: https://bidrag-sjablon.dev-fss-pub.nais.io/bidrag-sjablon
@@ -20,7 +26,6 @@ bidrag:
     url: ${BIDRAG_GRUNNLAG_URL}
     hentGrunnlagPath: hentgrunnlag
 
-    # Add other grunnlag-related properties as needed
 ---
 spring.config.activate.on-profile: prod, dev, local-nais
 

@@ -7,6 +7,7 @@ import no.nav.bidrag.bidragskalkulator.mapper.toInntektResultatDto
 import no.nav.bidrag.bidragskalkulator.utils.asyncCatching
 import no.nav.bidrag.domene.ident.Personident
 import org.slf4j.LoggerFactory
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
 
 @Service
@@ -16,6 +17,7 @@ class BrukerinformasjonService(
 ) {
     private val logger = LoggerFactory.getLogger(BrukerinformasjonService::class.java)
 
+    @Cacheable(Cachenøkler.PERSONINFORMASJON)
     suspend fun hentBrukerinformasjon(personIdent: String): BrukerInformasjonDto = coroutineScope {
         logger.info("Starter henting av person informasjon og inntektsgrunnlag for å utforme brukerinformasjon")
 

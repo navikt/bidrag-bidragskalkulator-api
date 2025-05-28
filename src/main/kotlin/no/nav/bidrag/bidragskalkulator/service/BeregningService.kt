@@ -4,7 +4,10 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import no.nav.bidrag.beregn.barnebidrag.BeregnBarnebidragApi
-import no.nav.bidrag.bidragskalkulator.dto.*
+import no.nav.bidrag.bidragskalkulator.dto.BarneRelasjonDto
+import no.nav.bidrag.bidragskalkulator.dto.BeregningRequestDto
+import no.nav.bidrag.bidragskalkulator.dto.BeregningsresultatBarnDto
+import no.nav.bidrag.bidragskalkulator.dto.BeregningsresultatDto
 import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningRequestDto
 import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningsresultatBarnDto
 import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningsresultatDto
@@ -12,11 +15,9 @@ import no.nav.bidrag.bidragskalkulator.mapper.*
 import no.nav.bidrag.bidragskalkulator.model.FamilieRelasjon
 import no.nav.bidrag.bidragskalkulator.utils.asyncCatching
 import no.nav.bidrag.bidragskalkulator.utils.avrundeTilNærmesteHundre
-import no.nav.bidrag.domene.enums.grunnlag.Grunnlagstype
+import no.nav.bidrag.bidragskalkulator.utils.kalkulerAlder
 import no.nav.bidrag.domene.ident.Personident
 import no.nav.bidrag.transport.behandling.beregning.barnebidrag.ResultatPeriode
-import no.nav.bidrag.transport.behandling.felles.grunnlag.DelberegningUnderholdskostnad
-import no.nav.bidrag.transport.behandling.felles.grunnlag.innholdTilObjekt
 import org.slf4j.LoggerFactory.getLogger
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
@@ -24,6 +25,7 @@ import java.math.BigDecimal
 @Service
 class BeregningService(
     private val beregnBarnebidragApi: BeregnBarnebidragApi,
+    private val cachedUnderholdskostnadService: CachedUnderholdskostnadService,
     private val beregningsgrunnlagMapper: BeregningsgrunnlagMapper,
     private val personService: PersonService
 ) {
@@ -91,16 +93,9 @@ class BeregningService(
             }.awaitAll()
         }
 
-    fun beregnPersonUnderholdskostnad(personident: Personident, referanse: String): BigDecimal {
-        logger.info("Beregn underholdskostnad for en person")
-
-        val underholdskostnadGrunnlag = beregningsgrunnlagMapper.mapTilUnderholdkostnadsgrunnlag(personident.fødselsdato(), referanse)
-
-        return beregnBarnebidragApi.beregnUnderholdskostnad(underholdskostnadGrunnlag)
-            .firstOrNull { it.type == Grunnlagstype.DELBEREGNING_UNDERHOLDSKOSTNAD }
-            ?.innholdTilObjekt<DelberegningUnderholdskostnad>()
-            ?.underholdskostnad
-            ?: BigDecimal.ZERO.also { logger.info("Ferdig beregnet underholdskostnad for en person") }
+    fun beregnPersonUnderholdskostnad(personident: Personident): BigDecimal {
+        val alder = kalkulerAlder(personident.fødselsdato())
+        return cachedUnderholdskostnadService.beregnCachedPersonUnderholdskostnad(alder)
     }
 
     /**
@@ -110,17 +105,15 @@ class BeregningService(
     suspend fun beregnUnderholdskostnaderForBarnerelasjoner(
         barnerelasjoner: List<FamilieRelasjon>
     ): List<BarneRelasjonDto> = coroutineScope {
-        barnerelasjoner.mapIndexed { i, relasjon ->  beregnUnderholdskostnadForRelasjon(relasjon, i) }
+        barnerelasjoner.map {  beregnUnderholdskostnadForRelasjon(it) }
     }
 
     private suspend fun beregnUnderholdskostnadForRelasjon(
         relasjon: FamilieRelasjon,
-        relasjonsIndex: Int
     ): BarneRelasjonDto = coroutineScope {
         val fellesBarnMedUnderholdskostnad = relasjon.fellesBarn.mapIndexed { barnIndex, barn ->
             async {
-                val beskrivelse = "Person_Søknadsbarn_${relasjonsIndex}${barnIndex}"
-                val underholdskostnad = beregnPersonUnderholdskostnad(barn.ident, beskrivelse)
+                val underholdskostnad = beregnPersonUnderholdskostnad(barn.ident)
 
                 barn.tilBarnInformasjonDto(underholdskostnad)
             }
