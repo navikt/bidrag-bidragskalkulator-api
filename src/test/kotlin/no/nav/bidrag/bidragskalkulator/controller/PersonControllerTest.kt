@@ -35,7 +35,8 @@ class PersonControllerTest: AbstractControllerTest() {
                 BrukerInformasjonDto(
                     person = mockResponsPersonMedEnBarnRelasjon.person.tilPersonInformasjonDto(),
                     inntekt = mockTransofmerInntekterResponse.toInntektResultatDto().inntektSiste12Mnd,
-                    barnerelasjoner = emptyList()
+                    barnerelasjoner = emptyList(),
+                    underholdskostnader = emptyMap()
                 )
 
         getRequest("/api/v1/person/informasjon", gyldigOAuth2Token)
