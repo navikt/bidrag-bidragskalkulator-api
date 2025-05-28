@@ -57,6 +57,6 @@ data class BrukerInformasjonDto(
     @Schema(description = "Liste over barn til pålogget person, gruppert med motpart")
     val barnerelasjoner: List<BarneRelasjonDto>,
 
-    @Schema(description = "Liste over underholdskostnader for alle aldre")
+    @Schema(description = "Liste over underholdskostnader for alle aldre fra 0-25 år")
     val underholdskostnader: Map<Int, BigDecimal>,
 )
