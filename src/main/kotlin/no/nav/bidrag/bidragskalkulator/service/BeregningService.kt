@@ -23,6 +23,8 @@ import no.nav.bidrag.transport.behandling.felles.grunnlag.innholdTilObjekt
 import org.slf4j.LoggerFactory.getLogger
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
+import java.time.LocalDate
+import java.time.Period
 
 @Service
 class BeregningService(
@@ -95,16 +97,9 @@ class BeregningService(
             }.awaitAll()
         }
 
-    fun beregnPersonUnderholdskostnad(personident: Personident, referanse: String): BigDecimal {
-        logger.info("Beregn underholdskostnad for en person")
-
-        val underholdskostnadGrunnlag = beregningsgrunnlagMapper.mapTilUnderholdkostnadsgrunnlag(personident.fødselsdato(), referanse)
-
-        return cachedUnderholdskostnadService.beregnCachedPersonUnderholdskostnad(underholdskostnadGrunnlag)
-            .firstOrNull { it.type == Grunnlagstype.DELBEREGNING_UNDERHOLDSKOSTNAD }
-            ?.innholdTilObjekt<DelberegningUnderholdskostnad>()
-            ?.underholdskostnad
-            ?: BigDecimal.ZERO.also { logger.info("Ferdig beregnet underholdskostnad for en person") }
+    fun beregnPersonUnderholdskostnad(personident: Personident): BigDecimal {
+        val alder = Period.between(personident.fødselsdato(), LocalDate.now()).years
+        return cachedUnderholdskostnadService.beregnCachedPersonUnderholdskostnad(alder)
     }
 
     /**
@@ -114,17 +109,15 @@ class BeregningService(
     suspend fun beregnUnderholdskostnaderForBarnerelasjoner(
         barnerelasjoner: List<FamilieRelasjon>
     ): List<BarneRelasjonDto> = coroutineScope {
-        barnerelasjoner.mapIndexed { i, relasjon ->  beregnUnderholdskostnadForRelasjon(relasjon, i) }
+        barnerelasjoner.map {  beregnUnderholdskostnadForRelasjon(it) }
     }
 
     private suspend fun beregnUnderholdskostnadForRelasjon(
         relasjon: FamilieRelasjon,
-        relasjonsIndex: Int
     ): BarneRelasjonDto = coroutineScope {
         val fellesBarnMedUnderholdskostnad = relasjon.fellesBarn.mapIndexed { barnIndex, barn ->
             async {
-                val beskrivelse = "Person_Søknadsbarn_${relasjonsIndex}${barnIndex}"
-                val underholdskostnad = beregnPersonUnderholdskostnad(barn.ident, beskrivelse)
+                val underholdskostnad = beregnPersonUnderholdskostnad(barn.ident)
 
                 barn.tilBarnInformasjonDto(underholdskostnad)
             }
