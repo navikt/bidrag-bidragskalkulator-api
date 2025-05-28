@@ -14,6 +14,11 @@ enum class BidragsType {
     MOTTAKER // Pålogget person er bidragsmottaker
 }
 
+interface IBarnDto {
+    val bidragstype: BidragsType
+    val samværsklasse: Samværsklasse
+}
+
 @Schema(description = "Informasjon om et barn i beregningen")
 data class BarnDto(
     @field:NotNull(message = "Barnets identifikator må være satt")
@@ -22,36 +27,36 @@ data class BarnDto(
 
     @field:NotNull(message = "Samværsklasse må være satt")
     @Schema(ref = "#/components/schemas/Samværsklasse") // Reference dynamically registered schema. See BeregnBarnebidragConfig
-    val samværsklasse: Samværsklasse,
+    override val samværsklasse: Samværsklasse,
 
     @field:NotNull(message = "Bidragstype må være satt")
     @Schema(description = "Angir om den påloggede personen er pliktig eller mottaker for dette barnet", required = true)
-    val bidragstype: BidragsType
-)
+    override val bidragstype: BidragsType
+) : IBarnDto
 
 @Schema(description = "Modellen brukes til å beregne barnebidrag")
 data class BeregningRequestDto(
     @field:NotNull(message = "Inntekt for forelder 1 må være satt")
     @field:Min(value = 0, message = "Inntekt for forelder 1 kan ikke være negativ")
     @Schema(description = "Inntekt for forelder 1 i norske kroner", required = true, example = "500000.0")
-    val inntektForelder1: Double,
+    override val inntektForelder1: Double,
 
     @field:NotNull(message = "Inntekt for forelder 2 må være satt")
     @field:Min(value = 0, message = "Inntekt for forelder 2 kan ikke være negativ")
     @Schema(description = "Inntekt for forelder 2 i norske kroner", required = true, example = "450000.0")
-    val inntektForelder2: Double,
+    override val inntektForelder2: Double,
 
     @field:NotEmpty(message = "Liste over barn kan ikke være tom")
     @field:Valid
     @Schema(description = "Liste over barn som inngår i beregningen", required = true)
-    val barn: List<BarnDto>,
+    override val barn: List<BarnDto>,
 
     @Schema(description = "Boforhold for den påloggede personen. Må være satt hvis bidragstype for minst ett barn er PLIKTIG", required = false)
     val dittBoforhold: BoforholdDto? = null,
 
     @Schema(description = "Boforhold for den andre forelderen. Må være satt hvis bidragstype for minst ett barn er MOTTAKER", required = false)
     val medforelderBoforhold: BoforholdDto? = null,
-)
+) : IBeregningRequestDto<BarnDto>
 
 @Schema(description = "Boforholdsinformasjon for en forelder")
 data class BoforholdDto(
@@ -67,3 +72,9 @@ data class BoforholdDto(
     @Schema(description = "Indikerer om forelderen deler bolig med en annen voksen", required = true, example = "false")
     val borMedAnnenVoksen: Boolean,
 )
+
+interface IBeregningRequestDto<T : IBarnDto> {
+    val inntektForelder1: Double
+    val inntektForelder2: Double
+    val barn: List<T>
+}

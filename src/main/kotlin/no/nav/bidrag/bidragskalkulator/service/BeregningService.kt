@@ -5,15 +5,16 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import no.nav.bidrag.beregn.barnebidrag.BeregnBarnebidragApi
 import no.nav.bidrag.bidragskalkulator.dto.*
-import no.nav.bidrag.bidragskalkulator.mapper.BeregningsgrunnlagMapper
-import no.nav.bidrag.bidragskalkulator.mapper.PersonBeregningsgrunnlag
-import no.nav.bidrag.bidragskalkulator.mapper.tilBarnInformasjonDto
-import no.nav.bidrag.bidragskalkulator.mapper.tilPersonInformasjonDto
+import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningRequestDto
+import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningsresultatBarnDto
+import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningsresultatDto
+import no.nav.bidrag.bidragskalkulator.mapper.*
 import no.nav.bidrag.bidragskalkulator.model.FamilieRelasjon
 import no.nav.bidrag.bidragskalkulator.utils.asyncCatching
 import no.nav.bidrag.bidragskalkulator.utils.avrundeTilNærmesteHundre
 import no.nav.bidrag.domene.enums.grunnlag.Grunnlagstype
 import no.nav.bidrag.domene.ident.Personident
+import no.nav.bidrag.transport.behandling.beregning.barnebidrag.ResultatPeriode
 import no.nav.bidrag.transport.behandling.felles.grunnlag.DelberegningUnderholdskostnad
 import no.nav.bidrag.transport.behandling.felles.grunnlag.innholdTilObjekt
 import org.slf4j.LoggerFactory.getLogger
@@ -29,48 +30,71 @@ class BeregningService(
 
     private val logger = getLogger(BeregningService::class.java)
 
-    suspend fun beregnBarnebidrag(beregningRequest: BeregningRequestDto): BeregningsresultatDto = coroutineScope {
+    suspend fun beregnBarnebidrag(beregningRequest: BeregningRequestDto): BeregningsresultatDto {
         logger.info("Start beregning av barnebidrag")
         val beregningsgrunnlag = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(beregningRequest)
 
         val start = System.currentTimeMillis()
-        val beregningsresultatJobb =  asyncCatching(logger, "utførBarnebidragBeregning") {
-            utførBarnebidragBeregning(beregningsgrunnlag)
-        }
+        val beregningsresultat = utførBarnebidragBeregning(beregningsgrunnlag)
         val duration = System.currentTimeMillis() - start
 
-        val resultat = beregningsresultatJobb.await()
-        logger.info("Ferdig beregnet barnebidrag. Beregning av ${resultat.size} barn tok $duration ms")
-        BeregningsresultatDto(resultat)
+        logger.info("Ferdig beregnet barnebidrag. Beregning av ${beregningsresultat.size} barn tok $duration ms")
+        return BeregningsresultatDto(beregningsresultat)
+    }
+
+    suspend fun beregnBarnebidragAnonym(beregningRequest: ÅpenBeregningRequestDto): ÅpenBeregningsresultatDto {
+        logger.info("Start beregning av barnebidrag anonym")
+        val beregningsgrunnlag = beregningsgrunnlagMapper.mapTilBeregningsgrunnlagAnonym(beregningRequest)
+
+        val start = System.currentTimeMillis()
+        val beregningsresultat = utførBarnebidragBeregningAnonym(beregningsgrunnlag)
+        val duration = System.currentTimeMillis() - start
+
+        logger.info("Ferdig beregnet barnebidrag anonym. Beregning av ${beregningsresultat.size} barn tok $duration ms")
+        return ÅpenBeregningsresultatDto(beregningsresultat)
     }
 
     private suspend fun utførBarnebidragBeregning(grunnlag: List<PersonBeregningsgrunnlag>): List<BeregningsresultatBarnDto> =
+        // vurder supervisorScope i stedet for coroutineScope dersom en feil ikke skal kansellerer alle
         coroutineScope {
             grunnlag.map { data ->
-                async {
+                asyncCatching(logger, "utførBarnebidragBeregning") {
                     val beregnet = beregnBarnebidragApi.beregn(data.grunnlag)
-                    val sum = beregnet.beregnetBarnebidragPeriodeListe
-                        .sumOf { it.resultat.beløp ?: BigDecimal.ZERO }
-                        .avrundeTilNærmesteHundre()
+                    val sum = summerBeregnedeBeløp(beregnet.beregnetBarnebidragPeriodeListe)
 
-                    val barn = personService.hentPersoninformasjon(data.ident)
-
-                    BeregningsresultatBarnDto(
-                        sum = sum,
-                        ident = data.ident,
-                        fulltNavn = barn.visningsnavn,
-                        fornavn = barn.fornavn ?: barn.visningsnavn,
-                        bidragstype = data.bidragsType
-                    )
+                        val barn = personService.hentPersoninformasjon(data.ident)
+                        BeregningsresultatBarnDto(
+                            sum = sum,
+                            ident = data.ident,
+                            fulltNavn = barn.visningsnavn,
+                            fornavn = barn.fornavn ?: barn.visningsnavn,
+                            bidragstype = data.bidragsType,
+                            alder = data.alder
+                        )
                 }
             }.awaitAll()
     }
 
+    private suspend fun utførBarnebidragBeregningAnonym(grunnlag: List<PersonBeregningsgrunnlagAnonym>): List<ÅpenBeregningsresultatBarnDto> =
+        coroutineScope {
+            grunnlag.map { data ->
+                asyncCatching(logger, "utførBarnebidragBeregningAnonym") {
+                    val beregnet = beregnBarnebidragApi.beregn(data.grunnlag)
+                    val sum = summerBeregnedeBeløp(beregnet.beregnetBarnebidragPeriodeListe)
+
+                    ÅpenBeregningsresultatBarnDto(
+                        sum = sum,
+                        bidragstype = data.bidragsType,
+                        alder = data.alder
+                    )
+                }
+            }.awaitAll()
+        }
 
     fun beregnPersonUnderholdskostnad(personident: Personident, referanse: String): BigDecimal {
         logger.info("Beregn underholdskostnad for en person")
 
-        val underholdskostnadGrunnlag = beregningsgrunnlagMapper.mapTilUnderholdkostnadsgrunnlag(personident, referanse)
+        val underholdskostnadGrunnlag = beregningsgrunnlagMapper.mapTilUnderholdkostnadsgrunnlag(personident.fødselsdato(), referanse)
 
         return beregnBarnebidragApi.beregnUnderholdskostnad(underholdskostnadGrunnlag)
             .firstOrNull { it.type == Grunnlagstype.DELBEREGNING_UNDERHOLDSKOSTNAD }
@@ -104,5 +128,8 @@ class BeregningService(
 
         BarneRelasjonDto(relasjon.motpart.tilPersonInformasjonDto(), fellesBarnMedUnderholdskostnad)
     }
+
+    private fun summerBeregnedeBeløp(periodeListe: List<ResultatPeriode>): BigDecimal =
+        periodeListe.sumOf { it.resultat.beløp ?: BigDecimal.ZERO }.avrundeTilNærmesteHundre()
 
 }
