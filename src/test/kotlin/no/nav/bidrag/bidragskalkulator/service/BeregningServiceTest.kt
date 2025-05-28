@@ -8,9 +8,10 @@ import no.nav.bidrag.bidragskalkulator.mapper.BeregningsgrunnlagBuilder
 import no.nav.bidrag.bidragskalkulator.mapper.BeregningsgrunnlagMapper
 import no.nav.bidrag.bidragskalkulator.mapper.tilFamilieRelasjon
 import no.nav.bidrag.bidragskalkulator.service.BeregningService
+import no.nav.bidrag.bidragskalkulator.service.CachedUnderholdskostnadService
 import no.nav.bidrag.bidragskalkulator.service.PersonService
 import no.nav.bidrag.bidragskalkulator.utils.JsonUtils
-import no.nav.bidrag.bidragskalkulator.utils.kalkulereAlder
+import no.nav.bidrag.bidragskalkulator.utils.kalkulerAlder
 import no.nav.bidrag.domene.ident.Personident
 import no.nav.bidrag.domene.tid.ÅrMånedsperiode
 import no.nav.bidrag.transport.behandling.beregning.barnebidrag.BeregnetBarnebidragResultat
@@ -31,12 +32,13 @@ class BeregningServiceTest {
 
     private val beregnBarnebidragApi = mockk<BeregnBarnebidragApi>()
     private val personService = mockk<PersonService>()
+    private val cachedUnderholdskostnadServiceMock = mockk<CachedUnderholdskostnadService>()
 
     // bruk ekte
     private val mockBeregningsgrunnlagBuilder = BeregningsgrunnlagBuilder()
     private val beregningsgrunnlagMapper = BeregningsgrunnlagMapper(mockBeregningsgrunnlagBuilder)
 
-    private val beregningService = BeregningService(beregnBarnebidragApi, beregningsgrunnlagMapper, personService)
+    private val beregningService = BeregningService(beregnBarnebidragApi, cachedUnderholdskostnadServiceMock, beregningsgrunnlagMapper, personService)
 
     @Nested
     inner class BeregningBarnebidragForEttBarn {
@@ -109,22 +111,21 @@ class BeregningServiceTest {
         @Test
         fun `skal beregne underholdskostnad for en person`() {
             val beregnUnderholdskostnadRespons: List<GrunnlagDto> = JsonUtils.readJsonFile("/underholdskostnad/beregn_underholdskostnad_respons.json")
-            every { beregnBarnebidragApi.beregnUnderholdskostnad(any()) } returns beregnUnderholdskostnadRespons
+            every { cachedUnderholdskostnadServiceMock.beregnCachedPersonUnderholdskostnad(any()) } returns 8471.toBigDecimal()
 
             val personident = Personident("29891198289")
-            val referanse = "Person_Søknadsbarn_1"
             val forventetBeløp = BigDecimal(8471)
 
-            val resultat = beregningService.beregnPersonUnderholdskostnad(personident, referanse)
+            val resultat = beregningService.beregnPersonUnderholdskostnad(personident)
 
             assertEquals(forventetBeløp, resultat)
         }
 
         @Test
         fun `skal returnere 0 dersom ingen underholdskostnad finnes`() {
-            every { beregnBarnebidragApi.beregnUnderholdskostnad(any()) } returns emptyList()
+            every { cachedUnderholdskostnadServiceMock.beregnCachedPersonUnderholdskostnad(any()) } returns BigDecimal.ZERO
 
-            val result = beregningService.beregnPersonUnderholdskostnad(Personident("29891198289"), "Person_Søknadsbarn_1")
+            val result = beregningService.beregnPersonUnderholdskostnad(Personident("29891198289"))
 
             assertEquals(BigDecimal.ZERO, result, "Forventet underholdskostnad skal være 0 når ingen data finnes")
         }
@@ -140,9 +141,9 @@ class BeregningServiceTest {
             val barn2Ident = fellesBarn[1].ident
             val forventetUnderholdskostnad = BigDecimal(8471)
 
-            every { beregnBarnebidragApi.beregnUnderholdskostnad(any()) } returns underholdskostnadRespons
-            every { beregningService.beregnPersonUnderholdskostnad(barn1Ident, "Person_Søknadsbarn_1") } returns forventetUnderholdskostnad
-            every { beregningService.beregnPersonUnderholdskostnad(barn2Ident, "Person_Søknadsbarn_2") } returns forventetUnderholdskostnad
+            every { cachedUnderholdskostnadServiceMock.beregnCachedPersonUnderholdskostnad(any()) } returns BigDecimal.ZERO
+            every { beregningService.beregnPersonUnderholdskostnad(barn1Ident) } returns forventetUnderholdskostnad
+            every { beregningService.beregnPersonUnderholdskostnad(barn2Ident) } returns forventetUnderholdskostnad
 
             // Act
             val resultat = beregningService.beregnUnderholdskostnaderForBarnerelasjoner(motpartBarnRelasjon.personensMotpartBarnRelasjon.tilFamilieRelasjon())
@@ -155,7 +156,7 @@ class BeregningServiceTest {
 
             val forventetSortertAldre = fellesBarn
                 .mapNotNull { it.fødselsdato }
-                .map { kalkulereAlder(it) }
+                .map { kalkulerAlder(it) }
                 .sortedDescending()
 
             val faktiskeAldre = relasjon.fellesBarn.map { it.alder }

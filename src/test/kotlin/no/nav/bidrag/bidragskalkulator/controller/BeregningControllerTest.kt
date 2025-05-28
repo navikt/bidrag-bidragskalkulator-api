@@ -5,7 +5,6 @@ import io.mockk.every
 import kotlinx.coroutines.runBlocking
 import no.nav.bidrag.bidragskalkulator.dto.*
 import no.nav.bidrag.bidragskalkulator.service.BeregningService
-import no.nav.bidrag.bidragskalkulator.utils.kalkulereAlder
 import no.nav.bidrag.domene.enums.beregning.Samværsklasse
 import no.nav.bidrag.domene.ident.Personident
 import org.junit.jupiter.api.BeforeEach

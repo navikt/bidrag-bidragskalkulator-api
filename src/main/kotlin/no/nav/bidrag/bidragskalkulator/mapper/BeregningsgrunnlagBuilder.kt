@@ -5,7 +5,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import no.nav.bidrag.bidragskalkulator.dto.BidragsType
 import no.nav.bidrag.bidragskalkulator.mapper.BeregningsgrunnlagMapper.Referanser
-import no.nav.bidrag.bidragskalkulator.utils.kalkulereAlder
+import no.nav.bidrag.bidragskalkulator.utils.kalkulerAlder
 import no.nav.bidrag.domene.enums.beregning.Samværsklasse
 import no.nav.bidrag.domene.enums.grunnlag.Grunnlagstype
 import no.nav.bidrag.domene.enums.inntekt.Inntektsrapportering
@@ -122,7 +122,7 @@ class BeregningsgrunnlagBuilder(
         )
 
     fun byggFellesBeregnGrunnlag(barnReferanse: String, fødselsdato: LocalDate, grunnlagListe: List<GrunnlagDto>): BeregnGrunnlag {
-        val barnetsAlder = kalkulereAlder(fødselsdato)
+        val barnetsAlder = kalkulerAlder(fødselsdato)
 
         return BeregnGrunnlag(
             periode = ÅrMånedsperiode(YearMonth.now(), YearMonth.now().plusMonths(1)),

@@ -3,7 +3,7 @@ package no.nav.bidrag.bidragskalkulator.mapper
 import no.nav.bidrag.bidragskalkulator.dto.*
 import no.nav.bidrag.domene.enums.person.Diskresjonskode
 import no.nav.bidrag.transport.person.PersonDto
-import no.nav.bidrag.bidragskalkulator.utils.kalkulereAlder
+import no.nav.bidrag.bidragskalkulator.utils.kalkulerAlder
 import java.math.BigDecimal
 
 fun PersonDto.tilPersonInformasjonDto(): PersonInformasjonDto =
@@ -11,7 +11,7 @@ fun PersonDto.tilPersonInformasjonDto(): PersonInformasjonDto =
         ident = this.ident,
         fornavn = this.fornavn ?: "",
         fulltNavn = this.visningsnavn,
-        alder = this.fødselsdato?.let { kalkulereAlder(it) } ?: 0
+        alder = this.fødselsdato?.let { kalkulerAlder(it) } ?: 0
     )
 
 fun PersonDto.tilBarnInformasjonDto(underholdskostnad: BigDecimal?): BarnInformasjonDto =
@@ -20,7 +20,7 @@ fun PersonDto.tilBarnInformasjonDto(underholdskostnad: BigDecimal?): BarnInforma
         fornavn = this.fornavn ?: "",
         fulltNavn = this.visningsnavn,
         underholdskostnad = underholdskostnad ?: BigDecimal.ZERO,
-        alder = this.fødselsdato?.let { kalkulereAlder(it) } ?: 0
+        alder = this.fødselsdato?.let { kalkulerAlder(it) } ?: 0
     )
 
 fun PersonDto.erLevendeOgIkkeSkjermet(): Boolean =
