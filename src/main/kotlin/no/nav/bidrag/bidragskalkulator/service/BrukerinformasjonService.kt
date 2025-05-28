@@ -39,7 +39,7 @@ class BrukerinformasjonService(
         BrukerInformasjonDto(
             person = familierelasjonJobb.await().person.tilPersonInformasjonDto(),
             inntekt = inntektsGrunnlagJobb.await()?.toInntektResultatDto()?.inntektSiste12Mnd,
-            barnerelasjoner = barnMedUnderholdskostnadJobb.await()
+            barnerelasjoner = barnMedUnderholdskostnadJobb.await(),
         )
     }
 }

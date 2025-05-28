@@ -111,22 +111,21 @@ class BeregningServiceTest {
         @Test
         fun `skal beregne underholdskostnad for en person`() {
             val beregnUnderholdskostnadRespons: List<GrunnlagDto> = JsonUtils.readJsonFile("/underholdskostnad/beregn_underholdskostnad_respons.json")
-            every { cachedUnderholdskostnadServiceMock.beregnCachedPersonUnderholdskostnad(any()) } returns beregnUnderholdskostnadRespons
+            every { cachedUnderholdskostnadServiceMock.beregnCachedPersonUnderholdskostnad(any()) } returns 8471.toBigDecimal()
 
             val personident = Personident("29891198289")
-            val referanse = "Person_Søknadsbarn_1"
             val forventetBeløp = BigDecimal(8471)
 
-            val resultat = beregningService.beregnPersonUnderholdskostnad(personident, referanse)
+            val resultat = beregningService.beregnPersonUnderholdskostnad(personident)
 
             assertEquals(forventetBeløp, resultat)
         }
 
         @Test
         fun `skal returnere 0 dersom ingen underholdskostnad finnes`() {
-            every { cachedUnderholdskostnadServiceMock.beregnCachedPersonUnderholdskostnad(any()) } returns emptyList()
+            every { cachedUnderholdskostnadServiceMock.beregnCachedPersonUnderholdskostnad(any()) } returns BigDecimal.ZERO
 
-            val result = beregningService.beregnPersonUnderholdskostnad(Personident("29891198289"), "Person_Søknadsbarn_1")
+            val result = beregningService.beregnPersonUnderholdskostnad(Personident("29891198289"))
 
             assertEquals(BigDecimal.ZERO, result, "Forventet underholdskostnad skal være 0 når ingen data finnes")
         }
@@ -142,9 +141,9 @@ class BeregningServiceTest {
             val barn2Ident = fellesBarn[1].ident
             val forventetUnderholdskostnad = BigDecimal(8471)
 
-            every { cachedUnderholdskostnadServiceMock.beregnCachedPersonUnderholdskostnad(any()) } returns underholdskostnadRespons
-            every { beregningService.beregnPersonUnderholdskostnad(barn1Ident, "Person_Søknadsbarn_1") } returns forventetUnderholdskostnad
-            every { beregningService.beregnPersonUnderholdskostnad(barn2Ident, "Person_Søknadsbarn_2") } returns forventetUnderholdskostnad
+            every { cachedUnderholdskostnadServiceMock.beregnCachedPersonUnderholdskostnad(any()) } returns BigDecimal.ZERO
+            every { beregningService.beregnPersonUnderholdskostnad(barn1Ident) } returns forventetUnderholdskostnad
+            every { beregningService.beregnPersonUnderholdskostnad(barn2Ident) } returns forventetUnderholdskostnad
 
             // Act
             val resultat = beregningService.beregnUnderholdskostnaderForBarnerelasjoner(motpartBarnRelasjon.personensMotpartBarnRelasjon.tilFamilieRelasjon())
