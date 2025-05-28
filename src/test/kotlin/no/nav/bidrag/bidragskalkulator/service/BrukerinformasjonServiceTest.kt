@@ -20,6 +20,7 @@ class BrukerinformasjonServiceTest {
     private lateinit var brukerinformasjonService: BrukerinformasjonService
     private val mockPersonService = mockk<PersonService>()
     private val mockGrunnlagService = mockk<GrunnlagService>()
+    private val underholdskostnadServiceMock = mockk<UnderholdskostnadService>()
 
     private val identUtenBarn = "05499323087"
     private val identMedEttBarn = "03848797048"
@@ -38,7 +39,7 @@ class BrukerinformasjonServiceTest {
 
     @BeforeEach
     fun setUp()  {
-        brukerinformasjonService = BrukerinformasjonService(mockPersonService, mockGrunnlagService)
+        brukerinformasjonService = BrukerinformasjonService(mockPersonService, mockGrunnlagService, underholdskostnadServiceMock)
     }
 
     @AfterEach
@@ -59,9 +60,40 @@ class BrukerinformasjonServiceTest {
     }
 
     @Test
+    @Disabled
+    fun `skal returnere tom barn-relasjonsliste når person ikke har barn`() = runTest {
+        val motpartsrelasjoner = responsUtenBarn.personensMotpartBarnRelasjon.tilFamilieRelasjon()
+
+        every { mockPersonService.hentGyldigFamilierelasjon(identUtenBarn) } returns ForelderBarnRelasjon( responsUtenBarn.person, motpartsrelasjoner )
+        every { mockGrunnlagService.hentInntektsGrunnlag(identUtenBarn) } returns responsInntektsGrunnlag
+        every { underholdskostnadServiceMock.genererUnderholdskostnadstabell() } returns emptyMap()
+
+        val resultat = brukerinformasjonService.hentBrukerinformasjon(identUtenBarn)
+
+        val relasjoner = resultat.barnerelasjoner
+        assertEquals(0, relasjoner.size)
+    }
+
+    @Test
+    @Disabled
+    fun `skal returnere flere barn-relasjoner når person har barn med flere motparter`() = runTest {
+        val motpartsrelasjoner = responsUtenBarn.personensMotpartBarnRelasjon.tilFamilieRelasjon()
+
+        every { mockPersonService.hentGyldigFamilierelasjon(identMedFlereBarn) } returns ForelderBarnRelasjon( responsMedFlereBarn.person, motpartsrelasjoner)
+        every { mockGrunnlagService.hentInntektsGrunnlag(identMedFlereBarn) } returns responsInntektsGrunnlag
+        every { underholdskostnadServiceMock.genererUnderholdskostnadstabell() } returns emptyMap()
+
+        val resultat = brukerinformasjonService.hentBrukerinformasjon(identMedFlereBarn)
+        val relasjoner = resultat.barnerelasjoner
+
+        assertTrue(relasjoner.size > 1)
+    }
+
+    @Test
     fun `skal returnere og mappe gyldig inntekt for person`() = runTest {
         every { mockGrunnlagService.hentInntektsGrunnlag(identMedFlereBarn) } returns responsInntektsGrunnlag
         every { mockPersonService.hentPersoninformasjon(Personident(identMedFlereBarn)) } returns responsMedFlereBarn.person
+        every { underholdskostnadServiceMock.genererUnderholdskostnadstabell() } returns emptyMap()
 
         val resultat = brukerinformasjonService.hentBrukerinformasjon(identMedFlereBarn)
         val inntekt12mnd = resultat.inntekt
@@ -116,5 +148,4 @@ class BrukerinformasjonServiceTest {
             assertTrue(relasjoner.size > 1)
         }
     }
-
 }

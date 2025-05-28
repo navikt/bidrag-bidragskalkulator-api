@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service
 class BrukerinformasjonService(
     private val personService: PersonService,
     private val grunnlagService: GrunnlagService,
+    private val underholdskostnadService: UnderholdskostnadService
 ) {
     private val logger = LoggerFactory.getLogger(BrukerinformasjonService::class.java)
 
@@ -34,7 +35,8 @@ class BrukerinformasjonService(
         BrukerInformasjonDto(
             person = personinformasjonJobb.await().tilPersonInformasjonDto(),
             inntekt = inntektsGrunnlagJobb.await()?.toInntektResultatDto()?.inntektSiste12Mnd,
-            barnerelasjoner = emptyList()
+            barnerelasjoner = emptyList(),
+            underholdskostnader = underholdskostnadService.genererUnderholdskostnadstabell()
         )
     }
 }

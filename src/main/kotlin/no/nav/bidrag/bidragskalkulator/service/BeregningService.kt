@@ -25,7 +25,7 @@ import java.math.BigDecimal
 @Service
 class BeregningService(
     private val beregnBarnebidragApi: BeregnBarnebidragApi,
-    private val cachedUnderholdskostnadService: CachedUnderholdskostnadService,
+    private val underholdskostnadService: UnderholdskostnadService,
     private val beregningsgrunnlagMapper: BeregningsgrunnlagMapper,
     private val personService: PersonService
 ) {
@@ -95,7 +95,7 @@ class BeregningService(
 
     fun beregnPersonUnderholdskostnad(personident: Personident): BigDecimal {
         val alder = kalkulerAlder(personident.fødselsdato())
-        return cachedUnderholdskostnadService.beregnCachedPersonUnderholdskostnad(alder)
+        return underholdskostnadService.beregnCachedPersonUnderholdskostnad(alder)
     }
 
     /**
