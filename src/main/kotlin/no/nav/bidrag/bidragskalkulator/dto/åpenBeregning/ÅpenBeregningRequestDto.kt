@@ -7,14 +7,12 @@ import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
-import no.nav.bidrag.bidragskalkulator.dto.BidragsType
-import no.nav.bidrag.bidragskalkulator.dto.IBarnDto
-import no.nav.bidrag.bidragskalkulator.dto.IBeregningRequestDto
+import no.nav.bidrag.bidragskalkulator.dto.*
 import no.nav.bidrag.domene.enums.beregning.Samværsklasse
 import java.time.LocalDate
 
 @Schema(description = "Informasjon om et barn i beregningen")
-data class BarnForÅpenBeregningDto(
+data class BarnMedAlderDto(
     @field:NotNull(message = "Alder må være satt")
     @field:Min(value = 0, message = "Alder kan ikke være negativ")
     @field:Max(value = 25, message = "Alder kan ikke være høyere enn 25")
@@ -28,7 +26,7 @@ data class BarnForÅpenBeregningDto(
     @field:NotNull(message = "Bidragstype må være satt")
     @Schema(description = "Angir om den påloggede personen er pliktig eller mottaker for dette barnet", required = true)
     override val bidragstype: BidragsType
-): IBarnDto {
+): IFellesBarnDto {
     @JsonIgnore
     @Schema(hidden = true) // Hides from Swagger
     //Når barnet har alder = 15, blir fødselsmåneden alltid satt til juli, uavhengig av den faktiske fødselsdatoen (usikkert hvor denne regelen stammer fra).
@@ -37,7 +35,8 @@ data class BarnForÅpenBeregningDto(
     fun getEstimertFødselsdato(): LocalDate = LocalDate.now().minusYears(alder.toLong())
 }
 
-data class ÅpenBeregningRequestDto (
+@Schema(description = "Modellen brukes til å beregne barnebidrag basert på barnets alder")
+data class ÅpenBeregningRequestDto(
     @field:NotNull(message = "Inntekt for forelder 1 må være satt")
     @field:Min(value = 0, message = "Inntekt for forelder 1 kan ikke være negativ")
     @Schema(description = "Inntekt for forelder 1 i norske kroner", required = true, example = "500000.0")
@@ -51,5 +50,13 @@ data class ÅpenBeregningRequestDto (
     @field:NotEmpty(message = "Liste over barn kan ikke være tom")
     @field:Valid
     @Schema(description = "Liste over barn som inngår i beregningen", required = true)
-    override val barn: List<BarnForÅpenBeregningDto>,
-): IBeregningRequestDto<BarnForÅpenBeregningDto>
+    override val barn: List<BarnMedAlderDto>,
+
+    @Schema(description = "Boforhold for den påloggede personen. Må være satt hvis bidragstype for minst ett barn er PLIKTIG", required = false)
+    override val dittBoforhold: BoforholdDto? = null,
+
+    @Schema(description = "Boforhold for den andre forelderen. Må være satt hvis bidragstype for minst ett barn er MOTTAKER", required = false)
+    override val medforelderBoforhold: BoforholdDto? = null,
+) : FellesBeregningRequestDto<BarnMedAlderDto>(
+    inntektForelder1, inntektForelder2, barn, dittBoforhold, medforelderBoforhold
+)

@@ -1,12 +1,13 @@
 package no.nav.bidrag.bidragskalkulator.validering
 
-import no.nav.bidrag.bidragskalkulator.dto.BeregningRequestDto
 import no.nav.bidrag.bidragskalkulator.dto.BidragsType.*
+import no.nav.bidrag.bidragskalkulator.dto.FellesBeregningRequestDto
+import no.nav.bidrag.bidragskalkulator.dto.IFellesBarnDto
 import no.nav.bidrag.bidragskalkulator.exception.UgyldigBeregningRequestException
 
 object BeregningRequestValidator {
 
-    fun valider(dto: BeregningRequestDto) {
+    fun <T : IFellesBarnDto, R : FellesBeregningRequestDto<T>> valider(dto: R) {
         val harPliktigeBarn = dto.barn.any { it.bidragstype == PLIKTIG }
         val harMottakerBarn = dto.barn.any { it.bidragstype == MOTTAKER }
 
