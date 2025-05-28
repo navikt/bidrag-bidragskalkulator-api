@@ -12,9 +12,9 @@ spring:
   main:
     banner-mode: off
   cache:
-    cache-names: underholdskostnad
+    cache-names: underholdskostnad,personinformasjon
     caffeine:
-      spec: maximumSize=500,expireAfterWrite=24h
+      spec: maximumSize=500,expireAfterWrite=1h
 
 spring.config.activate.on-profile: local
 BIDRAG_SJABLON_URL: https://bidrag-sjablon.dev-fss-pub.nais.io/bidrag-sjablon
