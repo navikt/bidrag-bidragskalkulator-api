@@ -22,8 +22,6 @@ spec:
     sidecar:
       enabled: true
       autoLogin: true
-    idporten:
-      enabled: true
 
   tokenx:
     enabled: true
