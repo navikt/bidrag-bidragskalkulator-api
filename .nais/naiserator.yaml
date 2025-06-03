@@ -19,6 +19,12 @@ spec:
   azure:
     application:
       enabled: true
+    sidecar:
+      enabled: true
+    idporten:
+      enabled: true
+      sidecar:
+        enabled: true
 
   tokenx:
     enabled: true
