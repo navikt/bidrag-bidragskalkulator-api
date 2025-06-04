@@ -5,12 +5,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.slf4j.MDCContext
-import no.nav.bidrag.bidragskalkulator.config.SecurityConstants
 import no.nav.bidrag.bidragskalkulator.service.PrivatAvtalePdfService
-import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.api.Unprotected
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity

@@ -13,7 +13,7 @@ import java.io.IOException
 
 class BidragDokumentProduksjonConsumer(
     val properties: DokumentproduksjonConfigurationProperties,
-    val restTemplate: RestTemplate
+    restTemplate: RestTemplate
 ) : AbstractRestClient(restTemplate, "bidrag.dokumentproduksjon") {
 
     val produserPdfuri by lazy {
