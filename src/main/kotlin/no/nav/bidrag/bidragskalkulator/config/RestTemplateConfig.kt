@@ -1,0 +1,14 @@
+package no.nav.bidrag.bidragskalkulator.config
+
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
+import org.springframework.web.client.RestTemplate
+
+@Configuration
+class RestTemplateConfig {
+
+    @Bean("basic")
+    fun basicRestTemplate(): RestTemplate {
+        return RestTemplate()
+    }
+}
