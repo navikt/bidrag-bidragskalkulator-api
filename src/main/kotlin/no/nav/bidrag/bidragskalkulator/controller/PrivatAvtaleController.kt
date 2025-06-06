@@ -3,15 +3,18 @@ package no.nav.bidrag.bidragskalkulator.controller
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
+import jakarta.validation.Valid
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.slf4j.MDCContext
+import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtalePdfDto
 import no.nav.bidrag.bidragskalkulator.service.PrivatAvtalePdfService
 import no.nav.security.token.support.core.api.Unprotected
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
@@ -33,10 +36,10 @@ class PrivatAvtaleController(private val privatAvtaleService: PrivatAvtalePdfSer
             ApiResponse(responseCode = "500", description = "Intern serverfeil")
         ]
     )
-    fun genererPrivatAvtale(): ResponseEntity<ByteArray>? {
+    fun genererPrivatAvtale(@Valid @RequestBody privatAvtalePdfDto: PrivatAvtalePdfDto): ResponseEntity<ByteArray>? {
 
         return runBlocking(Dispatchers.IO + MDCContext()) {
-            val genererPrivatAvtalePdf = async { privatAvtaleService.genererPrivatAvtalePdf() }
+            val genererPrivatAvtalePdf = async { privatAvtaleService.genererPrivatAvtalePdf(privatAvtalePdfDto) }
             ResponseEntity
                 .ok()
                 .contentType(MediaType.APPLICATION_PDF)

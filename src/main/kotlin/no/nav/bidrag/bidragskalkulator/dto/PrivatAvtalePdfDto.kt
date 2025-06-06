@@ -1,41 +1,81 @@
 package no.nav.bidrag.bidragskalkulator.dto
 
-interface BidragPerson {
+import io.swagger.v3.oas.annotations.media.Schema
+import jakarta.validation.constraints.Min
+import jakarta.validation.constraints.NotEmpty
+
+interface PrivatAvtalePerson {
     val fornavn: String
     val etternavn: String
     val fodselsnummer: String
 }
 
-data class Bidragsmottaker(
+data class PrivatAvtaleBidragsmottaker(
+    @field:NotEmpty(message = "Fornavn må være satt")
+    @Schema(description = "Bidragsmottakers fornavn", required = true)
     override val fornavn: String,
-    override val etternavn: String,
-    override val fodselsnummer: String
-) : BidragPerson
 
-data class Bidragspliktig(
-    override val fornavn: String,
+    @field:NotEmpty(message = "Etternavn må være satt")
+    @Schema(description = "Bidragsmottakers etternavn", required = true)
     override val etternavn: String,
-    override val fodselsnummer: String
-) : BidragPerson
 
-data class Barn(
-    override val fornavn: String,
-    override val etternavn: String,
+    @field:NotEmpty(message = "Ident/fødselsnummer må være satt")
+    @Schema(description = "Bidragsmottakers fødselsnummer", required = true)
     override val fodselsnummer: String,
-    val sumBidrag: Double  // Beløp in NOK
-) : BidragPerson
+) : PrivatAvtalePerson
 
-// You might want to create an enum for Oppgjorsform
+data class PrivatAvtaleBidragspliktig(
+    @field:NotEmpty(message = "Fornavn må være satt")
+    @Schema(description = "Bidragspliktiges fornavn", required = true)
+    override val fornavn: String,
+
+    @field:NotEmpty(message = "Etternavn må være satt")
+    @Schema(description = "Bidragspliktiges etternavn", required = true)
+    override val etternavn: String,
+
+    @field:NotEmpty(message = "Ident/fødselsnummer må være satt")
+    @Schema(description = "Bidragspliktiges fødselsnummer", required = true)
+    override val fodselsnummer: String,
+) : PrivatAvtalePerson
+
+@Schema(description = "Informasjon om barnet i en privat avtale")
+data class PrivatAvtaleBarn(
+    @field:NotEmpty(message = "Fornavn må være satt")
+    @Schema(description = "Barnets fornavn", required = true)
+    override val fornavn: String,
+
+    @field:NotEmpty(message = "Etternavn må være satt")
+    @Schema(description = "Barnets etternavn", required = true)
+    override val etternavn: String,
+
+    @field:NotEmpty(message = "Ident/fødselsnummer må være satt")
+    @Schema(description = "Barnets fødselsnummer", required = true)
+    override val fodselsnummer: String,
+
+    @field:Min(value = 1, message = "Bidraget må være større enn 0")
+    @Schema(description = "Barnets fødselsnummer", required = true)
+    val sumBidrag: Double  // Beløp in NOK
+) : PrivatAvtalePerson
+
+// TODO: Definer oppgjørsformer som en enum (?)
 enum class Oppgjorsform {
     // Add your enum values here
 }
 
+@Schema(description = "Informasjon for generering av en privat avtale PDF")
 data class PrivatAvtalePdfDto(
+    @Schema(description = "", required = true)
     val innhold: String,
-    val bidragsmottaker: Bidragsmottaker,
-    val bidragspliktig: Bidragspliktig,
-    val barn: Barn,
-    val fraDato: String,  // Consider using LocalDate instead of String
+    @Schema(description = "Informasjon om bidragsmottaker", required = true)
+    val bidragsmottaker: PrivatAvtaleBidragsmottaker,
+    @Schema(description = "Informasjon om bidragspliktig", required = true)
+    val bidragspliktig: PrivatAvtaleBidragspliktig,
+    @Schema(description = "Informasjon om barnet", required = true)
+    val barn: PrivatAvtaleBarn,
+    @Schema(description = "Gjeldende dato for avtalen")
+    val fraDato: String,
+    @Schema(description = "Er dette en ny avtale?", required = true)
     val nyAvtale: Boolean,
+    @Schema(description = "Oppgjørsform for betaling av bidraget", required = true)
     val oppgjorsform: String  // Consider using the Oppgjorsform enum instead of String
 )
