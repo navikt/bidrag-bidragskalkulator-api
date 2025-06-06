@@ -84,6 +84,7 @@ class BeregningsgrunnlagMapper(
             add(byggGrunnlag(barnReferanse, Grunnlagstype.PERSON_SØKNADSBARN, fødselsdato))
             addAll(beregningsgrunnlagBuilder.byggInntektsgrunnlag(kontekst))
             addAll(beregningsgrunnlagBuilder.byggBostatusgrunnlag(kontekst))
+            add(beregningsgrunnlagBuilder.byggMottattFaktiskUtgift(fødselsdato, barnReferanse))
             add(beregningsgrunnlagBuilder.byggSamværsgrunnlag(søknadsbarn.samværsklasse, barnReferanse))
         }
     }
@@ -93,6 +94,7 @@ class BeregningsgrunnlagMapper(
             add(byggGrunnlag(BIDRAGSMOTTAKER, Grunnlagstype.PERSON_BIDRAGSMOTTAKER))
             add(byggGrunnlag(BIDRAGSPLIKTIG, Grunnlagstype.PERSON_BIDRAGSPLIKTIG))
             add(byggGrunnlag(barnReferanse, Grunnlagstype.PERSON_SØKNADSBARN, fødselsdato))
+//            add(beregningsgrunnlagBuilder.byggMottattFaktiskUtgift(barnReferanse))
         }
 
         return beregningsgrunnlagBuilder.byggFellesBeregnGrunnlag(barnReferanse, fødselsdato, grunnlagListe)
