@@ -8,10 +8,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.slf4j.MDCContext
 import no.nav.bidrag.bidragskalkulator.config.SecurityConstants
-import no.nav.bidrag.commons.security.utils.TokenUtils
 import no.nav.bidrag.commons.util.secureLogger
 import no.nav.bidrag.bidragskalkulator.dto.BrukerInformasjonDto
 import no.nav.bidrag.bidragskalkulator.service.BrukerinformasjonService
+import no.nav.bidrag.bidragskalkulator.utils.InnloggetBrukerUtils
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -21,8 +21,10 @@ import org.slf4j.LoggerFactory
 @RestController
 @RequestMapping("/api/v1/person")
 @ProtectedWithClaims(issuer = SecurityConstants.TOKENX)
-class PersonController(private val brukerinformasjonService: BrukerinformasjonService) {
-
+class PersonController(
+    private val brukerinformasjonService: BrukerinformasjonService,
+    private val innloggetBrukerUtils: InnloggetBrukerUtils
+) {
     private val logger = LoggerFactory.getLogger(PersonController::class.java)
 
     @Operation(
@@ -42,7 +44,7 @@ class PersonController(private val brukerinformasjonService: BrukerinformasjonSe
     fun hentInformasjon(): BrukerInformasjonDto  {
         logger.info("Henter informasjon om pålogget person og personens barn")
 
-        val personIdent: String = requireNotNull(TokenUtils.hentBruker()) {
+        val personIdent: String = requireNotNull(innloggetBrukerUtils.hentPåloggetPersonIdent()) {
             "Brukerident er ikke tilgjengelig i token"
         }
 
