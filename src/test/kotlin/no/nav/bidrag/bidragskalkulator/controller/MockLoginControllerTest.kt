@@ -5,6 +5,7 @@ import io.mockk.mockk
 import no.nav.bidrag.bidragskalkulator.dto.MockLoginResponseDto
 import no.nav.bidrag.bidragskalkulator.service.MockLoginService
 import no.nav.bidrag.domene.ident.Ident
+import no.nav.bidrag.domene.ident.Personident
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -24,7 +25,7 @@ class MockLoginControllerTest {
     @Test
     fun `mockLogin should return token from service`() {
         // Given
-        val ident = Ident("18489011049")
+        val ident = Personident("18489011049")
         val expectedToken = "mock-token-value"
         val expectedResponse = MockLoginResponseDto(expectedToken)
 
@@ -42,7 +43,7 @@ class MockLoginControllerTest {
     @Test
     fun `mockLogin should use default ident if not provided`() {
         // Given
-        val defaultIdent = Ident("12345678901")
+        val defaultIdent = Personident("12345678901")
         val expectedToken = "default-mock-token"
         val expectedResponse = MockLoginResponseDto(expectedToken)
 

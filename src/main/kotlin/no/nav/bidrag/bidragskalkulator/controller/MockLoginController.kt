@@ -8,6 +8,7 @@ import no.nav.bidrag.bidragskalkulator.config.SecurityConstants
 import no.nav.bidrag.bidragskalkulator.dto.MockLoginResponseDto
 import no.nav.bidrag.bidragskalkulator.service.MockLoginService
 import no.nav.bidrag.domene.ident.Ident
+import no.nav.bidrag.domene.ident.Personident
 import no.nav.security.token.support.core.api.Unprotected
 import org.springframework.context.annotation.Profile
 import org.springframework.web.bind.annotation.GetMapping
@@ -33,7 +34,7 @@ class MockLoginController(
             ApiResponse(responseCode = "500", description = "Intern serverfeil")
         ]
     )
-    fun mockLogin(@RequestParam(required = true) ident: Ident): MockLoginResponseDto {
+    fun mockLogin(@RequestParam(required = true) ident: Personident): MockLoginResponseDto {
         return mockLoginService.genererMockTokenXToken(ident)
     }
 }

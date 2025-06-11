@@ -2,6 +2,7 @@ package no.nav.bidrag.bidragskalkulator.service
 
 import no.nav.bidrag.bidragskalkulator.dto.MockLoginResponseDto
 import no.nav.bidrag.domene.ident.Ident
+import no.nav.bidrag.domene.ident.Personident
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Profile
@@ -18,7 +19,7 @@ class MockLoginService(
     @Qualifier("basic") private val restTemplate: RestTemplate
 ) {
     private val logger = LoggerFactory.getLogger(MockLoginService::class.java)
-    fun genererMockTokenXToken(ident: Ident): MockLoginResponseDto {
+    fun genererMockTokenXToken(ident: Personident): MockLoginResponseDto {
         logger.info("Genererer mock TokenX token for ident: {}", ident)
         val url = "https://tokenx-token-generator.intern.dev.nav.no/api/public/obo"
 
@@ -27,9 +28,7 @@ class MockLoginService(
 
         val requestBody = LinkedMultiValueMap<String, String>()
         requestBody.add("aud", "dev-gcp:bidrag:bidrag-bidragskalkulator-api")
-        // Extract the actual identifier value from the Ident object
-        val identValue = ident.toString().replace(Regex("[^0-9]"), "")
-        requestBody.add("pid", identValue)
+        requestBody.add("pid", ident.verdi)
 
         val requestEntity = HttpEntity(requestBody, headers)
 

@@ -6,6 +6,7 @@ import io.mockk.slot
 import io.mockk.verify
 import no.nav.bidrag.bidragskalkulator.dto.MockLoginResponseDto
 import no.nav.bidrag.domene.ident.Ident
+import no.nav.bidrag.domene.ident.Personident
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -29,7 +30,7 @@ class MockLoginServiceTest {
     @Test
     fun `genererMockTokenXToken should make POST request and return token`() {
         // Given
-        val ident = Ident("18489011049")
+        val ident = Personident("18489011049")
         val expectedToken = "mock-token-value"
         val requestEntitySlot = slot<HttpEntity<*>>()
 
@@ -59,7 +60,7 @@ class MockLoginServiceTest {
     @Test
     fun `genererMockTokenXToken should handle null response`() {
         // Given
-        val ident = Ident("18489011049")
+        val ident = Personident("18489011049")
 
         every { 
             mockRestTemplate.postForObject(
