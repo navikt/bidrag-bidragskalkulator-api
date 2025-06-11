@@ -19,7 +19,7 @@ class MockLoginService(
 ) {
     private val logger = LoggerFactory.getLogger(MockLoginService::class.java)
     fun genererMockTokenXToken(ident: Ident): MockLoginResponseDto {
-        logger.info("Generating mock TokenX token for ident: {}", ident)
+        logger.info("Genererer mock TokenX token for ident: {}", ident)
         val url = "https://tokenx-token-generator.intern.dev.nav.no/api/public/obo"
 
         val headers = HttpHeaders()
@@ -38,10 +38,10 @@ class MockLoginService(
             val response = restTemplate.postForObject(url, requestEntity, String::class.java)
             val duration = System.currentTimeMillis() - start
 
-            logger.info("Successfully generated mock TokenX token in {} ms", duration)
+            logger.info("Genererte mock TokenX token på {} ms", duration)
             return MockLoginResponseDto(token = response ?: "")
         } catch (e: Exception) {
-            logger.error("Failed to generate mock TokenX token: {}", e.message, e)
+            logger.error("Feilet under mock TokenX token generering: {}", e.message, e)
             throw e
         }
     }
