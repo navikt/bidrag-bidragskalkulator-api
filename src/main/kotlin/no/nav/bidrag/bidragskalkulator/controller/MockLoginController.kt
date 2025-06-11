@@ -33,7 +33,7 @@ class MockLoginController(
             ApiResponse(responseCode = "500", description = "Intern serverfeil")
         ]
     )
-    fun mockLogin(@RequestParam(required = false, defaultValue = "12345678901") ident: Ident): MockLoginResponseDto {
+    fun mockLogin(@RequestParam(required = true) ident: Ident): MockLoginResponseDto {
         return mockLoginService.genererMockTokenXToken(ident)
     }
 }
