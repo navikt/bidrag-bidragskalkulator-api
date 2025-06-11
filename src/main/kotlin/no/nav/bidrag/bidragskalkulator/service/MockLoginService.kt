@@ -38,8 +38,13 @@ class MockLoginService(
             val response = restTemplate.postForObject(url, requestEntity, String::class.java)
             val duration = System.currentTimeMillis() - start
 
+            if (response.isNullOrEmpty()) {
+                logger.error("Mottok tomt svar fra TokenX token generator")
+                throw IllegalStateException("Mottok tomt svar fra TokenX token generator")
+            }
+
             logger.info("Genererte mock TokenX token på {} ms", duration)
-            return MockLoginResponseDto(token = response ?: "")
+            return MockLoginResponseDto(token = response)
         } catch (e: Exception) {
             logger.error("Feilet under mock TokenX token generering: {}", e.message, e)
             throw e
