@@ -137,7 +137,7 @@ class BeregningsgrunnlagBuilder(
         )
     }
 
-    fun byggMottattFaktiskUtgift(barnFødselsdato: LocalDate, barnReferanse: String): GrunnlagDto = GrunnlagDto(
+    fun byggMottattFaktiskUtgift(barnFødselsdato: LocalDate, barnReferanse: String, barnetilsynsutgift: Double?): GrunnlagDto = GrunnlagDto(
         referanse = "Mottatt_FaktiskUtgift",
         type = Grunnlagstype.FAKTISK_UTGIFT_PERIODE,
         innhold = objectMapper.valueToTree(
@@ -145,7 +145,7 @@ class BeregningsgrunnlagBuilder(
                 periode =
                 ÅrMånedsperiode(YearMonth.now(), null),
                 fødselsdatoBarn = barnFødselsdato,
-                faktiskUtgiftBeløp = BigDecimal("2000"),
+                faktiskUtgiftBeløp = barnetilsynsutgift?.toBigDecimal() ?: BigDecimal.ZERO,
                 kostpengerBeløp = BigDecimal.ZERO,
                 manueltRegistrert = true,
             )

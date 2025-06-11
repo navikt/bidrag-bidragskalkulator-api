@@ -27,9 +27,7 @@ class BeregningsgrunnlagMapper(
                 søknadsbarn,
                 søknadsbarn.ident.fødselsdato(),
                 dto,
-                barnReferanse,
-                dto.dittBoforhold,
-                dto.medforelderBoforhold
+                barnReferanse
                 )
 
             PersonBeregningsgrunnlag(
@@ -47,9 +45,7 @@ class BeregningsgrunnlagMapper(
             val barnReferanse = "Person_Søknadsbarn_$index"
             val grunnlagListe = lagGrunnlagsliste(søknadsbarn,
                 søknadsbarn.getEstimertFødselsdato(),
-                dto, barnReferanse,
-                dto.dittBoforhold,
-                dto.medforelderBoforhold
+                dto, barnReferanse
             )
 
             PersonBeregningsgrunnlagAnonym(
@@ -65,15 +61,13 @@ class BeregningsgrunnlagMapper(
         søknadsbarn: T,
         fødselsdato: LocalDate,
         dto: R,
-        barnReferanse: String,
-        dittBoforhold: BoforholdDto? = null,
-        medforelderBoforhold: BoforholdDto? = null
+        barnReferanse: String
     ): List<GrunnlagDto> {
         val kontekst = BeregningKontekst(
             barnReferanse = barnReferanse,
             bidragstype = søknadsbarn.bidragstype,
-            dittBoforhold = dittBoforhold,
-            medforelderBoforhold = medforelderBoforhold,
+            dittBoforhold = dto.dittBoforhold,
+            medforelderBoforhold = dto.medforelderBoforhold,
             inntektForelder1 = dto.inntektForelder1,
             inntektForelder2 = dto.inntektForelder2
         )
@@ -84,7 +78,7 @@ class BeregningsgrunnlagMapper(
             add(byggGrunnlag(barnReferanse, Grunnlagstype.PERSON_SØKNADSBARN, fødselsdato))
             addAll(beregningsgrunnlagBuilder.byggInntektsgrunnlag(kontekst))
             addAll(beregningsgrunnlagBuilder.byggBostatusgrunnlag(kontekst))
-            add(beregningsgrunnlagBuilder.byggMottattFaktiskUtgift(fødselsdato, barnReferanse))
+            add(beregningsgrunnlagBuilder.byggMottattFaktiskUtgift(fødselsdato, barnReferanse, dto.barnetilsynsutgift))
             add(beregningsgrunnlagBuilder.byggSamværsgrunnlag(søknadsbarn.samværsklasse, barnReferanse))
         }
     }
@@ -94,7 +88,6 @@ class BeregningsgrunnlagMapper(
             add(byggGrunnlag(BIDRAGSMOTTAKER, Grunnlagstype.PERSON_BIDRAGSMOTTAKER))
             add(byggGrunnlag(BIDRAGSPLIKTIG, Grunnlagstype.PERSON_BIDRAGSPLIKTIG))
             add(byggGrunnlag(barnReferanse, Grunnlagstype.PERSON_SØKNADSBARN, fødselsdato))
-//            add(beregningsgrunnlagBuilder.byggMottattFaktiskUtgift(barnReferanse))
         }
 
         return beregningsgrunnlagBuilder.byggFellesBeregnGrunnlag(barnReferanse, fødselsdato, grunnlagListe)

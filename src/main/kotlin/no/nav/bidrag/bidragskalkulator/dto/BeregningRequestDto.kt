@@ -79,5 +79,6 @@ abstract class FellesBeregningRequestDto<T : IFellesBarnDto>(
     open val inntektForelder2: Double,
     open val barn: List<T>,
     open val dittBoforhold: BoforholdDto? = null,
-    open val medforelderBoforhold: BoforholdDto? = null
+    open val medforelderBoforhold: BoforholdDto? = null,
+    open val barnetilsynsutgift: Double? = null
 )
