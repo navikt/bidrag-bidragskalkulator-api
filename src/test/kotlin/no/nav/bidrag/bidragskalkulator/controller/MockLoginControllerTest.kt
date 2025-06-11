@@ -4,13 +4,10 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.bidrag.bidragskalkulator.dto.MockLoginResponseDto
 import no.nav.bidrag.bidragskalkulator.service.MockLoginService
-import no.nav.bidrag.domene.ident.Ident
 import no.nav.bidrag.domene.ident.Personident
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 
 class MockLoginControllerTest {
 
@@ -23,38 +20,18 @@ class MockLoginControllerTest {
     }
 
     @Test
-    fun `mockLogin should return token from service`() {
+    fun `mockLogin burde returnere tokenet fra servicen`() {
         // Given
         val ident = Personident("18489011049")
-        val expectedToken = "mock-token-value"
-        val expectedResponse = MockLoginResponseDto(expectedToken)
+        val forventetToken = "mock-token-verdi"
+        val forventetRespons = MockLoginResponseDto(forventetToken)
 
         every { 
             mockLoginService.genererMockTokenXToken(ident)
-        } returns expectedResponse
+        } returns forventetRespons
 
-        // When
         val result = mockLoginController.mockLogin(ident)
 
-        // Then
-        assertEquals(expectedResponse, result)
-    }
-
-    @Test
-    fun `mockLogin should use default ident if not provided`() {
-        // Given
-        val defaultIdent = Personident("12345678901")
-        val expectedToken = "default-mock-token"
-        val expectedResponse = MockLoginResponseDto(expectedToken)
-
-        every { 
-            mockLoginService.genererMockTokenXToken(defaultIdent)
-        } returns expectedResponse
-
-        // When
-        val result = mockLoginController.mockLogin(defaultIdent)
-
-        // Then
-        assertEquals(expectedResponse, result)
+        assertEquals(forventetRespons, result)
     }
 }

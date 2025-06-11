@@ -3,18 +3,13 @@ package no.nav.bidrag.bidragskalkulator.service
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
-import io.mockk.verify
 import no.nav.bidrag.bidragskalkulator.dto.MockLoginResponseDto
-import no.nav.bidrag.domene.ident.Ident
 import no.nav.bidrag.domene.ident.Personident
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.springframework.http.HttpEntity
-import org.springframework.http.HttpMethod
-import org.springframework.http.ResponseEntity
 import org.springframework.web.client.RestTemplate
 
 class MockLoginServiceTest {
@@ -28,10 +23,10 @@ class MockLoginServiceTest {
     }
 
     @Test
-    fun `genererMockTokenXToken should make POST request and return token`() {
+    fun `genererMockTokenXToken skal gjøre et POST request og returnere et token`() {
         // Given
         val ident = Personident("18489011049")
-        val expectedToken = "mock-token-value"
+        val forventetToken = "mock-token-verdi"
         val requestEntitySlot = slot<HttpEntity<*>>()
 
         every { 
@@ -40,25 +35,21 @@ class MockLoginServiceTest {
                 capture(requestEntitySlot), 
                 String::class.java
             ) 
-        } returns expectedToken
+        } returns forventetToken
 
-        // When
-        val result = mockLoginService.genererMockTokenXToken(ident)
+        val resultat = mockLoginService.genererMockTokenXToken(ident)
 
-        // Then
-        assertEquals(MockLoginResponseDto(expectedToken), result)
+        assertEquals(MockLoginResponseDto(forventetToken), resultat)
 
-        // Verify request parameters
         val requestBody = requestEntitySlot.captured.body as org.springframework.util.MultiValueMap<*, *>
         assertEquals("dev-gcp:bidrag:bidrag-bidragskalkulator-api", requestBody["aud"]?.get(0))
-        // The Ident class seems to have a different string representation than expected
-        // We're just checking that the pid parameter is present and not empty
+
         assertNotNull(requestBody["pid"]?.get(0))
         assertTrue((requestBody["pid"]?.get(0) as String).isNotEmpty())
     }
 
     @Test
-    fun `genererMockTokenXToken should handle null response`() {
+    fun `genererMockTokenXToken burde kaste feil når man får null-respons fra token-generatoren`() {
         // Given
         val ident = Personident("18489011049")
 
@@ -70,10 +61,10 @@ class MockLoginServiceTest {
             ) 
         } returns null
 
-        // When
-        val result = mockLoginService.genererMockTokenXToken(ident)
+        val exception = assertThrows<IllegalStateException> {
+            mockLoginService.genererMockTokenXToken(ident)
+        }
 
-        // Then
-        assertEquals(MockLoginResponseDto(""), result)
+        assertEquals("Mottok tomt svar fra TokenX token generator", exception.message)
     }
 }
