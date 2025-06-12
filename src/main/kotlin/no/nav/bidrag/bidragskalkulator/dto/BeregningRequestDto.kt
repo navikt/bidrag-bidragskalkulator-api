@@ -17,6 +17,8 @@ enum class BidragsType {
 interface IFellesBarnDto {
     val bidragstype: BidragsType
     val samværsklasse: Samværsklasse
+    val barnetilsynsutgift: Double?
+
 }
 
 @Schema(description = "Informasjon om et barn i beregningen")
@@ -31,7 +33,10 @@ data class BarnMedIdentDto(
 
     @field:NotNull(message = "Bidragstype må være satt")
     @Schema(description = "Angir om den påloggede personen er pliktig eller mottaker for dette barnet", required = true)
-    override val bidragstype: BidragsType
+    override val bidragstype: BidragsType,
+
+    @Schema(description = "Utgifter i kroner per måned som den bidragsmottaker har til barnetilsyn for dette barnet", required = false)
+    override val barnetilsynsutgift: Double?
 ) : IFellesBarnDto
 
 @Schema(description = "Modellen brukes til å beregne barnebidragbasert på barnets id")
@@ -80,5 +85,4 @@ abstract class FellesBeregningRequestDto<T : IFellesBarnDto>(
     open val barn: List<T>,
     open val dittBoforhold: BoforholdDto? = null,
     open val medforelderBoforhold: BoforholdDto? = null,
-    open val barnetilsynsutgift: Double? = null
 )
