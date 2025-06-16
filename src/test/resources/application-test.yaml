@@ -8,8 +8,11 @@ AZURE_APP_TENANT_ID: tokenx
 NAIS_APP_NAME: bidrag-bidragskalkulator
 BIDRAG_GRUNNLAG_URL: https://bidrag-grunnlag.intern.dev.nav.no
 KODEVERK_URL: https://kodeverk.dev-fss-pub.nais.io
-
+BIDRAG_DOKUMENTPRODUKSJON_URL: https://bidrag-dokumentproduksjon.dev-gcp.nais.io/bidrag-dokumentproduksjon
 bidrag:
+  dokumentproduksjon:
+    genererPdfPath: /api/dokument/pdf/test/bidragskalkulator/privatavtale
+    url: ${BIDRAG_DOKUMENTPRODUKSJON_URL}
   grunnlag:
     url: ${BIDRAG_GRUNNLAG_URL}
     hentGrunnlagPath: hentgrunnlag
