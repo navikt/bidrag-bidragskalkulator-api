@@ -73,7 +73,7 @@ class BeregningControllerTest: AbstractControllerTest() {
     @Test
     fun `skal returnere 400 hvis medforelderBoforhold mangler for MOTTAKER`() {
         val ugyldigRequest = mockGyldigRequest.copy(
-            barn = listOf(BarnDto(ident = Personident(personIdent), samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0, bidragstype = BidragsType.MOTTAKER))
+            barn = listOf(BarnMedIdentDto(ident = Personident(personIdent), samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0, bidragstype = BidragsType.MOTTAKER))
         )
 
         postRequest("/api/v1/beregning/barnebidrag", ugyldigRequest, gyldigOAuth2Token)
@@ -85,8 +85,8 @@ class BeregningControllerTest: AbstractControllerTest() {
     fun `skal returnere 400 hvis bruker er både bidragsmottaker og bidragspliktig, og begge boforhold mangler`() {
         val ugyldigRequest = mockGyldigRequest.copy(
             barn = listOf(
-                BarnDto(ident = Personident(personIdent), samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0, bidragstype = BidragsType.MOTTAKER),
-                BarnDto(ident = Personident(personIdent), samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0, bidragstype = BidragsType.PLIKTIG)
+                BarnMedIdentDto(ident = Personident(personIdent), samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0, bidragstype = BidragsType.MOTTAKER),
+                BarnMedIdentDto(ident = Personident(personIdent), samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0, bidragstype = BidragsType.PLIKTIG)
                 ),
             dittBoforhold = null,
             medforelderBoforhold = null
@@ -101,8 +101,8 @@ class BeregningControllerTest: AbstractControllerTest() {
     fun `skal returnere 400 hvis bruker er både bidragsmottaker og bidragspliktig, og medforelderBoforhold mangler i forespørselen`() {
         val ugyldigRequest = mockGyldigRequest.copy(
             barn = listOf(
-                BarnDto(ident = Personident(personIdent), samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0, bidragstype = BidragsType.MOTTAKER),
-                BarnDto(ident = Personident(personIdent), samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0, bidragstype = BidragsType.PLIKTIG)
+                BarnMedIdentDto(ident = Personident(personIdent), samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0, bidragstype = BidragsType.MOTTAKER),
+                BarnMedIdentDto(ident = Personident(personIdent), samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0, bidragstype = BidragsType.PLIKTIG)
                 ),
             medforelderBoforhold = null
         )
@@ -118,7 +118,7 @@ class BeregningControllerTest: AbstractControllerTest() {
         val mockGyldigRequest = BeregningRequestDto(
             inntektForelder1 = 500000.0,
             inntektForelder2 = 400000.0,
-            barn = listOf(BarnDto(ident = Personident(personIdent), samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0, bidragstype = BidragsType.PLIKTIG)),
+            barn = listOf(BarnMedIdentDto(ident = Personident(personIdent), samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0, bidragstype = BidragsType.PLIKTIG)),
             dittBoforhold = BoforholdDto(antallBarnBorFast = 0, antallBarnDeltBosted = 0, borMedAnnenVoksen = false)
         )
 

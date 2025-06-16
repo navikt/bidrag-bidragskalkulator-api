@@ -45,7 +45,12 @@ class BeregningsgrunnlagMapper(
     fun mapTilBeregningsgrunnlagAnonym(dto: ÅpenBeregningRequestDto): List<PersonBeregningsgrunnlagAnonym> {
         return dto.barn.mapIndexed { index, søknadsbarn ->
             val barnReferanse = "Person_Søknadsbarn_$index"
-            val grunnlagListe = lagGrunnlagsliste(søknadsbarn, søknadsbarn.getEstimertFødselsdato(), dto, barnReferanse)
+            val grunnlagListe = lagGrunnlagsliste(søknadsbarn,
+                søknadsbarn.getEstimertFødselsdato(),
+                dto, barnReferanse,
+                dto.dittBoforhold,
+                dto.medforelderBoforhold
+            )
 
             PersonBeregningsgrunnlagAnonym(
                 bidragsType = søknadsbarn.bidragstype,
@@ -56,7 +61,7 @@ class BeregningsgrunnlagMapper(
         }
     }
 
-    private fun <T: IBarnDto, R: IBeregningRequestDto<T>> lagGrunnlagsliste(
+    private fun <T: IFellesBarnDto, R: FellesBeregningRequestDto<T>> lagGrunnlagsliste(
         søknadsbarn: T,
         fødselsdato: LocalDate,
         dto: R,
