@@ -37,7 +37,6 @@ bidrag:
     url: ${BIDRAG_PERSON_URL}
     hentMotpartbarnrelasjonPath: motpartbarnrelasjon
     hentPersoninformasjonPath: informasjon
-    hentDetaljerOmPersonPath: informasjon/detaljer
 
 no.nav.security.jwt:
   client:

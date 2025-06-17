@@ -32,8 +32,7 @@ class BidragPersonbidragPersonConsumerTest {
         bidragPersonConfig = BidragPersonConfigurationProperties(
             url = "http://dummy-url.no",
             hentMotpartbarnrelasjonPath = "hentMotpartbarnrelasjon",
-            hentPersoninformasjonPath = "informasjon",
-            hentDetaljerOmPersonPath = "hentDetaljerOmPerson",
+            hentPersoninformasjonPath = "informasjon"
         )
 
         bidragPersonConsumer = BidragPersonConsumer(bidragPersonConfig, restTemplate)

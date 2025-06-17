@@ -38,5 +38,4 @@ data class BidragPersonConfigurationProperties(
     val url: String,
     val hentMotpartbarnrelasjonPath: String,
     val hentPersoninformasjonPath: String,
-    val hentDetaljerOmPersonPath: String
 )
