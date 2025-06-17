@@ -71,7 +71,7 @@ data class PrivatAvtalePdfDto(
     @Schema(description = "Informasjon om bidragspliktig", required = true)
     val bidragspliktig: PrivatAvtaleBidragspliktig,
     @Schema(description = "Informasjon om barnet", required = true)
-    val barn: PrivatAvtaleBarn,
+    val barn: List<PrivatAvtaleBarn>,
     @Schema(description = "Gjeldende dato for avtalen")
     val fraDato: String,
     @Schema(description = "Er dette en ny avtale?", required = true)
