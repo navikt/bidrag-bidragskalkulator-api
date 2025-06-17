@@ -23,6 +23,13 @@ fun PersonDto.tilBarnInformasjonDto(underholdskostnad: BigDecimal?): BarnInforma
         alder = this.fødselsdato?.let { kalkulerAlder(it) } ?: 0
     )
 
+fun PersonDto.tilPrivatAvtaleInformasjonDto(): PrivatAvtaleInformasjonDto =
+    PrivatAvtaleInformasjonDto(
+        ident = this.ident,
+        fornavn = this.fornavn ?: "",
+        etternavn = this.etternavn ?: "",
+    )
+
 fun PersonDto.erLevendeOgIkkeSkjermet(): Boolean =
     !this.erDød() && !harFortroligAdresse()
 
