@@ -40,6 +40,7 @@ class PrivatAvtaleControllerTest: AbstractControllerTest() {
         every { innloggetBrukerUtils.hentPåloggetPersonIdent() } returns null
 
         getRequest("/api/v1/privat-avtale/informasjon", gyldigOAuth2Token)
+            .andExpect(status().isUnauthorized)
             .andExpect(jsonPath("$.error").value("Ugyldig token"))
     }
 }
