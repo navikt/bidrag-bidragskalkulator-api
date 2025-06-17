@@ -8,6 +8,7 @@ import no.nav.bidrag.domene.ident.Personident
 import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
 import no.nav.bidrag.transport.person.PersonDto
 import no.nav.bidrag.transport.person.PersonRequest
+import no.nav.bidrag.transport.person.PersondetaljerDto
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpServerErrorException
@@ -25,6 +26,7 @@ class BidragPersonConsumer(
         check(bidragPersonConfig.url.isNotEmpty()) { "bidrag.person.url mangler i konfigurasjon" }
         check(bidragPersonConfig.hentMotpartbarnrelasjonPath.isNotEmpty()) { "bidrag.person.hentMotpartbarnrelasjonPath mangler i konfigurasjon" }
         check(bidragPersonConfig.hentPersoninformasjonPath.isNotEmpty()) { "bidrag.person.hentPersoninformasjonPath mangler i konfigurasjon" }
+        check(bidragPersonConfig.hentDetaljerOmPersonPath.isNotEmpty()) { "bidrag.person.hentDetaljerOmPersonPath mangler i konfigurasjon" }
     }
 
     private val hentFamilierelasjonUri by lazy { UriComponentsBuilder
@@ -33,6 +35,7 @@ class BidragPersonConsumer(
         .build()
         .toUri()
     }
+
     private val hentPersonUri by lazy { UriComponentsBuilder
         .fromUri(URI.create(bidragPersonConfig.url))
         .pathSegment(bidragPersonConfig.hentPersoninformasjonPath)
@@ -40,6 +43,12 @@ class BidragPersonConsumer(
         .toUri()
     }
 
+    private val henDetaljerOmPersonUri by lazy { UriComponentsBuilder
+        .fromUri(URI.create(bidragPersonConfig.url))
+        .pathSegment(bidragPersonConfig.hentDetaljerOmPersonPath)
+        .build()
+        .toUri()
+    }
 
     fun <T : Any> medApplikasjonsKontekst(fn: () -> T): T {
         return SikkerhetsKontekst.medApplikasjonKontekst {
@@ -52,10 +61,14 @@ class BidragPersonConsumer(
             postSafely(hentFamilierelasjonUri, PersonRequest(Personident(ident)), Personident(ident))
     }
 
-
-    fun hentPerson(ident: Personident): PersonDto = medApplikasjonsKontekst{
+    fun hentPerson(ident: Personident): PersonDto = medApplikasjonsKontekst {
         secureLogger.info("Henter informasjon for person $ident")
         postSafely(hentPersonUri, PersonRequest(ident), ident)
+    }
+
+    fun hentDetaljerOmPerson(ident: Personident): PersondetaljerDto = medApplikasjonsKontekst {
+        secureLogger.info("Henter detaljer om person $ident")
+        postSafely(henDetaljerOmPersonUri, PersonRequest(ident), ident)
     }
 
     private inline fun <reified T : Any> postSafely(uri: URI, request: Any, ident: Personident): T {
