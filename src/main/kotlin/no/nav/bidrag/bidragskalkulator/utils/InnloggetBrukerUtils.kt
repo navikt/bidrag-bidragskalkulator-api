@@ -8,19 +8,15 @@ import org.springframework.stereotype.Component
 @Component
 class InnloggetBrukerUtils(private val oidcTokenManager: OidcTokenManager) {
 
-    fun hentPåloggetPersonIdent(): String {
-        val token = hentToken() ?: error("Fant ikke token")
-
-        return hentPidFraToken(token)
+    fun hentPåloggetPersonIdent(): String? {
+        val token = oidcTokenManager.hentToken()
+        return token?.let { hentPidFraToken(it) }
     }
 
-    private fun hentToken(): String? =
-        try {
-            oidcTokenManager.hentToken()
-        } catch (e: Exception) {
-            null
-        }
-
+    /**
+     * Ekstraherer 'pid' fra et JWT-token.
+     * Kaster IllegalArgumentException hvis token er ugyldig eller mangler 'pid'-claim.
+     */
     private fun hentPidFraToken(token: String): String {
         val jwt = JWTParser.parse(token) as? SignedJWT
             ?: throw IllegalArgumentException("Ugyldig JWT-format")

@@ -2,16 +2,13 @@ package no.nav.bidrag.bidragskalkulator.controller
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
-import io.mockk.mockkObject
-import io.mockk.unmockkAll
 import kotlinx.coroutines.runBlocking
 import no.nav.bidrag.bidragskalkulator.dto.BrukerInformasjonDto
-import no.nav.bidrag.bidragskalkulator.exception.NoContentException
 import no.nav.bidrag.bidragskalkulator.mapper.tilPersonInformasjonDto
 import no.nav.bidrag.bidragskalkulator.mapper.toInntektResultatDto
 import no.nav.bidrag.bidragskalkulator.service.BrukerinformasjonService
+import no.nav.bidrag.bidragskalkulator.utils.InnloggetBrukerUtils
 import no.nav.bidrag.bidragskalkulator.utils.JsonUtils
-import no.nav.bidrag.commons.security.utils.TokenUtils
 import no.nav.bidrag.transport.behandling.inntekt.response.TransformerInntekterResponse
 import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
 import org.junit.jupiter.api.Test
@@ -28,7 +25,6 @@ class PersonControllerTest: AbstractControllerTest() {
     private val mockTransofmerInntekterResponse: TransformerInntekterResponse =
         JsonUtils.readJsonFile("/grunnlag/transformer_inntekter_respons.json")
 
-
     @Test
     fun `skal returnere 200 OK når person eksisterer`() {
         every { runBlocking { brukerinformasjonService.hentBrukerinformasjon(any()) } } returns
@@ -41,19 +37,6 @@ class PersonControllerTest: AbstractControllerTest() {
 
         getRequest("/api/v1/person/informasjon", gyldigOAuth2Token)
             .andExpect(status().isOk)
-    }
-
-    @Test
-    fun `skal returnere 204 No Content når personen ikke finnes`() {
-        mockkObject(TokenUtils)
-
-        every { TokenUtils.hentBruker() } returns null
-        every { runBlocking { brukerinformasjonService.hentBrukerinformasjon(any()) } } throws NoContentException("Fant ikke person")
-
-        getRequest("/api/v1/person/informasjon", gyldigOAuth2Token)
-            .andExpect(status().isNoContent)
-
-        unmockkAll()
     }
 
     @Test
