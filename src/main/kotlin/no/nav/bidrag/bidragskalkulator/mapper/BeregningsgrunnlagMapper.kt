@@ -78,7 +78,7 @@ class BeregningsgrunnlagMapper(
             add(byggGrunnlag(barnReferanse, Grunnlagstype.PERSON_SØKNADSBARN, fødselsdato))
             addAll(beregningsgrunnlagBuilder.byggInntektsgrunnlag(kontekst))
             addAll(beregningsgrunnlagBuilder.byggBostatusgrunnlag(kontekst))
-            add(beregningsgrunnlagBuilder.byggMottattFaktiskUtgift(fødselsdato, barnReferanse, søknadsbarn.barnetilsynsutgift))
+            søknadsbarn.barnetilsynsutgift?.let { add(beregningsgrunnlagBuilder.byggMottattFaktiskUtgift(fødselsdato, barnReferanse, søknadsbarn.barnetilsynsutgift)) }
             add(beregningsgrunnlagBuilder.byggSamværsgrunnlag(søknadsbarn.samværsklasse, barnReferanse))
         }
     }
