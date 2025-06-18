@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service
 class BrukerinformasjonService(
     private val personService: PersonService,
     private val grunnlagService: GrunnlagService,
+    private val sjablonService: SjablonService,
     private val underholdskostnadService: UnderholdskostnadService
 ) {
     private val logger = LoggerFactory.getLogger(BrukerinformasjonService::class.java)
@@ -30,13 +31,18 @@ class BrukerinformasjonService(
             personService.hentPersoninformasjon(Personident(personIdent))
         }
 
+        val samværsfradragJobb = asyncCatching(logger, "samværsfradrag") {
+            sjablonService.hentSamværsfradrag()
+        }
+
         logger.info("Ferdig med henting av person informasjon og inntektsgrunnlag for å utforme brukerinformasjon")
 
         BrukerInformasjonDto(
             person = personinformasjonJobb.await().tilPersonInformasjonDto(),
             inntekt = inntektsGrunnlagJobb.await()?.toInntektResultatDto()?.inntektSiste12Mnd,
             barnerelasjoner = emptyList(),
-            underholdskostnader = underholdskostnadService.genererUnderholdskostnadstabell()
+            underholdskostnader = underholdskostnadService.genererUnderholdskostnadstabell(),
+            samværsfradrag = samværsfradragJobb.await()
         )
     }
 }
