@@ -36,7 +36,7 @@ data class BarnMedIdentDto(
     override val bidragstype: BidragsType,
 
     @Schema(description = "Utgifter i kroner per måned som den bidragsmottaker har til barnetilsyn for dette barnet", required = false, example = "2000")
-    override val barnetilsynsutgift: BigDecimal?
+    override val barnetilsynsutgift: BigDecimal? = null
 ) : IFellesBarnDto
 
 @Schema(description = "Modellen brukes til å beregne barnebidragbasert på barnets id")
