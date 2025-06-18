@@ -33,13 +33,13 @@ class BidragPersonConsumer(
         .build()
         .toUri()
     }
+
     private val hentPersonUri by lazy { UriComponentsBuilder
         .fromUri(URI.create(bidragPersonConfig.url))
         .pathSegment(bidragPersonConfig.hentPersoninformasjonPath)
         .build()
         .toUri()
     }
-
 
     fun <T : Any> medApplikasjonsKontekst(fn: () -> T): T {
         return SikkerhetsKontekst.medApplikasjonKontekst {
@@ -52,8 +52,7 @@ class BidragPersonConsumer(
             postSafely(hentFamilierelasjonUri, PersonRequest(Personident(ident)), Personident(ident))
     }
 
-
-    fun hentPerson(ident: Personident): PersonDto = medApplikasjonsKontekst{
+    fun hentPerson(ident: Personident): PersonDto = medApplikasjonsKontekst {
         secureLogger.info("Henter informasjon for person $ident")
         postSafely(hentPersonUri, PersonRequest(ident), ident)
     }

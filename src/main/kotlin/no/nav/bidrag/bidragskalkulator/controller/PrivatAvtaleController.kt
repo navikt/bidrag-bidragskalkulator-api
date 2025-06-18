@@ -8,56 +8,54 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.slf4j.MDCContext
 import no.nav.bidrag.bidragskalkulator.config.SecurityConstants
-import no.nav.bidrag.commons.util.secureLogger
-import no.nav.bidrag.bidragskalkulator.dto.BrukerInformasjonDto
-import no.nav.bidrag.bidragskalkulator.service.BrukerinformasjonService
+import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtaleInformasjonDto
+import no.nav.bidrag.bidragskalkulator.service.PrivatAvtaleService
 import no.nav.bidrag.bidragskalkulator.utils.InnloggetBrukerUtils
+import no.nav.bidrag.commons.util.secureLogger
 import no.nav.security.token.support.core.api.ProtectedWithClaims
+import org.slf4j.LoggerFactory
+import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import org.slf4j.LoggerFactory
-import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
 
 @RestController
-@RequestMapping("/api/v1/person")
+@RequestMapping("/api/v1/privat-avtale")
 @ProtectedWithClaims(issuer = SecurityConstants.TOKENX)
-class PersonController(
-    private val brukerinformasjonService: BrukerinformasjonService,
+class PrivatAvtaleController(
+    private val privatAvtaleService: PrivatAvtaleService,
     private val innloggetBrukerUtils: InnloggetBrukerUtils
 ) {
-    private val logger = LoggerFactory.getLogger(PersonController::class.java)
+    private val logger = LoggerFactory.getLogger(PrivatAvtaleController::class.java)
 
     @Operation(
-        summary = "Henter informasjon om pålogget person og relasjoner til barn",
-        description = "Henter informasjon om pålogget person og relasjoner til barn. Returnerer 200 ved vellykket henting, eller passende feilkoder.",
+        summary = "Henter informasjon for opprettelse av privat avtale",
+        description = "Henter informasjon for opprettelse av privat avtale. Returnerer 200 ved vellykket henting, eller passende feilkoder.",
         security = [SecurityRequirement(name = SecurityConstants.BEARER_KEY)]
     )
     @ApiResponses(
         value = [
-            ApiResponse(responseCode = "200", description = "Brukerinformasjon hentet vellykket"),
-            ApiResponse(responseCode = "204", description = "Person eksisterer ikke"),
-            ApiResponse(responseCode = "401", description = "Uautorisert tilgang - ugyldig eller utløpt token"),
+            ApiResponse(responseCode = "200", description = "Privat avtale informasjon hentet vellykket"),
+            ApiResponse(responseCode = "401", description = "Uautorisert tilgang - mangler eller ugyldig token"),
             ApiResponse(responseCode = "500", description = "Intern serverfeil")
         ]
     )
     @GetMapping("/informasjon")
-    fun hentInformasjon(): BrukerInformasjonDto  {
-        logger.info("Henter informasjon om pålogget person og personens barn")
+    fun hentInformasjonForPrivatAvtale(): PrivatAvtaleInformasjonDto {
+        logger.info("Henter informasjon for opprettelse av privat avtale")
 
         val personIdent = innloggetBrukerUtils.hentPåloggetPersonIdent()
             ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Ugyldig token")
 
         return runBlocking(Dispatchers.IO + MDCContext()) {
-            secureLogger.info { "Henter informasjon om pålogget person $personIdent og personens barn" }
+            secureLogger.info { "Henter informasjon om pålogget person $personIdent til bruk i en privat avtale" }
 
-           brukerinformasjonService.hentBrukerinformasjon(personIdent).also {
-                secureLogger.info { "Henter informasjon om pålogget person $personIdent fullført" }
+            privatAvtaleService.hentInformasjonForPrivatAvtale(personIdent).also {
+                secureLogger.info { "Henter informasjon om pålogget person $personIdent til bruk i en privat avtale fullført" }
             }
 
         }
 
     }
-
 }
