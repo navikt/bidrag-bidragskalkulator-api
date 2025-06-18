@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Min
 import no.nav.bidrag.domene.enums.beregning.Samværsklasse
 import no.nav.bidrag.domene.ident.Personident
+import java.math.BigDecimal
 
 @Schema(description = "Angir hvilken rolle den påloggede personen har i bidragsberegningen")
 enum class BidragsType {
@@ -17,8 +18,7 @@ enum class BidragsType {
 interface IFellesBarnDto {
     val bidragstype: BidragsType
     val samværsklasse: Samværsklasse
-    val barnetilsynsutgift: Double?
-
+    val barnetilsynsutgift: BigDecimal?
 }
 
 @Schema(description = "Informasjon om et barn i beregningen")
@@ -35,8 +35,8 @@ data class BarnMedIdentDto(
     @Schema(description = "Angir om den påloggede personen er pliktig eller mottaker for dette barnet", required = true)
     override val bidragstype: BidragsType,
 
-    @Schema(description = "Utgifter i kroner per måned som den bidragsmottaker har til barnetilsyn for dette barnet", required = false)
-    override val barnetilsynsutgift: Double?
+    @Schema(description = "Utgifter i kroner per måned som den bidragsmottaker har til barnetilsyn for dette barnet", required = false, example = "2000")
+    override val barnetilsynsutgift: BigDecimal?
 ) : IFellesBarnDto
 
 @Schema(description = "Modellen brukes til å beregne barnebidragbasert på barnets id")
