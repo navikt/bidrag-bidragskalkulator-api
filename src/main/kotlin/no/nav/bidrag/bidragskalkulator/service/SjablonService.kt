@@ -1,6 +1,7 @@
 package no.nav.bidrag.bidragskalkulator.service
 
 import no.nav.bidrag.bidragskalkulator.dto.SamværsfradragPeriode
+import no.nav.bidrag.commons.service.sjablon.Samværsfradrag
 import no.nav.bidrag.commons.service.sjablon.SjablonProvider
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -31,7 +32,21 @@ class SjablonService {
         // 3) Lag sortert liste av alderTom
         val sortedAlderTom = alderTomGrupper.keys.sorted()
 
-        // 4) Bygg ny struktur
+        // 4) Map til SamværsfradragPeriode
+        return mapTilSamværsfradragPeriode(
+            sortedAlderTom = sortedAlderTom,
+            alderTomGrupper = alderTomGrupper
+        )
+    }
+
+    /**
+     * Mapper en sortert liste av alderTom og en map av alderTom til SamværsfradragPeriode.
+     * AlderFom settes til 0 for første periode, og oppdateres etter hver iterasjon.
+     */
+    private fun mapTilSamværsfradragPeriode(
+        sortedAlderTom: List<Int>,
+        alderTomGrupper: Map<Int, List<Samværsfradrag>>
+    ): List<SamværsfradragPeriode> {
         val resultat = mutableListOf<SamværsfradragPeriode>()
         var alderFom = 0
 
