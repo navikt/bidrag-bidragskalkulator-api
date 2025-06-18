@@ -10,7 +10,7 @@ import java.time.LocalDate
 
 @Service
 class SjablonService {
-    val logger = LoggerFactory.getLogger(SjablonService::class.java)
+    private val logger = LoggerFactory.getLogger(SjablonService::class.java)
 
     /**
      * Henter samværsfradrag fra sjablon, filtrerer på dato og grupperer etter alderTom.
@@ -52,9 +52,9 @@ class SjablonService {
 
         for (alderTom in sortedAlderTom) {
             val fradragMap = mutableMapOf<String, BigDecimal>()
-            val items = alderTomGrupper[alderTom]!!
+            val fradragElementer = alderTomGrupper[alderTom] ?: emptyList()
 
-            items.forEach { entry ->
+            fradragElementer.forEach { entry ->
                 val klasseNummer = entry.samvaersklasse?.padStart(2, '0') ?: "00"
                 val klasseNavn = "SAMVÆRSKLASSE_${klasseNummer.toInt()}"
                 fradragMap[klasseNavn] = entry.belopFradrag ?: BigDecimal.ZERO
