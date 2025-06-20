@@ -7,7 +7,6 @@ import no.nav.bidrag.bidragskalkulator.dto.BrukerInformasjonDto
 import no.nav.bidrag.bidragskalkulator.mapper.tilPersonInformasjonDto
 import no.nav.bidrag.bidragskalkulator.mapper.toInntektResultatDto
 import no.nav.bidrag.bidragskalkulator.service.BrukerinformasjonService
-import no.nav.bidrag.bidragskalkulator.utils.InnloggetBrukerUtils
 import no.nav.bidrag.bidragskalkulator.utils.JsonUtils
 import no.nav.bidrag.transport.behandling.inntekt.response.TransformerInntekterResponse
 import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
@@ -32,7 +31,8 @@ class PersonControllerTest: AbstractControllerTest() {
                     person = mockResponsPersonMedEnBarnRelasjon.person.tilPersonInformasjonDto(),
                     inntekt = mockTransofmerInntekterResponse.toInntektResultatDto().inntektSiste12Mnd,
                     barnerelasjoner = emptyList(),
-                    underholdskostnader = emptyMap()
+                    underholdskostnader = emptyMap(),
+                    samværsfradrag = emptyList()
                 )
 
         getRequest("/api/v1/person/informasjon", gyldigOAuth2Token)

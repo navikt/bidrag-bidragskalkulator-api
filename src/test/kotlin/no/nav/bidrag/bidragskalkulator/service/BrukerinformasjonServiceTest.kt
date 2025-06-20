@@ -2,7 +2,6 @@ package no.nav.bidrag.bidragskalkulator.service
 
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.unmockkAll
 import kotlinx.coroutines.test.runTest
 import no.nav.bidrag.bidragskalkulator.exception.NoContentException
 import no.nav.bidrag.bidragskalkulator.mapper.tilFamilieRelasjon
@@ -21,6 +20,7 @@ class BrukerinformasjonServiceTest {
     private val mockPersonService = mockk<PersonService>()
     private val mockGrunnlagService = mockk<GrunnlagService>()
     private val underholdskostnadServiceMock = mockk<UnderholdskostnadService>()
+    private val sjablonService = mockk<SjablonService>()
 
     private val identUtenBarn = "05499323087"
     private val identMedEttBarn = "03848797048"
@@ -39,18 +39,18 @@ class BrukerinformasjonServiceTest {
 
     @BeforeEach
     fun setUp()  {
-        brukerinformasjonService = BrukerinformasjonService(mockPersonService, mockGrunnlagService, underholdskostnadServiceMock)
-    }
-
-    @AfterEach
-    fun tearDown() {
-        unmockkAll()
+        brukerinformasjonService = BrukerinformasjonService(
+            mockPersonService,
+            mockGrunnlagService,
+            sjablonService,
+            underholdskostnadServiceMock)
     }
 
     @Test
     fun `skal kaste NoContentException hvis person ikke finnes`() = runTest {
         every { mockGrunnlagService.hentInntektsGrunnlag(identSomIkkeFinnes) } returns responsInntektsGrunnlag
         every { mockPersonService.hentPersoninformasjon(Personident(identSomIkkeFinnes)) } throws NoContentException("Fant ikke person med ident $identSomIkkeFinnes")
+        every { sjablonService.hentSamværsfradrag() } returns emptyList()
 
         val exception = assertThrows<NoContentException> {
             brukerinformasjonService.hentBrukerinformasjon(identSomIkkeFinnes)
@@ -94,6 +94,7 @@ class BrukerinformasjonServiceTest {
         every { mockGrunnlagService.hentInntektsGrunnlag(identMedFlereBarn) } returns responsInntektsGrunnlag
         every { mockPersonService.hentPersoninformasjon(Personident(identMedFlereBarn)) } returns responsMedFlereBarn.person
         every { underholdskostnadServiceMock.genererUnderholdskostnadstabell() } returns emptyMap()
+        every { sjablonService.hentSamværsfradrag() } returns emptyList()
 
         val resultat = brukerinformasjonService.hentBrukerinformasjon(identMedFlereBarn)
         val inntekt12mnd = resultat.inntekt
