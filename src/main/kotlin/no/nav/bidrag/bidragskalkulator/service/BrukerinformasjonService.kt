@@ -1,6 +1,7 @@
 package no.nav.bidrag.bidragskalkulator.service
 
 import kotlinx.coroutines.coroutineScope
+import no.nav.bidrag.bidragskalkulator.config.CacheConfig
 import no.nav.bidrag.bidragskalkulator.dto.BrukerInformasjonDto
 import no.nav.bidrag.bidragskalkulator.mapper.tilPersonInformasjonDto
 import no.nav.bidrag.bidragskalkulator.mapper.toInntektResultatDto
@@ -19,7 +20,7 @@ class BrukerinformasjonService(
 ) {
     private val logger = LoggerFactory.getLogger(BrukerinformasjonService::class.java)
 
-    @Cacheable(Cachenøkler.PERSONINFORMASJON)
+    @Cacheable(CacheConfig.PERSONINFORMASJON)
     suspend fun hentBrukerinformasjon(personIdent: String): BrukerInformasjonDto = coroutineScope {
         logger.info("Starter henting av person informasjon og inntektsgrunnlag for å utforme brukerinformasjon")
 

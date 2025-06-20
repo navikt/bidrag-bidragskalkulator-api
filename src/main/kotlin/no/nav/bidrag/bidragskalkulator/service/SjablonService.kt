@@ -1,9 +1,11 @@
 package no.nav.bidrag.bidragskalkulator.service
 
+import no.nav.bidrag.bidragskalkulator.config.CacheConfig
 import no.nav.bidrag.bidragskalkulator.dto.SamværsfradragPeriode
 import no.nav.bidrag.commons.service.sjablon.Samværsfradrag
 import no.nav.bidrag.commons.service.sjablon.SjablonProvider
 import org.slf4j.LoggerFactory
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -17,6 +19,7 @@ class SjablonService {
      * Se punktet om Samværsfradrag i https://lovdata.no/nav/rundskriv/v1-55-02
      * Returnerer en liste av SamværsfradragPeriode med alderFom, alderTom og beløpFradrag.
      */
+    @Cacheable(CacheConfig.SAMVÆRSFRADRAG)
     fun hentSamværsfradrag(): List<SamværsfradragPeriode> {
         logger.info("Henter samværsfradrag")
         val nåværendeDato = LocalDate.now()

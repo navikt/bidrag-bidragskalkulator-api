@@ -1,5 +1,6 @@
 package no.nav.bidrag.bidragskalkulator.service
 
+import no.nav.bidrag.bidragskalkulator.config.CacheConfig
 import no.nav.bidrag.bidragskalkulator.consumer.BidragPersonConsumer
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtaleInformasjonDto
 import no.nav.bidrag.bidragskalkulator.mapper.tilPrivatAvtaleInformasjonDto
@@ -15,7 +16,7 @@ class PrivatAvtaleService(
 ) {
     val logger = LoggerFactory.getLogger(PrivatAvtaleService::class.java)
 
-    @Cacheable(Cachenøkler.PRIVAT_AVTALE_INFORMASJON)
+    @Cacheable(CacheConfig.PRIVAT_AVTALE_INFORMASJON)
     fun hentInformasjonForPrivatAvtale(ident: String): PrivatAvtaleInformasjonDto {
         logger.info("Henter informasjon for privat avtale for en person")
 
