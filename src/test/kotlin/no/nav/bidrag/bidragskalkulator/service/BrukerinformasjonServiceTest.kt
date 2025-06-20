@@ -50,6 +50,7 @@ class BrukerinformasjonServiceTest {
     fun `skal kaste NoContentException hvis person ikke finnes`() = runTest {
         every { mockGrunnlagService.hentInntektsGrunnlag(identSomIkkeFinnes) } returns responsInntektsGrunnlag
         every { mockPersonService.hentPersoninformasjon(Personident(identSomIkkeFinnes)) } throws NoContentException("Fant ikke person med ident $identSomIkkeFinnes")
+        every { sjablonService.hentSamværsfradrag() } returns emptyList()
 
         val exception = assertThrows<NoContentException> {
             brukerinformasjonService.hentBrukerinformasjon(identSomIkkeFinnes)
@@ -93,6 +94,7 @@ class BrukerinformasjonServiceTest {
         every { mockGrunnlagService.hentInntektsGrunnlag(identMedFlereBarn) } returns responsInntektsGrunnlag
         every { mockPersonService.hentPersoninformasjon(Personident(identMedFlereBarn)) } returns responsMedFlereBarn.person
         every { underholdskostnadServiceMock.genererUnderholdskostnadstabell() } returns emptyMap()
+        every { sjablonService.hentSamværsfradrag() } returns emptyList()
 
         val resultat = brukerinformasjonService.hentBrukerinformasjon(identMedFlereBarn)
         val inntekt12mnd = resultat.inntekt

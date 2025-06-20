@@ -17,7 +17,7 @@ class SjablonService {
      * Se punktet om Samværsfradrag i https://lovdata.no/nav/rundskriv/v1-55-02
      * Returnerer en liste av SamværsfradragPeriode med alderFom, alderTom og beløpFradrag.
      */
-    suspend fun hentSamværsfradrag(): List<SamværsfradragPeriode> {
+    fun hentSamværsfradrag(): List<SamværsfradragPeriode> {
         logger.info("Henter samværsfradrag")
         val nåværendeDato = LocalDate.now()
 
@@ -62,8 +62,8 @@ class SjablonService {
 
             resultat.add(
                 SamværsfradragPeriode(
-                    alderFom = alderFom,
-                    alderTom = alderTom,
+                    alderFra = alderFom,
+                    alderTil = alderTom,
                     beløpFradrag = fradragMap
                 )
             )

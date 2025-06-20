@@ -2,7 +2,6 @@ package no.nav.bidrag.bidragskalkulator.service
 
 import io.mockk.every
 import io.mockk.mockkObject
-import kotlinx.coroutines.test.runTest
 import no.nav.bidrag.commons.service.sjablon.Samværsfradrag
 import no.nav.bidrag.commons.service.sjablon.SjablonProvider
 import org.junit.jupiter.api.BeforeEach
@@ -23,7 +22,7 @@ class SjablonServiceTest {
     }
 
     @Test
-    fun `skal returnere tom liste hvis ingen sjabloner finnes for dagens dato`() = runTest {
+    fun `skal returnere tom liste hvis ingen sjabloner finnes for dagens dato`() {
         every { SjablonProvider.hentSjablonSamværsfradrag() } returns listOf(
             Samværsfradrag(
                 datoFom = LocalDate.now().minusYears(2),
@@ -40,7 +39,7 @@ class SjablonServiceTest {
     }
 
     @Test
-    fun `skal gruppere og mappe samværsfradrag korrekt`() = runTest  {
+    fun `skal gruppere og mappe samværsfradrag korrekt`()  {
         val iDag = LocalDate.now()
         every { SjablonProvider.hentSjablonSamværsfradrag() } returns listOf(
             Samværsfradrag(
@@ -62,16 +61,16 @@ class SjablonServiceTest {
         val resultat = sjablonService.hentSamværsfradrag()
 
         assertEquals(2, resultat.size)
-        assertEquals(0, resultat[0].alderFom)
-        assertEquals(5, resultat[0].alderTom)
+        assertEquals(0, resultat[0].alderFra)
+        assertEquals(5, resultat[0].alderTil)
         assertEquals(BigDecimal("100"), resultat[0].beløpFradrag["SAMVÆRSKLASSE_1"])
-        assertEquals(6, resultat[1].alderFom)
-        assertEquals(10, resultat[1].alderTom)
+        assertEquals(6, resultat[1].alderFra)
+        assertEquals(10, resultat[1].alderTil)
         assertEquals(BigDecimal("200"), resultat[1].beløpFradrag["SAMVÆRSKLASSE_2"])
     }
 
     @Test
-    fun `skal håndtere nullverdier for samvaersklasse og belopFradrag`() = runTest  {
+    fun `skal håndtere nullverdier for samvaersklasse og belopFradrag`()  {
         val iDag = LocalDate.now()
         every { SjablonProvider.hentSjablonSamværsfradrag() } returns listOf(
             Samværsfradrag(
@@ -89,7 +88,7 @@ class SjablonServiceTest {
     }
 
     @Test
-    fun `skal bruke 99 som default for alderTom hvis null`() = runTest  {
+    fun `skal bruke 99 som default for alderTom hvis null`()  {
         val iDag = LocalDate.now()
         every { SjablonProvider.hentSjablonSamværsfradrag() } returns listOf(
             Samværsfradrag(
@@ -103,7 +102,7 @@ class SjablonServiceTest {
 
         val resultat = sjablonService.hentSamværsfradrag()
         assertEquals(1, resultat.size)
-        assertEquals(99, resultat[0].alderTom)
+        assertEquals(99, resultat[0].alderTil)
         assertEquals(BigDecimal("300"), resultat[0].beløpFradrag["SAMVÆRSKLASSE_3"])
     }
 
@@ -112,7 +111,7 @@ class SjablonServiceTest {
      * AlderFom skal alltid være 0 for første periode, og oppdateres etter hver iterasjon.
      */
     @Test
-    fun `skal samle flere samværsklasser for samme alderTom i samme periode`() = runTest {
+    fun `skal samle flere samværsklasser for samme alderTom i samme periode`() {
         val iDag = LocalDate.now()
         every { SjablonProvider.hentSjablonSamværsfradrag() } returns listOf(
             Samværsfradrag(
@@ -134,8 +133,8 @@ class SjablonServiceTest {
         val resultat = sjablonService.hentSamværsfradrag()
 
         assertEquals(1, resultat.size)
-        assertEquals(0, resultat[0].alderFom)
-        assertEquals(5, resultat[0].alderTom)
+        assertEquals(0, resultat[0].alderFra)
+        assertEquals(5, resultat[0].alderTil)
         assertEquals(BigDecimal("100"), resultat[0].beløpFradrag["SAMVÆRSKLASSE_1"])
         assertEquals(BigDecimal("200"), resultat[0].beløpFradrag["SAMVÆRSKLASSE_2"])
     }
@@ -145,7 +144,7 @@ class SjablonServiceTest {
      * AlderFom skal alltid være 0 for første periode, og oppdateres etter hver iterasjon.
      */
     @Test
-    fun `skal håndtere usortert alderTom og beregne alderFom riktig`() = runTest {
+    fun `skal håndtere usortert alderTom og beregne alderFom riktig`() {
         val iDag = LocalDate.now()
         every { SjablonProvider.hentSjablonSamværsfradrag() } returns listOf(
             Samværsfradrag(
@@ -167,9 +166,9 @@ class SjablonServiceTest {
         val resultat = sjablonService.hentSamværsfradrag()
 
         assertEquals(2, resultat.size)
-        assertEquals(0, resultat[0].alderFom)
-        assertEquals(5, resultat[0].alderTom)
-        assertEquals(6, resultat[1].alderFom)
-        assertEquals(10, resultat[1].alderTom)
+        assertEquals(0, resultat[0].alderFra)
+        assertEquals(5, resultat[0].alderTil)
+        assertEquals(6, resultat[1].alderFra)
+        assertEquals(10, resultat[1].alderTil)
     }
 }
