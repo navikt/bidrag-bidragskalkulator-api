@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/api/v1/privatavtale")
+@RequestMapping("/api/v1/privat-avtale")
 @Unprotected
 class PrivatAvtaleController(
     private val privatAvtalePdfService: PrivatAvtalePdfService,

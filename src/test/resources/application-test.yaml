@@ -9,6 +9,14 @@ NAIS_APP_NAME: bidrag-bidragskalkulator
 BIDRAG_GRUNNLAG_URL: https://bidrag-grunnlag.intern.dev.nav.no
 KODEVERK_URL: https://kodeverk.dev-fss-pub.nais.io
 BIDRAG_DOKUMENTPRODUKSJON_URL: https://bidrag-dokumentproduksjon.dev-gcp.nais.io/bidrag-dokumentproduksjon
+
+FOERSTESIDE_GENERATOR_SCOPE: dev-fss.teamdokumenthandtering.foerstesidegenerator-q1
+FOERSTESIDE_GENERATOR_URL: https://foerstesidegenerator-q1.dev.intern.nav.no
+foerstesidegenerator:
+  url: ${FOERSTESIDE_GENERATOR_URL:https://foerstesidegenerator-q1.dev.intern.nav.no}
+  genererFoerstesidePath: /api/foerstesidegenerator/v1/foersteside
+
+
 bidrag:
   dokumentproduksjon:
     genererPdfPath: /api/dokument/pdf/test/bidragskalkulator/privatavtale
@@ -24,6 +32,16 @@ bidrag:
 no.nav.security.jwt:
   client:
     registration:
+      foerstesidegenerator:
+        resource-url: ${FOERSTESIDE_GENERATOR_URL}
+        token-endpoint-url: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/oauth2/v2.0/token
+        grant-type: client_credentials
+        scope: api://${FOERSTESIDE_GENERATOR_SCOPE}/.default
+        authentication:
+          client-id: ${AZURE_APP_CLIENT_ID}
+          client-secret: ${AZURE_APP_CLIENT_SECRET}
+          client-auth-method: client_secret_basic
+
       bidrag-person:
         resource-url: ${BIDRAG_PERSON_URL}
         token-endpoint-url: ${AZURE_OPENID_CONFIG_TOKEN_ENDPOINT}
