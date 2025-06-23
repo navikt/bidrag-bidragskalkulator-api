@@ -5,7 +5,7 @@ build/
 !**/src/test/**/build/
 
 **/application-local-nais.properties
-
+**/application-local-nais**.properties
 ### STS ###
 .apt_generated
 .classpath
