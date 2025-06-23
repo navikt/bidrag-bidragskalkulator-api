@@ -12,8 +12,6 @@ import no.nav.bidrag.commons.util.secureLogger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
-
-<<<<<<< HEAD
 import jakarta.validation.Valid
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -115,5 +113,4 @@ class PrivatAvtaleController(
                 .body(genererPrivatAvtalePdf.await().toByteArray())
         }
     }
-}
 }
