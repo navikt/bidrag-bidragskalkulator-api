@@ -47,4 +47,27 @@ class PrivatAvtaleController(private val privatAvtaleService: PrivatAvtalePdfSer
                 .body(genererPrivatAvtalePdf.await().toByteArray())
         }
     }
+
+    @GetMapping(produces = [MediaType.APPLICATION_PDF_VALUE], path = ["/forside"])
+    @Operation(
+        summary = "Generer forside for privat avtale PDF",
+        description = "Genererer forsiden for privat avtale i PDF-format.",
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "Privat avtale PDF generert"),
+            ApiResponse(responseCode = "500", description = "Intern serverfeil")
+        ]
+    )
+    fun genererPrivatAvtaleForside(): ResponseEntity<ByteArray>? {
+
+        return runBlocking(Dispatchers.IO + MDCContext()) {
+            val genererPrivatAvtalePdf = async { privatAvtaleService.genererForsideForInnsending() }
+            ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header("Content-Disposition", "inline; filename=\"privatavtale.pdf\"")
+                .body(genererPrivatAvtalePdf.await().toByteArray())
+        }
+    }
 }

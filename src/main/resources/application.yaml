@@ -28,6 +28,10 @@ bidrag:
 ---
 spring.config.activate.on-profile: prod, dev, local-nais
 
+foerstesidegenerator:
+  url: ${FOERSTESIDE_GENERATOR_URL:https://foerstesidegenerator-q1.dev.intern.nav.no}
+  genererFoerstesidePath: /api/foerstesidegenerator/v1/foersteside
+
 bidrag:
   dokumentproduksjon:
     genererPdfPath: /api/dokument/pdf/test/bidragskalkulator/privatavtale
@@ -43,6 +47,19 @@ bidrag:
 no.nav.security.jwt:
   client:
     registration:
+      foerstesidegenerator:
+        resource-url: ${FOERSTESIDE_GENERATOR_URL}
+        token-endpoint-url: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/oauth2/v2.0/token
+        grant-type: client_credentials
+        scope: api://${FOERSTESIDE_GENERATOR_SCOPE}/.default
+        authentication:
+          client-id: ${AZURE_APP_CLIENT_ID}
+          client-secret: ${AZURE_APP_CLIENT_SECRET}
+          client-auth-method: client_secret_basic
+        authentication-token-x:
+          client-id: ${TOKEN_X_CLIENT_ID}
+          client-jwk: ${TOKEN_X_PRIVATE_JWK}
+          client-auth-method: private_key_jwt
       bidrag-person:
         resource-url: ${BIDRAG_PERSON_URL}
         token-endpoint-url: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/oauth2/v2.0/token
@@ -75,3 +92,4 @@ no.nav.security.jwt:
     tokenx:
       discoveryurl: ${TOKEN_X_WELL_KNOWN_URL}
       accepted_audience: ${TOKEN_X_CLIENT_ID}
+
