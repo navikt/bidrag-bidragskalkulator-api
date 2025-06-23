@@ -59,4 +59,20 @@ data class BrukerInformasjonDto(
 
     @Schema(description = "Liste over underholdskostnader for alle aldre fra 0-25 år")
     val underholdskostnader: Map<Int, BigDecimal>,
+
+    val samværsfradrag: List<SamværsfradragPeriode>
+)
+
+
+@Schema(description = "Samværsfradrag for et gitt aldersintervall")
+data class SamværsfradragPeriode(
+
+    @Schema(description = "Start på aldersintervall")
+    val alderFra: Int,
+
+    @Schema(description = "Slutt på aldersintervall")
+    val alderTil: Int,
+
+    @Schema(description = "Beløp per samværsfradragsklasse for dette aldersintervallet. For eksempel SAMVÆRSKLASSE_1, SAMVÆRSKLASSE_2 osv.")
+    val beløpFradrag: Map<String, BigDecimal>
 )

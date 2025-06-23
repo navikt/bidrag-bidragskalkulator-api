@@ -6,13 +6,18 @@ import io.mockk.junit5.MockKExtension
 import no.nav.bidrag.bidragskalkulator.dto.BeregningRequestDto
 import no.nav.bidrag.bidragskalkulator.service.PersonService
 import no.nav.bidrag.bidragskalkulator.utils.JsonUtils
+import no.nav.bidrag.domene.enums.grunnlag.Grunnlagstype
 import no.nav.bidrag.domene.enums.vedtak.Stønadstype
 import no.nav.bidrag.domene.ident.Personident
+import no.nav.bidrag.transport.behandling.felles.grunnlag.BostatusPeriode
+import no.nav.bidrag.transport.behandling.felles.grunnlag.FaktiskUtgiftPeriode
+import no.nav.bidrag.transport.behandling.felles.grunnlag.innholdTilObjekt
 import no.nav.bidrag.transport.person.PersonDto
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import java.math.BigDecimal
 import java.time.LocalDate
 
 @ExtendWith(MockKExtension::class)
@@ -90,6 +95,25 @@ class BeregningsgrunnlagMapperTest {
         assertEquals(Stønadstype.BIDRAG, result.first().grunnlag.stønadstype)
     }
 
+    @Test
+    fun `skal inkludere faktisk utgift grunnlag når brnetilsynsutgift er satt`() {
+        val beregningRequest: BeregningRequestDto = JsonUtils.readJsonFile("/barnebidrag/beregning_et_barn.json")
+        val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(beregningRequest)
+        val faktiskUtgiftGrunnlag = result.first().grunnlag.grunnlagListe
+            .find { it.type == Grunnlagstype.FAKTISK_UTGIFT_PERIODE }
+
+        assertNotNull(faktiskUtgiftGrunnlag, "Forventet grunnlag for faktisk utgift til barnetilsyn")
+    }
+
+    @Test
+    fun `skal ikke inkludere faktisk utgift grunnlag når brnetilsynsutgift ikke er satt`() {
+        val beregningRequest: BeregningRequestDto = JsonUtils.readJsonFile("/barnebidrag/beregning_barn_over_18.json")
+        val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(beregningRequest)
+        val faktiskUtgiftGrunnlag = result.first().grunnlag.grunnlagListe
+            .find { it.type == Grunnlagstype.FAKTISK_UTGIFT_PERIODE }
+
+        assertNull(faktiskUtgiftGrunnlag, "Forventet ikke grunnlag for faktisk utgift til barnetilsyn når barnetilsynsutgift ikke er satt")
+    }
 
     private fun assertBarnetsAlderOgReferanse(
         grunnlagOgBarnInformasjon: PersonBeregningsgrunnlag,

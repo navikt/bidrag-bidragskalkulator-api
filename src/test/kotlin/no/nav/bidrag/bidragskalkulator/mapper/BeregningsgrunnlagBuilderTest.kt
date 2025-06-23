@@ -1,6 +1,7 @@
 package no.nav.bidrag.bidragskalkulator.mapper
 
 import no.nav.bidrag.bidragskalkulator.dto.*
+import no.nav.bidrag.bidragskalkulator.mapper.BeregningsgrunnlagMapper.Referanser
 import no.nav.bidrag.bidragskalkulator.utils.JsonUtils
 import no.nav.bidrag.domene.enums.grunnlag.Grunnlagstype
 import no.nav.bidrag.domene.enums.person.Bostatuskode
@@ -168,6 +169,23 @@ class BeregningsgrunnlagBuilderTest {
             assertThat(result.gjelderReferanse).isEqualTo("Person_Bidragspliktig")
             assertThat(result.gjelderBarnReferanse).isEqualTo("Person_Søknadsbarn_0")
             assertThat(result.innhold["samværsklasse"].asText()).isEqualTo("SAMVÆRSKLASSE_1")
+        }
+    }
+
+    @Nested
+    inner class MottattFaktiskUtgiftgrunnlagTest {
+
+        @Test
+        fun `skal bygge mottatt faktisk utgift med riktig grunnlagstype og referanser`() {
+            val beregningRequest: BeregningRequestDto = JsonUtils.readJsonFile("/barnebidrag/beregning_et_barn.json")
+            val barn = beregningRequest.barn.first()
+
+            val resultat = builder.byggMottattFaktiskUtgift(
+                barn.ident.fødselsdato(), "Person_Søknadsbarn_0", barn.barnetilsynsutgift!!
+            )
+
+            assertThat(resultat.type).isEqualTo(Grunnlagstype.FAKTISK_UTGIFT_PERIODE)
+            assertThat(resultat.gjelderReferanse).isEqualTo(BeregningsgrunnlagMapper.BIDRAGSMOTTAKER)
         }
     }
 

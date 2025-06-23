@@ -5,11 +5,9 @@ import org.springframework.boot.actuate.autoconfigure.security.servlet.Managemen
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
 import org.springframework.boot.runApplication
-import org.springframework.cache.annotation.EnableCaching
 
 @SpringBootApplication(exclude = [SecurityAutoConfiguration::class, ManagementWebSecurityAutoConfiguration::class])
 @EnableJwtTokenValidation(ignore = ["org.springdoc", "org.springframework"])
-@EnableCaching
 class BidragBidragskalkulatorApiApplication
 
 fun main(args: Array<String>) {

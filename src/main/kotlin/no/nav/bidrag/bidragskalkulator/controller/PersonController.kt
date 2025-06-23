@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.slf4j.LoggerFactory
+import org.springframework.http.HttpStatus
+import org.springframework.web.server.ResponseStatusException
 
 @RestController
 @RequestMapping("/api/v1/person")
@@ -44,9 +46,8 @@ class PersonController(
     fun hentInformasjon(): BrukerInformasjonDto  {
         logger.info("Henter informasjon om pålogget person og personens barn")
 
-        val personIdent: String = requireNotNull(innloggetBrukerUtils.hentPåloggetPersonIdent()) {
-            "Brukerident er ikke tilgjengelig i token"
-        }
+        val personIdent = innloggetBrukerUtils.hentPåloggetPersonIdent()
+            ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Ugyldig token")
 
         return runBlocking(Dispatchers.IO + MDCContext()) {
             secureLogger.info { "Henter informasjon om pålogget person $personIdent og personens barn" }

@@ -9,6 +9,7 @@ import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
 import no.nav.bidrag.bidragskalkulator.dto.*
 import no.nav.bidrag.domene.enums.beregning.Samværsklasse
+import java.math.BigDecimal
 import java.time.LocalDate
 
 @Schema(description = "Informasjon om et barn i beregningen")
@@ -25,7 +26,10 @@ data class BarnMedAlderDto(
 
     @field:NotNull(message = "Bidragstype må være satt")
     @Schema(description = "Angir om den påloggede personen er pliktig eller mottaker for dette barnet", required = true)
-    override val bidragstype: BidragsType
+    override val bidragstype: BidragsType,
+
+    @Schema(description = "Utgifter i kroner per måned som den bidragsmottaker har til barnetilsyn for dette barnet", required = false)
+    override val barnetilsynsutgift: BigDecimal?
 ): IFellesBarnDto {
     @JsonIgnore
     @Schema(hidden = true) // Hides from Swagger

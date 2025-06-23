@@ -1,7 +1,7 @@
 package no.nav.bidrag.bidragskalkulator.service
 
-import Cachenøkler
 import no.nav.bidrag.beregn.barnebidrag.BeregnBarnebidragApi
+import no.nav.bidrag.bidragskalkulator.config.CacheConfig
 import no.nav.bidrag.bidragskalkulator.mapper.BeregningsgrunnlagMapper
 import no.nav.bidrag.domene.enums.grunnlag.Grunnlagstype
 import no.nav.bidrag.transport.behandling.felles.grunnlag.DelberegningUnderholdskostnad
@@ -20,7 +20,7 @@ open class UnderholdskostnadService(
 ) {
     val logger = getLogger(UnderholdskostnadService::class.java)
 
-    @Cacheable(Cachenøkler.UNDERHOLDSKOSTNAD)
+    @Cacheable(CacheConfig.UNDERHOLDSKOSTNAD)
     open fun genererUnderholdskostnadstabell(): Map<Int, BigDecimal> {
         return (0..25).associateWith { alder ->
             beregnCachedPersonUnderholdskostnad(alder)

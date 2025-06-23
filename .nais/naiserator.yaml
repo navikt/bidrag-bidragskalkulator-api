@@ -45,6 +45,11 @@ spec:
     autoInstrumentation:
       enabled: true
       runtime: java
+    logging:
+      destinations:
+        - id: loki
+        - id: elastic
+        - id: secure_logs
 
   accessPolicy:
     inbound:
