@@ -5,19 +5,14 @@ import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotEmpty
 
 interface PrivatAvtalePerson {
-    val fornavn: String
-    val etternavn: String
+    val fulltNavn: String
     val fodselsnummer: String
 }
 
 data class PrivatAvtaleBidragsmottaker(
-    @field:NotEmpty(message = "Fornavn må være satt")
-    @Schema(description = "Bidragsmottakers fornavn", required = true)
-    override val fornavn: String,
-
-    @field:NotEmpty(message = "Etternavn må være satt")
-    @Schema(description = "Bidragsmottakers etternavn", required = true)
-    override val etternavn: String,
+    @field:NotEmpty(message = "fulltNavn må være satt")
+    @Schema(description = "Bidragsmottakers fulle navn", required = true)
+    override val fulltNavn: String,
 
     @field:NotEmpty(message = "Ident/fødselsnummer må være satt")
     @Schema(description = "Bidragsmottakers fødselsnummer", required = true)
@@ -25,31 +20,23 @@ data class PrivatAvtaleBidragsmottaker(
 ) : PrivatAvtalePerson
 
 data class PrivatAvtaleBidragspliktig(
-    @field:NotEmpty(message = "Fornavn må være satt")
-    @Schema(description = "Bidragspliktiges fornavn", required = true)
-    override val fornavn: String,
-
-    @field:NotEmpty(message = "Etternavn må være satt")
-    @Schema(description = "Bidragspliktiges etternavn", required = true)
-    override val etternavn: String,
+    @field:NotEmpty(message = "fulltNavn må være satt")
+    @Schema(description = "Bidragsmottakers fulle navn", required = true)
+    override val fulltNavn: String,
 
     @field:NotEmpty(message = "Ident/fødselsnummer må være satt")
-    @Schema(description = "Bidragspliktiges fødselsnummer", required = true)
+    @Schema(description = "Bidragsmottakers fødselsnummer", required = true)
     override val fodselsnummer: String,
 ) : PrivatAvtalePerson
 
 @Schema(description = "Informasjon om barnet i en privat avtale")
 data class PrivatAvtaleBarn(
-    @field:NotEmpty(message = "Fornavn må være satt")
-    @Schema(description = "Barnets fornavn", required = true)
-    override val fornavn: String,
-
-    @field:NotEmpty(message = "Etternavn må være satt")
-    @Schema(description = "Barnets etternavn", required = true)
-    override val etternavn: String,
+    @field:NotEmpty(message = "fulltNavn må være satt")
+    @Schema(description = "Bidragsmottakers fulle navn", required = true)
+    override val fulltNavn: String,
 
     @field:NotEmpty(message = "Ident/fødselsnummer må være satt")
-    @Schema(description = "Barnets fødselsnummer", required = true)
+    @Schema(description = "Bidragsmottakers fødselsnummer", required = true)
     override val fodselsnummer: String,
 
     @field:Min(value = 1, message = "Bidraget må være større enn 0")
@@ -77,5 +64,7 @@ data class PrivatAvtalePdfDto(
     @Schema(description = "Er dette en ny avtale?", required = true)
     val nyAvtale: Boolean,
     @Schema(description = "Oppgjørsform for betaling av bidraget", required = true)
-    val oppgjorsform: String  // Consider using the Oppgjorsform enum instead of String
+    val oppgjorsform: String,  // Consider using the Oppgjorsform enum instead of String
+    @Schema(description = "Er dette en avtale som skal sendes til NAV?", required = true)
+    val tilInnsending: Boolean = false
 )

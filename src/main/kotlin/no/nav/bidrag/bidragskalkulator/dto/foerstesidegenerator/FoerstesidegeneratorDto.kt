@@ -2,21 +2,15 @@ package no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator
 
 data class FoerstesideDto(
     val spraakkode: String,
-    val adresse: FoerstesideAdresseDto,
-    val netsPostboks: String,
-    val avsender: FoerstesideAvsenderDto,
     val bruker: FoerstesideBrukerDto,
-    val ukjentBrukerPersoninfo: String,
     val tema: String,
-    val behandlingstema: String,
-    val arkivtittel: String,
-    val vedleggsliste: String,
-    val navSkjemaId: String,
     val overskriftstittel: String,
-    val dokumentlisteFoersteside: String,
+    val arkivtittel: String,
     val foerstesidetype: String,
-    val enhetsnummer: String,
-    val arkivsak: FoerstesideArkivsakDto
+    val netsPostboks: String,
+    val navSkjemaId: String,
+    val vedleggsliste: List<String>,
+    val dokumentlisteFoersteside: List<String>
 )
 
 data class FoerstesideAdresseDto(
@@ -41,3 +35,22 @@ data class FoerstesideArkivsakDto(
     val arkivsaksystem: String,
     val arkivsaksnummer: String
 )
+
+data class GenererFoerstesideResultatDto(
+    val foersteside: String,
+    val loepenummer: String,
+)
+
+data class GenererFoerstesideRequestDto(
+    val ident: String,
+    val navSkjemaId: NavSkjemaId,
+    val arkivtittel: String,
+    val enhetsnummer: String,
+    val spraakkode: String = "NB"
+) {
+}
+
+enum class NavSkjemaId(val kode: String) {
+    AVTALE_OM_BARNEBIDRAG_UNDER_18("NAV 55-00.60"),
+    AVTALE_OM_BARNEBIDRAG_OVER_18("NAV 55-00.60"),
+}

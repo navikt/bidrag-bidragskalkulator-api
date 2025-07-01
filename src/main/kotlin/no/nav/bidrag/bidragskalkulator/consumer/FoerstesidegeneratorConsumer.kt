@@ -1,20 +1,20 @@
 package no.nav.bidrag.bidragskalkulator.consumer
 
 import no.nav.bidrag.bidragskalkulator.config.FoerstesidegeneratorConfigurationProperties
-import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.FoerstesideAdresseDto
-import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.FoerstesideArkivsakDto
-import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.FoerstesideAvsenderDto
 import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.FoerstesideBrukerDto
 import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.FoerstesideDto
+import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.GenererFoerstesideRequestDto
+import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.GenererFoerstesideResultatDto
 import no.nav.bidrag.commons.web.client.AbstractRestClient
 import org.springframework.http.HttpHeaders
-import org.springframework.stereotype.Service
+import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.util.StreamUtils
+import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
 import java.io.ByteArrayOutputStream
 import java.net.URI
-
+import java.util.Base64
 
 class FoerstesidegeneratorConsumer(
     private val foerstesidegeneratorConfigurationProperties: FoerstesidegeneratorConfigurationProperties,
@@ -29,48 +29,44 @@ class FoerstesidegeneratorConsumer(
             .toUri()
     }
 
-    fun genererFoersteside(): ByteArrayOutputStream {
-        val headers = HttpHeaders()
+    fun genererFoersteside(genererFoerstesideRequestDto: GenererFoerstesideRequestDto): ByteArrayOutputStream {
+        val headers = HttpHeaders().apply {
+            this.accept = listOf(APPLICATION_JSON)
+            this.contentType = APPLICATION_JSON
+        }
+
+        headers.add("Nav-Consumer-Id", "bidragskalkulator")
+
         val outputStream = ByteArrayOutputStream()
         val payload = FoerstesideDto(
-            spraakkode = "NB",
-            adresse = FoerstesideAdresseDto(
-                adresselinje1 = "Gateveien 1",
-                adresselinje2 = "string",
-                adresselinje3 = "string",
-                postnummer = "1234",
-                poststed = "Oslo"
-            ),
-            netsPostboks = "1234",
-            avsender = FoerstesideAvsenderDto(
-                avsenderId = "01234567890",
-                avsenderNavn = "Per Hansen"
-            ),
+            spraakkode = genererFoerstesideRequestDto.spraakkode,
+            netsPostboks = "1400",
             bruker = FoerstesideBrukerDto(
-                brukerId = "01234567890",
+                brukerId = genererFoerstesideRequestDto.ident,
                 brukerType = "PERSON"
             ),
-            ukjentBrukerPersoninfo = "string",
-            tema = "FOR",
-            behandlingstema = "ab0001",
-            arkivtittel = "Søknad om foreldrepenger ved fødsel",
-            vedleggsliste = "[Terminbekreftelse, Dokumentasjon av inntekt]",
-            navSkjemaId = "NAV 14.05-07",
-            overskriftstittel = "Søknad om foreldrepenger ved fødsel - NAV 14.05-07",
-            dokumentlisteFoersteside = "[Søknad om foreldrepenger ved fødsel, Terminbekreftelse, Dokumentasjon av inntekt]",
-            foerstesidetype = "SKJEMA",
-            enhetsnummer = "9999",
-            arkivsak = FoerstesideArkivsakDto(
-                arkivsaksystem = "GSAK",
-                arkivsaksnummer = "abc123456"
-            )
+            tema = "BID",
+            vedleggsliste = listOf(
+                "${genererFoerstesideRequestDto.navSkjemaId.kode} ${genererFoerstesideRequestDto.arkivtittel}"
+            ),
+            dokumentlisteFoersteside = listOf(
+                "${genererFoerstesideRequestDto.navSkjemaId.kode} ${genererFoerstesideRequestDto.arkivtittel}"
+            ),
+            arkivtittel = genererFoerstesideRequestDto.arkivtittel,
+            navSkjemaId = genererFoerstesideRequestDto.navSkjemaId.kode,
+            overskriftstittel = "${genererFoerstesideRequestDto.navSkjemaId.kode} ${genererFoerstesideRequestDto.arkivtittel}",
+            foerstesidetype = "SKJEMA"
         )
 
         outputStream.use {
             try {
-                val response = postForNonNullEntity<ByteArray>(genererFoerstesideUrl, payload, headers).let {
-                    StreamUtils.copy(it, outputStream)
+                val response = postForNonNullEntity<GenererFoerstesideResultatDto>(genererFoerstesideUrl, payload, headers).let {
+                    val b64string = it.foersteside
+                    val decoded = Base64.getDecoder().decode(b64string)
+                    StreamUtils.copy(decoded, outputStream)
                 }
+            } catch (httpException: HttpClientErrorException) {
+                throw RuntimeException("Kunne ikke generere forstsideside: ${httpException.message}", httpException)
             } catch (e: Exception) {
                 secureLogger.error("Feil ved generering av forstsideside: ${e.message}", e)
                 throw RuntimeException("Kunne ikke generere forstsideside", e)

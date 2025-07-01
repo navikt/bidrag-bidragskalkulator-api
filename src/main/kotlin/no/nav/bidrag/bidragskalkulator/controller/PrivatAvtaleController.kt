@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.context.request.async.DeferredResult
 
 @RestController
 @RequestMapping("/api/v1/privat-avtale")
@@ -82,12 +83,16 @@ class PrivatAvtaleController(
     fun genererPrivatAvtale(@Valid @RequestBody privatAvtalePdfDto: PrivatAvtalePdfDto): ResponseEntity<ByteArray>? {
 
         return runBlocking(Dispatchers.IO + MDCContext()) {
-            val genererPrivatAvtalePdf = async { privatAvtalePdfService.genererPrivatAvtalePdf(privatAvtalePdfDto) }
+            val genererPrivatAvtalePdf = async { privatAvtalePdfService.genererPrivatAvtalePdf(privatAvtalePdfDto.bidragsmottaker.fodselsnummer, privatAvtalePdfDto) }
+
+            val privatAvtaleByteArray = genererPrivatAvtalePdf.await().toByteArray()
+            var resultat = privatAvtaleByteArray
+
             ResponseEntity
                 .ok()
                 .contentType(MediaType.APPLICATION_PDF)
                 .header("Content-Disposition", "inline; filename=\"privatavtale.pdf\"")
-                .body(genererPrivatAvtalePdf.await().toByteArray())
+                .body(resultat)
         }
     }
 
@@ -105,7 +110,7 @@ class PrivatAvtaleController(
     fun genererPrivatAvtaleForside(): ResponseEntity<ByteArray>? {
 
         return runBlocking(Dispatchers.IO + MDCContext()) {
-            val genererPrivatAvtalePdf = async { privatAvtalePdfService.genererForsideForInnsending() }
+            val genererPrivatAvtalePdf = async { privatAvtalePdfService.genererForsideForInnsending("30458043937") }
             ResponseEntity
                 .ok()
                 .contentType(MediaType.APPLICATION_PDF)

@@ -13,6 +13,7 @@ val tokenSupportVersion = "5.0.29"
 val jacksonVersion = "2.18.2"
 val junitJupiterVersion = "5.12.2"
 val coroutinesVersion = "1.10.2"
+val pdfBoxVersion = "2.0.31"
 
 plugins {
     id("org.jetbrains.kotlin.plugin.spring") version "1.9.25"
@@ -71,6 +72,8 @@ dependencies {
     api("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
     api("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
 
+    // PDF
+    implementation("org.apache.pdfbox:pdfbox:${pdfBoxVersion}")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
