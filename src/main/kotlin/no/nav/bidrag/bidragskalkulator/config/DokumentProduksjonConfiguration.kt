@@ -1,6 +1,7 @@
 package no.nav.bidrag.bidragskalkulator.config
 
 import no.nav.bidrag.bidragskalkulator.consumer.BidragDokumentProduksjonConsumer
+import no.nav.bidrag.bidragskalkulator.prosessor.PrivatAvtalePdfProsessor
 import no.nav.bidrag.commons.service.AppContext
 import no.nav.bidrag.commons.web.config.RestOperationsAzure
 import org.springframework.boot.context.properties.ConfigurationProperties
@@ -23,6 +24,11 @@ class DokumentProduksjonConfiguration {
     ): BidragDokumentProduksjonConsumer {
         val restTemplate = RestTemplate()
         return BidragDokumentProduksjonConsumer(dokumentProduksjonConfigurationProperties, restTemplate)
+    }
+
+    @Bean("PrivatAvtalePdfProsessor")
+    fun providePdfProsessor(): PrivatAvtalePdfProsessor {
+        return PrivatAvtalePdfProsessor()
     }
 }
 
