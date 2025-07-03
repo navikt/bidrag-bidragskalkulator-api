@@ -1,7 +1,5 @@
 package no.nav.bidrag.bidragskalkulator.prosessor
 
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import no.nav.bidrag.bidragskalkulator.utils.PdfUtils
 import no.nav.bidrag.bidragskalkulator.utils.PdfUtils.Companion.convertAllPagesToA4
 import no.nav.bidrag.bidragskalkulator.utils.skalerTilA4

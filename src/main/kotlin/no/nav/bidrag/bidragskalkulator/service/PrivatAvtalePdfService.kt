@@ -1,27 +1,16 @@
 package no.nav.bidrag.bidragskalkulator.service
 
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.slf4j.MDCContext
-import kotlinx.coroutines.withContext
 import no.nav.bidrag.bidragskalkulator.consumer.BidragDokumentProduksjonConsumer
 import no.nav.bidrag.bidragskalkulator.consumer.FoerstesidegeneratorConsumer
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtalePdfDto
 import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.GenererFoerstesideRequestDto
 import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.NavSkjemaId
 import no.nav.bidrag.bidragskalkulator.prosessor.PdfProsessor
-import no.nav.bidrag.bidragskalkulator.utils.PdfUtils
-import no.nav.bidrag.bidragskalkulator.utils.PdfUtils.Companion.convertAllPagesToA4
-import no.nav.bidrag.bidragskalkulator.utils.skalerTilA4
-import org.apache.pdfbox.io.MemoryUsageSetting
-import org.apache.pdfbox.multipdf.PDFMergerUtility
-import org.apache.pdfbox.pdmodel.PDDocument
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.io.ByteArrayOutputStream
-import java.io.File
 import java.io.IOException
-import java.util.UUID
 import kotlin.time.measureTimedValue
 
 @Service

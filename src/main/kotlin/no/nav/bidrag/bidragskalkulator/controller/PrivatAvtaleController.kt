@@ -6,6 +6,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import no.nav.bidrag.bidragskalkulator.config.SecurityConstants
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtaleInformasjonDto
+import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtalePdfDto
+import no.nav.bidrag.bidragskalkulator.service.PrivatAvtalePdfService
 import no.nav.bidrag.bidragskalkulator.service.PrivatAvtaleService
 import no.nav.bidrag.bidragskalkulator.utils.InnloggetBrukerUtils
 import no.nav.bidrag.commons.util.secureLogger
@@ -17,8 +19,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.slf4j.MDCContext
-import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtalePdfDto
-import no.nav.bidrag.bidragskalkulator.service.PrivatAvtalePdfService
 import no.nav.security.token.support.core.api.Unprotected
 import org.springframework.context.annotation.Profile
 import org.springframework.http.MediaType
