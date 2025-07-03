@@ -20,6 +20,7 @@ import kotlinx.coroutines.slf4j.MDCContext
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtalePdfDto
 import no.nav.bidrag.bidragskalkulator.service.PrivatAvtalePdfService
 import no.nav.security.token.support.core.api.Unprotected
+import org.springframework.context.annotation.Profile
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -27,11 +28,12 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import org.springframework.web.context.request.async.DeferredResult
+
 
 @RestController
 @RequestMapping("/api/v1/privat-avtale")
 @Unprotected
+@Profile("!prod")
 class PrivatAvtaleController(
     private val privatAvtalePdfService: PrivatAvtalePdfService,
     private val privatAvtaleService: PrivatAvtaleService,
@@ -65,7 +67,6 @@ class PrivatAvtaleController(
             privatAvtaleService.hentInformasjonForPrivatAvtale(personIdent).also {
                 secureLogger.info { "Henter informasjon om pålogget person $personIdent til bruk i en privat avtale fullført" }
             }
-
         }
     }
 
