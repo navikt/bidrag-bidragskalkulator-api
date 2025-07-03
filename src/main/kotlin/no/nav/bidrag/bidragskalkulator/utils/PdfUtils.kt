@@ -33,11 +33,8 @@ class PdfUtils {
 
 @Throws(IOException::class)
 fun PDDocument.skalerTilA4() {
+
     this.pages.forEach { page ->
-        if (page.mediaBox.width <= PDRectangle.A4.width && page.mediaBox.height <= PDRectangle.A4.height) {
-            // No scaling needed, pagealready fits within A4 dimensions
-            return@forEach
-        }
         val matrix = Matrix()
         val xScale = PDRectangle.A4.width / page.mediaBox.width
         val yScale = PDRectangle.A4.height / page.mediaBox.height
