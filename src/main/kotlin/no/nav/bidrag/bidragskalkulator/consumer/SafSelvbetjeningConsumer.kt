@@ -1,24 +1,69 @@
 package no.nav.bidrag.bidragskalkulator.consumer
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import no.nav.bidrag.bidragskalkulator.config.SafSelvbetjeningConfigurationProperties
 import no.nav.bidrag.bidragskalkulator.dto.SafSelvbetjeningResponsDto
-import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.stereotype.Service
+import no.nav.bidrag.commons.web.client.AbstractRestClient
+import org.springframework.http.HttpEntity
+import org.springframework.http.MediaType
+import org.springframework.web.client.RestClientException
 import org.springframework.web.client.RestTemplate
+import org.springframework.web.util.UriComponentsBuilder
+import java.net.URI
 
 
-@Service
 class SafSelvbetjeningConsumer(
-    @Qualifier("azure") restTemplate: RestTemplate
-) {
+    private val properties: SafSelvbetjeningConfigurationProperties,
+    private val restTemplate: RestTemplate,
+) : AbstractRestClient(restTemplate, "saf.selvbetjening") {
 
-    fun hentDokumenterForIdent(ident: String): SafSelvbetjeningResponsDto {
-        val objectMapper = ObjectMapper().apply { registerKotlinModule() }
-        return objectMapper.readValue(mockResponse, SafSelvbetjeningResponsDto::class.java)
+    private val url = UriComponentsBuilder.fromUri(URI.create(properties.graphqlUrl))
+        .path("/graphql")
+        .build()
+        .toUri()
+
+    suspend fun hentDokumenterForIdent(ident: String): SafSelvbetjeningResponsDto? {
+
+        val document = """
+                      query DokumentoversiktSelvbetjening(\$ident: String!, tema: [Tema!]) {   
+                        dokumentoversiktSelvbetjening(ident: \$ident, tema: [BID]) {
+                          journalposter {
+                            tema,
+                            tittel,
+                            datoSortering,
+                            journalpostId,
+                            mottaker {
+                              navn,
+                            }
+                            avsender {
+                              navn,
+                            },
+                            dokumenter {
+                              dokumentInfoId,
+                              tittel,
+                              dokumentvarianter {
+                                variantformat
+                              }
+                            }
+                          },
+                        }
+                      } 
+                  """.trimIndent()
+        val headers = org.springframework.http.HttpHeaders().apply {
+            contentType = MediaType.APPLICATION_JSON
+        }
+
+        val requestBody = GraphQLRequest(document, mapOf("ident" to ident))
+        try {
+            val response = restTemplate.postForEntity(url, HttpEntity(requestBody, headers), SafSelvbetjeningResponsDto::class.java)
+            return response.body
+        } catch (e: RestClientException) {
+            secureLogger.error("Feil ved henting av dokumenter for bruker: ${e.message}", e)
+            throw RuntimeException("Kunne ikke hente dokumenter", e)
+        }
     }
 
-    val mockResponse =  """
+
+    val mockResponse = """
         {
           "data": {
             "dokumentoversiktSelvbetjening": {
@@ -264,3 +309,5 @@ class SafSelvbetjeningConsumer(
     """.trimIndent()
 
 }
+
+data class GraphQLRequest(val query: String, val variables: Map<String, Any>? = null)
