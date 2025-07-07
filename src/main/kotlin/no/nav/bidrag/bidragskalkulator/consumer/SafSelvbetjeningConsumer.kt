@@ -21,7 +21,7 @@ class SafSelvbetjeningConsumer(
         .build()
         .toUri()
 
-    suspend fun hentDokumenterForIdent(ident: String): SafSelvbetjeningResponsDto? {
+    fun hentDokumenterForIdent(ident: String): SafSelvbetjeningResponsDto? {
 
         val document = """
                       query DokumentoversiktSelvbetjening(\$ident: String!, tema: [Tema!]) {   
@@ -54,8 +54,7 @@ class SafSelvbetjeningConsumer(
 
         val requestBody = GraphQLRequest(document, mapOf("ident" to ident))
         try {
-            val response = restTemplate.postForEntity(url, HttpEntity(requestBody, headers), SafSelvbetjeningResponsDto::class.java)
-            return response.body
+            return postForNonNullEntity<SafSelvbetjeningResponsDto>(url, HttpEntity(requestBody, headers))
         } catch (e: RestClientException) {
             secureLogger.error("Feil ved henting av dokumenter for bruker: ${e.message}", e)
             throw RuntimeException("Kunne ikke hente dokumenter", e)

@@ -13,11 +13,9 @@ class SafSelvbetjeningService(
     private val safSelvbetjeningMapper: SafSelvbetjeningMapper
 ) {
 
-    suspend fun hentSelvbetjeningJournalposter(ident: String, token: String): MinSideDokumenterDto = coroutineScope {
-        async {
-            consumer.hentDokumenterForIdent(ident)?.let {
+    fun hentSelvbetjeningJournalposter(ident: String, token: String): MinSideDokumenterDto {
+            return consumer.hentDokumenterForIdent(ident)?.let {
                 safSelvbetjeningMapper.mapSafSelvbetjeningRespons(it)
             } ?: MinSideDokumenterDto(emptyList())
-        }.await()
     }
 }

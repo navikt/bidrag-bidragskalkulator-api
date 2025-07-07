@@ -7,6 +7,8 @@ import no.nav.bidrag.bidragskalkulator.config.SecurityConstants
 import no.nav.bidrag.bidragskalkulator.dto.minSide.MinSideDokumenterDto
 import no.nav.bidrag.bidragskalkulator.service.SafSelvbetjeningService
 import no.nav.bidrag.bidragskalkulator.utils.InnloggetBrukerUtils
+import no.nav.bidrag.commons.util.RequestContextAsyncContext
+import no.nav.bidrag.commons.util.SecurityCoroutineContext
 import no.nav.bidrag.commons.util.secureLogger
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.slf4j.LoggerFactory
@@ -34,20 +36,19 @@ class MinSideController(
             ?: throw IllegalStateException("Ugyldig token, ingen pålogget bruker ident funnet")
 
         val token = innloggetBrukerUtils.hentPåloggetPersonToken()
-            ?: throw HttpClientErrorException(HttpStatus.UNAUTHORIZED, "Ugyldig token, ingen pålogget bruker ident funnet")
+            ?: throw HttpClientErrorException(
+                HttpStatus.UNAUTHORIZED,
+                "Ugyldig token, ingen pålogget bruker ident funnet"
+            )
 
-        return runBlocking(Dispatchers.IO + MDCContext()) {
-            // Henter identen til den innloggede brukeren
-            // Hvis ingen bruker er pålogget, kaster vi en feil
 
-            secureLogger.info { "Henter dokumenter for bruker med ident: $bruker" }
+        secureLogger.info { "Henter dokumenter for bruker med ident: $bruker" }
 
-            val dokumenter = safSelvbetjeningService.hentSelvbetjeningJournalposter(bruker, token)
+        val dokumenter = safSelvbetjeningService.hentSelvbetjeningJournalposter(bruker, token)
 
-            secureLogger.info { "Hentet ${dokumenter.journalposter.size} dokumenter for bruker med ident: $bruker" }
+        secureLogger.info { "Hentet ${dokumenter.journalposter.size} dokumenter for bruker med ident: $bruker" }
 
-            ResponseEntity.ok(dokumenter)
-        }
+        return ResponseEntity.ok(dokumenter)
     }
 
 }
