@@ -5,6 +5,7 @@ import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.FoerstesideBruke
 import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.FoerstesideDto
 import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.GenererFoerstesideRequestDto
 import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.GenererFoerstesideResultatDto
+import no.nav.bidrag.commons.util.secureLogger
 import no.nav.bidrag.commons.web.client.AbstractRestClient
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType.APPLICATION_JSON

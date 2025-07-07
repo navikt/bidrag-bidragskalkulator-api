@@ -54,7 +54,8 @@ no.nav.security.jwt:
       safselvbetjening:
         resource-url: ${SAFSELVBETJENING_URL}
         token-endpoint-url: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/oauth2/v2.0/token
-        grant-type: client_credentials
+        token-x-url: ${TOKEN_X_TOKEN_ENDPOINT}
+        grant-type: urn:ietf:params:oauth:grant-type:token-exchange
         scope: api://${SAFSELVBETJENING_SCOPE}/.default
         authentication:
           client-id: ${AZURE_APP_CLIENT_ID}
