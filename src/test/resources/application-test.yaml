@@ -2,6 +2,7 @@ BIDRAG_SJABLON_URL: bidrag_sjablon_url
 BIDRAG_PERSON_URL: bidrag_person_url
 BIDRAG_PERSON_SCOPE: bidrag_person_scope
 TOKEN_X_WELL_KNOWN_URL: http://localhost:${mock-oauth2-server.port}/tokenx/.well-known/openid-configuration
+TOKEN_X_TOKEN_ENDPOINT: http://localhost:${mock-oauth2-server.port}/tokenx
 AZURE_OPENID_CONFIG_TOKEN_ENDPOINT: http://localhost:${mock-oauth2-server.port}/aad/token
 AZURE_APP_TENANT_ID: tokenx
 NAIS_APP_NAME: bidrag-bidragskalkulator
@@ -11,14 +12,16 @@ BIDRAG_DOKUMENTPRODUKSJON_URL: https://bidrag-dokumentproduksjon.dev-gcp.nais.io
 FOERSTESIDE_GENERATOR_SCOPE: dev-fss.teamdokumenthandtering.foerstesidegenerator-q1
 FOERSTESIDE_GENERATOR_URL: https://foerstesidegenerator-q1.dev.intern.nav.no
 SAFSELVBETJENING_SCOPE: dev-fss.teamdokumenthandtering.safselvbetjening
-SAFSELVBETJENING_URL: https://safselvbetjening.dev-fss-pub.nais.io
-
+SAFSELVBETJENING_URL: http://localhost:${mock-oauth2-server.port}/saf
+TOKEN_X_PRIVATE_JWK: |
+  {"use":"sig","kty":"RSA","kid":"test-kid","alg":"RS256","n":"test-n","e":"AQAB","d":"test-d","p":"test-p","q":"test-q","dp":"test-dp","dq":"test-dq","qi":"test-qi"}
 foerstesidegenerator:
   url: ${FOERSTESIDE_GENERATOR_URL:https://foerstesidegenerator-q1.dev.intern.nav.no}
   genererFoerstesidePath: /api/foerstesidegenerator/v1/foersteside
 
-selvbetjening:
-  graphqlUrl: ${SAFSELVBETJENING_URL}
+saf:
+  selvbetjening:
+    graphqlUrl: ${SAFSELVBETJENING_URL}
 
 bidrag:
   dokumentproduksjon:
