@@ -19,8 +19,9 @@ foerstesidegenerator:
   url: ${FOERSTESIDE_GENERATOR_URL:https://foerstesidegenerator-q1.dev.intern.nav.no}
   genererFoerstesidePath: /api/foerstesidegenerator/v1/foersteside
 
-selvbetjening:
-  url: ${SAFSELVBETJENING_URL}
+saf:
+  selvbetjening:
+    url: ${SAFSELVBETJENING_URL}
 
 bidrag:
   dokumentproduksjon:
