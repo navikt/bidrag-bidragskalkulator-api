@@ -4,18 +4,21 @@ BIDRAG_PERSON_SCOPE: bidrag_person_scope
 TOKEN_X_WELL_KNOWN_URL: http://localhost:${mock-oauth2-server.port}/tokenx/.well-known/openid-configuration
 AZURE_OPENID_CONFIG_TOKEN_ENDPOINT: http://localhost:${mock-oauth2-server.port}/aad/token
 AZURE_APP_TENANT_ID: tokenx
-
 NAIS_APP_NAME: bidrag-bidragskalkulator
 BIDRAG_GRUNNLAG_URL: https://bidrag-grunnlag.intern.dev.nav.no
 KODEVERK_URL: https://kodeverk.dev-fss-pub.nais.io
 BIDRAG_DOKUMENTPRODUKSJON_URL: https://bidrag-dokumentproduksjon.dev-gcp.nais.io/bidrag-dokumentproduksjon
-
 FOERSTESIDE_GENERATOR_SCOPE: dev-fss.teamdokumenthandtering.foerstesidegenerator-q1
 FOERSTESIDE_GENERATOR_URL: https://foerstesidegenerator-q1.dev.intern.nav.no
+SAFSELVBETJENING_SCOPE: dev-fss.teamdokumenthandtering.safselvbetjening
+SAFSELVBETJENING_URL: https://safselvbetjening.dev-fss-pub.nais.io
+
 foerstesidegenerator:
   url: ${FOERSTESIDE_GENERATOR_URL:https://foerstesidegenerator-q1.dev.intern.nav.no}
   genererFoerstesidePath: /api/foerstesidegenerator/v1/foersteside
 
+selvbetjening:
+  graphqlUrl: ${SAFSELVBETJENING_URL}
 
 bidrag:
   dokumentproduksjon:
@@ -32,6 +35,20 @@ bidrag:
 no.nav.security.jwt:
   client:
     registration:
+      safselvbetjening:
+        resource-url: ${SAFSELVBETJENING_URL}
+        token-endpoint-url: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/oauth2/v2.0/token
+        token-x-url: ${TOKEN_X_TOKEN_ENDPOINT}
+        grant-type: urn:ietf:params:oauth:grant-type:token-exchange
+        scope: api://${SAFSELVBETJENING_SCOPE}/.default
+        authentication:
+          client-id: ${AZURE_APP_CLIENT_ID}
+          client-secret: ${AZURE_APP_CLIENT_SECRET}
+          client-auth-method: client_secret_basic
+        authentication-token-x:
+          client-id: ${TOKEN_X_CLIENT_ID}
+          client-jwk: ${TOKEN_X_PRIVATE_JWK}
+          client-auth-method: private_key_jwt
       foerstesidegenerator:
         resource-url: ${FOERSTESIDE_GENERATOR_URL}
         token-endpoint-url: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/oauth2/v2.0/token
@@ -41,16 +58,38 @@ no.nav.security.jwt:
           client-id: ${AZURE_APP_CLIENT_ID}
           client-secret: ${AZURE_APP_CLIENT_SECRET}
           client-auth-method: client_secret_basic
-
+        authentication-token-x:
+          client-id: ${TOKEN_X_CLIENT_ID}
+          client-jwk: ${TOKEN_X_PRIVATE_JWK}
+          client-auth-method: private_key_jwt
       bidrag-person:
         resource-url: ${BIDRAG_PERSON_URL}
-        token-endpoint-url: ${AZURE_OPENID_CONFIG_TOKEN_ENDPOINT}
+        token-endpoint-url: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/oauth2/v2.0/token
+        token-x-url: ${TOKEN_X_TOKEN_ENDPOINT}
         grant-type: client_credentials
         scope: api://${BIDRAG_PERSON_SCOPE}/.default
         authentication:
           client-id: ${AZURE_APP_CLIENT_ID}
           client-secret: ${AZURE_APP_CLIENT_SECRET}
           client-auth-method: client_secret_basic
+        authentication-token-x:
+          client-id: ${TOKEN_X_CLIENT_ID}
+          client-jwk: ${TOKEN_X_PRIVATE_JWK}
+          client-auth-method: private_key_jwt
+      bidrag-grunnlag:
+        resource-url: ${BIDRAG_GRUNNLAG_URL}
+        token-endpoint-url: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/oauth2/v2.0/token
+        token-x-url: ${TOKEN_X_TOKEN_ENDPOINT}
+        grant-type: client_credentials
+        scope: api://${BIDRAG_GRUNNLAG_SCOPE}/.default
+        authentication:
+          client-id: ${AZURE_APP_CLIENT_ID}
+          client-secret: ${AZURE_APP_CLIENT_SECRET}
+          client-auth-method: client_secret_basic
+        authentication-token-x:
+          client-id: ${TOKEN_X_CLIENT_ID}
+          client-jwk: ${TOKEN_X_PRIVATE_JWK}
+          client-auth-method: private_key_jwt
   issuer:
     tokenx:
       discoveryurl: ${TOKEN_X_WELL_KNOWN_URL}
