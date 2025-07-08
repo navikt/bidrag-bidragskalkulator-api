@@ -30,7 +30,7 @@ spring.config.activate.on-profile: prod, dev, local-nais
 
 saf:
   selvbetjening:
-    graphqlUrl: ${SAFSELVBETJENING_URL}
+    url: ${SAFSELVBETJENING_URL}
 
 foerstesidegenerator:
   url: ${FOERSTESIDE_GENERATOR_URL:https://foerstesidegenerator-q1.dev.intern.nav.no}

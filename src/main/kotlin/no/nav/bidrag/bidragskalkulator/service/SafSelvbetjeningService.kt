@@ -13,9 +13,14 @@ class SafSelvbetjeningService(
     private val safSelvbetjeningMapper: SafSelvbetjeningMapper
 ) {
 
-    fun hentSelvbetjeningJournalposter(ident: String, token: String): MinSideDokumenterDto {
+    fun hentSelvbetjeningJournalposter(ident: String): MinSideDokumenterDto {
             return consumer.hentDokumenterForIdent(ident)?.let {
                 safSelvbetjeningMapper.mapSafSelvbetjeningRespons(it)
             } ?: MinSideDokumenterDto(emptyList())
     }
+
+    fun hentDokument(journalpostId: String, dokumentInfoId: String) =
+        consumer.hentDokument(journalpostId, dokumentInfoId, "ARKIV")
+
+
 }

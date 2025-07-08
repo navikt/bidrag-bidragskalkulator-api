@@ -23,5 +23,5 @@ class SafSelvbetjeningConfiguration {
 
 @ConfigurationProperties(prefix = "saf.selvbetjening")
 class SafSelvbetjeningConfigurationProperties(
-    val graphqlUrl: String,
+    val url: String,
 )
