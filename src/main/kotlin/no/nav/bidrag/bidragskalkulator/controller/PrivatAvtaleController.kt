@@ -90,13 +90,12 @@ class PrivatAvtaleController(
             val genererPrivatAvtalePdf = async { privatAvtalePdfService.genererPrivatAvtalePdf(personIdent, privatAvtalePdfDto) }
 
             val privatAvtaleByteArray = genererPrivatAvtalePdf.await().toByteArray()
-            var resultat = privatAvtaleByteArray
 
             ResponseEntity
                 .ok()
                 .contentType(MediaType.APPLICATION_PDF)
                 .header("Content-Disposition", "inline; filename=\"privatavtale.pdf\"")
-                .body(resultat)
+                .body(privatAvtaleByteArray)
         }
     }
 
