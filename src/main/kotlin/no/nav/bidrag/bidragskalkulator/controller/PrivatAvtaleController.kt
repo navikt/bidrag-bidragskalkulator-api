@@ -83,8 +83,11 @@ class PrivatAvtaleController(
     )
     fun genererPrivatAvtale(@Valid @RequestBody privatAvtalePdfDto: PrivatAvtalePdfDto): ResponseEntity<ByteArray>? {
 
+        val personIdent = innloggetBrukerUtils.hentPåloggetPersonIdent()
+            ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Ugyldig token")
+
         return runBlocking(Dispatchers.IO + MDCContext()) {
-            val genererPrivatAvtalePdf = async { privatAvtalePdfService.genererPrivatAvtalePdf(privatAvtalePdfDto.bidragsmottaker.fodselsnummer, privatAvtalePdfDto) }
+            val genererPrivatAvtalePdf = async { privatAvtalePdfService.genererPrivatAvtalePdf(personIdent, privatAvtalePdfDto) }
 
             val privatAvtaleByteArray = genererPrivatAvtalePdf.await().toByteArray()
             var resultat = privatAvtaleByteArray
@@ -109,9 +112,11 @@ class PrivatAvtaleController(
         ]
     )
     fun genererPrivatAvtaleForside(): ResponseEntity<ByteArray>? {
+        val personIdent = innloggetBrukerUtils.hentPåloggetPersonIdent()
+            ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Ugyldig token")
 
         return runBlocking(Dispatchers.IO + MDCContext()) {
-            val genererPrivatAvtalePdf = async { privatAvtalePdfService.genererForsideForInnsending("30458043937") }
+            val genererPrivatAvtalePdf = async { privatAvtalePdfService.genererForsideForInnsending(personIdent) }
             ResponseEntity
                 .ok()
                 .contentType(MediaType.APPLICATION_PDF)

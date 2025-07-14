@@ -44,6 +44,7 @@ class PrivatAvtalePdfProsessor : PdfProsessor {
                 val pdd = PDDocument.load(dokument)
                 pdd.skalerTilA4()
                 pdd.save(tempFile)
+                tempFiles.add(tempFile)
                 pdfMerger.addSource(tempFile)
             }
 

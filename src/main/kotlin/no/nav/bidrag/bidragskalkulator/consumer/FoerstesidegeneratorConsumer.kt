@@ -5,6 +5,7 @@ import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.FoerstesideBruke
 import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.FoerstesideDto
 import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.GenererFoerstesideRequestDto
 import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.GenererFoerstesideResultatDto
+import no.nav.bidrag.commons.CorrelationId
 import no.nav.bidrag.commons.web.client.AbstractRestClient
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType.APPLICATION_JSON
@@ -35,7 +36,7 @@ class FoerstesidegeneratorConsumer(
             this.contentType = APPLICATION_JSON
         }
 
-        headers.add("Nav-Consumer-Id", "bidragskalkulator")
+        headers.add("Nav-Consumer-Id", "bidrag-bidragskalkulator-api")
 
         val outputStream = ByteArrayOutputStream()
         val payload = FoerstesideDto(
@@ -66,10 +67,10 @@ class FoerstesidegeneratorConsumer(
                     StreamUtils.copy(decoded, outputStream)
                 }
             } catch (httpException: HttpClientErrorException) {
-                throw RuntimeException("Kunne ikke generere forstsideside: ${httpException.message}", httpException)
+                throw RuntimeException("Kunne ikke generere førsteside: ${httpException.message}", httpException)
             } catch (e: Exception) {
-                secureLogger.error("Feil ved generering av forstsideside: ${e.message}", e)
-                throw RuntimeException("Kunne ikke generere forstsideside", e)
+                secureLogger.error("Feil ved generering av førsteside: ${e.message}", e)
+                throw RuntimeException("Kunne ikke generere førsteside", e)
             }
 
         }
