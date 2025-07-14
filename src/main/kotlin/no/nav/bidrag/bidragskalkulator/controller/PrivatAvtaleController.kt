@@ -98,29 +98,4 @@ class PrivatAvtaleController(
                 .body(privatAvtaleByteArray)
         }
     }
-
-    @GetMapping(produces = [MediaType.APPLICATION_PDF_VALUE], path = ["/forside"])
-    @Operation(
-        summary = "Generer forside for privat avtale PDF",
-        description = "Genererer forsiden for privat avtale i PDF-format.",
-    )
-    @ApiResponses(
-        value = [
-            ApiResponse(responseCode = "200", description = "Privat avtale PDF generert"),
-            ApiResponse(responseCode = "500", description = "Intern serverfeil")
-        ]
-    )
-    fun genererPrivatAvtaleForside(): ResponseEntity<ByteArray>? {
-        val personIdent = innloggetBrukerUtils.hentPåloggetPersonIdent()
-            ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Ugyldig token")
-
-        return runBlocking(Dispatchers.IO + MDCContext()) {
-            val genererPrivatAvtalePdf = async { privatAvtalePdfService.genererForsideForInnsending(personIdent) }
-            ResponseEntity
-                .ok()
-                .contentType(MediaType.APPLICATION_PDF)
-                .header("Content-Disposition", "inline; filename=\"privatavtale.pdf\"")
-                .body(genererPrivatAvtalePdf.await().toByteArray())
-        }
-    }
 }

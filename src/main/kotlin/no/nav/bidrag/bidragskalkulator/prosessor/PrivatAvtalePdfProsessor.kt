@@ -48,7 +48,7 @@ class PrivatAvtalePdfProsessor : PdfProsessor {
                 pdfMerger.addSource(tempFile)
             }
 
-            // TODO: temp file only?
+            // TODO: temp file only på sikt. Mulig in memory fører til OOM feil
             pdfMerger.mergeDocuments(MemoryUsageSetting.setupMainMemoryOnly())
 
         } catch (e: Exception) {
