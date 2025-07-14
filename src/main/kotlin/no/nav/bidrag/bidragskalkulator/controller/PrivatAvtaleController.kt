@@ -19,6 +19,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.slf4j.MDCContext
+import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.api.Unprotected
 import org.springframework.context.annotation.Profile
 import org.springframework.http.MediaType
@@ -32,7 +33,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/v1/privat-avtale")
-@Unprotected
+@ProtectedWithClaims(issuer = SecurityConstants.TOKENX)
 @Profile("!prod")
 class PrivatAvtaleController(
     private val privatAvtalePdfService: PrivatAvtalePdfService,
