@@ -6,6 +6,7 @@ import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.FoerstesideDto
 import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.GenererFoerstesideRequestDto
 import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.GenererFoerstesideResultatDto
 import no.nav.bidrag.commons.web.client.AbstractRestClient
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.util.StreamUtils
@@ -20,6 +21,8 @@ class FoerstesidegeneratorConsumer(
     private val foerstesidegeneratorConfigurationProperties: FoerstesidegeneratorConfigurationProperties,
     private val restTemplate: RestTemplate
 ) : AbstractRestClient(restTemplate, "bidrag.foerstesidegenerator") {
+
+    val logger = LoggerFactory.getLogger(FoerstesidegeneratorConsumer::class.java)
 
     val genererFoerstesideUrl: URI by lazy {
         UriComponentsBuilder
@@ -60,7 +63,7 @@ class FoerstesidegeneratorConsumer(
 
         outputStream.use {
             try {
-                val response = postForNonNullEntity<GenererFoerstesideResultatDto>(genererFoerstesideUrl, payload, headers).let {
+                postForNonNullEntity<GenererFoerstesideResultatDto>(genererFoerstesideUrl, payload, headers).let {
                     val b64string = it.foersteside
                     val decoded = Base64.getDecoder().decode(b64string)
                     StreamUtils.copy(decoded, outputStream)
@@ -68,7 +71,7 @@ class FoerstesidegeneratorConsumer(
             } catch (httpException: HttpClientErrorException) {
                 throw RuntimeException("Kunne ikke generere førsteside: ${httpException.message}", httpException)
             } catch (e: Exception) {
-                secureLogger.error("Feil ved generering av førsteside: ${e.message}", e)
+                logger.error("Feil ved generering av førsteside", e)
                 throw RuntimeException("Kunne ikke generere førsteside", e)
             }
 
