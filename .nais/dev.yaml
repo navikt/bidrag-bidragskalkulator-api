@@ -13,7 +13,7 @@ env:
   FOERSTESIDE_GENERATOR_SCOPE: dev-fss.teamdokumenthandtering.foerstesidegenerator-q1
   FOERSTESIDE_GENERATOR_URL: https://foerstesidegenerator-q1.dev.intern.nav.no
   BIDRAG_DOKUMENTPRODUKSJON_URL: https://bidrag-dokument-produksjon.intern.dev.nav.no
-  SAFSELVBETJENING_URL: https://safselvbetjening.dev-fss-pub.nais.io
+  SAFSELVBETJENING_URL: https://safselvbetjening.dev.intern.nav.no
   SAFSELVBETJENING_SCOPE: dev-fss.teamdokumenthandtering.safselvbetjening
 
 inbound_application:

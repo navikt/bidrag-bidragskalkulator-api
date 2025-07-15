@@ -99,7 +99,7 @@ class SafSelvbetjeningConsumer(
             return postForNonNullEntity<SafSelvbetjeningResponsDto>(dokumentOversiktUrl, requestBody, headers)
         } catch (e: HttpClientErrorException) {
             when (e.statusCode.value()) {
-                404 -> {
+                401 -> {
                     secureLogger.error { "Tilgang feilet ved henting av dokumenter: ${e.message}" }
                     throw HttpClientErrorException(HttpStatus.UNAUTHORIZED, "Tilgang feilet ved henting av dokumenter")
                 }

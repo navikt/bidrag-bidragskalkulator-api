@@ -69,6 +69,7 @@ class FoerstesidegeneratorConsumer(
                     StreamUtils.copy(decoded, outputStream)
                 }
             } catch (httpException: HttpClientErrorException) {
+                logger.error("Feil ved generering av førsteside", httpException)
                 throw RuntimeException("Kunne ikke generere førsteside: ${httpException.message}", httpException)
             } catch (e: Exception) {
                 logger.error("Feil ved generering av førsteside", e)
