@@ -3,6 +3,7 @@ package no.nav.bidrag.bidragskalkulator.consumer
 import no.nav.bidrag.bidragskalkulator.config.BidragPersonConfigurationProperties
 import no.nav.bidrag.bidragskalkulator.exception.NoContentException
 import no.nav.bidrag.commons.security.SikkerhetsKontekst
+import no.nav.bidrag.commons.util.secureLogger
 import no.nav.bidrag.commons.web.client.AbstractRestClient
 import no.nav.bidrag.domene.ident.Personident
 import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto

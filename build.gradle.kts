@@ -5,7 +5,7 @@ group = "com.github.navikt"
 version = "0.0.1-SNAPSHOT"
 
 val bidragBeregnFellesVersion = "2025.05.26.111207"
-val bidragFellesVersion = "2025.05.28.071416"
+val bidragFellesVersion = "2025.07.07.141125"
 val kotlinLoggingJvmVersion = "7.0.7"
 val springDocWebmvcVersion = "2.8.8"
 val mockkVersion = "4.0.2"
@@ -13,6 +13,7 @@ val tokenSupportVersion = "5.0.29"
 val jacksonVersion = "2.18.2"
 val junitJupiterVersion = "5.12.2"
 val coroutinesVersion = "1.10.2"
+val pdfBoxVersion = "2.0.31"
 
 plugins {
     id("org.jetbrains.kotlin.plugin.spring") version "1.9.25"
@@ -37,6 +38,8 @@ dependencies {
     api("org.springframework.boot:spring-boot-starter-security")
     api("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     api("org.springframework.boot:spring-boot-starter-oauth2-client")
+    api("org.springframework.boot:spring-boot-starter-graphql")
+    api("org.springframework.boot:spring-boot-starter-webflux")
     api("org.jetbrains.kotlin:kotlin-reflect")
 
     //Springdoc
@@ -71,6 +74,8 @@ dependencies {
     api("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
     api("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
 
+    // PDF
+    implementation("org.apache.pdfbox:pdfbox:${pdfBoxVersion}")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
