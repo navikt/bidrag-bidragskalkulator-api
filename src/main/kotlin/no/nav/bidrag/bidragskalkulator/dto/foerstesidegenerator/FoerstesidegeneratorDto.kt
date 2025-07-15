@@ -52,5 +52,5 @@ data class GenererFoerstesideRequestDto(
 
 enum class NavSkjemaId(val kode: String) {
     AVTALE_OM_BARNEBIDRAG_UNDER_18("NAV 55-00.60"),
-    AVTALE_OM_BARNEBIDRAG_OVER_18("NAV 55-00.60"),
+    AVTALE_OM_BARNEBIDRAG_OVER_18("NAV 55-00.50"),
 }

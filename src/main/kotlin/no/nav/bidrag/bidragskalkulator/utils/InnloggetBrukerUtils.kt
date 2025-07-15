@@ -13,6 +13,10 @@ class InnloggetBrukerUtils(private val oidcTokenManager: OidcTokenManager) {
         return token?.let { hentPidFraToken(it) }
     }
 
+    fun hentPåloggetPersonToken(): String? {
+        return oidcTokenManager.hentToken()
+    }
+
     /**
      * Ekstraherer 'pid' fra et JWT-token.
      * Kaster IllegalArgumentException hvis token er ugyldig eller mangler 'pid'-claim.

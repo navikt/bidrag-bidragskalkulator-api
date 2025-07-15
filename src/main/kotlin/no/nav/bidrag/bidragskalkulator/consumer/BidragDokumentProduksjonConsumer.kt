@@ -2,6 +2,7 @@ package no.nav.bidrag.bidragskalkulator.consumer
 
 import no.nav.bidrag.bidragskalkulator.config.DokumentproduksjonConfigurationProperties
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtalePdfDto
+import no.nav.bidrag.commons.util.secureLogger
 import no.nav.bidrag.commons.web.client.AbstractRestClient
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
