@@ -14,6 +14,7 @@ val jacksonVersion = "2.18.2"
 val junitJupiterVersion = "5.12.2"
 val coroutinesVersion = "1.10.2"
 val pdfBoxVersion = "2.0.31"
+val springKafkaVersion = "3.1.2"
 
 plugins {
     id("org.jetbrains.kotlin.plugin.spring") version "1.9.25"
@@ -76,6 +77,9 @@ dependencies {
 
     // PDF
     implementation("org.apache.pdfbox:pdfbox:${pdfBoxVersion}")
+
+    // Kafka
+    implementation("org.springframework.kafka:spring-kafka:${springKafkaVersion}")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")

@@ -20,6 +20,12 @@ spring.config.activate.on-profile: local
 BIDRAG_SJABLON_URL: https://bidrag-sjablon.dev-fss-pub.nais.io/bidrag-sjablon
 BIDRAG_GRUNNLAG_URL: https://bidrag-grunnlag.intern.dev.nav.no
 
+kafka:
+  bootstrapServers: localhost:9092
+  consumerGroupId: bidrag-bidragskalkulator-api-local
+  listenerTopic: bidrag-listener-topic
+  producerTopic: bidrag-microfrontend-topic
+
 bidrag:
   grunnlag:
     url: ${BIDRAG_GRUNNLAG_URL}
@@ -27,6 +33,12 @@ bidrag:
 
 ---
 spring.config.activate.on-profile: prod, dev, local-nais
+
+kafka:
+  bootstrapServers: ${KAFKA_BROKERS}
+  consumerGroupId: ${KAFKA_CONSUMER_GROUP_ID:bidrag-bidragskalkulator-api}
+  listenerTopic: ${KAFKA_LISTENER_TOPIC:bidrag-listener-topic}
+  producerTopic: ${KAFKA_PRODUCER_TOPIC:bidrag-microfrontend-topic}
 
 saf:
   selvbetjening:
@@ -110,4 +122,3 @@ no.nav.security.jwt:
     tokenx:
       discoveryurl: ${TOKEN_X_WELL_KNOWN_URL}
       accepted_audience: ${TOKEN_X_CLIENT_ID}
-
