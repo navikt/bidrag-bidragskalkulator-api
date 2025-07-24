@@ -20,31 +20,38 @@ class PrivatAvtalePdfService(
     val pdfProcessor: PdfProsessor
 ) {
 
-    private val logger = LoggerFactory.getLogger(PrivatAvtalePdfService::class.java)
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     @Throws(IOException::class)
     suspend fun genererPrivatAvtalePdf(
         innsenderIdent: String,
         privatAvtalePdfDto: PrivatAvtalePdfDto
     ): ByteArrayOutputStream {
-        logger.info("Genererer privat avtale PDF")
+        logger.info("Starter generering av PDF for privat avtale")
 
-        val pdfOutputStream = measureTimedValue { bidragDokumentConsumer.genererPrivatAvtaleAPdf(privatAvtalePdfDto) }
-            .also { logger.info("Privat avtale PDF generert på ${it.duration.inWholeMilliseconds} ms") }
-            .value
 
-        val dokumenter = mutableListOf<ByteArray>(pdfOutputStream.toByteArray())
+        val hoveddokument = measureTimedValue {
+            bidragDokumentConsumer.genererPrivatAvtaleAPdf(privatAvtalePdfDto)
+        }.also {
+            logger.info("Hoveddokument generert på ${it.duration.inWholeMilliseconds} ms")
+        }.value
+
+        val dokumenter = mutableListOf(hoveddokument.toByteArray())
+
         if (privatAvtalePdfDto.tilInnsending) {
-            val foersteside = measureTimedValue { genererForsideForInnsending(innsenderIdent) }
-                .also { logger.info("Foersteside PDF generert på ${it.duration.inWholeMilliseconds} ms") }
-                .value
-            dokumenter.addFirst(foersteside.toByteArray())
+            val foersteside = measureTimedValue {
+                genererForsideForInnsending(innsenderIdent)
+            }.also {
+                logger.info("Førsteside generert på ${it.duration.inWholeMilliseconds} ms")
+            }.value
+
+            dokumenter.add(0, foersteside.toByteArray())
         }
 
-        val ferdigDokument = pdfProcessor.prosesserOgSlåSammenDokumenter(dokumenter)
+        val sammenslaatt = pdfProcessor.prosesserOgSlåSammenDokumenter(dokumenter)
 
         return ByteArrayOutputStream().apply {
-            write(ferdigDokument)
+            write(sammenslaatt)
         }
     }
 
