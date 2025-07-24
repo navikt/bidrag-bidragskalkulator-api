@@ -1,12 +1,12 @@
 package no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator
 
 data class FoerstesideDto(
-    val spraakkode: String,
+    val spraakkode: Spraakkode,
     val bruker: FoerstesideBrukerDto,
     val tema: String,
     val overskriftstittel: String,
     val arkivtittel: String,
-    val foerstesidetype: String,
+    val foerstesidetype: Foerstesidetype,
     val netsPostboks: String,
     val navSkjemaId: String,
     val vedleggsliste: List<String>,
@@ -46,8 +46,15 @@ data class GenererFoerstesideRequestDto(
     val navSkjemaId: NavSkjemaId,
     val arkivtittel: String,
     val enhetsnummer: String,
-    val spraakkode: String = "NB"
-) {
+    val spraakkode: Spraakkode = Spraakkode.NB,
+)
+
+enum class Spraakkode {
+    NB, NN, EN
+}
+
+enum class Foerstesidetype {
+    SKJEMA, INTERNT, ETTERSENDELSE, LOSPOST
 }
 
 enum class NavSkjemaId(val kode: String) {

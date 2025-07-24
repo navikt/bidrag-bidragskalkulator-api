@@ -1,15 +1,11 @@
 package no.nav.bidrag.bidragskalkulator.consumer
 
 import no.nav.bidrag.bidragskalkulator.config.FoerstesidegeneratorConfigurationProperties
-import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.FoerstesideBrukerDto
-import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.FoerstesideDto
-import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.GenererFoerstesideRequestDto
-import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.GenererFoerstesideResultatDto
+import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.*
 import no.nav.bidrag.bidragskalkulator.exception.MetaforceException
 import no.nav.bidrag.commons.web.client.AbstractRestClient
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
-import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.util.StreamUtils
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
@@ -19,16 +15,17 @@ import java.net.URI
 import java.util.Base64
 
 class FoerstesidegeneratorConsumer(
-    private val foerstesidegeneratorConfigurationProperties: FoerstesidegeneratorConfigurationProperties,
-    restTemplate: RestTemplate
+    private val config: FoerstesidegeneratorConfigurationProperties,
+    restTemplate: RestTemplate,
+    private val headers: HttpHeaders
 ) : AbstractRestClient(restTemplate, "bidrag.foerstesidegenerator") {
 
     val logger = LoggerFactory.getLogger(FoerstesidegeneratorConsumer::class.java)
 
     val genererFoerstesideUrl: URI by lazy {
         UriComponentsBuilder
-            .fromUriString(foerstesidegeneratorConfigurationProperties.url)
-            .path(foerstesidegeneratorConfigurationProperties.genererFoerstesidePath)
+            .fromUriString(config.url)
+            .path(config.genererFoerstesidePath)
             .build()
             .toUri()
     }
@@ -56,55 +53,40 @@ class FoerstesidegeneratorConsumer(
      * @return ByteArrayOutputStream med generert førsteside i PDF-format.
      * @throws MetaforceException dersom ekstern dokumenttjeneste (Metaforce) feiler.
      */
-    fun genererFoersteside(genererFoerstesideRequestDto: GenererFoerstesideRequestDto): ByteArrayOutputStream {
-        val headers = HttpHeaders().apply {
-            this.accept = listOf(APPLICATION_JSON)
-            this.contentType = APPLICATION_JSON
-        }
-
-        headers.add("Nav-Consumer-Id", "bidrag-bidragskalkulator-api")
-
-        val outputStream = ByteArrayOutputStream()
+    fun genererFoersteside(dto: GenererFoerstesideRequestDto): ByteArrayOutputStream {
         val payload = FoerstesideDto(
-            spraakkode = genererFoerstesideRequestDto.spraakkode,
+            spraakkode = dto.spraakkode,
             netsPostboks = "1400",
             bruker = FoerstesideBrukerDto(
-                brukerId = genererFoerstesideRequestDto.ident,
+                brukerId = dto.ident,
                 brukerType = "PERSON"
             ),
             tema = "BID",
-            vedleggsliste = listOf(
-                "${genererFoerstesideRequestDto.navSkjemaId.kode} ${genererFoerstesideRequestDto.arkivtittel}"
-            ),
-            dokumentlisteFoersteside = listOf(
-                "${genererFoerstesideRequestDto.navSkjemaId.kode} ${genererFoerstesideRequestDto.arkivtittel}"
-            ),
-            arkivtittel = genererFoerstesideRequestDto.arkivtittel,
-            navSkjemaId = genererFoerstesideRequestDto.navSkjemaId.kode,
-            overskriftstittel = "${genererFoerstesideRequestDto.navSkjemaId.kode} ${genererFoerstesideRequestDto.arkivtittel}",
-            foerstesidetype = "SKJEMA"
+            vedleggsliste = listOf("${dto.navSkjemaId.kode} ${dto.arkivtittel}"),
+            dokumentlisteFoersteside = listOf("${dto.navSkjemaId.kode} ${dto.arkivtittel}"),
+            arkivtittel = dto.arkivtittel,
+            navSkjemaId = dto.navSkjemaId.kode,
+            overskriftstittel = "${dto.navSkjemaId.kode} ${dto.arkivtittel}",
+            foerstesidetype = Foerstesidetype.SKJEMA
         )
 
-        outputStream.use {
+        return ByteArrayOutputStream().apply {
             try {
-                postForNonNullEntity<GenererFoerstesideResultatDto>(genererFoerstesideUrl, payload, headers).let {
-                    val b64string = it.foersteside
-                    val decoded = Base64.getDecoder().decode(b64string)
-                    StreamUtils.copy(decoded, outputStream)
-                }
-            } catch (httpException: HttpClientErrorException) {
-                logger.error("Feil ved generering av førsteside", httpException)
-                if (httpException.responseBodyAsString.contains("Metaforce:GS_CreateDocument", ignoreCase = true)) {
-                    throw MetaforceException("Failed to generate document due to Metaforce service error.", httpException)
+                val response = postForNonNullEntity<GenererFoerstesideResultatDto>(genererFoerstesideUrl, payload, headers)
+                val decodedPdf = Base64.getDecoder().decode(response.foersteside)
+                StreamUtils.copy(decodedPdf, this)
+            } catch (e: HttpClientErrorException) {
+                logger.error("Feil fra foerstesidegenerator", e)
+
+                if (e.responseBodyAsString.contains("Metaforce:GS_CreateDocument", ignoreCase = true)) {
+                    throw MetaforceException("Metaforce feilet ved dokumentgenerering", e)
                 }
 
-                throw RuntimeException("Kunne ikke generere førsteside: ${httpException.message}", httpException)
+                throw RuntimeException("Generering av førsteside feilet: ${e.message}", e)
             } catch (e: Exception) {
-                logger.error("Feil ved generering av førsteside", e)
-                throw RuntimeException("Kunne ikke generere førsteside", e)
+                logger.error("Uventet feil ved generering av førsteside", e)
+                throw RuntimeException("Generering av førsteside feilet", e)
             }
-
         }
-        return outputStream
     }
 }

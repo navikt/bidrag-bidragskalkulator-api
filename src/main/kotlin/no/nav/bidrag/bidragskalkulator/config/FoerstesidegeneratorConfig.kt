@@ -8,6 +8,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.client.RestTemplate
+import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType.APPLICATION_JSON
 
 @Configuration
 @ConfigurationPropertiesScan
@@ -15,12 +17,18 @@ import org.springframework.web.client.RestTemplate
 class FoerstesidegeneratorConfig {
 
     @Bean
-    fun provideFoerstesidegeneratorConsumer(
-        foerstesidegeneratorConfigurationProperties: FoerstesidegeneratorConfigurationProperties,
-        @Qualifier("azure") azureRestTemplate: RestTemplate,
-    ): FoerstesidegeneratorConsumer {
+    fun foerstesidegeneratorConsumer(
+        props: FoerstesidegeneratorConfigurationProperties,
+        @Qualifier("azure") azureRestTemplate: RestTemplate
+    ) = FoerstesidegeneratorConsumer(props, azureRestTemplate, foerstesidegeneratorHeaders())
 
-        return FoerstesidegeneratorConsumer(foerstesidegeneratorConfigurationProperties, azureRestTemplate)
+    @Bean
+    fun foerstesidegeneratorHeaders(): HttpHeaders {
+        return HttpHeaders().apply {
+            accept = listOf(APPLICATION_JSON)
+            contentType = APPLICATION_JSON
+            set("Nav-Consumer-Id", "bidrag-bidragskalkulator-api")
+        }
     }
 }
 
