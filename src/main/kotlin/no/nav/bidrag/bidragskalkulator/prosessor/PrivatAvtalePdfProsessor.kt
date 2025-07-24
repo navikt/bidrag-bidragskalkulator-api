@@ -41,11 +41,12 @@ class PrivatAvtalePdfProsessor : PdfProsessor {
         try {
             for (dokument in dokumentBytes) {
                 val tempFile = File.createTempFile("/tmp/${UUID.randomUUID()}", null)
-                val pdd = PDDocument.load(dokument)
-                pdd.skalerTilA4()
-                pdd.save(tempFile)
-                tempFiles.add(tempFile)
-                pdfMerger.addSource(tempFile)
+                PDDocument.load(dokument).use { pdd ->
+                    pdd.skalerTilA4()
+                    pdd.save(tempFile)
+                    tempFiles.add(tempFile)
+                    pdfMerger.addSource(tempFile)
+                }
             }
 
             // TODO: temp file only på sikt. Mulig in memory fører til OOM feil

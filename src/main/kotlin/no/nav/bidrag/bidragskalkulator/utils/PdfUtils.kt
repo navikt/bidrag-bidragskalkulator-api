@@ -22,10 +22,12 @@ class PdfUtils {
 
 
         fun convertAllPagesToA4(file: File) {
-            val pdd = PDDocument.load(file)
-            pdd.pages.forEach { page -> page.mediaBox = PDRectangle.A4 }
-            pdd.save(file)
+            PDDocument.load(file).use { pdd ->
+                pdd.pages.forEach { page -> page.mediaBox = PDRectangle.A4 }
+                pdd.save(file)
+            }
         }
+
     }
 
 

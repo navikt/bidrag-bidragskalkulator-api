@@ -5,6 +5,7 @@ import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.FoerstesideBruke
 import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.FoerstesideDto
 import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.GenererFoerstesideRequestDto
 import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.GenererFoerstesideResultatDto
+import no.nav.bidrag.bidragskalkulator.exception.MetaforceException
 import no.nav.bidrag.commons.web.client.AbstractRestClient
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
@@ -19,7 +20,7 @@ import java.util.Base64
 
 class FoerstesidegeneratorConsumer(
     private val foerstesidegeneratorConfigurationProperties: FoerstesidegeneratorConfigurationProperties,
-    private val restTemplate: RestTemplate
+    restTemplate: RestTemplate
 ) : AbstractRestClient(restTemplate, "bidrag.foerstesidegenerator") {
 
     val logger = LoggerFactory.getLogger(FoerstesidegeneratorConsumer::class.java)
@@ -32,6 +33,29 @@ class FoerstesidegeneratorConsumer(
             .toUri()
     }
 
+    /**
+     * Genererer førsteside for en privat avtale ved å kalle ekstern tjeneste.
+     *
+     * Denne funksjonen bygger opp en FoerstesideDto og sender den til foerstesidegenerator-tjenesten,
+     * som videre kaller Metaforce for å generere en PDF-basert førsteside.
+     *
+     * Hva er Metaforce?
+     * ------------------
+     * Metaforce er en ekstern dokumenttjeneste som brukes for å generere dokumenter (typisk PDF).
+     * I Nav brukes Metaforce ofte som underliggende system i tjenester som produserer skjema,
+     * brev eller forsider til innsendinger.
+     *
+     * Når denne funksjonen kalles:
+     * - Den bygger en forespørsel (`FoerstesideDto`) med nødvendige metadata.
+     * - Sender kallet til `foerstesidegenerator`, som internt kaller Metaforce.
+     * - Dersom Metaforce feiler, kastes en spesifikk `MetaforceException` og funksjonen returnerer HTTP 502 (Bad Gateway).
+     *
+     * Dette gjør det enklere å skille mellom feil i vår applikasjon og feil hos ekstern dokumentgenerator.
+     *
+     * @param genererFoerstesideRequestDto Informasjon om bruker og dokument som skal genereres.
+     * @return ByteArrayOutputStream med generert førsteside i PDF-format.
+     * @throws MetaforceException dersom ekstern dokumenttjeneste (Metaforce) feiler.
+     */
     fun genererFoersteside(genererFoerstesideRequestDto: GenererFoerstesideRequestDto): ByteArrayOutputStream {
         val headers = HttpHeaders().apply {
             this.accept = listOf(APPLICATION_JSON)
@@ -70,6 +94,10 @@ class FoerstesidegeneratorConsumer(
                 }
             } catch (httpException: HttpClientErrorException) {
                 logger.error("Feil ved generering av førsteside", httpException)
+                if (httpException.responseBodyAsString.contains("Metaforce:GS_CreateDocument", ignoreCase = true)) {
+                    throw MetaforceException("Failed to generate document due to Metaforce service error.", httpException)
+                }
+
                 throw RuntimeException("Kunne ikke generere førsteside: ${httpException.message}", httpException)
             } catch (e: Exception) {
                 logger.error("Feil ved generering av førsteside", e)
@@ -79,6 +107,4 @@ class FoerstesidegeneratorConsumer(
         }
         return outputStream
     }
-
-
 }
