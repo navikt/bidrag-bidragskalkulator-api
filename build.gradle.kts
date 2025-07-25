@@ -8,7 +8,7 @@ val bidragBeregnFellesVersion = "2025.07.10.102838"
 val bidragFellesVersion = "2025.07.23.101418"
 val kotlinLoggingJvmVersion = "7.0.7"
 val springDocWebmvcVersion = "2.8.8"
-val SpringmockkVersion = "4.0.2"
+val springmockkVersion = "4.0.2"
 val tokenSupportVersion = "5.0.33"
 val jacksonVersion = "2.19.0"
 val junitJupiterVersion = "5.13.4"
@@ -81,7 +81,7 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.junit.jupiter:junit-jupiter:$junitJupiterVersion")
-    testImplementation("com.ninja-squad:springmockk:$SpringmockkVersion")
+    testImplementation("com.ninja-squad:springmockk:$springmockkVersion")
     testImplementation("no.nav.security:token-validation-spring-test:$tokenSupportVersion")
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion")
