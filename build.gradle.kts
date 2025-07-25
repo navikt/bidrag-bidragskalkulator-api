@@ -4,20 +4,20 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 group = "com.github.navikt"
 version = "0.0.1-SNAPSHOT"
 
-val bidragBeregnFellesVersion = "2025.05.26.111207"
-val bidragFellesVersion = "2025.07.07.141125"
+val bidragBeregnFellesVersion = "2025.07.10.102838"
+val bidragFellesVersion = "2025.07.23.101418"
 val kotlinLoggingJvmVersion = "7.0.7"
 val springDocWebmvcVersion = "2.8.8"
-val mockkVersion = "4.0.2"
-val tokenSupportVersion = "5.0.29"
-val jacksonVersion = "2.18.2"
-val junitJupiterVersion = "5.12.2"
+val springmockkVersion = "4.0.2"
+val tokenSupportVersion = "5.0.33"
+val jacksonVersion = "2.19.0"
+val junitJupiterVersion = "5.13.4"
 val coroutinesVersion = "1.10.2"
 val pdfBoxVersion = "2.0.31"
 
 plugins {
     id("org.jetbrains.kotlin.plugin.spring") version "1.9.25"
-    id("org.springframework.boot") version "3.4.3"
+    id("org.springframework.boot") version "3.5.4"
     id("io.spring.dependency-management") version "1.1.7"
     kotlin("jvm") version "2.1.10"
     id("java")
@@ -81,7 +81,7 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.junit.jupiter:junit-jupiter:$junitJupiterVersion")
-    testImplementation("com.ninja-squad:springmockk:$mockkVersion")
+    testImplementation("com.ninja-squad:springmockk:$springmockkVersion")
     testImplementation("no.nav.security:token-validation-spring-test:$tokenSupportVersion")
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion")

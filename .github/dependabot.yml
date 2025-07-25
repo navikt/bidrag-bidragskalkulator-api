@@ -6,7 +6,7 @@ registries:
     username: x-access-token
     password: no-secret-required
 updates:
-  - package-ecosystem: "maven"
+  - package-ecosystem: "gradle"
     directory: "/"
     registries:
       - "maven-github"
