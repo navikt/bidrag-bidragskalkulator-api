@@ -73,10 +73,6 @@ dependencies {
     api("io.github.oshai:kotlin-logging-jvm:$kotlinLoggingJvmVersion")
     api("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
     api("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
-    implementation("org.springframework.security:spring-security-crypto:6.5.1")
-    implementation("org.apache.tomcat.embed:tomcat-embed-core:11.0.9")
-    implementation("org.apache.httpcomponents.client5:httpclient5:5.5")
-    implementation("org.apache.commons:commons-lang3:3.18.0")
 
     // PDF
     implementation("org.apache.pdfbox:pdfbox:${pdfBoxVersion}")
