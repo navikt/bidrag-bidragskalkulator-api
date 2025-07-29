@@ -19,7 +19,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.spring") version "2.2.0"
     id("org.springframework.boot") version "3.5.4"
     id("io.spring.dependency-management") version "1.1.7"
-    kotlin("jvm") version "2.1.10"
+    kotlin("jvm") version "2.2.0"
     id("java")
     id("maven-publish")
 }
