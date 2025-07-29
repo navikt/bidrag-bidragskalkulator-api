@@ -10,16 +10,16 @@ val kotlinLoggingJvmVersion = "7.0.7"
 val springDocWebmvcVersion = "2.8.9"
 val springmockkVersion = "4.0.2"
 val tokenSupportVersion = "5.0.33"
-val jacksonVersion = "2.19.0"
+val jacksonVersion = "2.19.2"
 val junitJupiterVersion = "5.13.4"
 val coroutinesVersion = "1.10.2"
 val pdfBoxVersion = "2.0.31"
 
 plugins {
-    id("org.jetbrains.kotlin.plugin.spring") version "1.9.25"
+    id("org.jetbrains.kotlin.plugin.spring") version "2.2.0"
     id("org.springframework.boot") version "3.5.4"
     id("io.spring.dependency-management") version "1.1.7"
-    kotlin("jvm") version "2.1.10"
+    kotlin("jvm") version "2.2.0"
     id("java")
     id("maven-publish")
 }
