@@ -29,8 +29,7 @@ class PrivatAvtaleControllerTest: AbstractControllerTest() {
 
         getRequest("/api/v1/privat-avtale/informasjon", gyldigOAuth2Token)
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.fornavn").value(forventetDto.fornavn))
-            .andExpect(jsonPath("$.etternavn").value(forventetDto.etternavn))
+            .andExpect(jsonPath("$.fulltNavn").value(forventetDto.fulltNavn))
             .andExpect(jsonPath("$.ident").value(forventetDto.ident.verdi))
     }
 
