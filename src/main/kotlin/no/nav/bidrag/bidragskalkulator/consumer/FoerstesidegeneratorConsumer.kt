@@ -3,16 +3,14 @@ package no.nav.bidrag.bidragskalkulator.consumer
 import no.nav.bidrag.bidragskalkulator.config.FoerstesidegeneratorConfigurationProperties
 import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.*
 import no.nav.bidrag.bidragskalkulator.exception.MetaforceException
+import no.nav.bidrag.commons.security.SikkerhetsKontekst
 import no.nav.bidrag.commons.web.client.AbstractRestClient
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
-import org.springframework.util.StreamUtils
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
-import java.io.ByteArrayOutputStream
 import java.net.URI
-import java.util.Base64
 
 class FoerstesidegeneratorConsumer(
     private val config: FoerstesidegeneratorConfigurationProperties,
@@ -28,6 +26,12 @@ class FoerstesidegeneratorConsumer(
             .path(config.genererFoerstesidePath)
             .build()
             .toUri()
+    }
+
+    fun <T : Any> medApplikasjonsKontekst(fn: () -> T): T {
+        return SikkerhetsKontekst.medApplikasjonKontekst {
+            fn()
+        }
     }
 
     /**
@@ -53,43 +57,36 @@ class FoerstesidegeneratorConsumer(
      * @return ByteArrayOutputStream med generert førsteside i PDF-format.
      * @throws MetaforceException dersom ekstern dokumenttjeneste (Metaforce) feiler.
      */
-    fun genererFoersteside(dto: GenererFoerstesideRequestDto): ByteArrayOutputStream {
-        val payload = FoerstesideDto(
-            spraakkode = dto.spraakkode,
-            netsPostboks = "1400",
-            bruker = FoerstesideBrukerDto(
-                brukerId = dto.ident,
-                brukerType = "PERSON"
-            ),
-            tema = "BID",
-            vedleggsliste = listOf("${dto.navSkjemaId.kode} ${dto.arkivtittel}"),
-            dokumentlisteFoersteside = listOf("${dto.navSkjemaId.kode} ${dto.arkivtittel}"),
-            arkivtittel = dto.arkivtittel,
-            navSkjemaId = dto.navSkjemaId.kode,
-            overskriftstittel = "${dto.navSkjemaId.kode} ${dto.arkivtittel}",
-            foerstesidetype = Foerstesidetype.SKJEMA
-        )
+    fun genererFoersteside(dto: GenererFoerstesideRequestDto): GenererFoerstesideResultatDto =
+        medApplikasjonsKontekst {
+            val payload = FoerstesideDto(
+                spraakkode = dto.spraakkode,
+                netsPostboks = "1400",
+                bruker = FoerstesideBrukerDto(
+                    brukerId = dto.ident,
+                    brukerType = "PERSON"
+                ),
+                tema = "BID",
+                vedleggsliste = listOf("${dto.navSkjemaId.kode} ${dto.arkivtittel}"),
+                dokumentlisteFoersteside = listOf("${dto.navSkjemaId.kode} ${dto.arkivtittel}"),
+                arkivtittel = dto.arkivtittel,
+                navSkjemaId = dto.navSkjemaId.kode,
+                overskriftstittel = "${dto.navSkjemaId.kode} ${dto.arkivtittel}",
+                foerstesidetype = Foerstesidetype.SKJEMA
+            )
 
-        return ByteArrayOutputStream().apply {
             try {
-                val response = postForNonNullEntity<GenererFoerstesideResultatDto>(genererFoerstesideUrl, payload, headers)
-                val decodedPdf = Base64.getDecoder().decode(response.foersteside)
-                StreamUtils.copy(decodedPdf, this)
+                postForEntity<GenererFoerstesideResultatDto>(genererFoerstesideUrl, payload, headers)
+                    ?: throw RuntimeException("Generering av førsteside feilet: tom respons fra server")
             } catch (e: HttpClientErrorException) {
                 logger.error("Feil fra foerstesidegenerator", e)
-
                 throw RuntimeException("Generering av førsteside feilet: ${e.message}", e)
             } catch (e: Exception) {
                 logger.error("Uventet feil ved generering av førsteside", e)
-
-                e.message?.let {
-                    if (it.contains("Metaforce:GS_CreateDocument", ignoreCase = true)) {
-                        throw MetaforceException("Metaforce feilet ved dokumentgenerering", e)
-                    }
+                if (e.message?.contains("Metaforce:GS_CreateDocument", ignoreCase = true) == true) {
+                    throw MetaforceException("Metaforce feilet ved dokumentgenerering", e)
                 }
-
                 throw RuntimeException("Generering av førsteside feilet", e)
             }
         }
-    }
 }

@@ -45,7 +45,7 @@ class PrivatAvtalePdfService(
                 logger.info("Førsteside generert på ${it.duration.inWholeMilliseconds} ms")
             }.value
 
-            dokumenter.add(0, foersteside.toByteArray())
+            dokumenter.add(0, foersteside)
         }
 
         val sammenslaatt = pdfProcessor.prosesserOgSlåSammenDokumenter(dokumenter)
@@ -55,7 +55,7 @@ class PrivatAvtalePdfService(
         }
     }
 
-    suspend fun genererForsideForInnsending(navIdent: String): ByteArrayOutputStream = coroutineScope {
+    suspend fun genererForsideForInnsending(navIdent: String): ByteArray = coroutineScope {
         foerstesideConsumer.genererFoersteside(
             GenererFoerstesideRequestDto(
                 ident = navIdent,
@@ -63,7 +63,7 @@ class PrivatAvtalePdfService(
                 arkivtittel = "Avtale om barnebidrag",
                 enhetsnummer = "1234"
             )
-        )
+        ).foersteside
     }
 
 
