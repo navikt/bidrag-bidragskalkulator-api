@@ -78,15 +78,6 @@ no.nav.security.jwt:
           client-id: ${TOKEN_X_CLIENT_ID}
           client-jwk: ${TOKEN_X_PRIVATE_JWK}
           client-auth-method: private_key_jwt
-        forstesidegenerator-onbehalf-of:
-          resource-url: ${FOERSTESIDE_GENERATOR_URL}
-          token-endpoint-url: ${AZURE_OPENID_CONFIG_TOKEN_ENDPOINT}
-          grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
-          scope: ${FOERSTESIDE_GENERATOR_SCOPE}
-          authentication:
-            client-id: ${AZURE_APP_CLIENT_ID}
-            client-secret: ${AZURE_APP_CLIENT_SECRET}
-            client-auth-method: client_secret_basic
       bidrag-person:
         resource-url: ${BIDRAG_PERSON_URL}
         token-endpoint-url: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/oauth2/v2.0/token
