@@ -13,7 +13,7 @@ val tokenSupportVersion = "5.0.34"
 val jacksonVersion = "2.19.2"
 val junitJupiterVersion = "5.13.4"
 val coroutinesVersion = "1.10.2"
-val pdfBoxVersion = "2.0.31"
+val pdfBoxVersion = "3.0.5"
 
 plugins {
     id("org.jetbrains.kotlin.plugin.spring") version "2.2.0"
