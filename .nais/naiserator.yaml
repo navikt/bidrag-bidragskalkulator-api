@@ -64,6 +64,12 @@ spec:
         {{#each outbound_external_host}}
         - host: "{{this}}"
         {{/each}}
+      rules:
+      {{#each outbound_access_apps:}}
+         - application: {{this}}
+      {{/each}}
+        - application: logging
+          namespace: nais-system
 
   liveness:
     path: /actuator/health
