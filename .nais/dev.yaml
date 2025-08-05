@@ -26,9 +26,6 @@ inbound_application:
   - application: foerstesidegenerator-q1
     namespace: teamdokumenthandtering
     cluster: dev-fss
-  - application: safselvbetjening-q1
-    namespace: teamdokumenthandtering
-    cluster: dev-fss
 
 outbound_external_host:
   - bidrag-sjablon.dev-fss-pub.nais.io

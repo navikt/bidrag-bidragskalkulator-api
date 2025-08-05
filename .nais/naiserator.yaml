@@ -67,10 +67,7 @@ spec:
       rules:
         - application: logging
           namespace: nais-system
-        - application: safselvbetjening
-          namespace: teamdokumenthandtering
-          cluster: dev-fss
-        - application: foerstesidegenerator-q1
+        - application: foerstesidegenerator
           namespace: teamdokumenthandtering
           cluster: dev-fss
 
