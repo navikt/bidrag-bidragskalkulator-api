@@ -1,5 +1,6 @@
 ingresses:
   - https://bidragskalkulator-api.intern.dev.nav.no
+  - https://bidragskalkulator-api.dev-fss-pub.nais.io
 
 env:
   SPRING_PROFILES_ACTIVE: dev
@@ -35,5 +36,3 @@ outbound_external_host:
   - bidrag-person-q1.dev-fss-pub.nais.io
   - foerstesidegenerator-q1.dev-fss-pub.nais.io
   - safselvbetjening-q1.dev-fss-pub.nais.io
-outbound_access_apps:
-  - foerstesidegenerator-q1
