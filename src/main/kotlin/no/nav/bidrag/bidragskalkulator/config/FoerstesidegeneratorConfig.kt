@@ -14,19 +14,32 @@ import org.springframework.context.annotation.Import
 import org.springframework.web.client.RestTemplate
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType.APPLICATION_JSON
+import org.springframework.retry.annotation.EnableRetry
 
 @Configuration
 @ConfigurationPropertiesScan
 @EnableConfigurationProperties(value = [FoerstesidegeneratorConfigurationProperties::class])
 @Import(RestOperationsAzure::class, AppContext::class, SikkerhetsKontekst::class)
+@EnableRetry
 class FoerstesidegeneratorConfig {
 
     @Bean
     fun foerstesidegeneratorConsumer(
         props: FoerstesidegeneratorConfigurationProperties,
         @Qualifier("azure") azureRestTemplate: RestTemplate
-    ) = FoerstesidegeneratorConsumer(props, azureRestTemplate, foerstesidegeneratorHeaders())
+    ): FoerstesidegeneratorConsumer {
+        val factory = azureRestTemplate.requestFactory
+        if (factory is org.springframework.http.client.HttpComponentsClientHttpRequestFactory) {
+            factory.setConnectTimeout(30_000) // 30 sekunder
+            factory.setReadTimeout(30_000)
+        }
 
+        return FoerstesidegeneratorConsumer(
+            props,
+            azureRestTemplate,
+            foerstesidegeneratorHeaders()
+        )
+    }
 
     @Bean
     fun foerstesidegeneratorHeaders(): HttpHeaders {
