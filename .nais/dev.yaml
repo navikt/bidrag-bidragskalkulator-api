@@ -27,3 +27,5 @@ outbound_external_host:
   - bidrag-sjablon.dev-fss-pub.nais.io
   - bidrag-grunnlag.intern.dev.nav.no
   - bidrag-person-q1.dev-fss-pub.nais.io
+  - foerstesidegenerator-q1.dev.intern.nav.no
+  - safselvbetjening.dev.intern.nav.no
