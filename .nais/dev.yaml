@@ -23,9 +23,6 @@ inbound_application:
   - application: tokenx-token-generator
     namespace: nais
     cluster: dev-gcp
-  - application: foerstesidegenerator-q1
-    namespace: teamdokumenthandtering
-    cluster: dev-fss
 
 outbound_external_host:
   - bidrag-sjablon.dev-fss-pub.nais.io
