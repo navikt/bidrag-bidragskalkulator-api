@@ -7,7 +7,6 @@ import no.nav.bidrag.commons.security.SikkerhetsKontekst
 import no.nav.bidrag.commons.web.client.AbstractRestClient
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
-import org.springframework.retry.annotation.Retryable
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
@@ -58,11 +57,6 @@ class FoerstesidegeneratorConsumer(
      * @return ByteArrayOutputStream med generert førsteside i PDF-format.
      * @throws MetaforceException dersom ekstern dokumenttjeneste (Metaforce) feiler.
      */
-    @Retryable(
-        value = [Exception::class],
-        maxAttempts = 3,
-        backoff = org.springframework.retry.annotation.Backoff(delay = 200, maxDelay = 1000, multiplier = 2.0)
-    )
     fun genererFoersteside(dto: GenererFoerstesideRequestDto): GenererFoerstesideResultatDto =
         medApplikasjonsKontekst {
             val payload = FoerstesideDto(

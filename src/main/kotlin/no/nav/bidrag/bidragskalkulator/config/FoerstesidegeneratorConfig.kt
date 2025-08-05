@@ -14,13 +14,11 @@ import org.springframework.context.annotation.Import
 import org.springframework.web.client.RestTemplate
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType.APPLICATION_JSON
-import org.springframework.retry.annotation.EnableRetry
 
 @Configuration
 @ConfigurationPropertiesScan
 @EnableConfigurationProperties(value = [FoerstesidegeneratorConfigurationProperties::class])
 @Import(RestOperationsAzure::class, AppContext::class, SikkerhetsKontekst::class)
-@EnableRetry
 class FoerstesidegeneratorConfig {
 
     @Bean
