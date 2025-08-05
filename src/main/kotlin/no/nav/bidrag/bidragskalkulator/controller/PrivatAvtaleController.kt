@@ -16,11 +16,9 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
 import jakarta.validation.Valid
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.slf4j.MDCContext
 import no.nav.security.token.support.core.api.ProtectedWithClaims
-import no.nav.security.token.support.core.api.Unprotected
 import org.springframework.context.annotation.Profile
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -82,22 +80,19 @@ class PrivatAvtaleController(
             ApiResponse(responseCode = "500", description = "Intern serverfeil")
         ]
     )
-    @Unprotected
     fun genererPrivatAvtale(@Valid @RequestBody privatAvtalePdfDto: PrivatAvtalePdfDto): ResponseEntity<ByteArray>? {
 
-        val personIdent = "19527030938"
+        val personIdent = innloggetBrukerUtils.hentPåloggetPersonIdent()
             ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Ugyldig token")
 
-        return runBlocking(Dispatchers.IO + MDCContext()) {
-            val genererPrivatAvtalePdf = async { privatAvtalePdfService.genererPrivatAvtalePdf(personIdent, privatAvtalePdfDto) }
+        val genererPrivatAvtalePdf =  privatAvtalePdfService.genererPrivatAvtalePdf(personIdent, privatAvtalePdfDto)
 
-            val privatAvtaleByteArray = genererPrivatAvtalePdf.await().toByteArray()
+        val privatAvtaleByteArray = genererPrivatAvtalePdf.toByteArray()
 
-            ResponseEntity
-                .ok()
-                .contentType(MediaType.APPLICATION_PDF)
-                .header("Content-Disposition", "inline; filename=\"privatavtale.pdf\"")
-                .body(privatAvtaleByteArray)
-        }
+        return ResponseEntity
+            .ok()
+            .contentType(MediaType.APPLICATION_PDF)
+            .header("Content-Disposition", "inline; filename=\"privatavtale.pdf\"")
+            .body(privatAvtaleByteArray)
     }
 }
