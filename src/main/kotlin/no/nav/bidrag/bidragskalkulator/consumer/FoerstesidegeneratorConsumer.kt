@@ -16,9 +16,14 @@ class FoerstesidegeneratorConsumer(
     private val config: FoerstesidegeneratorConfigurationProperties,
     restTemplate: RestTemplate,
     private val headers: HttpHeaders
-) : AbstractRestClient(restTemplate, "bidrag.foerstesidegenerator") {
+) : AbstractRestClient(restTemplate, "foerstesidegenerator") {
 
     val logger = LoggerFactory.getLogger(FoerstesidegeneratorConsumer::class.java)
+
+    init {
+        check(config.url.isNotEmpty()) { "foerstesidegenerator.url mangler i konfigurasjon" }
+        check(config.genererFoerstesidePath.isNotEmpty()) { "foerstesidegenerator.genererFoerstesidePath mangler i konfigurasjon" }
+    }
 
     val genererFoerstesideUrl: URI by lazy {
         UriComponentsBuilder
