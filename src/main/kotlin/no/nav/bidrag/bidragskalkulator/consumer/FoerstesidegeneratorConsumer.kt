@@ -85,12 +85,15 @@ class FoerstesidegeneratorConsumer(
                     ?: throw RuntimeException("Generering av førsteside feilet: tom respons fra server")
             } catch (e: HttpClientErrorException) {
                 logger.error("Feil fra foerstesidegenerator", e)
+
                 throw RuntimeException("Generering av førsteside feilet: ${e.message}", e)
             } catch (e: Exception) {
                 logger.error("Uventet feil ved generering av førsteside", e)
+
                 if (e.message?.contains("Metaforce:GS_CreateDocument", ignoreCase = true) == true) {
                     throw MetaforceException("Metaforce feilet ved dokumentgenerering", e)
                 }
+
                 throw RuntimeException("Generering av førsteside feilet", e)
             }
         }

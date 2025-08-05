@@ -26,12 +26,6 @@ class FoerstesidegeneratorConfig {
         props: FoerstesidegeneratorConfigurationProperties,
         @Qualifier("azure") azureRestTemplate: RestTemplate
     ): FoerstesidegeneratorConsumer {
-        val factory = azureRestTemplate.requestFactory
-        if (factory is org.springframework.http.client.HttpComponentsClientHttpRequestFactory) {
-            factory.setConnectTimeout(30_000) // 30 sekunder
-            factory.setReadTimeout(30_000)
-        }
-
         return FoerstesidegeneratorConsumer(
             props,
             azureRestTemplate,
