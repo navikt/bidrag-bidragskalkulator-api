@@ -67,6 +67,12 @@ spec:
       rules:
         - application: logging
           namespace: nais-system
+        - application: safselvbetjening
+          namespace: teamdokumenthandtering
+          cluster: dev-fss
+        - application: foerstesidegenerator-q1
+          namespace: teamdokumenthandtering
+          cluster: dev-fss
 
   liveness:
     path: /actuator/health

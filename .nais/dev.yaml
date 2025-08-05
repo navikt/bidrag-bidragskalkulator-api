@@ -1,6 +1,5 @@
 ingresses:
   - https://bidragskalkulator-api.intern.dev.nav.no
-  - https://bidragskalkulator-api.dev-fss-pub.nais.io
 
 env:
   SPRING_PROFILES_ACTIVE: dev
@@ -15,7 +14,7 @@ env:
   FOERSTESIDE_GENERATOR_URL: https://https://foerstesidegenerator-q1.dev-fss-pub.nais.io
   BIDRAG_DOKUMENTPRODUKSJON_URL: https://bidrag-dokument-produksjon.intern.dev.nav.no
   SAFSELVBETJENING_URL: https://safselvbetjening-q1.dev-fss-pub.nais.io
-  SAFSELVBETJENING_SCOPE: dev-fss.teamdokumenthandtering.safselvbetjening
+  SAFSELVBETJENING_SCOPE: dev-fss.teamdokumenthandtering.safselvbetjening-q1
 
 inbound_application:
   - application: bidrag-bidragskalkulator-v2
@@ -27,9 +26,10 @@ inbound_application:
   - application: foerstesidegenerator-q1
     namespace: teamdokumenthandtering
     cluster: dev-fss
-  - application: safselvbetjening
+  - application: safselvbetjening-q1
     namespace: teamdokumenthandtering
     cluster: dev-fss
+
 outbound_external_host:
   - bidrag-sjablon.dev-fss-pub.nais.io
   - bidrag-grunnlag.intern.dev.nav.no
