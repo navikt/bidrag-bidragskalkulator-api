@@ -1,6 +1,5 @@
 package no.nav.bidrag.bidragskalkulator.service
 
-import kotlinx.coroutines.coroutineScope
 import no.nav.bidrag.bidragskalkulator.consumer.BidragDokumentProduksjonConsumer
 import no.nav.bidrag.bidragskalkulator.consumer.FoerstesidegeneratorConsumer
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtalePdfDto
@@ -23,12 +22,11 @@ class PrivatAvtalePdfService(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @Throws(IOException::class)
-    suspend fun genererPrivatAvtalePdf(
+    fun genererPrivatAvtalePdf(
         innsenderIdent: String,
         privatAvtalePdfDto: PrivatAvtalePdfDto
     ): ByteArrayOutputStream {
         logger.info("Starter generering av PDF for privat avtale")
-
 
         val hoveddokument = measureTimedValue {
             bidragDokumentConsumer.genererPrivatAvtaleAPdf(privatAvtalePdfDto)
@@ -45,7 +43,7 @@ class PrivatAvtalePdfService(
                 logger.info("Førsteside generert på ${it.duration.inWholeMilliseconds} ms")
             }.value
 
-            dokumenter.add(0, foersteside.toByteArray())
+            dokumenter.add(0, foersteside)
         }
 
         val sammenslaatt = pdfProcessor.prosesserOgSlåSammenDokumenter(dokumenter)
@@ -55,7 +53,7 @@ class PrivatAvtalePdfService(
         }
     }
 
-    suspend fun genererForsideForInnsending(navIdent: String): ByteArrayOutputStream = coroutineScope {
+    fun genererForsideForInnsending(navIdent: String): ByteArray =
         foerstesideConsumer.genererFoersteside(
             GenererFoerstesideRequestDto(
                 ident = navIdent,
@@ -63,8 +61,6 @@ class PrivatAvtalePdfService(
                 arkivtittel = "Avtale om barnebidrag",
                 enhetsnummer = "1234"
             )
-        )
-    }
-
+        ).foersteside
 
 }

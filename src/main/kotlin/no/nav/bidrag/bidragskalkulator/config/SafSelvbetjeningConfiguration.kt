@@ -1,7 +1,6 @@
 package no.nav.bidrag.bidragskalkulator.config
 
 import no.nav.bidrag.bidragskalkulator.consumer.SafSelvbetjeningConsumer
-import no.nav.bidrag.commons.security.service.OidcTokenManager
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Bean
@@ -14,7 +13,6 @@ class SafSelvbetjeningConfiguration {
     @Bean
     fun provideSafSelvbetjeningConsumer(
         properties: SafSelvbetjeningConfigurationProperties,
-        oidcTokenManager: OidcTokenManager,
         @Qualifier("azure") azureRestTemplate: RestTemplate,
     ): SafSelvbetjeningConsumer {
         return SafSelvbetjeningConsumer(properties, azureRestTemplate)

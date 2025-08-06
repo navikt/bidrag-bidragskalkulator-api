@@ -1,5 +1,6 @@
 package no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator
 
+
 data class FoerstesideDto(
     val spraakkode: Spraakkode,
     val bruker: FoerstesideBrukerDto,
@@ -36,8 +37,8 @@ data class FoerstesideArkivsakDto(
     val arkivsaksnummer: String
 )
 
-data class GenererFoerstesideResultatDto(
-    val foersteside: String,
+class GenererFoerstesideResultatDto(
+    val foersteside: ByteArray,
     val loepenummer: String,
 )
 

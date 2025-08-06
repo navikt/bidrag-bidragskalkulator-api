@@ -2,25 +2,20 @@ package no.nav.bidrag.bidragskalkulator.consumer
 
 import no.nav.bidrag.bidragskalkulator.config.BidragPersonConfigurationProperties
 import no.nav.bidrag.bidragskalkulator.exception.NoContentException
-import no.nav.bidrag.commons.security.SikkerhetsKontekst
 import no.nav.bidrag.commons.util.secureLogger
-import no.nav.bidrag.commons.web.client.AbstractRestClient
 import no.nav.bidrag.domene.ident.Personident
 import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
 import no.nav.bidrag.transport.person.PersonDto
 import no.nav.bidrag.transport.person.PersonRequest
-import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
 
-@Service("bidragPersonConsumer")
 class BidragPersonConsumer(
     val bidragPersonConfig: BidragPersonConfigurationProperties,
-    @Qualifier("azure") restTemplate: RestTemplate
-) : AbstractRestClient(restTemplate, "bidrag.person") {
+    restTemplate: RestTemplate
+) : BaseConsumer(restTemplate, "bidrag.person") {
 
     init {
         check(bidragPersonConfig.url.isNotEmpty()) { "bidrag.person.url mangler i konfigurasjon" }
@@ -40,12 +35,6 @@ class BidragPersonConsumer(
         .pathSegment(bidragPersonConfig.hentPersoninformasjonPath)
         .build()
         .toUri()
-    }
-
-    fun <T : Any> medApplikasjonsKontekst(fn: () -> T): T {
-        return SikkerhetsKontekst.medApplikasjonKontekst {
-            fn()
-        }
     }
 
     fun hentFamilierelasjon(ident: String): MotpartBarnRelasjonDto = medApplikasjonsKontekst {
