@@ -13,9 +13,9 @@ import org.springframework.web.client.RestTemplate
 class BidragPersonConfig {
 
     @Bean
-    fun provideBidragPersonConsumer(
+    fun bidragPersonConsumer(
         config: BidragPersonConfigurationProperties,
-        @Qualifier("restTemplateWithInterceptor") restTemplate: RestTemplate
+        @Qualifier("azure") restTemplate: RestTemplate
     ) = BidragPersonConsumer(config, restTemplate)
 
 }

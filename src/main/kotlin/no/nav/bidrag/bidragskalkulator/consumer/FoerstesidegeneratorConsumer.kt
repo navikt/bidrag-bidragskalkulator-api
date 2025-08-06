@@ -3,8 +3,6 @@ package no.nav.bidrag.bidragskalkulator.consumer
 import no.nav.bidrag.bidragskalkulator.config.FoerstesidegeneratorConfigurationProperties
 import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.*
 import no.nav.bidrag.bidragskalkulator.exception.MetaforceException
-import no.nav.bidrag.commons.security.SikkerhetsKontekst
-import no.nav.bidrag.commons.web.client.AbstractRestClient
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
 import org.springframework.web.client.HttpClientErrorException
@@ -16,7 +14,7 @@ class FoerstesidegeneratorConsumer(
     private val config: FoerstesidegeneratorConfigurationProperties,
     restTemplate: RestTemplate,
     private val headers: HttpHeaders
-) : AbstractRestClient(restTemplate, "foerstesidegenerator") {
+) : BaseConsumer(restTemplate, "foerstesidegenerator") {
 
     val logger = LoggerFactory.getLogger(FoerstesidegeneratorConsumer::class.java)
 
@@ -31,12 +29,6 @@ class FoerstesidegeneratorConsumer(
             .path(config.genererFoerstesidePath)
             .build()
             .toUri()
-    }
-
-    fun <T : Any> medApplikasjonsKontekst(fn: () -> T): T {
-        return SikkerhetsKontekst.medApplikasjonKontekst {
-            fn()
-        }
     }
 
     /**
