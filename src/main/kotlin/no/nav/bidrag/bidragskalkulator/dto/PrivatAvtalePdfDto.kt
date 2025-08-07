@@ -1,8 +1,10 @@
 package no.nav.bidrag.bidragskalkulator.dto
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotEmpty
+import no.nav.bidrag.bidragskalkulator.utils.tilNorskDatoFormat
 
 interface PrivatAvtalePerson {
     val fulltNavn: String
@@ -59,12 +61,17 @@ data class PrivatAvtalePdfDto(
     val bidragspliktig: PrivatAvtaleBidragspliktig,
     @Schema(description = "Informasjon om barnet", required = true)
     val barn: List<PrivatAvtaleBarn>,
-    @Schema(description = "Gjeldende dato for avtalen")
-    val fraDato: String,
     @Schema(description = "Er dette en ny avtale?", required = true)
     val nyAvtale: Boolean,
     @Schema(description = "Oppgjørsform for betaling av bidraget", required = true)
     val oppgjorsform: String,  // Consider using the Oppgjorsform enum instead of String
     @Schema(description = "Er dette en avtale som skal sendes til NAV?", required = true)
-    val tilInnsending: Boolean = false
-)
+    val tilInnsending: Boolean = false,
+    @Schema(description = "Gjeldende dato for avtalen")
+    val fraDato: String,
+)  {
+    @JsonIgnore
+    @Schema(hidden = true)
+    fun tilNorskDatoFormat(): PrivatAvtalePdfDto =
+        this.copy(fraDato = fraDato.tilNorskDatoFormat())
+}

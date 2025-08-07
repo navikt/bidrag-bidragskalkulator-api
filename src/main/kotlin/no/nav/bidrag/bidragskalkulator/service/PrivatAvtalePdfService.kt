@@ -29,7 +29,7 @@ class PrivatAvtalePdfService(
         logger.info("Starter generering av PDF for privat avtale")
 
         val hoveddokument = measureTimedValue {
-            bidragDokumentConsumer.genererPrivatAvtaleAPdf(privatAvtalePdfDto)
+            bidragDokumentConsumer.genererPrivatAvtaleAPdf(privatAvtalePdfDto.tilNorskDatoFormat())
         }.also {
             logger.info("Hoveddokument generert på ${it.duration.inWholeMilliseconds} ms")
         }.value
