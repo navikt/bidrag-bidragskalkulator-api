@@ -31,6 +31,9 @@ bidrag:
 spring.config.activate.on-profile: prod, dev, local-nais
 
 management:
+  metrics:
+    tags:
+      application: ${NAIS_APP_NAME}
   endpoints:
     web:
       exposure:
