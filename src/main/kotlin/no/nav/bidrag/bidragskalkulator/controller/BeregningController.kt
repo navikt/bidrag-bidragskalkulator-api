@@ -1,5 +1,7 @@
 package no.nav.bidrag.bidragskalkulator.controller
 
+import io.micrometer.core.instrument.Counter
+import io.micrometer.core.instrument.MeterRegistry
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
@@ -21,7 +23,12 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/v1/beregning")
-class BeregningController(private val beregningService: BeregningService) {
+class BeregningController(private val beregningService: BeregningService, meterRegistry: MeterRegistry ) {
+
+private val aapenBeregningCounter = Counter.builder("bidragskalkulator_antall_beregninger")
+        .description("Antall beregninger utført")
+        .register(meterRegistry)
+
 
     @Operation(summary = "Beregner barnebidrag",
         description = "Beregner barnebidrag basert på inntekten til foreldre og barnets alder. Returnerer 200 ved vellykket beregning.",
@@ -39,6 +46,7 @@ class BeregningController(private val beregningService: BeregningService) {
         Dispatchers.IO + MDCContext()
     ) {
         BeregningRequestValidator.valider(request)
+        aapenBeregningCounter.count()
         beregningService.beregnBarnebidrag(request)
     }
 
@@ -57,6 +65,8 @@ class BeregningController(private val beregningService: BeregningService) {
         Dispatchers.IO + MDCContext()
     ) {
         BeregningRequestValidator.valider(request)
+        aapenBeregningCounter.count()
         beregningService.beregnBarnebidragAnonym(request)
+
     }
 }
