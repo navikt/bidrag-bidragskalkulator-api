@@ -41,6 +41,9 @@ spec:
   secureLogs:
     enabled: true
 
+  prometheus:
+    enabled: true
+    path: /actuator/prometheus
   observability:
     autoInstrumentation:
       enabled: true

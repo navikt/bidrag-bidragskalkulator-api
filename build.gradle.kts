@@ -15,6 +15,7 @@ val junitJupiterVersion = "5.12.2"
 val coroutinesVersion = "1.10.2"
 val pdfBoxVersion = "2.0.31"
 val springKafkaVersion = "3.1.2"
+val micrometerPrometheusVersion = "1.12.4"
 
 plugins {
     id("org.jetbrains.kotlin.plugin.spring") version "1.9.25"
@@ -80,6 +81,10 @@ dependencies {
 
     // Kafka
     implementation("org.springframework.kafka:spring-kafka:${springKafkaVersion}")
+
+    // Monitoring
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("io.micrometer:micrometer-registry-prometheus:${micrometerPrometheusVersion}")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
