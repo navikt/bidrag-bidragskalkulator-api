@@ -6,6 +6,7 @@ import jakarta.validation.Valid
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
+import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.Språkkode
 import no.nav.bidrag.bidragskalkulator.utils.tilNorskDatoFormat
 
 interface PrivatAvtalePerson {
@@ -98,6 +99,8 @@ data class AndreBestemmelserSkjema(
 
 @Schema(description = "Informasjon for generering av en privat avtale PDF")
 data class PrivatAvtalePdfDto(
+    @param:Schema(description = "Valgte språk", required = true)
+    val språk: Språkkode,
     @param:Schema(description = "", required = true)
     val innhold: String,
     @param:Schema(description = "Informasjon om bidragsmottaker", required = true)

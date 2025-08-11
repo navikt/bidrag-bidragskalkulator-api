@@ -2,7 +2,7 @@ package no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator
 
 
 data class FoerstesideDto(
-    val spraakkode: Spraakkode,
+    val språkkode: Språkkode,
     val bruker: FoerstesideBrukerDto,
     val tema: String,
     val overskriftstittel: String,
@@ -47,10 +47,10 @@ data class GenererFoerstesideRequestDto(
     val navSkjemaId: NavSkjemaId,
     val arkivtittel: String,
     val enhetsnummer: String,
-    val spraakkode: Spraakkode = Spraakkode.NB,
+    val språkkode: Språkkode = Språkkode.NB,
 )
 
-enum class Spraakkode {
+enum class Språkkode {
     NB, NN, EN
 }
 
