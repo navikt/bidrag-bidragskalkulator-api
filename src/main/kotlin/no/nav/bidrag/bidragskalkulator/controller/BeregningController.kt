@@ -46,7 +46,7 @@ private val aapenBeregningCounter = Counter.builder("bidragskalkulator_antall_be
         Dispatchers.IO + MDCContext()
     ) {
         BeregningRequestValidator.valider(request)
-        aapenBeregningCounter.count()
+        aapenBeregningCounter.increment()
         beregningService.beregnBarnebidrag(request)
     }
 
@@ -65,7 +65,7 @@ private val aapenBeregningCounter = Counter.builder("bidragskalkulator_antall_be
         Dispatchers.IO + MDCContext()
     ) {
         BeregningRequestValidator.valider(request)
-        aapenBeregningCounter.count()
+        aapenBeregningCounter.increment()
         beregningService.beregnBarnebidragAnonym(request)
 
     }
