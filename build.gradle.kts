@@ -5,7 +5,7 @@ group = "com.github.navikt"
 version = "0.0.1-SNAPSHOT"
 
 val bidragBeregnFellesVersion = "2025.08.08.151719"
-val bidragFellesVersion = "2025.08.01.121633"
+val bidragFellesVersion = "2025.08.09.141624"
 val kotlinLoggingJvmVersion = "7.0.11"
 val springDocWebmvcVersion = "2.8.9"
 val springmockkVersion = "4.0.2"
