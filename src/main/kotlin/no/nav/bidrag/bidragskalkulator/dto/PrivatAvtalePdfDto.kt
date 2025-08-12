@@ -6,23 +6,37 @@ import jakarta.validation.Valid
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
+import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.NavSkjemaId
 import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.Språkkode
 import no.nav.bidrag.bidragskalkulator.utils.tilNorskDatoFormat
 
+private const val FEILMELDING_FORNAVN = "Fornavn må være utfylt"
+private const val FEILMELDING_ETTERNAVN = "Etternavn må være utfylt"
+private const val FEILMELDING_FODSELSNUMMER = "Gyldig fødselsnummer må være utfylt"
+
 interface PrivatAvtalePerson {
-    val fulltNavn: String
+    val fornavn: String
+    val etternavn: String
     val fodselsnummer: String
 }
 
 @Schema(description = "Representerer informasjon om bidragsmottaker i en privat avtale")
 data class PrivatAvtaleBidragsmottaker(
-    @param:NotEmpty(message = FEILMELDING_NAVN)
+    @param:NotEmpty(message = FEILMELDING_FORNAVN)
     @param:Schema(
-        description = "Bidragsmottakers fulle navn fra folkeregisteret",
+        description = "Bidragsmottakers fornavn fra folkeregisteret",
         required = true,
-        example = "Ola Nordmann"
+        example = "Ola"
     )
-    override val fulltNavn: String,
+    override val fornavn: String,
+
+    @param:NotEmpty(message = FEILMELDING_ETTERNAVN)
+    @param:Schema(
+        description = "Bidragsmottakers etternavn fra folkeregisteret",
+        required = true,
+        example = "Nordmann"
+    )
+    override val etternavn: String,
 
     @param:NotEmpty(message = FEILMELDING_FODSELSNUMMER)
     @param:Schema(
@@ -31,31 +45,58 @@ data class PrivatAvtaleBidragsmottaker(
         example = "12345678901"
     )
     override val fodselsnummer: String,
-) : PrivatAvtalePerson {
-    companion object {
-        private const val FEILMELDING_NAVN = "Navn må være utfylt"
-        private const val FEILMELDING_FODSELSNUMMER = "Gyldig fødselsnummer må være utfylt"
-    }
-}
+) : PrivatAvtalePerson
 
 data class PrivatAvtaleBidragspliktig(
-    @param:NotEmpty(message = "fulltNavn må være satt")
-    @param:Schema(description = "Bidragsmottakers fulle navn", required = true)
-    override val fulltNavn: String,
+    @param:NotEmpty(message = FEILMELDING_FORNAVN)
+    @param:Schema(
+        description = "Bidragspliktig fornavn fra folkeregisteret",
+        required = true,
+        example = "Ola"
+    )
+    override val fornavn: String,
 
-    @param:NotEmpty(message = "Ident/fødselsnummer må være satt")
-    @param:Schema(description = "Bidragsmottakers fødselsnummer", required = true)
+    @param:NotEmpty(message = FEILMELDING_ETTERNAVN)
+    @param:Schema(
+        description = "Bidragspliktig etternavn fra folkeregisteret",
+        required = true,
+        example = "Nordmann"
+    )
+    override val etternavn: String,
+
+    @param:NotEmpty(message = FEILMELDING_FODSELSNUMMER)
+    @param:Schema(
+        description = "Bidragspliktig personnummer (11 siffer)",
+        required = true,
+        example = "12345678901"
+    )
     override val fodselsnummer: String,
 ) : PrivatAvtalePerson
 
 @Schema(description = "Informasjon om barnet i en privat avtale")
 data class PrivatAvtaleBarn(
-    @param:NotEmpty(message = "fulltNavn må være satt")
-    @param:Schema(description = "Bidragsmottakers fulle navn", required = true)
-    override val fulltNavn: String,
+    @param:NotEmpty(message = FEILMELDING_FORNAVN)
+    @param:Schema(
+        description = "Barn fornavn fra folkeregisteret",
+        required = true,
+        example = "Ola"
+    )
+    override val fornavn: String,
 
-    @param:NotEmpty(message = "Ident/fødselsnummer må være satt")
-    @param:Schema(description = "Bidragsmottakers fødselsnummer", required = true)
+    @param:NotEmpty(message = FEILMELDING_ETTERNAVN)
+    @param:Schema(
+        description = "Barn etternavn fra folkeregisteret",
+        required = true,
+        example = "Nordmann"
+    )
+    override val etternavn: String,
+
+    @param:NotEmpty(message = FEILMELDING_FODSELSNUMMER)
+    @param:Schema(
+        description = "Barn personnummer (11 siffer)",
+        required = true,
+        example = "12345678901"
+    )
     override val fodselsnummer: String,
 
     @param:Min(value = 1, message = "Bidraget må være større enn 0")
@@ -99,6 +140,8 @@ data class AndreBestemmelserSkjema(
 
 @Schema(description = "Informasjon for generering av en privat avtale PDF")
 data class PrivatAvtalePdfDto(
+    @param:Schema(description = "Kode for skjematype ", required = true)
+    val navSkjemaId: NavSkjemaId,
     @param:Schema(description = "Valgte språk", required = true)
     val språk: Språkkode,
     @param:Schema(description = "", required = true)

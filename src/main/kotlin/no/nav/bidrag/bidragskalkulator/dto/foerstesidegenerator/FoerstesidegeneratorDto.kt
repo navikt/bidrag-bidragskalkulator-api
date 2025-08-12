@@ -47,7 +47,7 @@ data class GenererFoerstesideRequestDto(
     val navSkjemaId: NavSkjemaId,
     val arkivtittel: String,
     val enhetsnummer: String,
-    val språkkode: Språkkode = Språkkode.NB,
+    val språkkode: Språkkode,
 )
 
 enum class Språkkode {
@@ -60,5 +60,5 @@ enum class Foerstesidetype {
 
 enum class NavSkjemaId(val kode: String) {
     AVTALE_OM_BARNEBIDRAG_UNDER_18("NAV 55-00.60"),
-    AVTALE_OM_BARNEBIDRAG_OVER_18("NAV 55-00.50"),
+    AVTALE_OM_BARNEBIDRAG_OVER_18("NAV 55-00.63"),
 }
