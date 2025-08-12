@@ -1,7 +1,6 @@
 package no.nav.bidrag.bidragskalkulator.consumer
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import no.nav.bidrag.bidragskalkulator.config.KafkaConfigurationProperties
 import no.nav.bidrag.bidragskalkulator.service.KafkaEventService
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.messaging.handler.annotation.Payload
@@ -20,7 +19,7 @@ class KafkaEventConsumer(
     /**
      * Listens for events on the configured topic
      */
-    @KafkaListener(topics = ["\${kafka.listenerTopic}"], groupId = "\${kafka.consumerGroupId}")
+    @KafkaListener(topics = ["\${VEDTAK_KAFKA_TOPIC}"], groupId = "\${VEDTAK_KAFKA_GROUP_ID}")
     fun consumeEvent(@Payload event: String) {
         logger.info { "Received event from Kafka: $event" }
         try {

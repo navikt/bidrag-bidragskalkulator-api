@@ -25,12 +25,9 @@ class KafkaEventServiceTest {
     lateinit var kafkaEventConsumer: KafkaEventConsumer
 
     @Autowired
-    lateinit var consumer: KafkaEventService
-
-    @Autowired
     lateinit var kafkaTemplate: KafkaTemplate<String, Any>
 
-    @Value("\${kafka.listenerTopic}")
+    @Value("\${VEDTAK_KAFKA_TOPIC}")
     lateinit var topic: String
 
 

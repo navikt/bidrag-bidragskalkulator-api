@@ -6,6 +6,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.bidrag.bidragskalkulator.dto.kafka.DisableEvent
 import no.nav.bidrag.bidragskalkulator.dto.kafka.EnableEvent
 import no.nav.bidrag.bidragskalkulator.dto.kafka.KafkaEvent
+import no.nav.bidrag.commons.util.secureLogger
 import org.springframework.stereotype.Service
 
 private val logger = KotlinLogging.logger {}
@@ -22,14 +23,7 @@ class KafkaEventService(
      * Process an event from Kafka
      */
     fun processEvent(eventJson: String) {
-        val jsonNode = objectMapper.readTree(eventJson)
-        val action = jsonNode.path("@action").asText()
-
-        when (action) {
-            "enable" -> processEnableEvent(jsonNode)
-            "disable" -> processDisableEvent(jsonNode)
-            else -> logger.warn { "Unknown action in Kafka event: $action" }
-        }
+        secureLogger.info { "Received Kafka event: \n $eventJson" }
     }
 
     private fun processEnableEvent(jsonNode: JsonNode) {
