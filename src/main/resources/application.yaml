@@ -31,7 +31,7 @@ bidrag:
 spring.config.activate.on-profile: prod, dev, local-nais
 spring:
   kafka:
-    bootstrap-servers: PLAINTEXT://localhost:9092
+    bootstrap-servers: ${KAFKA_BROKERS}
     properties:
       security.protocol: SSL
       ssl:
