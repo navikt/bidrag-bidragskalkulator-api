@@ -33,7 +33,7 @@ open class UnderholdskostnadService(
         return beregnBarnebidragApi.beregnUnderholdskostnad(grunnlag)
             .firstOrNull { it.type == Grunnlagstype.DELBEREGNING_UNDERHOLDSKOSTNAD }
             ?.innholdTilObjekt<DelberegningUnderholdskostnad>()
-            ?.underholdskostnad.also { logger.info("Underholdskostnad for alder $alder er $it") }
+            ?.underholdskostnad
             ?: throw IllegalStateException("Ingen underholdskostnad funnet for alder $alder")
     }
 }

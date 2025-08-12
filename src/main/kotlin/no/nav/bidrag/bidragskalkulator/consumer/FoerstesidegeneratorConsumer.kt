@@ -1,84 +1,92 @@
 package no.nav.bidrag.bidragskalkulator.consumer
 
 import no.nav.bidrag.bidragskalkulator.config.FoerstesidegeneratorConfigurationProperties
-import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.FoerstesideBrukerDto
-import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.FoerstesideDto
-import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.GenererFoerstesideRequestDto
-import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.GenererFoerstesideResultatDto
-import no.nav.bidrag.commons.web.client.AbstractRestClient
+import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.*
+import no.nav.bidrag.bidragskalkulator.exception.MetaforceException
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
-import org.springframework.http.MediaType.APPLICATION_JSON
-import org.springframework.util.StreamUtils
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
-import java.io.ByteArrayOutputStream
 import java.net.URI
-import java.util.Base64
 
 class FoerstesidegeneratorConsumer(
-    private val foerstesidegeneratorConfigurationProperties: FoerstesidegeneratorConfigurationProperties,
-    private val restTemplate: RestTemplate
-) : AbstractRestClient(restTemplate, "bidrag.foerstesidegenerator") {
+    private val config: FoerstesidegeneratorConfigurationProperties,
+    restTemplate: RestTemplate,
+    private val headers: HttpHeaders
+) : BaseConsumer(restTemplate, "foerstesidegenerator") {
 
     val logger = LoggerFactory.getLogger(FoerstesidegeneratorConsumer::class.java)
 
+    init {
+        check(config.url.isNotEmpty()) { "foerstesidegenerator.url mangler i konfigurasjon" }
+        check(config.genererFoerstesidePath.isNotEmpty()) { "foerstesidegenerator.genererFoerstesidePath mangler i konfigurasjon" }
+    }
+
     val genererFoerstesideUrl: URI by lazy {
         UriComponentsBuilder
-            .fromUriString(foerstesidegeneratorConfigurationProperties.url)
-            .path(foerstesidegeneratorConfigurationProperties.genererFoerstesidePath)
+            .fromUriString(config.url)
+            .path(config.genererFoerstesidePath)
             .build()
             .toUri()
     }
 
-    fun genererFoersteside(genererFoerstesideRequestDto: GenererFoerstesideRequestDto): ByteArrayOutputStream {
-        val headers = HttpHeaders().apply {
-            this.accept = listOf(APPLICATION_JSON)
-            this.contentType = APPLICATION_JSON
-        }
+    /**
+     * Genererer førsteside for en privat avtale ved å kalle ekstern tjeneste.
+     *
+     * Denne funksjonen bygger opp en FoerstesideDto og sender den til foerstesidegenerator-tjenesten,
+     * som videre kaller Metaforce for å generere en PDF-basert førsteside.
+     *
+     * Hva er Metaforce?
+     * ------------------
+     * Metaforce er en ekstern dokumenttjeneste som brukes for å generere dokumenter (typisk PDF).
+     * I Nav brukes Metaforce ofte som underliggende system i tjenester som produserer skjema,
+     * brev eller forsider til innsendinger.
+     *
+     * Når denne funksjonen kalles:
+     * - Den bygger en forespørsel (`FoerstesideDto`) med nødvendige metadata.
+     * - Sender kallet til `foerstesidegenerator`, som internt kaller Metaforce.
+     * - Dersom Metaforce feiler, kastes en spesifikk `MetaforceException` og funksjonen returnerer HTTP 502 (Bad Gateway).
+     *
+     * Dette gjør det enklere å skille mellom feil i vår applikasjon og feil hos ekstern dokumentgenerator.
+     *
+     * @param genererFoerstesideRequestDto Informasjon om bruker og dokument som skal genereres.
+     * @return ByteArrayOutputStream med generert førsteside i PDF-format.
+     * @throws MetaforceException dersom ekstern dokumenttjeneste (Metaforce) feiler.
+     */
+    fun genererFoersteside(dto: GenererFoerstesideRequestDto): GenererFoerstesideResultatDto =
+        medApplikasjonsKontekst {
+            val payload = FoerstesideDto(
+                spraakkode = dto.spraakkode,
+                netsPostboks = "1400",
+                bruker = FoerstesideBrukerDto(
+                    brukerId = dto.ident,
+                    brukerType = "PERSON"
+                ),
+                tema = "BID",
+                vedleggsliste = listOf("${dto.navSkjemaId.kode} ${dto.arkivtittel}"),
+                dokumentlisteFoersteside = listOf("${dto.navSkjemaId.kode} ${dto.arkivtittel}"),
+                arkivtittel = dto.arkivtittel,
+                navSkjemaId = dto.navSkjemaId.kode,
+                overskriftstittel = "${dto.navSkjemaId.kode} ${dto.arkivtittel}",
+                foerstesidetype = Foerstesidetype.SKJEMA
+            )
 
-        headers.add("Nav-Consumer-Id", "bidrag-bidragskalkulator-api")
-
-        val outputStream = ByteArrayOutputStream()
-        val payload = FoerstesideDto(
-            spraakkode = genererFoerstesideRequestDto.spraakkode,
-            netsPostboks = "1400",
-            bruker = FoerstesideBrukerDto(
-                brukerId = genererFoerstesideRequestDto.ident,
-                brukerType = "PERSON"
-            ),
-            tema = "BID",
-            vedleggsliste = listOf(
-                "${genererFoerstesideRequestDto.navSkjemaId.kode} ${genererFoerstesideRequestDto.arkivtittel}"
-            ),
-            dokumentlisteFoersteside = listOf(
-                "${genererFoerstesideRequestDto.navSkjemaId.kode} ${genererFoerstesideRequestDto.arkivtittel}"
-            ),
-            arkivtittel = genererFoerstesideRequestDto.arkivtittel,
-            navSkjemaId = genererFoerstesideRequestDto.navSkjemaId.kode,
-            overskriftstittel = "${genererFoerstesideRequestDto.navSkjemaId.kode} ${genererFoerstesideRequestDto.arkivtittel}",
-            foerstesidetype = "SKJEMA"
-        )
-
-        outputStream.use {
             try {
-                postForNonNullEntity<GenererFoerstesideResultatDto>(genererFoerstesideUrl, payload, headers).let {
-                    val b64string = it.foersteside
-                    val decoded = Base64.getDecoder().decode(b64string)
-                    StreamUtils.copy(decoded, outputStream)
-                }
-            } catch (httpException: HttpClientErrorException) {
-                logger.error("Feil ved generering av førsteside", httpException)
-                throw RuntimeException("Kunne ikke generere førsteside: ${httpException.message}", httpException)
+                postForEntity<GenererFoerstesideResultatDto>(genererFoerstesideUrl, payload, headers)
+                    ?: throw RuntimeException("Generering av førsteside feilet: tom respons fra server")
+            } catch (e: HttpClientErrorException) {
+                logger.error("Feil fra foerstesidegenerator", e)
+
+                throw RuntimeException("Generering av førsteside feilet: ${e.message}", e)
             } catch (e: Exception) {
-                logger.error("Feil ved generering av førsteside", e)
-                throw RuntimeException("Kunne ikke generere førsteside", e)
+                logger.error("Uventet feil ved generering av førsteside", e)
+
+                if (e.message?.contains("Metaforce:GS_CreateDocument", ignoreCase = true) == true) {
+                    throw MetaforceException("Metaforce feilet ved dokumentgenerering", e)
+                }
+
+                throw RuntimeException("Generering av førsteside feilet", e)
             }
-
         }
-        return outputStream
-    }
-
-
 }

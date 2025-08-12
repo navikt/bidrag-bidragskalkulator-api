@@ -12,7 +12,7 @@ spring:
   main:
     banner-mode: off
   cache:
-    cache-names: underholdskostnad,personinformasjon
+    cache-names: underholdskostnad,personinformasjon, privatAvtaleInformasjon, samværsfradrag
     caffeine:
       spec: maximumSize=500,expireAfterWrite=1h
 
@@ -45,7 +45,7 @@ saf:
     url: ${SAFSELVBETJENING_URL}
 
 foerstesidegenerator:
-  url: ${FOERSTESIDE_GENERATOR_URL:https://foerstesidegenerator-q1.dev.intern.nav.no}
+  url: ${FOERSTESIDE_GENERATOR_URL}
   genererFoerstesidePath: /api/foerstesidegenerator/v1/foersteside
 
 bidrag:

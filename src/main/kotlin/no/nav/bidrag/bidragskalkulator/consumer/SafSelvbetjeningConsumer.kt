@@ -3,7 +3,6 @@ package no.nav.bidrag.bidragskalkulator.consumer
 import no.nav.bidrag.bidragskalkulator.config.SafSelvbetjeningConfigurationProperties
 import no.nav.bidrag.bidragskalkulator.dto.SafSelvbetjeningResponsDto
 import no.nav.bidrag.commons.util.secureLogger
-import no.nav.bidrag.commons.web.client.AbstractRestClient
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
@@ -17,7 +16,11 @@ import java.net.URI
 class SafSelvbetjeningConsumer(
     private val properties: SafSelvbetjeningConfigurationProperties,
     private val restTemplate: RestTemplate,
-) : AbstractRestClient(restTemplate, "saf.selvbetjening") {
+) : BaseConsumer(restTemplate, "saf.selvbetjening") {
+
+    init {
+        check(properties.url.isNotEmpty()) { "saf.selvbetjening.url mangler i konfigurasjon" }
+    }
 
     private val dokumentOversiktUrl = UriComponentsBuilder.fromUri(URI.create(properties.url))
         .path("/graphql")

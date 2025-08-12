@@ -2,25 +2,21 @@ package no.nav.bidrag.bidragskalkulator.consumer
 
 import no.nav.bidrag.bidragskalkulator.config.GrunnlagConfigurationProperties
 import no.nav.bidrag.commons.util.secureLogger
-import no.nav.bidrag.commons.web.client.AbstractRestClient
 import no.nav.bidrag.domene.enums.grunnlag.GrunnlagRequestType
 import no.nav.bidrag.domene.enums.vedtak.Formål
 import no.nav.bidrag.transport.behandling.grunnlag.request.GrunnlagRequestDto
 import no.nav.bidrag.transport.behandling.grunnlag.request.HentGrunnlagRequestDto
 import no.nav.bidrag.transport.behandling.grunnlag.response.HentGrunnlagDto
-import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
 import java.time.LocalDate
 
-@Service("bidragGrunnlagConsumer")
 class BidragGrunnlagConsumer(
     val grunnlagConfig: GrunnlagConfigurationProperties,
-    @Qualifier("azure") val restTemplate: RestTemplate,
-) : AbstractRestClient(restTemplate, "bidrag.grunnlag") {
+    restTemplate: RestTemplate,
+) : BaseConsumer(restTemplate, "bidrag.grunnlag") {
 
     companion object {
         /**
@@ -41,8 +37,9 @@ class BidragGrunnlagConsumer(
         .toUri()
     }
 
-    fun hentGrunnlag(ident: String, antallAar: Int = HENT_INNTEKT_ANTALl_ÅR_DEFAULT): HentGrunnlagDto {
-        return try {
+    fun hentGrunnlag(ident: String, antallAar: Int = HENT_INNTEKT_ANTALl_ÅR_DEFAULT): HentGrunnlagDto =
+        medApplikasjonsKontekst {
+        try {
             postForNonNullEntity<HentGrunnlagDto>(grunnlagUri,
                 HentGrunnlagRequestDto(
                     Formål.FORSKUDD,
