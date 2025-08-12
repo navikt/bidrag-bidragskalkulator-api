@@ -41,6 +41,10 @@ spec:
   secureLogs:
     enabled: true
 
+  prometheus:
+    enabled: true
+    path: /actuator/prometheus
+
   observability:
     autoInstrumentation:
       enabled: true
@@ -64,6 +68,9 @@ spec:
         {{#each outbound_external_host}}
         - host: "{{this}}"
         {{/each}}
+      rules:
+        - application: logging
+          namespace: nais-system
 
   liveness:
     path: /actuator/health

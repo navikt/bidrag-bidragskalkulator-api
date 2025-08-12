@@ -3,7 +3,6 @@ package no.nav.bidrag.bidragskalkulator.consumer
 import no.nav.bidrag.bidragskalkulator.config.DokumentproduksjonConfigurationProperties
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtalePdfDto
 import no.nav.bidrag.commons.util.secureLogger
-import no.nav.bidrag.commons.web.client.AbstractRestClient
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.util.StreamUtils
@@ -15,7 +14,12 @@ import java.io.IOException
 class BidragDokumentProduksjonConsumer(
     val properties: DokumentproduksjonConfigurationProperties,
     restTemplate: RestTemplate
-) : AbstractRestClient(restTemplate, "bidrag.dokumentproduksjon") {
+) : BaseConsumer(restTemplate, "bidrag.dokumentproduksjon") {
+
+    init {
+        check(properties.url.isNotEmpty()) { "bidrag.dokumentproduksjon.url mangler i konfigurasjon" }
+        check(properties.genererPdfPath.isNotEmpty()) { "bidrag.dokumentproduksjon.genererPdfPath mangler i konfigurasjon" }
+    }
 
     val produserPdfuri by lazy {
         UriComponentsBuilder.fromUriString(properties.url)
@@ -24,28 +28,30 @@ class BidragDokumentProduksjonConsumer(
             .toUri()
     }
 
-    fun genererPrivatAvtaleAPdf(privatAvtaleDto: PrivatAvtalePdfDto): ByteArrayOutputStream {
-
-        val headers = HttpHeaders().apply {
-            accept = listOf(MediaType.APPLICATION_PDF)
-            contentType = MediaType.APPLICATION_JSON
-        }
-
-        val outputStream = ByteArrayOutputStream()
-        outputStream.use {
-            try {
-                val response = postForNonNullEntity<ByteArray>(produserPdfuri, privatAvtaleDto, headers)
-                response.let { StreamUtils.copy(it, outputStream) }
-            } catch (e: IOException) {
-                secureLogger.error("Feil ved generering av privat avtale PDF: ${e.message}", e)
-                throw RuntimeException("Kunne ikke generere privat avtale PDF", e)
-            } catch (e: Exception) {
-                secureLogger.error("Feil ved generering av privat avtale PDF: ${e.message}", e)
-                throw RuntimeException("Kunne ikke generere privat avtale PDF", e)
+    fun genererPrivatAvtaleAPdf(privatAvtaleDto: PrivatAvtalePdfDto): ByteArrayOutputStream =
+        medApplikasjonsKontekst {
+            val headers = HttpHeaders().apply {
+                accept = listOf(MediaType.APPLICATION_PDF)
+                contentType = MediaType.APPLICATION_JSON
             }
+
+            val outputStream = ByteArrayOutputStream()
+            ByteArrayOutputStream().use {
+                try {
+                    val response = postForNonNullEntity<ByteArray>(produserPdfuri, privatAvtaleDto, headers)
+                    response.let { StreamUtils.copy(it, outputStream) }
+                } catch (e: IOException) {
+                    secureLogger.error(e) { "Feil ved generering av privat avtale PDF: ${e.message}" }
+
+                    throw RuntimeException("Kunne ikke generere privat avtale PDF", e)
+                } catch (e: Exception) {
+                    secureLogger.error(e) { "Feil ved generering av privat avtale PDF: ${e.message}" }
+
+                    throw RuntimeException("Kunne ikke generere privat avtale PDF", e)
+                }
+            }
+
+            outputStream
         }
 
-        return outputStream
-    }
 }
-

@@ -1,20 +1,14 @@
 package no.nav.bidrag.bidragskalkulator.controller
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.slf4j.MDCContext
 import no.nav.bidrag.bidragskalkulator.config.SecurityConstants
 import no.nav.bidrag.bidragskalkulator.dto.minSide.MinSideDokumenterDto
 import no.nav.bidrag.bidragskalkulator.service.SafSelvbetjeningService
 import no.nav.bidrag.bidragskalkulator.utils.InnloggetBrukerUtils
-import no.nav.bidrag.commons.util.RequestContextAsyncContext
-import no.nav.bidrag.commons.util.SecurityCoroutineContext
 import no.nav.bidrag.commons.util.secureLogger
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
-import org.springframework.http.HttpStatusCode
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping

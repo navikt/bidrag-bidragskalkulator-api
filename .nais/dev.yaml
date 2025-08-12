@@ -11,10 +11,10 @@ env:
   KODEVERK_URL: https://kodeverk.dev-fss-pub.nais.io
   NAIS_APP_NAME: bidrag-bidragskalkulator-api
   FOERSTESIDE_GENERATOR_SCOPE: dev-fss.teamdokumenthandtering.foerstesidegenerator-q1
-  FOERSTESIDE_GENERATOR_URL: https://foerstesidegenerator-q1.dev.intern.nav.no
+  FOERSTESIDE_GENERATOR_URL: https://foerstesidegenerator-q1.dev-fss-pub.nais.io
   BIDRAG_DOKUMENTPRODUKSJON_URL: https://bidrag-dokument-produksjon.intern.dev.nav.no
-  SAFSELVBETJENING_URL: https://safselvbetjening.dev.intern.nav.no
-  SAFSELVBETJENING_SCOPE: dev-fss.teamdokumenthandtering.safselvbetjening
+  SAFSELVBETJENING_URL: https://safselvbetjening-q1.dev-fss-pub.nais.io
+  SAFSELVBETJENING_SCOPE: dev-fss.teamdokumenthandtering.safselvbetjening-q1
 
 inbound_application:
   - application: bidrag-bidragskalkulator-v2
@@ -23,7 +23,10 @@ inbound_application:
   - application: tokenx-token-generator
     namespace: nais
     cluster: dev-gcp
+
 outbound_external_host:
   - bidrag-sjablon.dev-fss-pub.nais.io
   - bidrag-grunnlag.intern.dev.nav.no
   - bidrag-person-q1.dev-fss-pub.nais.io
+  - foerstesidegenerator-q1.dev-fss-pub.nais.io
+  - safselvbetjening-q1.dev-fss-pub.nais.io

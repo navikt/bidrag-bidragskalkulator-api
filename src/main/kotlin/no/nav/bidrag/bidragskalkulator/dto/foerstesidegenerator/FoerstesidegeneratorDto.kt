@@ -1,7 +1,8 @@
 package no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator
 
+
 data class FoerstesideDto(
-    val spraakkode: Spraakkode,
+    val spraakkode: Språkkode,
     val bruker: FoerstesideBrukerDto,
     val tema: String,
     val overskriftstittel: String,
@@ -36,8 +37,8 @@ data class FoerstesideArkivsakDto(
     val arkivsaksnummer: String
 )
 
-data class GenererFoerstesideResultatDto(
-    val foersteside: String,
+class GenererFoerstesideResultatDto(
+    val foersteside: ByteArray,
     val loepenummer: String,
 )
 
@@ -46,10 +47,10 @@ data class GenererFoerstesideRequestDto(
     val navSkjemaId: NavSkjemaId,
     val arkivtittel: String,
     val enhetsnummer: String,
-    val spraakkode: Spraakkode = Spraakkode.NB,
+    val språkkode: Språkkode,
 )
 
-enum class Spraakkode {
+enum class Språkkode {
     NB, NN, EN
 }
 
@@ -59,5 +60,5 @@ enum class Foerstesidetype {
 
 enum class NavSkjemaId(val kode: String) {
     AVTALE_OM_BARNEBIDRAG_UNDER_18("NAV 55-00.60"),
-    AVTALE_OM_BARNEBIDRAG_OVER_18("NAV 55-00.50"),
+    AVTALE_OM_BARNEBIDRAG_OVER_18("NAV 55-00.63"),
 }
