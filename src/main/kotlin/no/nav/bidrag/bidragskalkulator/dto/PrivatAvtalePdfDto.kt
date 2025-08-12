@@ -144,8 +144,6 @@ data class PrivatAvtalePdfDto(
     val navSkjemaId: NavSkjemaId,
     @param:Schema(ref = "#/components/schemas/Språkkode", required = true)
     val språk: Språkkode,
-    @param:Schema(description = "", required = true)
-    val innhold: String,
     @param:Schema(description = "Informasjon om bidragsmottaker", required = true)
     val bidragsmottaker: PrivatAvtaleBidragsmottaker,
     @param:Schema(description = "Informasjon om bidragspliktig", required = true)

@@ -35,7 +35,6 @@ class PrivatAvtalePdfServiceTest {
                 GenererFoerstesideResultatDto(foersteside = forventetForside, loepenummer = "123")
 
         val dto = PrivatAvtalePdfDto(
-            innhold = "Test",
             bidragsmottaker = PrivatAvtaleBidragsmottaker("Mottaker", "Etternavnesen", "22222222222"),
             bidragspliktig = PrivatAvtaleBidragspliktig("Pliktig", "Etternavnesen", "33333333333"),
             barn = listOf(PrivatAvtaleBarn("Barn", "Etternavnesen", "11111111111", 1000.0)),
@@ -71,7 +70,6 @@ class PrivatAvtalePdfServiceTest {
         every { mockPdfProsessor.prosesserOgSlåSammenDokumenter(any()) } returns forventetKontrakt
 
         val dto = PrivatAvtalePdfDto(
-            innhold = "Test",
             bidragsmottaker = PrivatAvtaleBidragsmottaker("Mottaker", "Etternavnesen", "22222222222"),
             bidragspliktig = PrivatAvtaleBidragspliktig("Pliktig", "Etternavnesen", "33333333333"),
             barn = listOf(PrivatAvtaleBarn("Barn", "Etternavnesen", "11111111111", 1000.0)),
