@@ -39,7 +39,7 @@ class PrivatAvtalePdfService(
 
         if (privatAvtalePdfDto.tilInnsending) {
             val foersteside = measureTimedValue {
-                genererForsideForInnsending(innsenderIdent, privatAvtalePdfDto.språk)
+                genererForsideForInnsending(innsenderIdent, privatAvtalePdfDto)
             }.also {
                 logger.info("Førsteside generert på ${it.duration.inWholeMilliseconds} ms")
             }.value
@@ -54,14 +54,14 @@ class PrivatAvtalePdfService(
         }
     }
 
-    fun genererForsideForInnsending(navIdent: String, språk: Språkkode): ByteArray =
+    fun genererForsideForInnsending(navIdent: String, dto: PrivatAvtalePdfDto): ByteArray =
         foerstesideConsumer.genererFoersteside(
             GenererFoerstesideRequestDto(
                 ident = navIdent,
-                navSkjemaId = NavSkjemaId.AVTALE_OM_BARNEBIDRAG_UNDER_18,
+                navSkjemaId = dto.navSkjemaId,
                 arkivtittel = "Avtale om barnebidrag",
                 enhetsnummer = "1234",
-                språkkode = språk
+                språkkode = dto.språk
             )
         ).foersteside
 
