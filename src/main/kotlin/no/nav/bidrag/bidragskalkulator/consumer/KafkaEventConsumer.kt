@@ -15,13 +15,12 @@ private val logger = KotlinLogging.logger {}
 @Component
 class KafkaEventConsumer(
     private val kafkaEventService: KafkaEventService,
-    private val kafkaConfig: KafkaConfigurationProperties
 ) {
 
     /**
      * Listens for events on the configured topic
      */
-    @KafkaListener(topics = ["#{kafkaConfigurationProperties.listenerTopic}"], groupId = "#{kafkaConfigurationProperties.consumerGroupId}")
+    @KafkaListener(topics = ["\${kafka.listenerTopic}"], groupId = "\${kafka.consumerGroupId}")
     fun consumeEvent(@Payload event: String) {
         logger.info { "Received event from Kafka: $event" }
         try {

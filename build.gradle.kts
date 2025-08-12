@@ -14,8 +14,8 @@ val jacksonVersion = "2.19.2"
 val junitJupiterVersion = "5.13.4"
 val coroutinesVersion = "1.10.2"
 val pdfBoxVersion = "2.0.31"
-val springKafkaVersion = "3.1.2"
 val micrometerPrometheusVersion = "1.12.4"
+val kafkaTestContainersVersion = "1.19.3"
 
 plugins {
     id("org.jetbrains.kotlin.plugin.spring") version "2.2.0"
@@ -80,20 +80,23 @@ dependencies {
     implementation("org.apache.pdfbox:pdfbox:${pdfBoxVersion}")
 
     // Kafka
-    implementation("org.springframework.kafka:spring-kafka:${springKafkaVersion}")
+    implementation("org.springframework.kafka:spring-kafka")
 
     // Monitoring
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("io.micrometer:micrometer-registry-prometheus:${micrometerPrometheusVersion}")
 
+    // Test dependencies
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.junit.jupiter:junit-jupiter:$junitJupiterVersion")
     testImplementation("com.ninja-squad:springmockk:$springmockkVersion")
     testImplementation("no.nav.security:token-validation-spring-test:$tokenSupportVersion")
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion")
+    testImplementation("org.springframework.kafka:spring-kafka-test")
+    testImplementation("org.testcontainers:kafka:${kafkaTestContainersVersion}")
 }
 
 java {

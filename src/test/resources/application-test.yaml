@@ -15,6 +15,9 @@ SAFSELVBETJENING_SCOPE: dev-fss.teamdokumenthandtering.safselvbetjening
 SAFSELVBETJENING_URL: http://localhost:${mock-oauth2-server.port}/saf
 TOKEN_X_PRIVATE_JWK: |
   {"use":"sig","kty":"RSA","kid":"test-kid","alg":"RS256","n":"test-n","e":"AQAB","d":"test-d","p":"test-p","q":"test-q","dp":"test-dp","dq":"test-dq","qi":"test-qi"}
+
+
+
 foerstesidegenerator:
   url: ${FOERSTESIDE_GENERATOR_URL:https://foerstesidegenerator-q1.dev.intern.nav.no}
   genererFoerstesidePath: /api/foerstesidegenerator/v1/foersteside
@@ -102,3 +105,13 @@ logging:
   level:
     org.springframework.security: DEBUG
     no.nav.security: DEBUG
+
+spring:
+  kafka:
+    bootstrap-servers: PLAINTEXT://localhost:9092
+    properties:
+      security.protocol: NONE
+    consumer:
+      max-poll-records: 100
+      fetch-min-size: 10KB
+      max-poll-interval: 300000

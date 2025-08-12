@@ -38,7 +38,6 @@ kafka:
   bootstrapServers: ${KAFKA_BROKERS}
   consumerGroupId: ${KAFKA_CONSUMER_GROUP_ID:bidrag-bidragskalkulator-api}
   listenerTopic: ${KAFKA_LISTENER_TOPIC:bidrag-listener-topic}
-  producerTopic: ${KAFKA_PRODUCER_TOPIC:bidrag-microfrontend-topic}
 
 saf:
   selvbetjening:

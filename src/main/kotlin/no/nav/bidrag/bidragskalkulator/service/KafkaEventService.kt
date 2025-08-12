@@ -16,7 +16,6 @@ private val logger = KotlinLogging.logger {}
 @Service
 class KafkaEventService(
     private val objectMapper: ObjectMapper,
-    private val kafkaProducerService: KafkaProducerService
 ) {
 
     /**
@@ -40,9 +39,6 @@ class KafkaEventService(
             
             // Implement business logic for enable event here
             // For example, you might want to store the event in a database or trigger some other action
-            
-            // Forward the event to another topic if needed
-            kafkaProducerService.sendEnableEvent(event)
         } catch (e: Exception) {
             logger.error(e) { "Error processing enable event: $jsonNode" }
         }
@@ -57,7 +53,6 @@ class KafkaEventService(
             // For example, you might want to store the event in a database or trigger some other action
             
             // Forward the event to another topic if needed
-            kafkaProducerService.sendDisableEvent(event)
         } catch (e: Exception) {
             logger.error(e) { "Error processing disable event: $jsonNode" }
         }
