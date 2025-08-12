@@ -2,7 +2,7 @@ package no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator
 
 
 data class FoerstesideDto(
-    val språkkode: Språkkode,
+    val spraakkode: Språkkode,
     val bruker: FoerstesideBrukerDto,
     val tema: String,
     val overskriftstittel: String,

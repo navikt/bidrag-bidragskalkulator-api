@@ -57,7 +57,7 @@ class FoerstesidegeneratorConsumer(
     fun genererFoersteside(dto: GenererFoerstesideRequestDto): GenererFoerstesideResultatDto =
         medApplikasjonsKontekst {
             val payload = FoerstesideDto(
-                språkkode = dto.språkkode,
+                spraakkode = dto.språkkode,
                 netsPostboks = "1400",
                 bruker = FoerstesideBrukerDto(
                     brukerId = dto.ident,
