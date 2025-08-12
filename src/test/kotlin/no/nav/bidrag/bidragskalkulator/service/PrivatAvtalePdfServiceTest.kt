@@ -34,8 +34,25 @@ class PrivatAvtalePdfServiceTest {
         every { mockFoerstesideConsumer.genererFoersteside(any()) } returns
                 GenererFoerstesideResultatDto(foersteside = forventetForside, loepenummer = "123")
 
+        val dto = PrivatAvtalePdfDto(
+            bidragsmottaker = PrivatAvtaleBidragsmottaker("Mottaker", "Etternavnesen", "22222222222"),
+            bidragspliktig = PrivatAvtaleBidragspliktig("Pliktig", "Etternavnesen", "33333333333"),
+            barn = listOf(PrivatAvtaleBarn("Barn", "Etternavnesen", "11111111111", 1000.0)),
+            fraDato = "01.01.2023",
+            nyAvtale = true,
+            oppgjorsform = Oppgjørsform.INNKREVING,
+            tilInnsending = false,
+            språk = Språkkode.NB,
+            vedlegg = Vedlegg(
+                tilknyttetAvtale = TilknyttetAvtaleVedlegg.SENDES_MED_SKJEMA,
+                annenDokumentasjon = AnnenDokumentasjon.INGEN_EKSTRA_DOKUMENTASJON
+            ),
+            andreBestemmelser = AndreBestemmelserSkjema(harAndreBestemmelser = false),
+            navSkjemaId = NavSkjemaId.AVTALE_OM_BARNEBIDRAG_UNDER_18
+        )
+
         // Act
-        val faktiskForside = service.genererForsideForInnsending("12345678901")
+        val faktiskForside = service.genererForsideForInnsending("12345678901", dto)
 
         // Assert
         assertArrayEquals(forventetForside, faktiskForside)
@@ -53,14 +70,20 @@ class PrivatAvtalePdfServiceTest {
         every { mockPdfProsessor.prosesserOgSlåSammenDokumenter(any()) } returns forventetKontrakt
 
         val dto = PrivatAvtalePdfDto(
-            innhold = "Test",
-            bidragsmottaker = PrivatAvtaleBidragsmottaker("Mottaker", "123"),
-            bidragspliktig = PrivatAvtaleBidragspliktig("Pliktig", "456"),
-            barn = listOf(PrivatAvtaleBarn("Barn", "789", 1000.0)),
+            bidragsmottaker = PrivatAvtaleBidragsmottaker("Mottaker", "Etternavnesen", "22222222222"),
+            bidragspliktig = PrivatAvtaleBidragspliktig("Pliktig", "Etternavnesen", "33333333333"),
+            barn = listOf(PrivatAvtaleBarn("Barn", "Etternavnesen", "11111111111", 1000.0)),
             fraDato = "01.01.2023",
             nyAvtale = true,
-            oppgjorsform = "Bank",
-            tilInnsending = false
+            oppgjorsform = Oppgjørsform.INNKREVING,
+            tilInnsending = false,
+            språk = Språkkode.NB,
+            vedlegg = Vedlegg(
+                tilknyttetAvtale = TilknyttetAvtaleVedlegg.SENDES_MED_SKJEMA,
+                annenDokumentasjon = AnnenDokumentasjon.INGEN_EKSTRA_DOKUMENTASJON
+            ),
+            andreBestemmelser = AndreBestemmelserSkjema(harAndreBestemmelser = false),
+            navSkjemaId = NavSkjemaId.AVTALE_OM_BARNEBIDRAG_UNDER_18
         )
 
         // Act
