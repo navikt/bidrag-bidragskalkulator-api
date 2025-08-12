@@ -22,6 +22,7 @@ import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.context.annotation.Profile
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -80,10 +81,15 @@ class PrivatAvtaleController(
             ApiResponse(responseCode = "500", description = "Intern serverfeil")
         ]
     )
+    @Validated
     fun genererPrivatAvtale(@Valid @RequestBody privatAvtalePdfDto: PrivatAvtalePdfDto): ResponseEntity<ByteArray>? {
 
         val personIdent = innloggetBrukerUtils.hentPåloggetPersonIdent()
             ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Ugyldig token")
+
+        if (privatAvtalePdfDto.andreBestemmelser.harAndreBestemmelser && privatAvtalePdfDto.andreBestemmelser.beskrivelse.isNullOrBlank()) {
+            throw IllegalArgumentException("Feltet 'andreBestemmelserTekst' er påkrevd når 'harAndreBestemmelser' er true.")
+        }
 
         val genererPrivatAvtalePdf =  privatAvtalePdfService.genererPrivatAvtalePdf(personIdent, privatAvtalePdfDto)
 

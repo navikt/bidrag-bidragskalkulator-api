@@ -47,6 +47,7 @@ spec:
   prometheus:
     enabled: true
     path: /actuator/prometheus
+
   observability:
     autoInstrumentation:
       enabled: true

@@ -20,10 +20,12 @@ spring.config.activate.on-profile: local
 BIDRAG_SJABLON_URL: https://bidrag-sjablon.dev-fss-pub.nais.io/bidrag-sjablon
 BIDRAG_GRUNNLAG_URL: https://bidrag-grunnlag.intern.dev.nav.no
 
+
 bidrag:
   grunnlag:
     url: ${BIDRAG_GRUNNLAG_URL}
     hentGrunnlagPath: hentgrunnlag
+
 
 ---
 spring.config.activate.on-profile: prod, dev, local-nais
@@ -47,6 +49,19 @@ spring:
       max-poll-records: 100
       fetch-min-size: 10KB
       max-poll-interval: 300000
+
+management:
+  metrics:
+    tags:
+      application: ${NAIS_APP_NAME}
+  endpoints:
+    web:
+      exposure:
+        include: prometheus,health,info,metrics
+  prometheus:
+    metrics:
+      export:
+        enabled: true
 
 saf:
   selvbetjening:

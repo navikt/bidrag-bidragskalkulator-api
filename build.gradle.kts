@@ -14,8 +14,9 @@ val jacksonVersion = "2.19.2"
 val junitJupiterVersion = "5.13.4"
 val coroutinesVersion = "1.10.2"
 val pdfBoxVersion = "2.0.31"
-val micrometerPrometheusVersion = "1.12.4"
 val kafkaTestContainersVersion = "1.19.3"
+val micrometerPrometheusVersion = "1.15.2"
+
 
 plugins {
     id("org.jetbrains.kotlin.plugin.spring") version "2.2.0"
@@ -70,6 +71,10 @@ dependencies {
     // Caching
     api("org.springframework.boot:spring-boot-starter-cache")
     api("com.github.ben-manes.caffeine:caffeine")
+
+    // Monitoring
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("io.micrometer:micrometer-registry-prometheus:${micrometerPrometheusVersion}")
 
     // Annet
     api("io.github.oshai:kotlin-logging-jvm:$kotlinLoggingJvmVersion")
