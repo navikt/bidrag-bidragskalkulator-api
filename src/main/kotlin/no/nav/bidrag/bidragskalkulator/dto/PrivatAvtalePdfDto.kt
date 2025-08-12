@@ -122,10 +122,10 @@ enum class AnnenDokumentasjon {
 @Schema(description = "Skjema for vedlegg tilknyttet avtalen")
 data class Vedlegg(
     @field:NotNull
-    @param:Schema(description = "Hvordan dokumentasjonen knyttet til avtalen håndteres")
+    @param:Schema(ref = "#/components/schemas/TilknyttetAvtaleVedlegg")
     val tilknyttetAvtale: TilknyttetAvtaleVedlegg,
     @field:NotNull
-    @param:Schema(description = "Angir om annen dokumentasjon legges ved")
+    @param:Schema(ref = "#/components/schemas/AnnenDokumentasjon")
     val annenDokumentasjon: AnnenDokumentasjon
 )
 
@@ -140,9 +140,9 @@ data class AndreBestemmelserSkjema(
 
 @Schema(description = "Informasjon for generering av en privat avtale PDF")
 data class PrivatAvtalePdfDto(
-    @param:Schema(description = "Kode for skjematype ", required = true)
+    @param:Schema(ref = "#/components/schemas/NavSkjemaId", required = true)
     val navSkjemaId: NavSkjemaId,
-    @param:Schema(description = "Valgte språk", required = true)
+    @param:Schema(ref = "#/components/schemas/Språkkode", required = true)
     val språk: Språkkode,
     @param:Schema(description = "", required = true)
     val innhold: String,
@@ -154,7 +154,7 @@ data class PrivatAvtalePdfDto(
     val barn: List<PrivatAvtaleBarn>,
     @param:Schema(description = "Er dette en ny avtale?", required = true)
     val nyAvtale: Boolean,
-    @param:Schema(description = "Oppgjørsform for betaling av bidraget", required = true)
+    @param:Schema(ref = "#/components/schemas/Oppgjørsform", required = true)
     val oppgjorsform: Oppgjørsform,
     @param:Schema(description = "Er dette en avtale som skal sendes til NAV?", required = true)
     val tilInnsending: Boolean = false,
