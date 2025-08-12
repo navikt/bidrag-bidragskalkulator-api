@@ -6,6 +6,11 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.models.Components
 import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.media.Schema
+import no.nav.bidrag.bidragskalkulator.dto.AnnenDokumentasjon
+import no.nav.bidrag.bidragskalkulator.dto.Oppgjørsform
+import no.nav.bidrag.bidragskalkulator.dto.TilknyttetAvtaleVedlegg
+import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.NavSkjemaId
+import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.Språkkode
 import no.nav.bidrag.domene.enums.beregning.Samværsklasse
 import org.springdoc.core.customizers.OpenApiCustomizer
 import org.springframework.context.annotation.Bean
@@ -34,8 +39,48 @@ class SwaggerConfig {
                     enum = Samværsklasse.entries.map { it.name }
                 }
 
+            val oppgjørsformSchema = Schema<String>()
+                .description("Angir hvordan bidraget skal betales eller innkreves")
+                .example(Oppgjørsform.INNKREVING.name)
+                .apply {
+                    enum = Oppgjørsform.entries.map { it.name }
+                }
+
+            val tilknyttetAvtaleVedleggSchema = Schema<String>()
+                .description("Type vedlegg som er knyttet til avtalen")
+                .example(TilknyttetAvtaleVedlegg.SENDES_MED_SKJEMA.name)
+                .apply {
+                    enum = TilknyttetAvtaleVedlegg.entries.map { it.name }
+                }
+
+            val annenDokumentasjonSchema = Schema<String>()
+                .description("Tilleggsdokumentasjon som følger saken")
+                .example(AnnenDokumentasjon.INGEN_EKSTRA_DOKUMENTASJON.name)
+                .apply {
+                    enum = AnnenDokumentasjon.entries.map { it.name }
+                }
+
+            val språkkodeSchema = Schema<String>()
+                .description("Språkkode som angir hvilket språk dokumentet skal genereres på")
+                .example(Språkkode.NB.name)
+                .apply {
+                    enum = Språkkode.entries.map { it.name }
+                }
+
+            val navSkjemaIdSchema = Schema<String>()
+                .description("NAV-skjema som benyttes, identifisert ved skjema-ID")
+                .example(NavSkjemaId.AVTALE_OM_BARNEBIDRAG_UNDER_18.name)
+                .apply {
+                    enum = NavSkjemaId.entries.map { it.name }
+                }
+
             openApi.components = (openApi.components ?: Components())
                 .addSchemas("Samværsklasse", samværsklasseSchema)
+                .addSchemas("Oppgjørsform", oppgjørsformSchema)
+                .addSchemas("TilknyttetAvtaleVedlegg", tilknyttetAvtaleVedleggSchema)
+                .addSchemas("AnnenDokumentasjon", annenDokumentasjonSchema)
+                .addSchemas("Språkkode", språkkodeSchema)
+                .addSchemas("NavSkjemaId", navSkjemaIdSchema)
         }
     }
 }

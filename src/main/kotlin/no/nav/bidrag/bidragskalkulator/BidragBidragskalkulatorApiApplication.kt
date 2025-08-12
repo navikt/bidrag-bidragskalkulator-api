@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfi
 import org.springframework.boot.runApplication
 
 @SpringBootApplication(exclude = [SecurityAutoConfiguration::class, ManagementWebSecurityAutoConfiguration::class])
-@EnableJwtTokenValidation(ignore = ["org.springdoc", "org.springframework"])
+@EnableJwtTokenValidation(ignore = ["org.springdoc", "org.springframework", "/actuator/**"])
 class BidragBidragskalkulatorApiApplication
 
 fun main(args: Array<String>) {

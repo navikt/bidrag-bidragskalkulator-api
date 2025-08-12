@@ -4,7 +4,7 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 group = "com.github.navikt"
 version = "0.0.1-SNAPSHOT"
 
-val bidragBeregnFellesVersion = "2025.08.01.155343"
+val bidragBeregnFellesVersion = "2025.08.08.151719"
 val bidragFellesVersion = "2025.08.09.141624"
 val kotlinLoggingJvmVersion = "7.0.11"
 val springDocWebmvcVersion = "2.8.9"
@@ -14,6 +14,7 @@ val jacksonVersion = "2.19.2"
 val junitJupiterVersion = "5.13.4"
 val coroutinesVersion = "1.10.2"
 val pdfBoxVersion = "2.0.31"
+val micrometerPrometheusVersion = "1.15.2"
 
 plugins {
     id("org.jetbrains.kotlin.plugin.spring") version "2.2.0"
@@ -68,6 +69,10 @@ dependencies {
     // Caching
     api("org.springframework.boot:spring-boot-starter-cache")
     api("com.github.ben-manes.caffeine:caffeine")
+
+    // Monitoring
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("io.micrometer:micrometer-registry-prometheus:${micrometerPrometheusVersion}")
 
     // Annet
     api("io.github.oshai:kotlin-logging-jvm:$kotlinLoggingJvmVersion")
