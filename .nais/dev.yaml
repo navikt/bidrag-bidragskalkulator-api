@@ -17,9 +17,9 @@ env:
   SAFSELVBETJENING_SCOPE: dev-fss.teamdokumenthandtering.safselvbetjening-q1
 
   KAFKA_TOPIC_VEDTAK: bidrag.vedtak-q1
-  KAFKA_TOPIC_SAK: bidrag.sak-q1
-  KAFKA_GROUP_ID_VEDTAK: bidrag-bidragskalkulator-api-1
-  KAFKA_GROUP_ID_SAK: bidrag-bidragskalkulator-api-1
+  KAFKA_TOPIC_SAK: bidrag.sak
+  KAFKA_GROUP_ID_VEDTAK: bidrag-bidragskalkulator-api
+  KAFKA_GROUP_ID_SAK: bidrag-bidragskalkulator-api
 
 kafka:
   pool: nav-dev
