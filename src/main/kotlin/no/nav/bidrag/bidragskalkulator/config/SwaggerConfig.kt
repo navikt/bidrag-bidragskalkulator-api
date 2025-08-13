@@ -6,9 +6,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.models.Components
 import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.media.Schema
-import no.nav.bidrag.bidragskalkulator.dto.AnnenDokumentasjon
 import no.nav.bidrag.bidragskalkulator.dto.Oppgjørsform
-import no.nav.bidrag.bidragskalkulator.dto.TilknyttetAvtaleVedlegg
+import no.nav.bidrag.bidragskalkulator.dto.Vedleggskrav
 import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.NavSkjemaId
 import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.Språkkode
 import no.nav.bidrag.domene.enums.beregning.Samværsklasse
@@ -46,18 +45,11 @@ class SwaggerConfig {
                     enum = Oppgjørsform.entries.map { it.name }
                 }
 
-            val tilknyttetAvtaleVedleggSchema = Schema<String>()
-                .description("Type vedlegg som er knyttet til avtalen")
-                .example(TilknyttetAvtaleVedlegg.SENDES_MED_SKJEMA.name)
-                .apply {
-                    enum = TilknyttetAvtaleVedlegg.entries.map { it.name }
-                }
-
-            val annenDokumentasjonSchema = Schema<String>()
+            val vedleggskravSchema = Schema<String>()
                 .description("Tilleggsdokumentasjon som følger saken")
-                .example(AnnenDokumentasjon.INGEN_EKSTRA_DOKUMENTASJON.name)
+                .example(Vedleggskrav.INGEN_EKSTRA_DOKUMENTASJON.name)
                 .apply {
-                    enum = AnnenDokumentasjon.entries.map { it.name }
+                    enum = Vedleggskrav.entries.map { it.name }
                 }
 
             val språkkodeSchema = Schema<String>()
@@ -77,8 +69,7 @@ class SwaggerConfig {
             openApi.components = (openApi.components ?: Components())
                 .addSchemas("Samværsklasse", samværsklasseSchema)
                 .addSchemas("Oppgjørsform", oppgjørsformSchema)
-                .addSchemas("TilknyttetAvtaleVedlegg", tilknyttetAvtaleVedleggSchema)
-                .addSchemas("AnnenDokumentasjon", annenDokumentasjonSchema)
+                .addSchemas("Vedleggskrav", vedleggskravSchema)
                 .addSchemas("Språkkode", språkkodeSchema)
                 .addSchemas("NavSkjemaId", navSkjemaIdSchema)
         }

@@ -4,8 +4,6 @@ import no.nav.bidrag.bidragskalkulator.consumer.BidragDokumentProduksjonConsumer
 import no.nav.bidrag.bidragskalkulator.consumer.FoerstesidegeneratorConsumer
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtalePdfDto
 import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.GenererFoerstesideRequestDto
-import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.NavSkjemaId
-import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.Språkkode
 import no.nav.bidrag.bidragskalkulator.prosessor.PdfProsessor
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service

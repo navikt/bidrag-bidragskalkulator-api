@@ -108,27 +108,10 @@ enum class Oppgjørsform {
     INNKREVING, PRIVAT
 }
 
-enum class TilknyttetAvtaleVedlegg {
-    SENDES_MED_SKJEMA,
-    ETTERSENDES,
-    LEVERT_TIDLIGERE
-}
-
-enum class AnnenDokumentasjon {
+enum class Vedleggskrav {
     SENDES_MED_SKJEMA,
     INGEN_EKSTRA_DOKUMENTASJON,
 }
-
-@Schema(description = "Skjema for vedlegg tilknyttet avtalen")
-data class Vedlegg(
-    @field:NotNull
-    @param:Schema(ref = "#/components/schemas/TilknyttetAvtaleVedlegg")
-    val tilknyttetAvtale: TilknyttetAvtaleVedlegg,
-    @field:NotNull
-    @param:Schema(ref = "#/components/schemas/AnnenDokumentasjon")
-    val annenDokumentasjon: AnnenDokumentasjon
-)
-
 
 @Schema(description = "Andre bestemmelser tilknyttet avtalen")
 data class AndreBestemmelserSkjema(
@@ -158,10 +141,10 @@ data class PrivatAvtalePdfDto(
     val tilInnsending: Boolean = false,
     @param:Schema(description = "Gjeldende dato for avtalen")
     val fraDato: String,
-    @field:NotNull
     @field:Valid
-    @param:Schema(description = "Vedlegg knyttet til avtalen")
-    val vedlegg: Vedlegg,
+    @field:NotNull
+    @param:Schema(ref = "#/components/schemas/Vedleggskrav")
+    val vedlegg: Vedleggskrav,
     @field:NotNull
     @field:Valid
     @param:Schema(description = "Eventuelle andre bestemmelser som er inkludert i avtalen")
