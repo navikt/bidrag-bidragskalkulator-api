@@ -17,7 +17,7 @@ private const val FEILMELDING_FODSELSNUMMER = "Gyldig fødselsnummer må være u
 interface PrivatAvtalePerson {
     val fornavn: String
     val etternavn: String
-    val fodselsnummer: String
+    val ident: String
 }
 
 @Schema(description = "Representerer informasjon om bidragsmottaker i en privat avtale")
@@ -44,7 +44,7 @@ data class PrivatAvtaleBidragsmottaker(
         required = true,
         example = "12345678901"
     )
-    override val fodselsnummer: String,
+    override val ident: String,
 ) : PrivatAvtalePerson
 
 data class PrivatAvtaleBidragspliktig(
@@ -70,7 +70,7 @@ data class PrivatAvtaleBidragspliktig(
         required = true,
         example = "12345678901"
     )
-    override val fodselsnummer: String,
+    override val ident: String,
 ) : PrivatAvtalePerson
 
 @Schema(description = "Informasjon om barnet i en privat avtale")
@@ -97,7 +97,7 @@ data class PrivatAvtaleBarn(
         required = true,
         example = "12345678901"
     )
-    override val fodselsnummer: String,
+    override val ident: String,
 
     @param:Min(value = 1, message = "Bidraget må være større enn 0")
     @param:Schema(description = "Barnets fødselsnummer", required = true)
