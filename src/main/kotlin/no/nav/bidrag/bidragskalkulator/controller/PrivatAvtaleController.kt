@@ -91,6 +91,10 @@ class PrivatAvtaleController(
             throw IllegalArgumentException("Feltet 'andreBestemmelserTekst' er påkrevd når 'harAndreBestemmelser' er true.")
         }
 
+        if (!privatAvtalePdfDto.oppgjør.nyAvtale && privatAvtalePdfDto.oppgjør.oppgjørsformIdag == null) {
+            throw IllegalArgumentException("Feltet 'oppgjørsformIdag' er påkrevd når det er eksisterende avtale.")
+        }
+
         val genererPrivatAvtalePdf =  privatAvtalePdfService.genererPrivatAvtalePdf(personIdent, privatAvtalePdfDto)
 
         val privatAvtaleByteArray = genererPrivatAvtalePdf.toByteArray()

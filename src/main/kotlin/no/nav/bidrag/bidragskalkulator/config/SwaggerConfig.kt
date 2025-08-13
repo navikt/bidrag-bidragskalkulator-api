@@ -39,7 +39,9 @@ class SwaggerConfig {
                 }
 
             val oppgjørsformSchema = Schema<String>()
-                .description("Angir hvordan bidraget skal betales eller innkreves")
+                .description("Angir hvordan bidraget skal betales eller innkreves." +
+                        "PRIVATE = bidraget gjøres opp privat, " +
+                        "NAV_INNKREVING = bidraget betales via Skatteetaten/NAV Innkreving.")
                 .example(Oppgjørsform.INNKREVING.name)
                 .apply {
                     enum = Oppgjørsform.entries.map { it.name }

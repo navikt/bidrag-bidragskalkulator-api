@@ -3,6 +3,7 @@ package no.nav.bidrag.bidragskalkulator.service
 import no.nav.bidrag.bidragskalkulator.consumer.BidragDokumentProduksjonConsumer
 import no.nav.bidrag.bidragskalkulator.consumer.FoerstesidegeneratorConsumer
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtalePdfDto
+import no.nav.bidrag.bidragskalkulator.dto.erOppgjørsformEndret
 import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.GenererFoerstesideRequestDto
 import no.nav.bidrag.bidragskalkulator.prosessor.PdfProsessor
 import org.slf4j.LoggerFactory
@@ -35,7 +36,7 @@ class PrivatAvtalePdfService(
 
         val dokumenter = mutableListOf(hoveddokument.toByteArray())
 
-        if (privatAvtalePdfDto.tilInnsending) {
+        if (privatAvtalePdfDto.oppgjør.erOppgjørsformEndret()) {
             val foersteside = measureTimedValue {
                 genererForsideForInnsending(innsenderIdent, privatAvtalePdfDto)
             }.also {
