@@ -10,8 +10,10 @@ env:
   BIDRAG_GRUNNLAG_SCOPE: prod-gcp.bidrag.bidrag-grunnlag
   KODEVERK_URL: https://kodeverk.prod-fss-pub.nais.io
   NAIS_APP_NAME: bidrag-bidragskalkulator-api
-  VEDTAK_KAFKA_TOPIC: bidrag.vedtak
-  VEDTAK_KAFKA_GROUP_ID: bidrag-bidragskalkulator-api
+  KAFKA_TOPIC_VEDTAK: bidrag.vedtak-q1
+  KAFKA_TOPIC_SAK: bidrag.sak-q1
+  KAFKA_GROUP_ID_VEDTAK: bidrag-bidragskalkulator-api-1
+  KAFKA_GROUP_ID_SAK: bidrag-bidragskalkulator-api-1
 
 kafka:
   pool: nav-dev

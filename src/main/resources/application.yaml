@@ -15,7 +15,8 @@ spring:
     cache-names: underholdskostnad,personinformasjon, privatAvtaleInformasjon, samværsfradrag
     caffeine:
       spec: maximumSize=500,expireAfterWrite=1h
-
+---
+## LOCAL PROFILE
 spring.config.activate.on-profile: local
 BIDRAG_SJABLON_URL: https://bidrag-sjablon.dev-fss-pub.nais.io/bidrag-sjablon
 BIDRAG_GRUNNLAG_URL: https://bidrag-grunnlag.intern.dev.nav.no
@@ -28,6 +29,7 @@ bidrag:
 
 
 ---
+## NAIS PROFILE
 spring.config.activate.on-profile: prod, dev, local-nais
 spring:
   kafka:

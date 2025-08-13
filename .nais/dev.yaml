@@ -15,13 +15,14 @@ env:
   BIDRAG_DOKUMENTPRODUKSJON_URL: https://bidrag-dokument-produksjon.intern.dev.nav.no
   SAFSELVBETJENING_URL: https://safselvbetjening-q1.dev-fss-pub.nais.io
   SAFSELVBETJENING_SCOPE: dev-fss.teamdokumenthandtering.safselvbetjening-q1
-  VEDTAK_KAFKA_TOPIC: bidrag.vedtak-q1
-  VEDTAK_KAFKA_GROUP_ID: bidrag-bidragskalkulator-api
+
+  KAFKA_TOPIC_VEDTAK: bidrag.vedtak-q1
+  KAFKA_TOPIC_SAK: bidrag.sak-q1
+  KAFKA_GROUP_ID_VEDTAK: bidrag-bidragskalkulator-api-1
+  KAFKA_GROUP_ID_SAK: bidrag-bidragskalkulator-api-1
 
 kafka:
   pool: nav-dev
-  topic:
-    vedtak:
 
 inbound_application:
   - application: bidrag-bidragskalkulator-v2

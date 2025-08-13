@@ -19,7 +19,7 @@ class KafkaEventConsumer(
     /**
      * Listens for events on the configured topic
      */
-    @KafkaListener(topics = ["\${VEDTAK_KAFKA_TOPIC}"], groupId = "\${VEDTAK_KAFKA_GROUP_ID}")
+    @KafkaListener(topics = ["\${KAFKA_TOPIC_SAK}"], groupId = "\${KAFKA_GROUP_ID_SAK}")
     fun consumeEvent(@Payload event: String) {
         logger.info { "Received event from Kafka: $event" }
         try {

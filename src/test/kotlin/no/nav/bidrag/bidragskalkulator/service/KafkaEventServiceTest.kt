@@ -27,7 +27,7 @@ class KafkaEventServiceTest {
     @Autowired
     lateinit var kafkaTemplate: KafkaTemplate<String, Any>
 
-    @Value("\${VEDTAK_KAFKA_TOPIC}")
+    @Value("\${KAFKA_TOPIC_SAK}")
     lateinit var topic: String
 
 
