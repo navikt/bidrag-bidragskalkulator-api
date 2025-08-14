@@ -1,6 +1,6 @@
 spring:
   kafka:
-    bootstrap-servers: ${KAFKA_BROKERS:PLAINTEXT://localhost:9092}
+    bootstrap-servers: ${KAFKA_BROKERS}
     consumer:
       max-poll-records: 100
       fetch-min-size: 10KB
