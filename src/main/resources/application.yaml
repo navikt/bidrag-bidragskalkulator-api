@@ -31,26 +31,6 @@ bidrag:
 ---
 ## NAIS PROFILE
 spring.config.activate.on-profile: prod, dev, local-nais
-spring:
-  kafka:
-    bootstrap-servers: ${KAFKA_BROKERS}
-    properties:
-      security.protocol: SSL
-      ssl:
-        keystore:
-          type: PKCS12
-          location: ${KAFKA_KEYSTORE_PATH}
-          password: ${KAFKA_CREDSTORE_PASSWORD}
-        truststore:
-          location: ${KAFKA_TRUSTSTORE_PATH}
-          password: ${KAFKA_CREDSTORE_PASSWORD}
-        producer:
-          key-serializer: org.apache.kafka.common.serialization.StringSerializer
-          value-serializer: org.apache.kafka.common.serialization.StringSerializer
-    consumer:
-      max-poll-records: 100
-      fetch-min-size: 10KB
-      max-poll-interval: 300000
 
 management:
   metrics:
