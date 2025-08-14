@@ -101,7 +101,10 @@ data class PrivatAvtaleBarn(
 
     @param:Min(value = 1, message = "Bidraget må være større enn 0")
     @param:Schema(description = "Barnets fødselsnummer", required = true)
-    val sumBidrag: Double  // Beløp in NOK
+    val sumBidrag: Double,  // Beløp in NOK
+
+    @param:Schema(description = "Gjeldende dato for avtalen", required = true, example = "2022-01-01")
+    val fraDato: String,
 ) : PrivatAvtalePerson
 
 enum class Oppgjørsform {
@@ -144,9 +147,6 @@ data class PrivatAvtalePdfDto(
     @field:NotNull
     val oppgjør: Oppgjør,
 
-    @param:Schema(description = "Gjeldende dato for avtalen")
-    val fraDato: String,
-
     @field:Valid
     @field:NotNull
     @param:Schema(ref = "#/components/schemas/Vedleggskrav")
@@ -159,8 +159,9 @@ data class PrivatAvtalePdfDto(
 )  {
     @JsonIgnore
     @Schema(hidden = true)
-    fun tilNorskDatoFormat(): PrivatAvtalePdfDto =
-        this.copy(fraDato = fraDato.tilNorskDatoFormat())
+    fun medNorskeDatoer(): PrivatAvtalePdfDto = this.copy(
+        barn = this.barn.map { it.copy(fraDato = it.fraDato.tilNorskDatoFormat()) },
+    )
 }
 
 @Schema(
