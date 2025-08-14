@@ -15,6 +15,9 @@ spring:
     cache-names: underholdskostnad,personinformasjon, privatAvtaleInformasjon, samværsfradrag
     caffeine:
       spec: maximumSize=500,expireAfterWrite=1h
+  profiles:
+    include:
+      - kafka
 ---
 ## LOCAL PROFILE
 spring.config.activate.on-profile: local
@@ -127,3 +130,5 @@ no.nav.security.jwt:
     tokenx:
       discoveryurl: ${TOKEN_X_WELL_KNOWN_URL}
       accepted_audience: ${TOKEN_X_CLIENT_ID}
+
+
