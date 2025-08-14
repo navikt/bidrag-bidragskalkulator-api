@@ -121,9 +121,8 @@ class PrivatAvtaleControllerTest: AbstractControllerTest() {
             språk = Språkkode.NB,
             bidragsmottaker = PrivatAvtaleBidragsmottaker("Ola", "Nordmann", "12345678901"),
             bidragspliktig = PrivatAvtaleBidragspliktig("Kari", "Nordmann", "10987654321"),
-            barn = listOf(PrivatAvtaleBarn("Barn", "Nordmann", "01010112345", 1000.0)),
+            barn = listOf(PrivatAvtaleBarn("Barn", "Nordmann", "01010112345", 1000.0, fraDato = "2025-01-01")),
             oppgjør = Oppgjør(nyAvtale = true, oppgjørsformØnsket = Oppgjørsform.INNKREVING),
-            fraDato = "2025-01-01",
             vedlegg = Vedleggskrav.INGEN_EKSTRA_DOKUMENTASJON,
             andreBestemmelser = AndreBestemmelserSkjema(false, null)
         )

@@ -37,8 +37,7 @@ class PrivatAvtalePdfServiceTest {
         val dto = PrivatAvtalePdfDto(
             bidragsmottaker = PrivatAvtaleBidragsmottaker("Mottaker", "Etternavnesen", "22222222222"),
             bidragspliktig = PrivatAvtaleBidragspliktig("Pliktig", "Etternavnesen", "33333333333"),
-            barn = listOf(PrivatAvtaleBarn("Barn", "Etternavnesen", "11111111111", 1000.0)),
-            fraDato = "01.01.2023",
+            barn = listOf(PrivatAvtaleBarn("Barn", "Etternavnesen", "11111111111", 1000.0, fraDato = "2025-01-01")),
             oppgjør = Oppgjør(
                 nyAvtale = true,
                 oppgjørsformØnsket = Oppgjørsform.INNKREVING,
@@ -71,8 +70,7 @@ class PrivatAvtalePdfServiceTest {
         val dto = PrivatAvtalePdfDto(
             bidragsmottaker = PrivatAvtaleBidragsmottaker("Mottaker", "Etternavnesen", "22222222222"),
             bidragspliktig = PrivatAvtaleBidragspliktig("Pliktig", "Etternavnesen", "33333333333"),
-            barn = listOf(PrivatAvtaleBarn("Barn", "Etternavnesen", "11111111111", 1000.0)),
-            fraDato = "01.01.2023",
+            barn = listOf(PrivatAvtaleBarn("Barn", "Etternavnesen", "11111111111", 1000.0, fraDato = "2025-01-01")),
             oppgjør = Oppgjør(
                 nyAvtale = true,
                 oppgjørsformØnsket = Oppgjørsform.INNKREVING,
