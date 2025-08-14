@@ -26,7 +26,8 @@ fun PersonDto.tilBarnInformasjonDto(underholdskostnad: BigDecimal?): BarnInforma
 fun PersonDto.tilPrivatAvtaleInformasjonDto(): PrivatAvtaleInformasjonDto =
     PrivatAvtaleInformasjonDto(
         ident = this.ident,
-        fulltNavn = this.visningsnavn,
+        fornavn = this.fornavn ?: "-",
+        etternavn = this.etternavn ?: "-",
     )
 
 fun PersonDto.erLevendeOgIkkeSkjermet(): Boolean =

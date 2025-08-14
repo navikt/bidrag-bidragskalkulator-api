@@ -3,9 +3,8 @@ package no.nav.bidrag.bidragskalkulator.service
 import no.nav.bidrag.bidragskalkulator.consumer.BidragDokumentProduksjonConsumer
 import no.nav.bidrag.bidragskalkulator.consumer.FoerstesidegeneratorConsumer
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtalePdfDto
+import no.nav.bidrag.bidragskalkulator.dto.erOppgjørsformEndret
 import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.GenererFoerstesideRequestDto
-import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.NavSkjemaId
-import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.Språkkode
 import no.nav.bidrag.bidragskalkulator.prosessor.PdfProsessor
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -30,14 +29,14 @@ class PrivatAvtalePdfService(
         logger.info("Starter generering av PDF for privat avtale")
 
         val hoveddokument = measureTimedValue {
-            bidragDokumentConsumer.genererPrivatAvtaleAPdf(privatAvtalePdfDto.tilNorskDatoFormat())
+            bidragDokumentConsumer.genererPrivatAvtaleAPdf(privatAvtalePdfDto.medNorskeDatoer())
         }.also {
             logger.info("Hoveddokument generert på ${it.duration.inWholeMilliseconds} ms")
         }.value
 
         val dokumenter = mutableListOf(hoveddokument.toByteArray())
 
-        if (privatAvtalePdfDto.tilInnsending) {
+        if (privatAvtalePdfDto.oppgjør.erOppgjørsformEndret()) {
             val foersteside = measureTimedValue {
                 genererForsideForInnsending(innsenderIdent, privatAvtalePdfDto)
             }.also {

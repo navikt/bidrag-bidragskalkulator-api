@@ -37,16 +37,14 @@ class PrivatAvtalePdfServiceTest {
         val dto = PrivatAvtalePdfDto(
             bidragsmottaker = PrivatAvtaleBidragsmottaker("Mottaker", "Etternavnesen", "22222222222"),
             bidragspliktig = PrivatAvtaleBidragspliktig("Pliktig", "Etternavnesen", "33333333333"),
-            barn = listOf(PrivatAvtaleBarn("Barn", "Etternavnesen", "11111111111", 1000.0)),
-            fraDato = "01.01.2023",
-            nyAvtale = true,
-            oppgjorsform = Oppgjørsform.INNKREVING,
-            tilInnsending = false,
-            språk = Språkkode.NB,
-            vedlegg = Vedlegg(
-                tilknyttetAvtale = TilknyttetAvtaleVedlegg.SENDES_MED_SKJEMA,
-                annenDokumentasjon = AnnenDokumentasjon.INGEN_EKSTRA_DOKUMENTASJON
+            barn = listOf(PrivatAvtaleBarn("Barn", "Etternavnesen", "11111111111", 1000.0, fraDato = "2025-01-01")),
+            oppgjør = Oppgjør(
+                nyAvtale = true,
+                oppgjørsformØnsket = Oppgjørsform.INNKREVING,
+                oppgjørsformIdag = Oppgjørsform.INNKREVING,
             ),
+            språk = Språkkode.NB,
+            vedlegg = Vedleggskrav.INGEN_EKSTRA_DOKUMENTASJON,
             andreBestemmelser = AndreBestemmelserSkjema(harAndreBestemmelser = false),
             navSkjemaId = NavSkjemaId.AVTALE_OM_BARNEBIDRAG_UNDER_18
         )
@@ -72,16 +70,14 @@ class PrivatAvtalePdfServiceTest {
         val dto = PrivatAvtalePdfDto(
             bidragsmottaker = PrivatAvtaleBidragsmottaker("Mottaker", "Etternavnesen", "22222222222"),
             bidragspliktig = PrivatAvtaleBidragspliktig("Pliktig", "Etternavnesen", "33333333333"),
-            barn = listOf(PrivatAvtaleBarn("Barn", "Etternavnesen", "11111111111", 1000.0)),
-            fraDato = "01.01.2023",
-            nyAvtale = true,
-            oppgjorsform = Oppgjørsform.INNKREVING,
-            tilInnsending = false,
-            språk = Språkkode.NB,
-            vedlegg = Vedlegg(
-                tilknyttetAvtale = TilknyttetAvtaleVedlegg.SENDES_MED_SKJEMA,
-                annenDokumentasjon = AnnenDokumentasjon.INGEN_EKSTRA_DOKUMENTASJON
+            barn = listOf(PrivatAvtaleBarn("Barn", "Etternavnesen", "11111111111", 1000.0, fraDato = "2025-01-01")),
+            oppgjør = Oppgjør(
+                nyAvtale = true,
+                oppgjørsformØnsket = Oppgjørsform.INNKREVING,
+                oppgjørsformIdag = Oppgjørsform.INNKREVING,
             ),
+            språk = Språkkode.NB,
+            vedlegg = Vedleggskrav.INGEN_EKSTRA_DOKUMENTASJON,
             andreBestemmelser = AndreBestemmelserSkjema(harAndreBestemmelser = false),
             navSkjemaId = NavSkjemaId.AVTALE_OM_BARNEBIDRAG_UNDER_18
         )
