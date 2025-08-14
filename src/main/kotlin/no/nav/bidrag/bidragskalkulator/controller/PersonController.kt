@@ -38,6 +38,7 @@ class PersonController(
         value = [
             ApiResponse(responseCode = "200", description = "Brukerinformasjon hentet vellykket"),
             ApiResponse(responseCode = "204", description = "Person eksisterer ikke"),
+            ApiResponse(responseCode = "400", description = "Ugyldig forespørsel – valideringsfeil eller ugyldig enumverdi"),
             ApiResponse(responseCode = "401", description = "Uautorisert tilgang - ugyldig eller utløpt token"),
             ApiResponse(responseCode = "500", description = "Intern serverfeil")
         ]

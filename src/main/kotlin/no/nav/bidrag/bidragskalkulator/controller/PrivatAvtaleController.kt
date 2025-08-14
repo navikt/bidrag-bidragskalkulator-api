@@ -50,7 +50,8 @@ class PrivatAvtaleController(
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "Privat avtale informasjon hentet vellykket"),
-            ApiResponse(responseCode = "401", description = "Uautorisert tilgang - mangler eller ugyldig token"),
+            ApiResponse(responseCode = "400", description = "Ugyldig forespørsel – valideringsfeil eller ugyldig enumverdi"),
+            ApiResponse(responseCode = "401", description = "Uautorisert tilgang – mangler eller ugyldig token"),
             ApiResponse(responseCode = "500", description = "Intern serverfeil")
         ]
     )
@@ -78,6 +79,8 @@ class PrivatAvtaleController(
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "Privat avtale PDF generert"),
+            ApiResponse(responseCode = "400", description = "Ugyldig forespørsel – valideringsfeil eller ugyldig enumverdi"),
+            ApiResponse(responseCode = "401", description = "Uautorisert tilgang – mangler eller ugyldig token"),
             ApiResponse(responseCode = "500", description = "Intern serverfeil")
         ]
     )
