@@ -166,7 +166,7 @@ data class PrivatAvtalePdfDto(
 
 @Schema(
     description = "Hvis dette er en endring av en eksisterende avtale, må `oppgjorsformIdag` angi nåværende oppgjørsform. " +
-            "Dersom oppgjørsformen endres i den nye avtalen, skal en kopi av avtalen sendes til NAV. " +
+            "Dersom oppgjørsformen endres i den nye avtalen, skal en kopi av avtalen sendes til Nav. " +
             "Eksempel: Hvis oppgjorsformIdag er INNKREVING og oppgjørsformØnsket er PRIVATE, eller motsatt, " +
             "må kopi av ny avtale sendes til Nav."
 )

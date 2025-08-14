@@ -41,7 +41,7 @@ class SwaggerConfig {
             val oppgjørsformSchema = Schema<String>()
                 .description("Angir hvordan bidraget skal betales eller innkreves." +
                         "PRIVATE = bidraget gjøres opp privat, " +
-                        "NAV_INNKREVING = bidraget betales via Skatteetaten/NAV Innkreving.")
+                        "INNKREVING = bidraget betales via Skatteetaten/Nav Innkreving.")
                 .example(Oppgjørsform.INNKREVING.name)
                 .apply {
                     enum = Oppgjørsform.entries.map { it.name }
@@ -62,7 +62,7 @@ class SwaggerConfig {
                 }
 
             val navSkjemaIdSchema = Schema<String>()
-                .description("NAV-skjema som benyttes, identifisert ved skjema-ID")
+                .description("Nav-skjema som benyttes, identifisert ved skjema-ID")
                 .example(NavSkjemaId.AVTALE_OM_BARNEBIDRAG_UNDER_18.name)
                 .apply {
                     enum = NavSkjemaId.entries.map { it.name }
