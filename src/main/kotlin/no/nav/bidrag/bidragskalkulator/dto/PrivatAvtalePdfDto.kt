@@ -17,7 +17,7 @@ private const val FEILMELDING_FODSELSNUMMER = "Gyldig fødselsnummer må være u
 interface PrivatAvtalePerson {
     val fornavn: String
     val etternavn: String
-    val fodselsnummer: String
+    val ident: String
 }
 
 @Schema(description = "Representerer informasjon om bidragsmottaker i en privat avtale")
@@ -44,7 +44,7 @@ data class PrivatAvtaleBidragsmottaker(
         required = true,
         example = "12345678901"
     )
-    override val fodselsnummer: String,
+    override val ident: String,
 ) : PrivatAvtalePerson
 
 data class PrivatAvtaleBidragspliktig(
@@ -70,7 +70,7 @@ data class PrivatAvtaleBidragspliktig(
         required = true,
         example = "12345678901"
     )
-    override val fodselsnummer: String,
+    override val ident: String,
 ) : PrivatAvtalePerson
 
 @Schema(description = "Informasjon om barnet i en privat avtale")
@@ -97,43 +97,30 @@ data class PrivatAvtaleBarn(
         required = true,
         example = "12345678901"
     )
-    override val fodselsnummer: String,
+    override val ident: String,
 
     @param:Min(value = 1, message = "Bidraget må være større enn 0")
     @param:Schema(description = "Barnets fødselsnummer", required = true)
-    val sumBidrag: Double  // Beløp in NOK
+    val sumBidrag: Double,  // Beløp in NOK
+
+    @param:Schema(description = "Gjeldende dato for avtalen", required = true, example = "2022-01-01")
+    val fraDato: String,
 ) : PrivatAvtalePerson
 
 enum class Oppgjørsform {
     INNKREVING, PRIVAT
 }
 
-enum class TilknyttetAvtaleVedlegg {
-    SENDES_MED_SKJEMA,
-    ETTERSENDES,
-    LEVERT_TIDLIGERE
-}
-
-enum class AnnenDokumentasjon {
+enum class Vedleggskrav {
     SENDES_MED_SKJEMA,
     INGEN_EKSTRA_DOKUMENTASJON,
 }
-
-@Schema(description = "Skjema for vedlegg tilknyttet avtalen")
-data class Vedlegg(
-    @field:NotNull
-    @param:Schema(ref = "#/components/schemas/TilknyttetAvtaleVedlegg")
-    val tilknyttetAvtale: TilknyttetAvtaleVedlegg,
-    @field:NotNull
-    @param:Schema(ref = "#/components/schemas/AnnenDokumentasjon")
-    val annenDokumentasjon: AnnenDokumentasjon
-)
-
 
 @Schema(description = "Andre bestemmelser tilknyttet avtalen")
 data class AndreBestemmelserSkjema(
     @param:Schema(description = "Angir om det er andre bestemmelser")
     val harAndreBestemmelser: Boolean,
+
     @param:Schema(description = "Tekstlig beskrivelse dersom andre bestemmelser er valgt")
     val beskrivelse: String? = null
 )
@@ -142,26 +129,29 @@ data class AndreBestemmelserSkjema(
 data class PrivatAvtalePdfDto(
     @param:Schema(ref = "#/components/schemas/NavSkjemaId", required = true)
     val navSkjemaId: NavSkjemaId,
+
     @param:Schema(ref = "#/components/schemas/Språkkode", required = true)
     val språk: Språkkode,
+
     @param:Schema(description = "Informasjon om bidragsmottaker", required = true)
     val bidragsmottaker: PrivatAvtaleBidragsmottaker,
+
     @param:Schema(description = "Informasjon om bidragspliktig", required = true)
     val bidragspliktig: PrivatAvtaleBidragspliktig,
+
     @param:Schema(description = "Informasjon om barnet", required = true)
     val barn: List<PrivatAvtaleBarn>,
-    @param:Schema(description = "Er dette en ny avtale?", required = true)
-    val nyAvtale: Boolean,
-    @param:Schema(ref = "#/components/schemas/Oppgjørsform", required = true)
-    val oppgjorsform: Oppgjørsform,
-    @param:Schema(description = "Er dette en avtale som skal sendes til NAV?", required = true)
-    val tilInnsending: Boolean = false,
-    @param:Schema(description = "Gjeldende dato for avtalen")
-    val fraDato: String,
+
+    @param:Schema(description = "Opplysninger om oppgjør av barnebidrag, inkludert om avtalen er ny eller en endring, " +
+            "nåværende oppgjørsform og ønsket oppgjørsform.", required = true)
     @field:NotNull
+    val oppgjør: Oppgjør,
+
     @field:Valid
-    @param:Schema(description = "Vedlegg knyttet til avtalen")
-    val vedlegg: Vedlegg,
+    @field:NotNull
+    @param:Schema(ref = "#/components/schemas/Vedleggskrav")
+    val vedlegg: Vedleggskrav,
+
     @field:NotNull
     @field:Valid
     @param:Schema(description = "Eventuelle andre bestemmelser som er inkludert i avtalen")
@@ -169,6 +159,28 @@ data class PrivatAvtalePdfDto(
 )  {
     @JsonIgnore
     @Schema(hidden = true)
-    fun tilNorskDatoFormat(): PrivatAvtalePdfDto =
-        this.copy(fraDato = fraDato.tilNorskDatoFormat())
+    fun medNorskeDatoer(): PrivatAvtalePdfDto = this.copy(
+        barn = this.barn.map { it.copy(fraDato = it.fraDato.tilNorskDatoFormat()) },
+    )
 }
+
+@Schema(
+    description = "Hvis dette er en endring av en eksisterende avtale, må `oppgjorsformIdag` angi nåværende oppgjørsform. " +
+            "Dersom oppgjørsformen endres i den nye avtalen, skal en kopi av avtalen sendes til Nav. " +
+            "Eksempel: Hvis oppgjorsformIdag er INNKREVING og oppgjørsformØnsket er PRIVATE, eller motsatt, " +
+            "må kopi av ny avtale sendes til Nav."
+)
+data class Oppgjør(
+    @param:Schema(description = "Er dette en ny avtale?", required = true)
+    val nyAvtale: Boolean,
+
+    @param:Schema(description ="Hvilken oppgjørsform ønskes?",  ref = "#/components/schemas/Oppgjørsform", required = true)
+    val oppgjørsformØnsket: Oppgjørsform,
+
+    @param:Schema(
+        description = "Hvilken oppgjørsform har dere i dag?", ref = "#/components/schemas/Oppgjørsform"
+    )
+    val oppgjørsformIdag: Oppgjørsform? = null
+)
+
+fun Oppgjør.erOppgjørsformEndret(): Boolean =  !this.nyAvtale && this.oppgjørsformIdag != null && this.oppgjørsformØnsket !== this.oppgjørsformIdag
