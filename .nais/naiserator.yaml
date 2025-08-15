@@ -23,6 +23,9 @@ spec:
   tokenx:
     enabled: true
 
+  kafka:
+    pool: {{ kafka.pool }}
+
   replicas:
     max: 2
     min: 2

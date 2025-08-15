@@ -16,6 +16,14 @@ env:
   SAFSELVBETJENING_URL: https://safselvbetjening-q1.dev-fss-pub.nais.io
   SAFSELVBETJENING_SCOPE: dev-fss.teamdokumenthandtering.safselvbetjening-q1
 
+  KAFKA_TOPIC_VEDTAK: bidrag.vedtak-q1
+  KAFKA_TOPIC_SAK: bidrag.sak
+  KAFKA_GROUP_ID_VEDTAK: bidrag-bidragskalkulator-api
+  KAFKA_GROUP_ID_SAK: bidrag-bidragskalkulator-api
+
+kafka:
+  pool: nav-dev
+
 inbound_application:
   - application: bidrag-bidragskalkulator-v2
     namespace: bidrag
