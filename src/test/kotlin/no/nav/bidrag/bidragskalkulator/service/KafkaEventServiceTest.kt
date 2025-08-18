@@ -49,7 +49,7 @@ class KafkaEventServiceTest {
             """.trimIndent()
 
         kafkaTemplate.send(topic, testEvent)
-        verify(timeout = 5000, exactly = 1) { kafkaEventConsumer.consumeEvent(testEvent) }
+        verify(timeout = 5000, exactly = 1) { kafkaEventConsumer.consumeSakEvent(testEvent) }
         verify(timeout = 5000, exactly = 1) { bidragKafkaEventService.prosesserSakshendelse(any()) }
     }
 

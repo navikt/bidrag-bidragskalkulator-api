@@ -19,13 +19,11 @@ class BidragKafkaEventListener(
     private val objectMapper: ObjectMapper,
 ) {
 
-    private val logger = KotlinLogging.logger { BidragKafkaEventListener::class.java.simpleName }
-
     /**
      * Lytter på hendelser fra Kafka-topic for sakshendelser, hvis `kafka.enabled` er satt til true.
      */
     @KafkaListener(topics = ["\${KAFKA_TOPIC_SAK}"], groupId = "\${KAFKA_GROUP_ID_SAK}", autoStartup = "\${kafka.enabled}")
-    fun consumeEvent(@Payload event: String) {
+    fun consumeSakEvent(@Payload event: String) {
         secureLogger.info { "Received event from Kafka: $event" }
 
         try {
