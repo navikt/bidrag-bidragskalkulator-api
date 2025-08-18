@@ -1,35 +1,32 @@
-package no.nav.bidrag.bidragskalkulator.consumer
+package no.nav.bidrag.bidragskalkulator.listener
 
 import com.fasterxml.jackson.core.JsonProcessingException
-import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
-import no.nav.bidrag.bidragskalkulator.service.KafkaEventService
+import no.nav.bidrag.bidragskalkulator.service.BidragKafkaEventService
 import no.nav.bidrag.commons.util.secureLogger
 import no.nav.bidrag.transport.sak.Sakshendelse
 import org.springframework.kafka.annotation.KafkaListener
-import org.springframework.kafka.core.KafkaAdmin
 import org.springframework.messaging.handler.annotation.Payload
 import org.springframework.stereotype.Component
-
 
 /**
  * Consumer for Kafka events from bidrag-listener
  */
 @Component
-class KafkaEventConsumer(
-    private val kafkaEventService: KafkaEventService,
+class BidragKafkaEventListener(
+    private val kafkaEventService: BidragKafkaEventService,
     private val objectMapper: ObjectMapper,
 ) {
 
-    private val logger = KotlinLogging.logger { KafkaEventConsumer::class.java.simpleName }
+    private val logger = KotlinLogging.logger { BidragKafkaEventListener::class.java.simpleName }
 
     /**
-     * Listens for events on the configured topic
+     * Lytter på hendelser fra Kafka-topic for sakshendelser, hvis `kafka.enabled` er satt til true.
      */
-    @KafkaListener(topics = ["\${KAFKA_TOPIC_SAK}"], groupId = "\${KAFKA_GROUP_ID_SAK}")
+    @KafkaListener(topics = ["\${KAFKA_TOPIC_SAK}"], groupId = "\${KAFKA_GROUP_ID_SAK}", autoStartup = "\${kafka.enabled}")
     fun consumeEvent(@Payload event: String) {
-        logger.info { "Received event from Kafka: $event" }
+        secureLogger.info { "Received event from Kafka: $event" }
 
         try {
             val saksHendelse = objectMapper.readValue(event, Sakshendelse::class.java)
@@ -45,11 +42,5 @@ class KafkaEventConsumer(
                 }
             }
         }
-    }
-
-    fun startConsumer() {
-        logger.info { "Starting Kafka consumer for topic: \${KAFKA_TOPIC_SAK}" }
-        // Logic to start the consumer if needed
-
     }
 }

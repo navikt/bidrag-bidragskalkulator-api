@@ -1,16 +1,15 @@
 package no.nav.bidrag.bidragskalkulator.service
 
-import no.nav.bidrag.bidragskalkulator.consumer.KafkaEventConsumer
+import com.ninjasquad.springmockk.SpykBean
+import io.mockk.verify
+import no.nav.bidrag.bidragskalkulator.listener.BidragKafkaEventListener
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
-import org.apache.kafka.clients.consumer.KafkaConsumer
-import org.apache.kafka.clients.producer.KafkaProducer
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.annotation.Import
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.test.context.EmbeddedKafka
 import org.springframework.test.annotation.DirtiesContext
@@ -19,21 +18,22 @@ import org.springframework.test.annotation.DirtiesContext
 @DirtiesContext
 @EnableMockOAuth2Server
 @EmbeddedKafka(partitions = 1, brokerProperties = ["listeners=PLAINTEXT://localhost:9092", "port=9092"])
+@Import(KafkaTestListenerReadyConfig::class)
 class KafkaEventServiceTest {
 
-    @Autowired
-    lateinit var kafkaEventConsumer: KafkaEventConsumer
+
+    @SpykBean
+    lateinit var kafkaEventConsumer: BidragKafkaEventListener
+
+    @SpykBean
+    lateinit var bidragKafkaEventService: BidragKafkaEventService
 
     @Autowired
-    lateinit var kafkaTemplate: KafkaTemplate<String, Any>
+    lateinit var kafkaTemplate: KafkaTemplate<String, String>
 
     @Value("\${KAFKA_TOPIC_SAK}")
     lateinit var topic: String
 
-
-    @BeforeEach
-    fun setUp() {
-    }
 
     @AfterEach
     fun tearDown() {
@@ -41,15 +41,16 @@ class KafkaEventServiceTest {
 
 
     @Test
-    fun processEvent() {
-        // Arrange
-        val testEvent = "Test event message"
-        kafkaTemplate.send(topic, testEvent).get() // Send a test event to the topic
+    fun `skal prosessere et event i sak-topic`() {
 
-        // Assert
-        // Here you would typically verify that the event was processed correctly.
-        // This could involve checking a database, a mock service, or any other side effects.
-        assertTrue(true) // Replace with actual assertions based on your processing logic
+        val testEvent =
+            """
+                {"saksnummer":"2500058","hendelsestype":"ENDRING","roller":[{"ident":"16490550511","type":"BA","samhandlerId":null,"reelMottager":null,"ukjent":false},{"ident":"09841499538","type":"BA","samhandlerId":null,"reelMottager":null,"ukjent":false},{"ident":"25818398312","type":"BM","samhandlerId":null,"reelMottager":null,"ukjent":false},{"ident":"04838298643","type":"BP","samhandlerId":null,"reelMottager":null,"ukjent":false},{"ident":"14881799112","type":"BA","samhandlerId":null,"reelMottager":null,"ukjent":false}],"sporingId":"1753146242399_bisys_sakhendelse"}
+            """.trimIndent()
+
+        kafkaTemplate.send(topic, testEvent)
+        verify(timeout = 5000, exactly = 1) { kafkaEventConsumer.consumeEvent(testEvent) }
+        verify(timeout = 5000, exactly = 1) { bidragKafkaEventService.prosesserSakshendelse(any()) }
     }
 
 }

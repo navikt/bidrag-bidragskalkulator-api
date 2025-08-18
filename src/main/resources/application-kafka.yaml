@@ -1,3 +1,8 @@
+## Local / base profile
+## Må ha aktiv kafka kjørende på maskinen
+## Se ./docker/docker-compose.yaml for oppsett
+kafka:
+  enabled: true # Sett denne til 'false' hvis du ikke har kafka kjørende lokalt
 spring:
   kafka:
     bootstrap-servers: ${KAFKA_BROKERS}
@@ -14,6 +19,8 @@ spring:
 ## Aktiveres kun når vi kjører i nais
 ## Grunnet tilgang til kafka keystores og passord
 spring.config.activate.on-profile: dev,prod
+kafka:
+  enabled: true
 spring:
   kafka:
     properties:
