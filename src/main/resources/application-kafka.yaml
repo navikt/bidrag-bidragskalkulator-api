@@ -1,0 +1,37 @@
+## Local / base profile
+## Må ha aktiv kafka kjørende på maskinen
+## Se ./docker/docker-compose.yaml for oppsett
+kafka:
+  enabled: true # Sett denne til 'false' hvis du ikke har kafka kjørende lokalt
+spring:
+  kafka:
+    bootstrap-servers: ${KAFKA_BROKERS}
+    consumer:
+      max-poll-records: 100
+      fetch-min-size: 10KB
+      max-poll-interval: 300000
+    properties:
+      producer:
+        key-serializer: org.apache.kafka.common.serialization.StringSerializer
+        value-serializer: org.apache.kafka.common.serialization.StringSerializer
+---
+## NAIS PROFILE
+## Aktiveres kun når vi kjører i nais
+## Grunnet tilgang til kafka keystores og passord
+spring.config.activate.on-profile: dev,prod
+kafka:
+  enabled: true
+spring:
+  kafka:
+    properties:
+      security.protocol: SSL
+      ssl:
+        keystore:
+          type: PKCS12
+          location: ${KAFKA_KEYSTORE_PATH}
+          password: ${KAFKA_CREDSTORE_PASSWORD}
+        truststore:
+          location: ${KAFKA_TRUSTSTORE_PATH}
+          password: ${KAFKA_CREDSTORE_PASSWORD}
+
+

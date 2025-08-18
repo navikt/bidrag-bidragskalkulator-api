@@ -29,6 +29,21 @@ For å kjøre applikasjonen lokalt, må følgende være installert:
 
 ### 📌 Kjøre applikasjonen lokalt
 
+#### Kafka:
+ For å kjøre applikasjonen lokalt må man ha en lokal kafka-instans kjørende. Dette gjøres via `docker-compose.yml` - se: [docker-compose.yml](./docker/docker-compose.yml)
+
+1. I terminal, kjør kommando: 
+```shell
+cd ./docker
+docker-compose -f docker/docker-compose.yml up
+```
+
+2. Alternativt hvis man ønsker å starte applikasjonen uten kafka lokalt, kan man stoppe lyttere fra automatisk oppstart ved å sette innstillingen `kafka.enabled`
+
+```yaml
+kafka.enabled: false
+```
+
 **Merk**: Ved lokal kjøring vil du kun ha tilgang til endepunkter som ikke er beskyttet (altså åpne endepunkter). For å kalle beskyttede endepunkter kreves autentisering via gyldig token. Se **Kjøre applikasjonen lokalt mot sky (nais)**
 
 Du kan starte applikasjonen lokalt enten via terminalen eller direkte i din IDE.
