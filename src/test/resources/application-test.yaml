@@ -112,7 +112,7 @@ logging:
     no.nav.security: DEBUG
 
 kafka:
-  enabled: true
+  enabled: false
 
 spring:
   kafka:

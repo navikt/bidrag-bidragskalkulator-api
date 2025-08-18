@@ -16,7 +16,7 @@ env:
   KAFKA_GROUP_ID_SAK: bidrag-bidragskalkulator-api-1
 
 kafka:
-  pool: nav-dev
+  pool: nav
 
 inbound_application:
   - application: bidrag-bidragskalkulator-v2

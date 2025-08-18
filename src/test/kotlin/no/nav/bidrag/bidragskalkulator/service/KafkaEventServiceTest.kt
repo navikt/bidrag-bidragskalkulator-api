@@ -13,10 +13,12 @@ import org.springframework.context.annotation.Import
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.test.context.EmbeddedKafka
 import org.springframework.test.annotation.DirtiesContext
+import org.springframework.test.context.TestPropertySource
 
 @SpringBootTest
 @DirtiesContext
 @EnableMockOAuth2Server
+@TestPropertySource(properties = ["kafka.enabled=true"])
 @EmbeddedKafka(partitions = 1, brokerProperties = ["listeners=PLAINTEXT://localhost:9092", "port=9092"])
 @Import(KafkaTestListenerReadyConfig::class)
 class KafkaEventServiceTest {
