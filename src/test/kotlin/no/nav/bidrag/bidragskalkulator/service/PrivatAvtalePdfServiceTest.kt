@@ -2,7 +2,6 @@ package no.nav.bidrag.bidragskalkulator.service
 
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.runBlocking
 import no.nav.bidrag.bidragskalkulator.consumer.BidragDokumentProduksjonConsumer
 import no.nav.bidrag.bidragskalkulator.consumer.FoerstesidegeneratorConsumer
 import no.nav.bidrag.bidragskalkulator.dto.*
@@ -10,6 +9,7 @@ import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.*
 import no.nav.bidrag.bidragskalkulator.prosessor.PdfProsessor
 import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayOutputStream
 
@@ -25,23 +25,29 @@ class PrivatAvtalePdfServiceTest {
         service = PrivatAvtalePdfService(mockDokumentConsumer, mockFoerstesideConsumer, mockPdfProsessor)
     }
 
-    @Test
-    fun `skal generere kun førsteside ved tilInnsending`() = runBlocking {
-        // Arrange
-        val forventetForside = this::class.java.getResourceAsStream("/pdf/privatavtale-kun-forside.pdf")?.readAllBytes()
-            ?: error("Mangler testfil for forside")
+    @Nested
+    inner class ForsideReglerTest {
 
-        every { mockFoerstesideConsumer.genererFoersteside(any()) } returns
-                GenererFoerstesideResultatDto(foersteside = forventetForside, loepenummer = "123")
+        private val forventetForside =
+            this::class.java.getResourceAsStream("/pdf/privatavtale-kun-forside.pdf")?.readAllBytes()
+                ?: error("Mangler testfil for forside")
 
-        val dto = PrivatAvtalePdfDto(
+        private val forventetKontrakt =
+            this::class.java.getResourceAsStream("/pdf/privatavtale-kun-kontrakt.pdf")?.readAllBytes()
+                ?: error("Mangler testfil for kontrakt")
+
+        private fun dto(
+            nyAvtale: Boolean,
+            ønsket: Oppgjørsform,
+            idag: Oppgjørsform? = null
+        ) = PrivatAvtalePdfDto(
             bidragsmottaker = PrivatAvtaleBidragsmottaker("Mottaker", "Etternavnesen", "22222222222"),
             bidragspliktig = PrivatAvtaleBidragspliktig("Pliktig", "Etternavnesen", "33333333333"),
             barn = listOf(PrivatAvtaleBarn("Barn", "Etternavnesen", "11111111111", 1000.0, fraDato = "2025-01-01")),
             oppgjør = Oppgjør(
-                nyAvtale = true,
-                oppgjørsformØnsket = Oppgjørsform.INNKREVING,
-                oppgjørsformIdag = Oppgjørsform.INNKREVING,
+                nyAvtale = nyAvtale,
+                oppgjørsformØnsket = ønsket,
+                oppgjørsformIdag = idag
             ),
             språk = Språkkode.NB,
             vedlegg = Vedleggskrav.INGEN_EKSTRA_DOKUMENTASJON,
@@ -49,43 +55,59 @@ class PrivatAvtalePdfServiceTest {
             navSkjemaId = NavSkjemaId.AVTALE_OM_BARNEBIDRAG_UNDER_18
         )
 
-        // Act
-        val faktiskForside = service.genererForsideForInnsending("12345678901", dto)
+        private fun mockForside() {
+            every { mockFoerstesideConsumer.genererFoersteside(any()) } returns
+                    GenererFoerstesideResultatDto(foersteside = forventetForside, loepenummer = "123")
+        }
 
-        // Assert
-        assertArrayEquals(forventetForside, faktiskForside)
-    }
+        private fun mockKontrakt() {
+            every { mockDokumentConsumer.genererPrivatAvtaleAPdf(any()) } returns
+                    ByteArrayOutputStream().apply { write(forventetKontrakt) }
+            every { mockPdfProsessor.prosesserOgSlåSammenDokumenter(any()) } returns forventetKontrakt
+        }
 
-    @Test
-    fun `skal generere komplett privat avtale PDF uten forside`() = runBlocking {
-        // Arrange
-        val forventetKontrakt = this::class.java.getResourceAsStream("/pdf/privatavtale-kun-kontrakt.pdf")?.readAllBytes()
-            ?: error("Mangler testfil for kontrakt")
+        // ---------------- GENERER FORSIDE ----------------
+        @Test
+        fun `Eksisterende + INNKREVING idag + ønsket INNKREVING = forside`() {
+            mockForside()
+            val faktisk = service.genererForsideForInnsending("fnr", dto(false, Oppgjørsform.INNKREVING, Oppgjørsform.INNKREVING))
+            assertArrayEquals(forventetForside, faktisk)
+        }
 
-        every { mockDokumentConsumer.genererPrivatAvtaleAPdf(any()) } returns
-                ByteArrayOutputStream().apply { write(forventetKontrakt) }
+        @Test
+        fun `Eksisterende + PRIVAT idag + ønsket INNKREVING = forside`() {
+            mockForside()
+            val faktisk = service.genererForsideForInnsending("fnr", dto(false, Oppgjørsform.INNKREVING, Oppgjørsform.PRIVAT))
+            assertArrayEquals(forventetForside, faktisk)
+        }
 
-        every { mockPdfProsessor.prosesserOgSlåSammenDokumenter(any()) } returns forventetKontrakt
+        @Test
+        fun `Eksisterende + INNKREVING idag + ønsket PRIVAT = forside`() {
+            mockForside()
+            val faktisk = service.genererForsideForInnsending("fnr", dto(false, Oppgjørsform.PRIVAT, Oppgjørsform.INNKREVING))
+            assertArrayEquals(forventetForside, faktisk)
+        }
 
-        val dto = PrivatAvtalePdfDto(
-            bidragsmottaker = PrivatAvtaleBidragsmottaker("Mottaker", "Etternavnesen", "22222222222"),
-            bidragspliktig = PrivatAvtaleBidragspliktig("Pliktig", "Etternavnesen", "33333333333"),
-            barn = listOf(PrivatAvtaleBarn("Barn", "Etternavnesen", "11111111111", 1000.0, fraDato = "2025-01-01")),
-            oppgjør = Oppgjør(
-                nyAvtale = true,
-                oppgjørsformØnsket = Oppgjørsform.INNKREVING,
-                oppgjørsformIdag = Oppgjørsform.INNKREVING,
-            ),
-            språk = Språkkode.NB,
-            vedlegg = Vedleggskrav.INGEN_EKSTRA_DOKUMENTASJON,
-            andreBestemmelser = AndreBestemmelserSkjema(harAndreBestemmelser = false),
-            navSkjemaId = NavSkjemaId.AVTALE_OM_BARNEBIDRAG_UNDER_18
-        )
+        @Test
+        fun `Ny avtale + ønsket INNKREVING = forside`() {
+            mockForside()
+            val faktisk = service.genererForsideForInnsending("fnr", dto(true, Oppgjørsform.INNKREVING))
+            assertArrayEquals(forventetForside, faktisk)
+        }
 
-        // Act
-        val faktisk = service.genererPrivatAvtalePdf("12345678910", dto)
+        // ---------------- IKKE GENERER FORSIDE ----------------
+        @Test
+        fun `Eksisterende + PRIVAT idag + ønsket PRIVAT = kun kontrakt`() {
+            mockKontrakt()
+            val faktisk = service.genererPrivatAvtalePdf("fnr", dto(false, Oppgjørsform.PRIVAT, Oppgjørsform.PRIVAT))
+            assertArrayEquals(forventetKontrakt, faktisk.toByteArray())
+        }
 
-        // Assert
-        assertArrayEquals(forventetKontrakt, faktisk.toByteArray())
+        @Test
+        fun `Ny avtale + ønsket PRIVAT = kun kontrakt`() {
+            mockKontrakt()
+            val faktisk = service.genererPrivatAvtalePdf("fnr", dto(true, Oppgjørsform.PRIVAT))
+            assertArrayEquals(forventetKontrakt, faktisk.toByteArray())
+        }
     }
 }
