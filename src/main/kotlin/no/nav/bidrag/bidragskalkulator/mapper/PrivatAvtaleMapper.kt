@@ -37,9 +37,9 @@ fun Oppgjør.skalFørstesideGenereres(): Boolean {
         // Eksisterende avtale: generer for alle unntatt PRIVAT -> PRIVAT
         val idag = requireNotNull(oppgjørsformIdag) { "oppgjørsformIdag må settes når nyAvtale=false" }
 
-        val privatOppgjørPåNyOgGammelAvtale = idag == Oppgjørsform.PRIVAT && oppgjørsformØnsket == Oppgjørsform.PRIVAT;
+        val privatTilPrivat = idag == Oppgjørsform.PRIVAT && oppgjørsformØnsket == Oppgjørsform.PRIVAT;
 
 
-        return !privatOppgjørPåNyOgGammelAvtale
+        return !privatTilPrivat
     }
 }
