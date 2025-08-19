@@ -40,7 +40,7 @@ class PrivatAvtalePdfServiceTest {
             nyAvtale: Boolean,
             ønsket: Oppgjørsform,
             idag: Oppgjørsform? = null
-        ) = PrivatAvtalePdfDto(
+        ) = PrivatAvtaleBarnUnder18RequestDto(
             bidragsmottaker = PrivatAvtalePart("Mottaker", "Etternavnesen", "22222222222"),
             bidragspliktig = PrivatAvtaleBidragspliktig("Pliktig", "Etternavnesen", "33333333333"),
             barn = listOf(PrivatAvtaleBarn("Barn", "Etternavnesen", "11111111111", 1000.0, fraDato = "2025-01-01")),
@@ -99,14 +99,14 @@ class PrivatAvtalePdfServiceTest {
         @Test
         fun `Eksisterende + PRIVAT idag + ønsket PRIVAT = kun kontrakt`() {
             mockKontrakt()
-            val faktisk = service.genererPrivatAvtalePdf("fnr", dto(false, Oppgjørsform.PRIVAT, Oppgjørsform.PRIVAT))
+            val faktisk = service.genererPrivatAvtalePdfForBarnUnder18("fnr", dto(false, Oppgjørsform.PRIVAT, Oppgjørsform.PRIVAT))
             assertArrayEquals(forventetKontrakt, faktisk.toByteArray())
         }
 
         @Test
         fun `Ny avtale + ønsket PRIVAT = kun kontrakt`() {
             mockKontrakt()
-            val faktisk = service.genererPrivatAvtalePdf("fnr", dto(true, Oppgjørsform.PRIVAT))
+            val faktisk = service.genererPrivatAvtalePdfForBarnUnder18("fnr", dto(true, Oppgjørsform.PRIVAT))
             assertArrayEquals(forventetKontrakt, faktisk.toByteArray())
         }
     }

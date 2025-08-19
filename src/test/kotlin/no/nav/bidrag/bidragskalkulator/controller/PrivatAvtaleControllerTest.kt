@@ -9,7 +9,7 @@ import no.nav.bidrag.bidragskalkulator.dto.Oppgjørsform
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtaleBarn
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtalePart
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtaleBidragspliktig
-import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtalePdfDto
+import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtaleBarnUnder18RequestDto
 import no.nav.bidrag.bidragskalkulator.dto.Vedleggskrav
 import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.NavSkjemaId
 import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.Språkkode
@@ -66,7 +66,7 @@ class PrivatAvtaleControllerTest: AbstractControllerTest() {
 
         every { innloggetBrukerUtils.hentPåloggetPersonIdent() } returns personIdent
 
-        every { privatAvtalePdfService.genererPrivatAvtalePdf(personIdent, dto) } returns
+        every { privatAvtalePdfService.genererPrivatAvtalePdfForBarnUnder18(personIdent, dto) } returns
                 java.io.ByteArrayOutputStream().apply {
                     // Minimal PDF-like bytes: "%PDF-1.4\n%%EOF"
                     write(byteArrayOf(0x25, 0x50, 0x44, 0x46, 0x2D, 0x31, 0x2E, 0x34, 0x0A, 0x25, 0x25, 0x45, 0x4F, 0x46))
@@ -91,7 +91,7 @@ class PrivatAvtaleControllerTest: AbstractControllerTest() {
 
         every { innloggetBrukerUtils.hentPåloggetPersonIdent() } returns personIdent
 
-        verify(exactly = 0) { privatAvtalePdfService.genererPrivatAvtalePdf(personIdent, any()) }
+        verify(exactly = 0) { privatAvtalePdfService.genererPrivatAvtalePdfForBarnUnder18(personIdent, any()) }
 
         postRequest("/api/v1/privat-avtale", dto, gyldigOAuth2Token)
             .andExpect(status().isBadRequest)
@@ -107,7 +107,7 @@ class PrivatAvtaleControllerTest: AbstractControllerTest() {
 
         every { innloggetBrukerUtils.hentPåloggetPersonIdent() } returns personIdent
 
-        verify(exactly = 0) { privatAvtalePdfService.genererPrivatAvtalePdf(personIdent, any()) }
+        verify(exactly = 0) { privatAvtalePdfService.genererPrivatAvtalePdfForBarnUnder18(personIdent, any()) }
 
         postRequest("/api/v1/privat-avtale", dto, gyldigOAuth2Token)
             .andExpect(status().isBadRequest)
@@ -115,8 +115,8 @@ class PrivatAvtaleControllerTest: AbstractControllerTest() {
     }
 
 
-    private fun lagGyldigPrivatAvtalePdfDto(): PrivatAvtalePdfDto {
-        return PrivatAvtalePdfDto(
+    private fun lagGyldigPrivatAvtalePdfDto(): PrivatAvtaleBarnUnder18RequestDto {
+        return PrivatAvtaleBarnUnder18RequestDto(
             navSkjemaId = NavSkjemaId.AVTALE_OM_BARNEBIDRAG_UNDER_18,
             språk = Språkkode.NB,
             bidragsmottaker = PrivatAvtalePart("Ola", "Nordmann", "12345678901"),
