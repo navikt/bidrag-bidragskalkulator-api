@@ -41,7 +41,7 @@ class PrivatAvtalePdfServiceTest {
             ønsket: Oppgjørsform,
             idag: Oppgjørsform? = null
         ) = PrivatAvtalePdfDto(
-            bidragsmottaker = PrivatAvtaleBidragsmottaker("Mottaker", "Etternavnesen", "22222222222"),
+            bidragsmottaker = PrivatAvtalePart("Mottaker", "Etternavnesen", "22222222222"),
             bidragspliktig = PrivatAvtaleBidragspliktig("Pliktig", "Etternavnesen", "33333333333"),
             barn = listOf(PrivatAvtaleBarn("Barn", "Etternavnesen", "11111111111", 1000.0, fraDato = "2025-01-01")),
             oppgjør = Oppgjør(

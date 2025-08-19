@@ -7,7 +7,7 @@ import no.nav.bidrag.bidragskalkulator.dto.AndreBestemmelserSkjema
 import no.nav.bidrag.bidragskalkulator.dto.Oppgjør
 import no.nav.bidrag.bidragskalkulator.dto.Oppgjørsform
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtaleBarn
-import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtaleBidragsmottaker
+import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtalePart
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtaleBidragspliktig
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtalePdfDto
 import no.nav.bidrag.bidragskalkulator.dto.Vedleggskrav
@@ -119,7 +119,7 @@ class PrivatAvtaleControllerTest: AbstractControllerTest() {
         return PrivatAvtalePdfDto(
             navSkjemaId = NavSkjemaId.AVTALE_OM_BARNEBIDRAG_UNDER_18,
             språk = Språkkode.NB,
-            bidragsmottaker = PrivatAvtaleBidragsmottaker("Ola", "Nordmann", "12345678901"),
+            bidragsmottaker = PrivatAvtalePart("Ola", "Nordmann", "12345678901"),
             bidragspliktig = PrivatAvtaleBidragspliktig("Kari", "Nordmann", "10987654321"),
             barn = listOf(PrivatAvtaleBarn("Barn", "Nordmann", "01010112345", 1000.0, fraDato = "2025-01-01")),
             oppgjør = Oppgjør(nyAvtale = true, oppgjørsformØnsket = Oppgjørsform.INNKREVING),

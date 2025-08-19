@@ -6,7 +6,6 @@ import jakarta.validation.Valid
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
-import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.NavSkjemaId
 import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.Språkkode
 import no.nav.bidrag.bidragskalkulator.utils.tilNorskDatoFormat
 
@@ -20,11 +19,20 @@ interface PrivatAvtalePerson {
     val ident: String
 }
 
-@Schema(description = "Representerer informasjon om bidragsmottaker i en privat avtale")
-data class PrivatAvtaleBidragsmottaker(
+interface PrivatAvtalePdf {
+    val språk: Språkkode
+    val bidragsmottaker: PrivatAvtalePart
+    val bidragspliktig: PrivatAvtalePart
+    val oppgjør: Oppgjør
+    val vedlegg: Vedleggskrav
+    val andreBestemmelser: AndreBestemmelserSkjema
+}
+
+@Schema(description = "Representerer informasjon om part i en privat avtale")
+data class PrivatAvtalePart(
     @param:NotEmpty(message = FEILMELDING_FORNAVN)
     @param:Schema(
-        description = "Bidragsmottakers fornavn fra folkeregisteret",
+        description = "Partens fornavn fra folkeregisteret",
         required = true,
         example = "Ola"
     )
@@ -32,7 +40,7 @@ data class PrivatAvtaleBidragsmottaker(
 
     @param:NotEmpty(message = FEILMELDING_ETTERNAVN)
     @param:Schema(
-        description = "Bidragsmottakers etternavn fra folkeregisteret",
+        description = "Partens etternavn fra folkeregisteret",
         required = true,
         example = "Nordmann"
     )
@@ -40,33 +48,7 @@ data class PrivatAvtaleBidragsmottaker(
 
     @param:NotEmpty(message = FEILMELDING_FODSELSNUMMER)
     @param:Schema(
-        description = "Bidragsmottakers personnummer (11 siffer)",
-        required = true,
-        example = "12345678901"
-    )
-    override val ident: String,
-) : PrivatAvtalePerson
-
-data class PrivatAvtaleBidragspliktig(
-    @param:NotEmpty(message = FEILMELDING_FORNAVN)
-    @param:Schema(
-        description = "Bidragspliktig fornavn fra folkeregisteret",
-        required = true,
-        example = "Ola"
-    )
-    override val fornavn: String,
-
-    @param:NotEmpty(message = FEILMELDING_ETTERNAVN)
-    @param:Schema(
-        description = "Bidragspliktig etternavn fra folkeregisteret",
-        required = true,
-        example = "Nordmann"
-    )
-    override val etternavn: String,
-
-    @param:NotEmpty(message = FEILMELDING_FODSELSNUMMER)
-    @param:Schema(
-        description = "Bidragspliktig personnummer (11 siffer)",
+        description = "Partens personnummer (11 siffer)",
         required = true,
         example = "12345678901"
     )
@@ -125,45 +107,6 @@ data class AndreBestemmelserSkjema(
     val beskrivelse: String? = null
 )
 
-@Schema(description = "Informasjon for generering av en privat avtale PDF")
-data class PrivatAvtalePdfDto(
-    @param:Schema(ref = "#/components/schemas/NavSkjemaId", required = true)
-    val navSkjemaId: NavSkjemaId,
-
-    @param:Schema(ref = "#/components/schemas/Språkkode", required = true)
-    val språk: Språkkode,
-
-    @param:Schema(description = "Informasjon om bidragsmottaker", required = true)
-    val bidragsmottaker: PrivatAvtaleBidragsmottaker,
-
-    @param:Schema(description = "Informasjon om bidragspliktig", required = true)
-    val bidragspliktig: PrivatAvtaleBidragspliktig,
-
-    @param:Schema(description = "Informasjon om barnet", required = true)
-    val barn: List<PrivatAvtaleBarn>,
-
-    @param:Schema(description = "Opplysninger om oppgjør av barnebidrag, inkludert om avtalen er ny eller en endring, " +
-            "nåværende oppgjørsform og ønsket oppgjørsform.", required = true)
-    @field:NotNull
-    val oppgjør: Oppgjør,
-
-    @field:Valid
-    @field:NotNull
-    @param:Schema(ref = "#/components/schemas/Vedleggskrav")
-    val vedlegg: Vedleggskrav,
-
-    @field:NotNull
-    @field:Valid
-    @param:Schema(description = "Eventuelle andre bestemmelser som er inkludert i avtalen")
-    val andreBestemmelser: AndreBestemmelserSkjema
-)  {
-    @JsonIgnore
-    @Schema(hidden = true)
-    fun medNorskeDatoer(): PrivatAvtalePdfDto = this.copy(
-        barn = this.barn.map { it.copy(fraDato = it.fraDato.tilNorskDatoFormat()) },
-    )
-}
-
 @Schema(
     description = "Hvis dette er en endring av en eksisterende avtale, må `oppgjorsformIdag` angi nåværende oppgjørsform. " +
             "Dersom oppgjørsformen endres i den nye avtalen, skal en kopi av avtalen sendes til Nav. " +
@@ -182,6 +125,86 @@ data class Oppgjør(
     )
     val oppgjørsformIdag: Oppgjørsform? = null
 )
+
+@Schema(description = "Informasjon om bidrag som skal betales i en privat avtale")
+data class Bidrag(
+    @param:Min(value = 1, message = "Beløpet må være større enn 0")
+    @param:Schema(description = "Bidragsbeløp per måned i NOK", required = true, example = "1000.0")
+    val bidragPerMåned: Double,
+
+    @param:Schema(description = "Bidraget skal betales fra og med", required = true, example = "01-2025")
+    val fraDato: String,
+
+    @param:Schema(description = "Bidraget skal betales til og med", required = true, example = "12-2025")
+    val tilDato: String
+)
+
+@Schema(description = "Informasjon for generering av en privat avtale PDF")
+data class PrivatAvtalePdfDto(
+    @param:Schema(ref = "#/components/schemas/Språkkode", required = true)
+    override val språk: Språkkode,
+
+    @param:Schema(description = "Informasjon om bidragsmottaker", required = true)
+    override val bidragsmottaker: PrivatAvtalePart,
+
+    @param:Schema(description = "Informasjon om bidragspliktig", required = true)
+    override val bidragspliktig: PrivatAvtalePart,
+
+    @param:Schema(description = "Informasjon om barnet", required = true)
+    val barn: List<PrivatAvtaleBarn>,
+
+    @param:Schema(description = "Opplysninger om oppgjør av barnebidrag, inkludert om avtalen er ny eller en endring, " +
+            "nåværende oppgjørsform og ønsket oppgjørsform.", required = true)
+    @field:NotNull
+    override val oppgjør: Oppgjør,
+
+    @field:Valid
+    @field:NotNull
+    @param:Schema(ref = "#/components/schemas/Vedleggskrav")
+    override val vedlegg: Vedleggskrav,
+
+    @field:NotNull
+    @field:Valid
+    @param:Schema(description = "Eventuelle andre bestemmelser som er inkludert i avtalen")
+    override val andreBestemmelser: AndreBestemmelserSkjema
+): PrivatAvtalePdf  {
+    @JsonIgnore
+    @Schema(hidden = true)
+    fun medNorskeDatoer(): PrivatAvtalePdfDto = this.copy(
+        barn = this.barn.map { it.copy(fraDato = it.fraDato.tilNorskDatoFormat()) },
+    )
+}
+
+@Schema(description = "Informasjon for generering av en privat avtale PDF for barn over 18 år")
+data class PrivatAvtaleBarnOver18RequestDto (
+    @param:Schema(ref = "#/components/schemas/Språkkode", required = true)
+    override val språk: Språkkode,
+
+    @param:Schema(description = "Informasjon om bidragsmottaker (barn over 18 år)", required = true)
+    override val bidragsmottaker: PrivatAvtalePart,
+
+    @param:Schema(description = "Informasjon om bidragspliktig", required = true)
+    override val bidragspliktig: PrivatAvtalePart,
+
+    @param:Schema(description = "Informasjon om bidrag som skal betales i en privat avtale", required = true)
+    val bidrag: List<Bidrag>,
+
+    @param:Schema(description = "Opplysninger om oppgjør av barnebidrag, inkludert om avtalen er ny eller en endring, " +
+            "nåværende oppgjørsform og ønsket oppgjørsform.", required = true)
+    @field:NotNull
+    override val oppgjør: Oppgjør,
+
+    @field:Valid
+    @field:NotNull
+    @param:Schema(ref = "#/components/schemas/Vedleggskrav")
+    override val vedlegg: Vedleggskrav,
+
+    @field:NotNull
+    @field:Valid
+    @param:Schema(description = "Eventuelle andre bestemmelser som er inkludert i avtalen")
+    override val andreBestemmelser: AndreBestemmelserSkjema
+): PrivatAvtalePdf
+
 
 /**
  * Sjekker om førsteside skal genereres basert på oppgjørsform og avtaletype.
