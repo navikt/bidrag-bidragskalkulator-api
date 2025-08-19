@@ -195,6 +195,10 @@ fun Oppgjør.skalFoerstesideGenereres(): Boolean {
     } else {
         // Eksisterende avtale: generer for alle unntatt PRIVAT -> PRIVAT
         val idag = requireNotNull(oppgjørsformIdag) { "oppgjørsformIdag må settes når nyAvtale=false" }
-        return !(idag == Oppgjørsform.PRIVAT && oppgjørsformØnsket == Oppgjørsform.PRIVAT)
+
+        val privatOppgjørPåNyOgGammelAvtale = idag == Oppgjørsform.PRIVAT && oppgjørsformØnsket == Oppgjørsform.PRIVAT;
+
+
+        return !privatOppgjørPåNyOgGammelAvtale
     }
 }
