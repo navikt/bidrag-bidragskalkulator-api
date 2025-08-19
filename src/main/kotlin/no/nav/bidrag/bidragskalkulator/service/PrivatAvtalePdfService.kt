@@ -3,8 +3,8 @@ package no.nav.bidrag.bidragskalkulator.service
 import no.nav.bidrag.bidragskalkulator.consumer.BidragDokumentProduksjonConsumer
 import no.nav.bidrag.bidragskalkulator.consumer.FoerstesidegeneratorConsumer
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtalePdfDto
-import no.nav.bidrag.bidragskalkulator.dto.erOppgjørsformEndret
 import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.GenererFoerstesideRequestDto
+import no.nav.bidrag.bidragskalkulator.dto.skalFoerstesideGenereres
 import no.nav.bidrag.bidragskalkulator.prosessor.PdfProsessor
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -36,7 +36,7 @@ class PrivatAvtalePdfService(
 
         val dokumenter = mutableListOf(hoveddokument.toByteArray())
 
-        if (privatAvtalePdfDto.oppgjør.erOppgjørsformEndret()) {
+        if (privatAvtalePdfDto.oppgjør.skalFoerstesideGenereres()) {
             val foersteside = measureTimedValue {
                 genererForsideForInnsending(innsenderIdent, privatAvtalePdfDto)
             }.also {

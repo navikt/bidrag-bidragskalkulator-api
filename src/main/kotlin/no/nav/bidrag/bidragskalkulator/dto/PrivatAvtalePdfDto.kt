@@ -183,4 +183,22 @@ data class Oppgjør(
     val oppgjørsformIdag: Oppgjørsform? = null
 )
 
-fun Oppgjør.erOppgjørsformEndret(): Boolean =  !this.nyAvtale && this.oppgjørsformIdag != null && this.oppgjørsformØnsket !== this.oppgjørsformIdag
+/**
+ * Sjekker om førsteside skal genereres basert på oppgjørsform og avtaletype.
+ * - For ny avtale: Generer kun når ønsket oppgjørsform er INNKREVING.
+ * - For eksisterende avtale: Generer for alle unntatt PRIVAT -> PRIVAT.
+ */
+fun Oppgjør.skalFoerstesideGenereres(): Boolean {
+    if (nyAvtale) {
+        // Ny avtale: generer kun når ønsket er INNKREVING
+        return oppgjørsformØnsket == Oppgjørsform.INNKREVING
+    } else {
+        // Eksisterende avtale: generer for alle unntatt PRIVAT -> PRIVAT
+        val idag = requireNotNull(oppgjørsformIdag) { "oppgjørsformIdag må settes når nyAvtale=false" }
+
+        val privatOppgjørPåNyOgGammelAvtale = idag == Oppgjørsform.PRIVAT && oppgjørsformØnsket == Oppgjørsform.PRIVAT;
+
+
+        return !privatOppgjørPåNyOgGammelAvtale
+    }
+}
