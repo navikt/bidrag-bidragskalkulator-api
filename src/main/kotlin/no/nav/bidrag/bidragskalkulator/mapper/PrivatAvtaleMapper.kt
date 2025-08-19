@@ -19,8 +19,8 @@ fun PrivatAvtalePdf.tilGenererFoerstesideRequestDto(innsenderIdent: String,
     GenererFoerstesideRequestDto(
             ident = innsenderIdent,
             navSkjemaId = this.navnSkjemaIdFor(),
-            arkivtittel = "Avtale om barnebidrag",
-            enhetsnummer = "1234",
+            arkivtittel = arkivtittel,
+            enhetsnummer = enhetsnummer,
             språkkode = this.språk
     )
 
