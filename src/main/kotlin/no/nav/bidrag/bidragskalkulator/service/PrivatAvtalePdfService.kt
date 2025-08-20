@@ -7,6 +7,7 @@ import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtaleBarnUnder18RequestDto
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtalePdf
 import no.nav.bidrag.bidragskalkulator.mapper.skalFørstesideGenereres
 import no.nav.bidrag.bidragskalkulator.mapper.tilGenererFoerstesideRequestDto
+import no.nav.bidrag.bidragskalkulator.mapper.tilGenererPrivatAvtalePdfRequest
 import no.nav.bidrag.bidragskalkulator.prosessor.PdfProsessor
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -36,7 +37,7 @@ class PrivatAvtalePdfService(
         logger.info("Privat avtale for barn $label: Starter generering av PDF for privat avtale")
 
         val hovedDokument = measureTimedValue { bidragDokumentConsumer
-            .genererPrivatAvtaleAPdf(dto) }
+            .genererPrivatAvtaleAPdf(dto.tilGenererPrivatAvtalePdfRequest()) }
             .also { logger
                 .info("Privat avtale for barn $label: Hoveddokument generert på ${it.duration.inWholeMilliseconds} ms") }
             .value.toByteArray()

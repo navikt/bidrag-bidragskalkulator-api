@@ -1,6 +1,7 @@
 package no.nav.bidrag.bidragskalkulator.consumer
 
 import no.nav.bidrag.bidragskalkulator.config.DokumentproduksjonConfigurationProperties
+import no.nav.bidrag.bidragskalkulator.dto.GenererPrivatAvtalePdfRequest
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtalePdf
 import no.nav.bidrag.commons.util.secureLogger
 import org.springframework.http.HttpHeaders
@@ -28,7 +29,7 @@ class BidragDokumentProduksjonConsumer(
             .toUri()
     }
 
-    fun genererPrivatAvtaleAPdf(privatAvtaleDto: PrivatAvtalePdf): ByteArrayOutputStream =
+    fun genererPrivatAvtaleAPdf(privatAvtaleDto: GenererPrivatAvtalePdfRequest): ByteArrayOutputStream =
         medApplikasjonsKontekst {
             val outputStream = ByteArrayOutputStream()
             ByteArrayOutputStream().use {

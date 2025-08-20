@@ -1,5 +1,6 @@
 package no.nav.bidrag.bidragskalkulator.mapper
 
+import no.nav.bidrag.bidragskalkulator.dto.GenererPrivatAvtalePdfRequest
 import no.nav.bidrag.bidragskalkulator.dto.Oppgjør
 import no.nav.bidrag.bidragskalkulator.dto.Oppgjørsform
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtaleBarnOver18RequestDto
@@ -23,6 +24,17 @@ fun PrivatAvtalePdf.tilGenererFoerstesideRequestDto(innsenderIdent: String,
             enhetsnummer = enhetsnummer,
             språkkode = this.språk
     )
+
+fun PrivatAvtalePdf.tilGenererPrivatAvtalePdfRequest(): GenererPrivatAvtalePdfRequest = when (this) {
+    is PrivatAvtaleBarnUnder18RequestDto -> GenererPrivatAvtalePdfRequest(
+        privatAvtalePdf = this.medNorskeDatoer(),
+        navSkjemaId = this.navnSkjemaIdFor()
+    )
+    is PrivatAvtaleBarnOver18RequestDto -> GenererPrivatAvtalePdfRequest(
+        privatAvtalePdf = this,
+        navSkjemaId = this.navnSkjemaIdFor()
+    )
+}
 
 /**
  * Sjekker om førsteside skal genereres basert på oppgjørsform og avtaletype.

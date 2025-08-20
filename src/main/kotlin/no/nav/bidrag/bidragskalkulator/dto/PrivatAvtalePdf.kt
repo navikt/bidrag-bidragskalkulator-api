@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
+import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.NavSkjemaId
 import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.Språkkode
 import no.nav.bidrag.bidragskalkulator.utils.tilNorskDatoFormat
 import no.nav.bidrag.bidragskalkulator.validering.ValidAndreBestemmelser
@@ -219,3 +220,8 @@ data class PrivatAvtaleBarnOver18RequestDto (
     @param:Schema(description = "Andre bestemmelser som er inkludert i avtalen", required = true)
     override val andreBestemmelser: AndreBestemmelserSkjema
 ): PrivatAvtalePdf
+
+data class GenererPrivatAvtalePdfRequest(
+   val privatAvtalePdf: PrivatAvtalePdf,
+    val navSkjemaId: NavSkjemaId
+)
