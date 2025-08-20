@@ -69,6 +69,8 @@ spec:
         - host: "{{this}}"
         {{/each}}
       rules:
+        - application: bidrag-dokument-produksjon
+        - application: bidrag-dokument-produksjon-feature
         - application: logging
           namespace: nais-system
 

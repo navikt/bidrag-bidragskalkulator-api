@@ -53,7 +53,7 @@ foerstesidegenerator:
 
 bidrag:
   dokumentproduksjon:
-    genererPdfPath: /api/dokument/pdf/bidragskalkulator/privatavtale
+    genererPdfPath: /api/dokument/pdf/test/bidragskalkulator/privatavtale
     url: ${BIDRAG_DOKUMENT_PRODUKSJON_URL}
   grunnlag:
     url: ${BIDRAG_GRUNNLAG_URL}
