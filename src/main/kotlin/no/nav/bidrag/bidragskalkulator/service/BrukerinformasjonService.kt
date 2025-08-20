@@ -1,8 +1,10 @@
 package no.nav.bidrag.bidragskalkulator.service
 
+import io.prometheus.metrics.core.metrics.Summary
 import kotlinx.coroutines.coroutineScope
 import no.nav.bidrag.bidragskalkulator.config.CacheConfig
 import no.nav.bidrag.bidragskalkulator.dto.BrukerInformasjonDto
+import no.nav.bidrag.bidragskalkulator.dto.KalkuleringsinformasjonDto
 import no.nav.bidrag.bidragskalkulator.mapper.tilPersonInformasjonDto
 import no.nav.bidrag.bidragskalkulator.mapper.toInntektResultatDto
 import no.nav.bidrag.bidragskalkulator.utils.asyncCatching
@@ -23,6 +25,7 @@ class BrukerinformasjonService(
     @Cacheable(CacheConfig.PERSONINFORMASJON)
     suspend fun hentBrukerinformasjon(personIdent: String): BrukerInformasjonDto = coroutineScope {
         logger.info("Starter henting av person informasjon og inntektsgrunnlag for å utforme brukerinformasjon")
+        val sum = Summary.builder().register()
 
         val inntektsGrunnlagJobb = asyncCatching(logger, "inntektsgrunnlag") {
             grunnlagService.hentInntektsGrunnlag(personIdent)
@@ -45,5 +48,15 @@ class BrukerinformasjonService(
             underholdskostnader = underholdskostnadService.genererUnderholdskostnadstabell(),
             samværsfradrag = samværsfradragJobb.await()
         )
+    }
+
+    suspend fun hentKalkuleringsinformasjon(): KalkuleringsinformasjonDto {
+        logger.info("Henter kalkuleringsinformasjon")
+        return KalkuleringsinformasjonDto(
+            underholdskostnader = underholdskostnadService.genererUnderholdskostnadstabell(),
+            samværsfradrag = sjablonService.hentSamværsfradrag()
+        ).also {
+            logger.info("Kalkuleringsinformasjon hentet")
+        }
     }
 }
