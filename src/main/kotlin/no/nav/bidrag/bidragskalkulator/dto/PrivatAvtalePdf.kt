@@ -9,6 +9,8 @@ import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
 import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.Språkkode
 import no.nav.bidrag.bidragskalkulator.utils.tilNorskDatoFormat
+import no.nav.bidrag.bidragskalkulator.validering.ValidAndreBestemmelser
+import no.nav.bidrag.bidragskalkulator.validering.ValidOppgjør
 import no.nav.bidrag.domene.ident.Personident
 import java.math.BigDecimal
 
@@ -101,6 +103,7 @@ data class PrivatAvtaleBarn(
     val fraDato: String,
 ) : PrivatAvtalePerson
 
+@ValidAndreBestemmelser
 @Schema(description = "Andre bestemmelser tilknyttet avtalen")
 data class AndreBestemmelserSkjema(
     @param:Schema(description = "Angir om det finnes andre bestemmelser")
@@ -110,6 +113,7 @@ data class AndreBestemmelserSkjema(
     val beskrivelse: String? = null
 )
 
+@ValidOppgjør
 @Schema(
     description = "Hvis dette er en endring av en eksisterende avtale, må `oppgjorsformIdag` angi nåværende oppgjørsform. " +
             "Dersom oppgjørsformen endres i den nye avtalen, skal en kopi av avtalen sendes til Nav. " +
