@@ -41,7 +41,13 @@ class PersonControllerTest: AbstractControllerTest() {
 
     @Test
     fun `skal returnere 401 Unauthorized når token mangler`() {
-        getRequest("/api/v1/person/informasjon", "")
+        getRequest("/api/v1/person/informasjon")
+            .andExpect(status().isUnauthorized)
+    }
+
+    @Test
+    fun `skal returnere 401 Unauthorized når ugyldig token er gitt`() {
+        getRequest("/api/v1/person/informasjon", ugyldigOAuth2Token)
             .andExpect(status().isUnauthorized)
     }
 }

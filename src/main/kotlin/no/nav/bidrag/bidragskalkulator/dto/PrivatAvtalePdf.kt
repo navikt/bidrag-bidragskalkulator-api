@@ -166,6 +166,7 @@ data class PrivatAvtaleBarnUnder18RequestDto(
 
     @param:Schema(description = "Opplysninger om oppgjør (ny/endring, oppgjørsform i dag og ønsket oppgjørsform)", required = true)
     @field:NotNull
+    @field:Valid
     override val oppgjør: Oppgjør,
 
     @field:Valid
@@ -206,6 +207,7 @@ data class PrivatAvtaleBarnOver18RequestDto (
     @param:Schema(description = "Opplysninger om oppgjør av barnebidrag, inkludert om avtalen er ny eller en endring, " +
             "nåværende oppgjørsform og ønsket oppgjørsform.", required = true)
     @field:NotNull
+    @field:Valid
     override val oppgjør: Oppgjør,
 
     @field:NotNull
@@ -213,6 +215,7 @@ data class PrivatAvtaleBarnOver18RequestDto (
     override val vedlegg: Vedleggskrav,
 
     @field:NotNull
-    @param:Schema(description = "Andre bestemmelser som er inkludert i avtalen")
+    @field:Valid
+    @param:Schema(description = "Andre bestemmelser som er inkludert i avtalen", required = true)
     override val andreBestemmelser: AndreBestemmelserSkjema
 ): PrivatAvtalePdf

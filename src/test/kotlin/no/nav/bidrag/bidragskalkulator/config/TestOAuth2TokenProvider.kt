@@ -40,6 +40,9 @@ class TestOAuth2TokenProvider(private val mockOAuth2Server: MockOAuth2Server) {
         ).serialize()
     }
 
+    @Bean
+    fun ugyldigOAuth2Token(): String =  gyldigOAuth2Token() + "x"
+
     companion object TestData {
         val påloggetPerson = PersonDto(
             ident = Personident("03848797048"),
