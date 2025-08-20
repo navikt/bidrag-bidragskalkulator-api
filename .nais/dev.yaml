@@ -12,7 +12,7 @@ env:
   NAIS_APP_NAME: bidrag-bidragskalkulator-api
   FOERSTESIDE_GENERATOR_SCOPE: dev-fss.teamdokumenthandtering.foerstesidegenerator-q1
   FOERSTESIDE_GENERATOR_URL: https://foerstesidegenerator-q1.dev-fss-pub.nais.io
-  BIDRAG_DOKUMENT_PRODUKSJON_URL: http://bidrag-dokument-produksjon
+  BIDRAG_DOKUMENT_PRODUKSJON_URL: https://bidrag-dokument-produksjon.intern.dev.nav.no
   BIDRAG_DOKUMENT_PRODUKSJON_SCOPE: dev-gcp.bidrag.bidrag-dokument-produksjon
   SAFSELVBETJENING_URL: https://safselvbetjening-q1.dev-fss-pub.nais.io
   SAFSELVBETJENING_SCOPE: dev-fss.teamdokumenthandtering.safselvbetjening-q1
