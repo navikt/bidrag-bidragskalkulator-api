@@ -25,16 +25,10 @@ fun PrivatAvtalePdf.tilGenererFoerstesideRequestDto(innsenderIdent: String,
             språkkode = this.språk
     )
 
-fun PrivatAvtalePdf.tilGenererPrivatAvtalePdfRequest(): GenererPrivatAvtalePdfRequest = when (this) {
-    is PrivatAvtaleBarnUnder18RequestDto -> GenererPrivatAvtalePdfRequest(
-        privatAvtalePdf = this.medNorskeDatoer(),
-        navSkjemaId = this.navnSkjemaIdFor()
-    )
-    is PrivatAvtaleBarnOver18RequestDto -> GenererPrivatAvtalePdfRequest(
-        privatAvtalePdf = this,
-        navSkjemaId = this.navnSkjemaIdFor()
-    )
-}
+fun PrivatAvtalePdf.tilGenererPrivatAvtalePdfRequest(): GenererPrivatAvtalePdfRequest = GenererPrivatAvtalePdfRequest(
+    privatAvtalePdf = this,
+    navSkjemaId = this.navnSkjemaIdFor()
+)
 
 /**
  * Sjekker om førsteside skal genereres basert på oppgjørsform og avtaletype.
