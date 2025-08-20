@@ -4,6 +4,7 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import kotlinx.coroutines.runBlocking
 import no.nav.bidrag.bidragskalkulator.dto.BrukerInformasjonDto
+import no.nav.bidrag.bidragskalkulator.dto.KalkuleringsinformasjonDto
 import no.nav.bidrag.bidragskalkulator.mapper.tilPersonInformasjonDto
 import no.nav.bidrag.bidragskalkulator.mapper.toInntektResultatDto
 import no.nav.bidrag.bidragskalkulator.service.BrukerinformasjonService
@@ -23,6 +24,17 @@ class PersonControllerTest: AbstractControllerTest() {
 
     private val mockTransofmerInntekterResponse: TransformerInntekterResponse =
         JsonUtils.readJsonFile("/grunnlag/transformer_inntekter_respons.json")
+
+    @Test
+    fun `skal returnere 200 OK på kalkuleringsinformasjon`() {
+      every { runBlocking { brukerinformasjonService.hentKalkuleringsinformasjon() } } returns KalkuleringsinformasjonDto(
+          emptyMap(),
+          emptyList()
+      )
+
+    getRequest("/api/v1/person/kalkuleringsinformasjon")
+            .andExpect(status().isOk)
+    }
 
     @Test
     fun `skal returnere 200 OK når person eksisterer`() {

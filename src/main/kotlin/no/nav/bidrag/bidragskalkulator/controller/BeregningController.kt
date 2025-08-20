@@ -13,10 +13,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.slf4j.MDCContext
 import no.nav.bidrag.bidragskalkulator.config.SecurityConstants
+import no.nav.bidrag.bidragskalkulator.dto.KalkuleringsinformasjonDto
 import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningRequestDto
 import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningsresultatDto
 import no.nav.bidrag.bidragskalkulator.service.BeregningService
 import no.nav.bidrag.bidragskalkulator.validering.BeregningRequestValidator
+import no.nav.bidrag.commons.util.secureLogger
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.api.Unprotected
 import org.springframework.web.bind.annotation.*

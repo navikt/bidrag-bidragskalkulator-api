@@ -24,7 +24,6 @@ import org.springframework.web.server.ResponseStatusException
 
 @RestController
 @RequestMapping("/api/v1/person")
-@ProtectedWithClaims(issuer = SecurityConstants.TOKENX)
 class PersonController(
     private val brukerinformasjonService: BrukerinformasjonService,
     private val innloggetBrukerUtils: InnloggetBrukerUtils
@@ -49,6 +48,7 @@ class PersonController(
         ]
     )
     @GetMapping("/informasjon")
+    @ProtectedWithClaims(issuer = SecurityConstants.TOKENX)
     fun hentInformasjon(): BrukerInformasjonDto {
         logger.info("Henter informasjon om pålogget person og personens barn")
 
@@ -78,7 +78,7 @@ class PersonController(
     @Unprotected
     @GetMapping("/kalkuleringsinformasjon")
     fun hentKalkuleringsinformasjon(): KalkuleringsinformasjonDto {
-        logger.info("Henter kalkuleringsinformasjon (underholdskostnader og samværsfradrag)")
+        secureLogger.info { "Henter kalkuleringsinformasjon (underholdskostnader og samværsfradrag)" }
 
         return runBlocking(Dispatchers.IO + MDCContext()) {
             brukerinformasjonService.hentKalkuleringsinformasjon().also {
