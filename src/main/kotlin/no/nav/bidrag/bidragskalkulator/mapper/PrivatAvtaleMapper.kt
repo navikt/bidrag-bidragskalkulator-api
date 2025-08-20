@@ -39,7 +39,6 @@ fun Oppgjør.skalFørstesideGenereres(): Boolean {
 
         val privatTilPrivat = idag == Oppgjørsform.PRIVAT && oppgjørsformØnsket == Oppgjørsform.PRIVAT;
 
-
         return !privatTilPrivat
     }
 }

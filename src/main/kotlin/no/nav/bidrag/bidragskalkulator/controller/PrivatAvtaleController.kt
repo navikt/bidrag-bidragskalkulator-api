@@ -97,19 +97,8 @@ class PrivatAvtaleController(
     @Validated
     fun genererPrivatAvtaleForBarnUnder18(@Valid @RequestBody dto: PrivatAvtaleBarnUnder18RequestDto): ResponseEntity<ByteArray>? {
 
-        val personIdent = innloggetBrukerUtils.hentPåloggetPersonIdent()
-            ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Ugyldig token")
-
-        if (dto.andreBestemmelser.harAndreBestemmelser && dto.andreBestemmelser.beskrivelse.isNullOrBlank()) {
-            throw IllegalArgumentException("Feltet 'andreBestemmelserTekst' er påkrevd når 'harAndreBestemmelser' er true.")
-        }
-
-        if (!dto.oppgjør.nyAvtale && dto.oppgjør.oppgjørsformIdag == null) {
-            throw IllegalArgumentException("Feltet 'oppgjørsformIdag' er påkrevd når det er eksisterende avtale.")
-        }
-
-        val genererPrivatAvtalePdf =  privatAvtalePdfService.genererPrivatAvtalePdfForBarnUnder18(personIdent, dto)
-
+        val personIdent = innloggetBrukerUtils.requirePåloggetPersonIdent()
+        val genererPrivatAvtalePdf =  privatAvtalePdfService.genererPrivatAvtalePdf(personIdent, dto)
         val privatAvtaleByteArray = genererPrivatAvtalePdf.toByteArray()
 
         return ResponseEntity
@@ -134,19 +123,8 @@ class PrivatAvtaleController(
     )
     @Validated
     fun genererPrivatAvtaleForBarnOver18(@Valid @RequestBody dto: PrivatAvtaleBarnOver18RequestDto): ResponseEntity<ByteArray>? {
-
         val personIdent = innloggetBrukerUtils.requirePåloggetPersonIdent()
-
-        if (dto.andreBestemmelser.harAndreBestemmelser && dto.andreBestemmelser.beskrivelse.isNullOrBlank()) {
-            throw IllegalArgumentException("Feltet 'andreBestemmelserTekst' er påkrevd når 'harAndreBestemmelser' er true.")
-        }
-
-        if (!dto.oppgjør.nyAvtale && dto.oppgjør.oppgjørsformIdag == null) {
-            throw IllegalArgumentException("Feltet 'oppgjørsformIdag' er påkrevd når det er eksisterende avtale.")
-        }
-
-        val genererPrivatAvtalePdf =  privatAvtalePdfService.genererPrivatAvtalePdfForBarnOver18(personIdent, dto)
-
+        val genererPrivatAvtalePdf =  privatAvtalePdfService.genererPrivatAvtalePdf(personIdent, dto)
         val privatAvtaleByteArray = genererPrivatAvtalePdf.toByteArray()
 
         return ResponseEntity

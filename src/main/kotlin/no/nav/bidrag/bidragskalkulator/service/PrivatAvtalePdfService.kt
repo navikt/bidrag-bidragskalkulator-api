@@ -4,6 +4,7 @@ import no.nav.bidrag.bidragskalkulator.consumer.BidragDokumentProduksjonConsumer
 import no.nav.bidrag.bidragskalkulator.consumer.FoerstesidegeneratorConsumer
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtaleBarnOver18RequestDto
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtaleBarnUnder18RequestDto
+import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtalePdf
 import no.nav.bidrag.bidragskalkulator.mapper.skalFørstesideGenereres
 import no.nav.bidrag.bidragskalkulator.mapper.tilGenererFoerstesideRequestDto
 import no.nav.bidrag.bidragskalkulator.prosessor.PdfProsessor
@@ -23,69 +24,39 @@ class PrivatAvtalePdfService(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @Throws(IOException::class)
-    fun genererPrivatAvtalePdfForBarnUnder18(
+    fun genererPrivatAvtalePdf(
         innsenderIdent: String,
-        dto: PrivatAvtaleBarnUnder18RequestDto
+        dto: PrivatAvtalePdf
     ): ByteArrayOutputStream {
-        logger.info("Starter generering av PDF for privat avtale")
+        val (label, dto) = when (dto) {
+            is PrivatAvtaleBarnUnder18RequestDto -> "under 18 år" to dto.medNorskeDatoer()
+            is PrivatAvtaleBarnOver18RequestDto -> "over 18 år" to dto
+        }
 
-        val hoveddokument = measureTimedValue {
-            bidragDokumentConsumer.genererPrivatAvtaleAPdf(dto.medNorskeDatoer())
-        }.also {
-            logger.info("Hoveddokument generert på ${it.duration.inWholeMilliseconds} ms")
-        }.value
+        logger.info("Privat avtale for barn $label: Starter generering av PDF for privat avtale")
 
-        val dokumenter = mutableListOf(hoveddokument.toByteArray())
+        val hovedDokument = measureTimedValue { bidragDokumentConsumer
+            .genererPrivatAvtaleAPdf(dto) }
+            .also { logger
+                .info("Privat avtale for barn $label: Hoveddokument generert på ${it.duration.inWholeMilliseconds} ms") }
+            .value.toByteArray()
 
-        if (dto.oppgjør.skalFørstesideGenereres()) {
-            val førsteside = measureTimedValue {
-                val genererFørstesideRequestDto = dto.tilGenererFoerstesideRequestDto(innsenderIdent)
-                foerstesideConsumer.genererFoersteside(genererFørstesideRequestDto).foersteside
-            }.also {
-                logger.info("Førsteside generert på ${it.duration.inWholeMilliseconds} ms")
-            }.value
+        val dokumenter = mutableListOf(hovedDokument)
 
-            dokumenter.add(0, førsteside)
+        if(dto.oppgjør.skalFørstesideGenereres()) {
+            val request = dto.tilGenererFoerstesideRequestDto(innsenderIdent)
+            val førsteside = measureTimedValue { foerstesideConsumer.genererFoersteside(request).foersteside }
+                .also { logger
+                    .info("Privat avtale for barn $label: Førsteside generert på ${it.duration.inWholeMilliseconds} ms") }
+                .value
+            
+              dokumenter.add(0, førsteside)
         }
 
         val sammenslaatt = pdfProcessor.prosesserOgSlåSammenDokumenter(dokumenter)
-
+        
         return ByteArrayOutputStream().apply {
             write(sammenslaatt)
         }
     }
-
-    @Throws(IOException::class)
-    fun genererPrivatAvtalePdfForBarnOver18(
-        innsenderIdent: String,
-        dto: PrivatAvtaleBarnOver18RequestDto
-    ): ByteArrayOutputStream {
-        logger.info("Privat avtale for barn over 28år: Starter generering av PDF for privat avtale")
-
-        val hoveddokument = measureTimedValue {
-            bidragDokumentConsumer.genererPrivatAvtaleAPdf(dto)
-        }.also {
-            logger.info("Privat avtale for barn over 28år: Hoveddokument generert på ${it.duration.inWholeMilliseconds} ms")
-        }.value
-
-        val dokumenter = mutableListOf(hoveddokument.toByteArray())
-
-        if (dto.oppgjør.skalFørstesideGenereres()) {
-            val førsteside = measureTimedValue {
-                val genererFørstesideRequestDto = dto.tilGenererFoerstesideRequestDto(innsenderIdent)
-                foerstesideConsumer.genererFoersteside(genererFørstesideRequestDto).foersteside
-            }.also {
-                logger.info("Privat avtale for barn over 28år: Førsteside generert på ${it.duration.inWholeMilliseconds} ms")
-            }.value
-
-            dokumenter.add(0, førsteside)
-        }
-
-        val sammenslaatt = pdfProcessor.prosesserOgSlåSammenDokumenter(dokumenter)
-
-        return ByteArrayOutputStream().apply {
-            write(sammenslaatt)
-        }
-    }
-
 }
