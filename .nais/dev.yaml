@@ -31,3 +31,4 @@ outbound_external_host:
   - bidrag-person-q1.dev-fss-pub.nais.io
   - foerstesidegenerator-q1.dev-fss-pub.nais.io
   - safselvbetjening-q1.dev-fss-pub.nais.io
+  - bidrag-dokument-produksjon.intern.dev.nav.no
