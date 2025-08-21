@@ -81,7 +81,7 @@ class PersonController(
         secureLogger.info { "Henter kalkuleringsinformasjon (underholdskostnader og samværsfradrag)" }
 
         return runBlocking(Dispatchers.IO + MDCContext()) {
-            brukerinformasjonService.hentKalkuleringsinformasjon().also {
+            brukerinformasjonService.hentGrunndata().also {
                 secureLogger.info { "Kalkuleringsinformasjon hentet" }
             }
         }

@@ -1,6 +1,5 @@
 package no.nav.bidrag.bidragskalkulator.service
 
-import io.prometheus.metrics.core.metrics.Summary
 import kotlinx.coroutines.coroutineScope
 import no.nav.bidrag.bidragskalkulator.config.CacheConfig
 import no.nav.bidrag.bidragskalkulator.dto.BrukerInformasjonDto
@@ -25,7 +24,7 @@ class BrukerinformasjonService(
     @Cacheable(CacheConfig.PERSONINFORMASJON)
     suspend fun hentBrukerinformasjon(personIdent: String): BrukerInformasjonDto = coroutineScope {
         logger.info("Starter henting av person informasjon og inntektsgrunnlag for å utforme brukerinformasjon")
-        
+
         val inntektsGrunnlagJobb = asyncCatching(logger, "inntektsgrunnlag") {
             grunnlagService.hentInntektsGrunnlag(personIdent)
         }
@@ -34,9 +33,7 @@ class BrukerinformasjonService(
             personService.hentPersoninformasjon(Personident(personIdent))
         }
 
-        val samværsfradragJobb = asyncCatching(logger, "samværsfradrag") {
-            sjablonService.hentSamværsfradrag()
-        }
+        val grunndata = asyncCatching(logger, "grunndata") { hentGrunndata() }
 
         logger.info("Ferdig med henting av person informasjon og inntektsgrunnlag for å utforme brukerinformasjon")
 
@@ -44,16 +41,23 @@ class BrukerinformasjonService(
             person = personinformasjonJobb.await().tilPersonInformasjonDto(),
             inntekt = inntektsGrunnlagJobb.await()?.toInntektResultatDto()?.inntektSiste12Mnd,
             barnerelasjoner = emptyList(),
-            underholdskostnader = underholdskostnadService.genererUnderholdskostnadstabell(),
-            samværsfradrag = samværsfradragJobb.await()
+            underholdskostnader = grunndata.await().underholdskostnader,
+            samværsfradrag = grunndata.await().samværsfradrag
         )
     }
 
-    suspend fun hentKalkuleringsinformasjon(): KalkuleringsinformasjonDto {
-        logger.info("Henter kalkuleringsinformasjon")
-        return KalkuleringsinformasjonDto(
+    suspend fun hentGrunndata(): KalkuleringsinformasjonDto = coroutineScope {
+        logger.info("Henter kalkuleringsinformasjon (underholdskostnader og samværsfradrag)")
+
+        val samværsfradragJobb = asyncCatching(logger, "samværsfradrag") {
+            sjablonService.hentSamværsfradrag()
+        }
+
+        underholdskostnadService.genererUnderholdskostnadstabell()
+
+        KalkuleringsinformasjonDto(
             underholdskostnader = underholdskostnadService.genererUnderholdskostnadstabell(),
-            samværsfradrag = sjablonService.hentSamværsfradrag()
+            samværsfradrag = samværsfradragJobb.await(),
         ).also {
             logger.info("Kalkuleringsinformasjon hentet")
         }

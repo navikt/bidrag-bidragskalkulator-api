@@ -27,7 +27,7 @@ class PersonControllerTest: AbstractControllerTest() {
 
     @Test
     fun `skal returnere 200 OK på kalkuleringsinformasjon`() {
-      every { runBlocking { brukerinformasjonService.hentKalkuleringsinformasjon() } } returns KalkuleringsinformasjonDto(
+      every { runBlocking { brukerinformasjonService.hentGrunndata() } } returns KalkuleringsinformasjonDto(
           emptyMap(),
           emptyList()
       )
