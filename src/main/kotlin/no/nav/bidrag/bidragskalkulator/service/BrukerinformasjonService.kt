@@ -33,7 +33,7 @@ class BrukerinformasjonService(
             personService.hentPersoninformasjon(Personident(personIdent))
         }
 
-        val grunndata = asyncCatching(logger, "grunndata") { hentGrunndata() }
+        val grunndata = asyncCatching(logger, "grunndata") { hentGrunnlagsData() }
 
         logger.info("Ferdig med henting av person informasjon og inntektsgrunnlag for å utforme brukerinformasjon")
 
@@ -46,9 +46,7 @@ class BrukerinformasjonService(
         )
     }
 
-    suspend fun hentGrunndata(): GrunnlagsDataDto = coroutineScope {
-        logger.info("Henter grunndata (underholdskostnader og samværsfradrag)")
-
+    suspend fun hentGrunnlagsData(): GrunnlagsDataDto = coroutineScope {
         GrunnlagsDataDto(
             underholdskostnader = underholdskostnadService.genererUnderholdskostnadstabell(),
             samværsfradrag = sjablonService.hentSamværsfradrag(),

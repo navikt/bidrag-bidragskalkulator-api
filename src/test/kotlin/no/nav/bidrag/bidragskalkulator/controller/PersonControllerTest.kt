@@ -27,12 +27,12 @@ class PersonControllerTest: AbstractControllerTest() {
 
     @Test
     fun `skal returnere 200 OK på kalkuleringsinformasjon`() {
-      every { runBlocking { brukerinformasjonService.hentGrunndata() } } returns GrunnlagsDataDto(
+      every { runBlocking { brukerinformasjonService.hentGrunnlagsData() } } returns GrunnlagsDataDto(
           emptyMap(),
           emptyList()
       )
 
-    getRequest("/api/v1/person/grunndata")
+    getRequest("/api/v1/person/grunnlagsdata")
             .andExpect(status().isOk)
     }
 

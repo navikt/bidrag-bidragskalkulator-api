@@ -67,7 +67,7 @@ class PersonController(
     }
 
     @Operation(
-        summary = "Henter grunndata for kalkulering uten autentisering",
+        summary = "Henter grunnlagsdata for kalkulering uten autentisering",
         description = "Henter underholdskostnader og samværsfradrag som brukes i bidragskalkuleringen. Returnerer 200 ved vellykket henting, eller passende feilkoder."
     )
     @ApiResponses(
@@ -77,12 +77,12 @@ class PersonController(
         ]
     )
     @Unprotected
-    @GetMapping("/grunndata")
+    @GetMapping("/grunnlagsdata")
     fun hentKalkuleringsinformasjon(): GrunnlagsDataDto {
         secureLogger.info { "Henter kalkuleringsinformasjon (underholdskostnader og samværsfradrag)" }
 
         return runBlocking(BidragAwareContext) {
-            brukerinformasjonService.hentGrunndata().also {
+            brukerinformasjonService.hentGrunnlagsData().also {
                 secureLogger.info { "Kalkuleringsinformasjon hentet" }
             }
         }
