@@ -20,8 +20,11 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.slf4j.LoggerFactory
+import org.springframework.http.CacheControl
 import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.server.ResponseStatusException
+import java.util.concurrent.TimeUnit
 
 @RestController
 @RequestMapping("/api/v1/person")
@@ -72,19 +75,20 @@ class PersonController(
     )
     @ApiResponses(
         value = [
-            ApiResponse(responseCode = "200", description = "Kalkuleringsinformasjon hentet vellykket"),
+            ApiResponse(responseCode = "200", description = "Grunnlagsdata hentet vellykket"),
             ApiResponse(responseCode = "500", description = "Intern serverfeil")
         ]
     )
     @Unprotected
     @GetMapping("/grunnlagsdata")
-    fun hentKalkuleringsinformasjon(): GrunnlagsDataDto {
-        secureLogger.info { "Henter kalkuleringsinformasjon (underholdskostnader og samværsfradrag)" }
+    fun hentGrunnlagsData(): GrunnlagsDataDto {
+        secureLogger.info { "Henter Grunnlagsdata (underholdskostnader og samværsfradrag)" }
 
-        return runBlocking(BidragAwareContext) {
+        val result = runBlocking(BidragAwareContext) {
             brukerinformasjonService.hentGrunnlagsData().also {
-                secureLogger.info { "Kalkuleringsinformasjon hentet" }
+                secureLogger.info { "Grunnlagsdata hentet" }
             }
         }
+        return result
     }
 }

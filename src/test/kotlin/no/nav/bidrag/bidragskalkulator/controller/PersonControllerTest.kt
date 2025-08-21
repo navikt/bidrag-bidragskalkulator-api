@@ -26,7 +26,7 @@ class PersonControllerTest: AbstractControllerTest() {
         JsonUtils.readJsonFile("/grunnlag/transformer_inntekter_respons.json")
 
     @Test
-    fun `skal returnere 200 OK på kalkuleringsinformasjon`() {
+    fun `skal returnere 200 OK på Grunnlagsdata`() {
       every { runBlocking { brukerinformasjonService.hentGrunnlagsData() } } returns GrunnlagsDataDto(
           emptyMap(),
           emptyList()

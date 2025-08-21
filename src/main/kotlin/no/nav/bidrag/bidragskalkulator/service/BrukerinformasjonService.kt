@@ -51,7 +51,7 @@ class BrukerinformasjonService(
             underholdskostnader = underholdskostnadService.genererUnderholdskostnadstabell(),
             samværsfradrag = sjablonService.hentSamværsfradrag(),
         ).also {
-            logger.info("Kalkuleringsinformasjon hentet")
+            logger.info("Grunnlagsdata hentet")
         }
     }
 }
