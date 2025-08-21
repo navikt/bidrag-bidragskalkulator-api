@@ -10,7 +10,7 @@ import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtaleBarn
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtalePart
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtaleBarnUnder18RequestDto
 import no.nav.bidrag.bidragskalkulator.dto.Vedleggskrav
-import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.Språkkode
+import no.nav.bidrag.bidragskalkulator.dto.førstesidegenerator.Språkkode
 import no.nav.bidrag.bidragskalkulator.mapper.tilPrivatAvtaleInformasjonDto
 import no.nav.bidrag.bidragskalkulator.service.PrivatAvtalePdfService
 import no.nav.bidrag.bidragskalkulator.service.PrivatAvtaleService

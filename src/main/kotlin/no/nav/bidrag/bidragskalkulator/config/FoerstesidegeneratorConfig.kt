@@ -1,6 +1,6 @@
 package no.nav.bidrag.bidragskalkulator.config
 
-import no.nav.bidrag.bidragskalkulator.consumer.FoerstesidegeneratorConsumer
+import no.nav.bidrag.bidragskalkulator.consumer.FørstesidegeneratorConsumer
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.EnableConfigurationProperties
@@ -11,17 +11,17 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType.APPLICATION_JSON
 
 @Configuration
-@EnableConfigurationProperties(value = [FoerstesidegeneratorConfigurationProperties::class])
+@EnableConfigurationProperties(value = [FørstesidegeneratorConfigurationProperties::class])
 class FoerstesidegeneratorConfig {
 
     @Bean
-    fun foerstesidegeneratorConsumer(
-        props: FoerstesidegeneratorConfigurationProperties,
+    fun førstesidegeneratorConsumer(
+        props: FørstesidegeneratorConfigurationProperties,
         @Qualifier("azure") restTemplate: RestTemplate
-    ) = FoerstesidegeneratorConsumer(props, restTemplate, foerstesidegeneratorHeaders())
+    ) = FørstesidegeneratorConsumer(props, restTemplate, førstesidegeneratorHeaders())
 
     @Bean
-    fun foerstesidegeneratorHeaders(): HttpHeaders = HttpHeaders().apply {
+    fun førstesidegeneratorHeaders(): HttpHeaders = HttpHeaders().apply {
         accept = listOf(APPLICATION_JSON)
         contentType = APPLICATION_JSON
         set("Nav-Consumer-Id", "bidrag-bidragskalkulator-api")
@@ -29,7 +29,7 @@ class FoerstesidegeneratorConfig {
 }
 
 @ConfigurationProperties(prefix = "foerstesidegenerator")
-data class FoerstesidegeneratorConfigurationProperties(
+data class FørstesidegeneratorConfigurationProperties(
     val url: String,
     val genererFoerstesidePath: String
 )

@@ -7,8 +7,8 @@ import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
-import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.NavSkjemaId
-import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.Språkkode
+import no.nav.bidrag.bidragskalkulator.dto.førstesidegenerator.NavSkjemaId
+import no.nav.bidrag.bidragskalkulator.dto.førstesidegenerator.Språkkode
 import no.nav.bidrag.bidragskalkulator.utils.tilNorskDatoFormat
 import no.nav.bidrag.bidragskalkulator.validering.ValidAndreBestemmelser
 import no.nav.bidrag.bidragskalkulator.validering.ValidOppgjør

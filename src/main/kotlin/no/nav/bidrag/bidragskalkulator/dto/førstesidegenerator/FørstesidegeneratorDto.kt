@@ -1,9 +1,9 @@
-package no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator
+package no.nav.bidrag.bidragskalkulator.dto.førstesidegenerator
 
 
-data class FoerstesideDto(
+data class GenererFørstesideRequestDto(
     val spraakkode: Språkkode,
-    val bruker: FoerstesideBrukerDto,
+    val bruker: FørstesideBrukerDto,
     val tema: String,
     val overskriftstittel: String,
     val arkivtittel: String,
@@ -14,7 +14,7 @@ data class FoerstesideDto(
     val dokumentlisteFoersteside: List<String>
 )
 
-data class FoerstesideAdresseDto(
+data class FørstesideAdresseDto(
     val adresselinje1: String,
     val adresselinje2: String,
     val adresselinje3: String,
@@ -22,33 +22,26 @@ data class FoerstesideAdresseDto(
     val poststed: String
 )
 
-data class FoerstesideAvsenderDto(
+data class FørstesideAvsenderDto(
     val avsenderId: String,
     val avsenderNavn: String
 )
 
-data class FoerstesideBrukerDto(
+data class FørstesideBrukerDto(
     val brukerId: String,
     val brukerType: String
 )
 
-data class FoerstesideArkivsakDto(
+data class FørstesideArkivsakDto(
     val arkivsaksystem: String,
     val arkivsaksnummer: String
 )
 
-class GenererFoerstesideResultatDto(
+class GenererFørstesideResultatDto(
     val foersteside: ByteArray,
     val loepenummer: String,
 )
 
-data class GenererFoerstesideRequestDto(
-    val ident: String,
-    val navSkjemaId: NavSkjemaId,
-    val arkivtittel: String,
-    val enhetsnummer: String,
-    val språkkode: Språkkode,
-)
 
 enum class Språkkode {
     NB, NN, EN

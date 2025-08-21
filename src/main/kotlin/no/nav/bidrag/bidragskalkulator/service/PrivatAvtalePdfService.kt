@@ -1,12 +1,12 @@
 package no.nav.bidrag.bidragskalkulator.service
 
 import no.nav.bidrag.bidragskalkulator.consumer.BidragDokumentProduksjonConsumer
-import no.nav.bidrag.bidragskalkulator.consumer.FoerstesidegeneratorConsumer
+import no.nav.bidrag.bidragskalkulator.consumer.FørstesidegeneratorConsumer
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtaleBarnOver18RequestDto
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtaleBarnUnder18RequestDto
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtalePdf
 import no.nav.bidrag.bidragskalkulator.mapper.skalFørstesideGenereres
-import no.nav.bidrag.bidragskalkulator.mapper.tilGenererFoerstesideRequestDto
+import no.nav.bidrag.bidragskalkulator.mapper.tilGenererFørstesideRequestDto
 import no.nav.bidrag.bidragskalkulator.mapper.tilGenererPrivatAvtalePdfRequest
 import no.nav.bidrag.bidragskalkulator.prosessor.PdfProsessor
 import org.slf4j.LoggerFactory
@@ -18,7 +18,7 @@ import kotlin.time.measureTimedValue
 @Service
 class PrivatAvtalePdfService(
     val bidragDokumentConsumer: BidragDokumentProduksjonConsumer,
-    val foerstesideConsumer: FoerstesidegeneratorConsumer,
+    val foerstesideConsumer: FørstesidegeneratorConsumer,
     val pdfProcessor: PdfProsessor
 ) {
 
@@ -45,8 +45,8 @@ class PrivatAvtalePdfService(
         val dokumenter = mutableListOf(hovedDokument)
 
         if(dto.oppgjør.skalFørstesideGenereres()) {
-            val request = dto.tilGenererFoerstesideRequestDto(innsenderIdent)
-            val førsteside = measureTimedValue { foerstesideConsumer.genererFoersteside(request).foersteside }
+            val request = dto.tilGenererFørstesideRequestDto(innsenderIdent)
+            val førsteside = measureTimedValue { foerstesideConsumer.genererFørsteside(request).foersteside }
                 .also { logger
                     .info("Privat avtale for barn $label: Førsteside generert på ${it.duration.inWholeMilliseconds} ms") }
                 .value

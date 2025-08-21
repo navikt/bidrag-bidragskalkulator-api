@@ -1,7 +1,7 @@
 package no.nav.bidrag.bidragskalkulator.consumer
 
-import no.nav.bidrag.bidragskalkulator.config.FoerstesidegeneratorConfigurationProperties
-import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.*
+import no.nav.bidrag.bidragskalkulator.config.FørstesidegeneratorConfigurationProperties
+import no.nav.bidrag.bidragskalkulator.dto.førstesidegenerator.*
 import no.nav.bidrag.bidragskalkulator.exception.MetaforceException
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
@@ -10,20 +10,20 @@ import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
 
-class FoerstesidegeneratorConsumer(
-    private val config: FoerstesidegeneratorConfigurationProperties,
+class FørstesidegeneratorConsumer(
+    private val config: FørstesidegeneratorConfigurationProperties,
     restTemplate: RestTemplate,
     private val headers: HttpHeaders
 ) : BaseConsumer(restTemplate, "foerstesidegenerator") {
 
-    val logger = LoggerFactory.getLogger(FoerstesidegeneratorConsumer::class.java)
+    val logger = LoggerFactory.getLogger(FørstesidegeneratorConsumer::class.java)
 
     init {
         check(config.url.isNotEmpty()) { "foerstesidegenerator.url mangler i konfigurasjon" }
         check(config.genererFoerstesidePath.isNotEmpty()) { "foerstesidegenerator.genererFoerstesidePath mangler i konfigurasjon" }
     }
 
-    val genererFoerstesideUrl: URI by lazy {
+    val genererFørstesideUrl: URI by lazy {
         UriComponentsBuilder
             .fromUriString(config.url)
             .path(config.genererFoerstesidePath)
@@ -50,30 +50,14 @@ class FoerstesidegeneratorConsumer(
      *
      * Dette gjør det enklere å skille mellom feil i vår applikasjon og feil hos ekstern dokumentgenerator.
      *
-     * @param genererFoerstesideRequestDto Informasjon om bruker og dokument som skal genereres.
+     * @param GenererFørstesideRequestDto Informasjon om bruker og dokument som skal genereres.
      * @return ByteArrayOutputStream med generert førsteside i PDF-format.
      * @throws MetaforceException dersom ekstern dokumenttjeneste (Metaforce) feiler.
      */
-    fun genererFoersteside(dto: GenererFoerstesideRequestDto): GenererFoerstesideResultatDto =
+    fun genererFørsteside(dto: GenererFørstesideRequestDto): GenererFørstesideResultatDto =
         medApplikasjonsKontekst {
-            val payload = FoerstesideDto(
-                spraakkode = dto.språkkode,
-                netsPostboks = "1400",
-                bruker = FoerstesideBrukerDto(
-                    brukerId = dto.ident,
-                    brukerType = "PERSON"
-                ),
-                tema = "BID",
-                vedleggsliste = listOf("${dto.navSkjemaId.kode} ${dto.arkivtittel}"),
-                dokumentlisteFoersteside = listOf("${dto.navSkjemaId.kode} ${dto.arkivtittel}"),
-                arkivtittel = dto.arkivtittel,
-                navSkjemaId = dto.navSkjemaId.kode,
-                overskriftstittel = "${dto.navSkjemaId.kode} ${dto.arkivtittel}",
-                foerstesidetype = Foerstesidetype.SKJEMA
-            )
-
             try {
-                postForEntity<GenererFoerstesideResultatDto>(genererFoerstesideUrl, payload, headers)
+                postForEntity<GenererFørstesideResultatDto>(genererFørstesideUrl, dto, headers)
                     ?: throw RuntimeException("Generering av førsteside feilet: tom respons fra server")
             } catch (e: HttpClientErrorException) {
                 logger.error("Feil fra foerstesidegenerator", e)

@@ -6,29 +6,43 @@ import no.nav.bidrag.bidragskalkulator.dto.Oppgjørsform
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtaleBarnOver18RequestDto
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtaleBarnUnder18RequestDto
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtalePdf
-import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.GenererFoerstesideRequestDto
-import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.NavSkjemaId
+import no.nav.bidrag.bidragskalkulator.dto.førstesidegenerator.FørstesideBrukerDto
+import no.nav.bidrag.bidragskalkulator.dto.førstesidegenerator.GenererFørstesideRequestDto
+import no.nav.bidrag.bidragskalkulator.dto.førstesidegenerator.Foerstesidetype
+import no.nav.bidrag.bidragskalkulator.dto.førstesidegenerator.NavSkjemaId
 
 fun PrivatAvtalePdf.navnSkjemaIdFor(): NavSkjemaId = when (this) {
     is PrivatAvtaleBarnUnder18RequestDto -> NavSkjemaId.AVTALE_OM_BARNEBIDRAG_UNDER_18
     is PrivatAvtaleBarnOver18RequestDto -> NavSkjemaId.AVTALE_OM_BARNEBIDRAG_OVER_18
 }
 
-fun PrivatAvtalePdf.tilGenererFoerstesideRequestDto(innsenderIdent: String,
-                                                    arkivtittel: String = "Avtale om barnebidrag",
-                                                    enhetsnummer: String = "1234"): GenererFoerstesideRequestDto =
-    GenererFoerstesideRequestDto(
-            ident = innsenderIdent,
-            navSkjemaId = this.navnSkjemaIdFor(),
-            arkivtittel = arkivtittel,
-            enhetsnummer = enhetsnummer,
-            språkkode = this.språk
-    )
-
 fun PrivatAvtalePdf.tilGenererPrivatAvtalePdfRequest(): GenererPrivatAvtalePdfRequest = GenererPrivatAvtalePdfRequest(
     privatAvtalePdf = this,
     navSkjemaId = this.navnSkjemaIdFor()
 )
+
+fun PrivatAvtalePdf.tilGenererFørstesideRequestDto(innsenderIdent: String,
+                                      netsPostboks: String = "1400",
+                                      arkivtittel: String = "Avtale om barnebidrag",
+                                      ): GenererFørstesideRequestDto {
+    val navSkjemaIdKode = this.navnSkjemaIdFor().kode
+
+    return GenererFørstesideRequestDto(
+        spraakkode = this.språk,
+        netsPostboks = netsPostboks,
+        bruker = FørstesideBrukerDto(
+            brukerId = innsenderIdent,
+            brukerType = "PERSON"
+        ),
+        tema = "BID",
+        vedleggsliste = listOf("${navSkjemaIdKode} ${arkivtittel}"),
+        dokumentlisteFoersteside = listOf("${navSkjemaIdKode} ${arkivtittel}"),
+        arkivtittel = arkivtittel,
+        navSkjemaId = navSkjemaIdKode,
+        overskriftstittel = "${navSkjemaIdKode} ${arkivtittel}",
+        foerstesidetype = Foerstesidetype.SKJEMA
+    )
+}
 
 /**
  * Sjekker om førsteside skal genereres basert på oppgjørsform og avtaletype.

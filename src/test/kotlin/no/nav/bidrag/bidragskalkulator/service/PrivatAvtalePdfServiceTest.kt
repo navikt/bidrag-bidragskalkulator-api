@@ -4,10 +4,10 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.bidrag.bidragskalkulator.consumer.BidragDokumentProduksjonConsumer
-import no.nav.bidrag.bidragskalkulator.consumer.FoerstesidegeneratorConsumer
+import no.nav.bidrag.bidragskalkulator.consumer.FørstesidegeneratorConsumer
 import no.nav.bidrag.bidragskalkulator.dto.*
-import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.GenererFoerstesideResultatDto
-import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.Språkkode
+import no.nav.bidrag.bidragskalkulator.dto.førstesidegenerator.GenererFørstesideResultatDto
+import no.nav.bidrag.bidragskalkulator.dto.førstesidegenerator.Språkkode
 import no.nav.bidrag.bidragskalkulator.prosessor.PdfProsessor
 import no.nav.bidrag.domene.ident.Personident
 import org.junit.jupiter.api.Assertions.assertArrayEquals
@@ -21,7 +21,7 @@ class PrivatAvtalePdfServiceTest {
 
     private lateinit var service: PrivatAvtalePdfService
     private val mockDokumentConsumer = mockk<BidragDokumentProduksjonConsumer>()
-    private val mockFoerstesideConsumer = mockk<FoerstesidegeneratorConsumer>()
+    private val mockFoerstesideConsumer = mockk<FørstesidegeneratorConsumer>()
     private val mockPdfProsessor = mockk<PdfProsessor>()
 
     @BeforeEach
@@ -66,8 +66,8 @@ class PrivatAvtalePdfServiceTest {
         }
 
         private fun mockForsideGenerator() {
-            every { mockFoerstesideConsumer.genererFoersteside(any()) } returns
-                    GenererFoerstesideResultatDto(foersteside = forsideBytes, loepenummer = "123")
+            every { mockFoerstesideConsumer.genererFørsteside(any()) } returns
+                    GenererFørstesideResultatDto(foersteside = forsideBytes, loepenummer = "123")
         }
 
         private fun mockSammenslåingUtenForside() {
@@ -91,7 +91,7 @@ class PrivatAvtalePdfServiceTest {
                 .toByteArray()
 
             // Forvent at forside ble brukt og at output er sammenslått dokument
-            verify(exactly = 1) { mockFoerstesideConsumer.genererFoersteside(any()) }
+            verify(exactly = 1) { mockFoerstesideConsumer.genererFørsteside(any()) }
             assertArrayEquals(forventetSammenslaatt, faktisk)
         }
 
@@ -105,7 +105,7 @@ class PrivatAvtalePdfServiceTest {
             val faktisk = service.genererPrivatAvtalePdf("fnr", dtoUnder18(false, Oppgjørsform.INNKREVING, Oppgjørsform.PRIVAT))
                 .toByteArray()
 
-            verify(exactly = 1) { mockFoerstesideConsumer.genererFoersteside(any()) }
+            verify(exactly = 1) { mockFoerstesideConsumer.genererFørsteside(any()) }
             assertArrayEquals(forventetSammenslaatt, faktisk)
         }
 
@@ -119,7 +119,7 @@ class PrivatAvtalePdfServiceTest {
             val faktisk = service.genererPrivatAvtalePdf("fnr", dtoUnder18(false, Oppgjørsform.PRIVAT, Oppgjørsform.INNKREVING))
                 .toByteArray()
 
-            verify(exactly = 1) { mockFoerstesideConsumer.genererFoersteside(any()) }
+            verify(exactly = 1) { mockFoerstesideConsumer.genererFørsteside(any()) }
             assertArrayEquals(forventetSammenslaatt, faktisk)
         }
 
@@ -133,7 +133,7 @@ class PrivatAvtalePdfServiceTest {
             val faktisk = service.genererPrivatAvtalePdf("fnr", dtoUnder18(true, Oppgjørsform.INNKREVING))
                 .toByteArray()
 
-            verify(exactly = 1) { mockFoerstesideConsumer.genererFoersteside(any()) }
+            verify(exactly = 1) { mockFoerstesideConsumer.genererFørsteside(any()) }
             assertArrayEquals(forventetSammenslaatt, faktisk)
         }
 
@@ -148,7 +148,7 @@ class PrivatAvtalePdfServiceTest {
                 .toByteArray()
 
             // Forvent at forside ikke ble generert og kontrakt returneres
-            verify(exactly = 0) { mockFoerstesideConsumer.genererFoersteside(any()) }
+            verify(exactly = 0) { mockFoerstesideConsumer.genererFørsteside(any()) }
             assertArrayEquals(kontraktBytes, faktisk)
         }
 
@@ -160,7 +160,7 @@ class PrivatAvtalePdfServiceTest {
             val faktisk = service.genererPrivatAvtalePdf("fnr", dtoUnder18(true, Oppgjørsform.PRIVAT))
                 .toByteArray()
 
-            verify(exactly = 0) { mockFoerstesideConsumer.genererFoersteside(any()) }
+            verify(exactly = 0) { mockFoerstesideConsumer.genererFørsteside(any()) }
             assertArrayEquals(kontraktBytes, faktisk)
         }
     }
