@@ -25,8 +25,7 @@ class BrukerinformasjonService(
     @Cacheable(CacheConfig.PERSONINFORMASJON)
     suspend fun hentBrukerinformasjon(personIdent: String): BrukerInformasjonDto = coroutineScope {
         logger.info("Starter henting av person informasjon og inntektsgrunnlag for å utforme brukerinformasjon")
-        val sum = Summary.builder().register()
-
+        
         val inntektsGrunnlagJobb = asyncCatching(logger, "inntektsgrunnlag") {
             grunnlagService.hentInntektsGrunnlag(personIdent)
         }
