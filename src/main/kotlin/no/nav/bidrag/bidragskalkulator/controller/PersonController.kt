@@ -12,6 +12,7 @@ import no.nav.bidrag.commons.util.secureLogger
 import no.nav.bidrag.bidragskalkulator.dto.BrukerInformasjonDto
 import no.nav.bidrag.bidragskalkulator.dto.KalkuleringsinformasjonDto
 import no.nav.bidrag.bidragskalkulator.service.BrukerinformasjonService
+import no.nav.bidrag.bidragskalkulator.utils.BidragAwareContext
 import no.nav.bidrag.bidragskalkulator.utils.InnloggetBrukerUtils
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.api.Unprotected
@@ -66,7 +67,7 @@ class PersonController(
     }
 
     @Operation(
-        summary = "Henter kalkuleringsinformasjon uten autentisering",
+        summary = "Henter grunndata for kalkulering uten autentisering",
         description = "Henter underholdskostnader og samværsfradrag som brukes i bidragskalkuleringen. Returnerer 200 ved vellykket henting, eller passende feilkoder."
     )
     @ApiResponses(
@@ -76,11 +77,11 @@ class PersonController(
         ]
     )
     @Unprotected
-    @GetMapping("/kalkuleringsinformasjon")
+    @GetMapping("/grunndata")
     fun hentKalkuleringsinformasjon(): KalkuleringsinformasjonDto {
         secureLogger.info { "Henter kalkuleringsinformasjon (underholdskostnader og samværsfradrag)" }
 
-        return runBlocking(Dispatchers.IO + MDCContext()) {
+        return runBlocking(BidragAwareContext) {
             brukerinformasjonService.hentGrunndata().also {
                 secureLogger.info { "Kalkuleringsinformasjon hentet" }
             }

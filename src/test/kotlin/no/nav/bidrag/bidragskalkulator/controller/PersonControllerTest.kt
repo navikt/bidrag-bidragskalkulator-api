@@ -32,7 +32,7 @@ class PersonControllerTest: AbstractControllerTest() {
           emptyList()
       )
 
-    getRequest("/api/v1/person/kalkuleringsinformasjon")
+    getRequest("/api/v1/person/grunndata")
             .andExpect(status().isOk)
     }
 

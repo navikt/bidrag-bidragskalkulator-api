@@ -47,17 +47,11 @@ class BrukerinformasjonService(
     }
 
     suspend fun hentGrunndata(): KalkuleringsinformasjonDto = coroutineScope {
-        logger.info("Henter kalkuleringsinformasjon (underholdskostnader og samværsfradrag)")
-
-        val samværsfradragJobb = asyncCatching(logger, "samværsfradrag") {
-            sjablonService.hentSamværsfradrag()
-        }
-
-        underholdskostnadService.genererUnderholdskostnadstabell()
+        logger.info("Henter grunndata (underholdskostnader og samværsfradrag)")
 
         KalkuleringsinformasjonDto(
             underholdskostnader = underholdskostnadService.genererUnderholdskostnadstabell(),
-            samværsfradrag = samværsfradragJobb.await(),
+            samværsfradrag = sjablonService.hentSamværsfradrag(),
         ).also {
             logger.info("Kalkuleringsinformasjon hentet")
         }
