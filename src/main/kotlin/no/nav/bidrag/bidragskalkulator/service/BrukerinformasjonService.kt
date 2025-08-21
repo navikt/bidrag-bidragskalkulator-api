@@ -33,7 +33,7 @@ class BrukerinformasjonService(
             personService.hentPersoninformasjon(Personident(personIdent))
         }
 
-        val grunndata = asyncCatching(logger, "grunndata") { hentGrunnlagsData() }
+        val grunnlagsdata = asyncCatching(logger, "gunnlagsdata") { hentGrunnlagsData() }
 
         logger.info("Ferdig med henting av person informasjon og inntektsgrunnlag for å utforme brukerinformasjon")
 
@@ -41,8 +41,8 @@ class BrukerinformasjonService(
             person = personinformasjonJobb.await().tilPersonInformasjonDto(),
             inntekt = inntektsGrunnlagJobb.await()?.toInntektResultatDto()?.inntektSiste12Mnd,
             barnerelasjoner = emptyList(),
-            underholdskostnader = grunndata.await().underholdskostnader,
-            samværsfradrag = grunndata.await().samværsfradrag
+            underholdskostnader = grunnlagsdata.await().underholdskostnader,
+            samværsfradrag = grunnlagsdata.await().samværsfradrag
         )
     }
 
