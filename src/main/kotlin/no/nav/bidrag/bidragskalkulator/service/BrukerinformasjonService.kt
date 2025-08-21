@@ -3,6 +3,7 @@ package no.nav.bidrag.bidragskalkulator.service
 import kotlinx.coroutines.coroutineScope
 import no.nav.bidrag.bidragskalkulator.config.CacheConfig
 import no.nav.bidrag.bidragskalkulator.dto.BrukerInformasjonDto
+import no.nav.bidrag.bidragskalkulator.dto.GrunnlagsDataDto
 import no.nav.bidrag.bidragskalkulator.mapper.tilPersonInformasjonDto
 import no.nav.bidrag.bidragskalkulator.mapper.toInntektResultatDto
 import no.nav.bidrag.bidragskalkulator.utils.asyncCatching
@@ -32,9 +33,7 @@ class BrukerinformasjonService(
             personService.hentPersoninformasjon(Personident(personIdent))
         }
 
-        val samværsfradragJobb = asyncCatching(logger, "samværsfradrag") {
-            sjablonService.hentSamværsfradrag()
-        }
+        val grunnlagsdata = asyncCatching(logger, "gunnlagsdata") { hentGrunnlagsData() }
 
         logger.info("Ferdig med henting av person informasjon og inntektsgrunnlag for å utforme brukerinformasjon")
 
@@ -42,8 +41,17 @@ class BrukerinformasjonService(
             person = personinformasjonJobb.await().tilPersonInformasjonDto(),
             inntekt = inntektsGrunnlagJobb.await()?.toInntektResultatDto()?.inntektSiste12Mnd,
             barnerelasjoner = emptyList(),
-            underholdskostnader = underholdskostnadService.genererUnderholdskostnadstabell(),
-            samværsfradrag = samværsfradragJobb.await()
+            underholdskostnader = grunnlagsdata.await().underholdskostnader,
+            samværsfradrag = grunnlagsdata.await().samværsfradrag
         )
+    }
+
+    suspend fun hentGrunnlagsData(): GrunnlagsDataDto = coroutineScope {
+        GrunnlagsDataDto(
+            underholdskostnader = underholdskostnadService.genererUnderholdskostnadstabell(),
+            samværsfradrag = sjablonService.hentSamværsfradrag(),
+        ).also {
+            logger.info("Grunnlagsdata hentet")
+        }
     }
 }
