@@ -10,7 +10,7 @@ import kotlinx.coroutines.slf4j.MDCContext
 import no.nav.bidrag.bidragskalkulator.config.SecurityConstants
 import no.nav.bidrag.commons.util.secureLogger
 import no.nav.bidrag.bidragskalkulator.dto.BrukerInformasjonDto
-import no.nav.bidrag.bidragskalkulator.dto.KalkuleringsinformasjonDto
+import no.nav.bidrag.bidragskalkulator.dto.GrunnlagsDataDto
 import no.nav.bidrag.bidragskalkulator.service.BrukerinformasjonService
 import no.nav.bidrag.bidragskalkulator.utils.BidragAwareContext
 import no.nav.bidrag.bidragskalkulator.utils.InnloggetBrukerUtils
@@ -78,7 +78,7 @@ class PersonController(
     )
     @Unprotected
     @GetMapping("/grunndata")
-    fun hentKalkuleringsinformasjon(): KalkuleringsinformasjonDto {
+    fun hentKalkuleringsinformasjon(): GrunnlagsDataDto {
         secureLogger.info { "Henter kalkuleringsinformasjon (underholdskostnader og samværsfradrag)" }
 
         return runBlocking(BidragAwareContext) {

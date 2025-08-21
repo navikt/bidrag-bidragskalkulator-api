@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import java.math.BigDecimal
 
 @Schema(description = "Informasjon som brukes i bidragskalkuleringen")
-data class KalkuleringsinformasjonDto(
+data class GrunnlagsDataDto(
     @Schema(description = "Underholdskostnader per aldersgruppe")
     val underholdskostnader: Map<Int, BigDecimal>,
     

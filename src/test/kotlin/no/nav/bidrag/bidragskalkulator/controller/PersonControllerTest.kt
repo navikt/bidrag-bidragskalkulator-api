@@ -4,7 +4,7 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import kotlinx.coroutines.runBlocking
 import no.nav.bidrag.bidragskalkulator.dto.BrukerInformasjonDto
-import no.nav.bidrag.bidragskalkulator.dto.KalkuleringsinformasjonDto
+import no.nav.bidrag.bidragskalkulator.dto.GrunnlagsDataDto
 import no.nav.bidrag.bidragskalkulator.mapper.tilPersonInformasjonDto
 import no.nav.bidrag.bidragskalkulator.mapper.toInntektResultatDto
 import no.nav.bidrag.bidragskalkulator.service.BrukerinformasjonService
@@ -27,7 +27,7 @@ class PersonControllerTest: AbstractControllerTest() {
 
     @Test
     fun `skal returnere 200 OK på kalkuleringsinformasjon`() {
-      every { runBlocking { brukerinformasjonService.hentGrunndata() } } returns KalkuleringsinformasjonDto(
+      every { runBlocking { brukerinformasjonService.hentGrunndata() } } returns GrunnlagsDataDto(
           emptyMap(),
           emptyList()
       )

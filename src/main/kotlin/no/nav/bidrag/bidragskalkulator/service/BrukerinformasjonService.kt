@@ -3,7 +3,7 @@ package no.nav.bidrag.bidragskalkulator.service
 import kotlinx.coroutines.coroutineScope
 import no.nav.bidrag.bidragskalkulator.config.CacheConfig
 import no.nav.bidrag.bidragskalkulator.dto.BrukerInformasjonDto
-import no.nav.bidrag.bidragskalkulator.dto.KalkuleringsinformasjonDto
+import no.nav.bidrag.bidragskalkulator.dto.GrunnlagsDataDto
 import no.nav.bidrag.bidragskalkulator.mapper.tilPersonInformasjonDto
 import no.nav.bidrag.bidragskalkulator.mapper.toInntektResultatDto
 import no.nav.bidrag.bidragskalkulator.utils.asyncCatching
@@ -46,10 +46,10 @@ class BrukerinformasjonService(
         )
     }
 
-    suspend fun hentGrunndata(): KalkuleringsinformasjonDto = coroutineScope {
+    suspend fun hentGrunndata(): GrunnlagsDataDto = coroutineScope {
         logger.info("Henter grunndata (underholdskostnader og samværsfradrag)")
 
-        KalkuleringsinformasjonDto(
+        GrunnlagsDataDto(
             underholdskostnader = underholdskostnadService.genererUnderholdskostnadstabell(),
             samværsfradrag = sjablonService.hentSamværsfradrag(),
         ).also {
