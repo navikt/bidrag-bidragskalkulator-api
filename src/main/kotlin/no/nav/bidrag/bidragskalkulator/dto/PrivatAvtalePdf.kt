@@ -1,16 +1,13 @@
 package no.nav.bidrag.bidragskalkulator.dto
 
 import com.fasterxml.jackson.annotation.JsonFormat
-import com.fasterxml.jackson.annotation.JsonIgnore
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.Valid
-import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
 import no.nav.bidrag.bidragskalkulator.dto.førstesidegenerator.NavSkjemaId
 import no.nav.bidrag.bidragskalkulator.dto.førstesidegenerator.Språkkode
-import no.nav.bidrag.bidragskalkulator.utils.tilNorskDatoFormat
 import no.nav.bidrag.bidragskalkulator.validering.GyldigPeriode
 import no.nav.bidrag.bidragskalkulator.validering.ValidAndreBestemmelser
 import no.nav.bidrag.bidragskalkulator.validering.ValidOppgjør
@@ -183,13 +180,7 @@ data class PrivatAvtaleBarnUnder18RequestDto(
     @field:Valid
     @param:Schema(description = "Eventuelle andre bestemmelser som er inkludert i avtalen", required = true)
     override val andreBestemmelser: AndreBestemmelserSkjema
-): PrivatAvtalePdf  {
-    @JsonIgnore
-    @Schema(hidden = true)
-    fun medNorskeDatoer(): PrivatAvtaleBarnUnder18RequestDto = this.copy(
-        barn = this.barn.map { it.copy(fraDato = it.fraDato.tilNorskDatoFormat()) },
-    )
-}
+): PrivatAvtalePdf
 
 @Schema(description = "Informasjon for generering av en privat avtale PDF for barn over 18 år")
 data class PrivatAvtaleBarnOver18RequestDto (

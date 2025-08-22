@@ -10,6 +10,7 @@ import no.nav.bidrag.bidragskalkulator.dto.førstesidegenerator.FørstesideBruke
 import no.nav.bidrag.bidragskalkulator.dto.førstesidegenerator.GenererFørstesideRequestDto
 import no.nav.bidrag.bidragskalkulator.dto.førstesidegenerator.Foerstesidetype
 import no.nav.bidrag.bidragskalkulator.dto.førstesidegenerator.NavSkjemaId
+import no.nav.bidrag.bidragskalkulator.utils.tilNorskDatoFormat
 
 fun PrivatAvtalePdf.navnSkjemaIdFor(): NavSkjemaId = when (this) {
     is PrivatAvtaleBarnUnder18RequestDto -> NavSkjemaId.AVTALE_OM_BARNEBIDRAG_UNDER_18
@@ -43,6 +44,22 @@ fun PrivatAvtalePdf.tilGenererFørstesideRequestDto(innsenderIdent: String,
         foerstesidetype = Foerstesidetype.SKJEMA
     )
 }
+
+fun PrivatAvtaleBarnUnder18RequestDto.normalisert(): PrivatAvtaleBarnUnder18RequestDto =
+    copy(
+        barn = barn
+            .asSequence()
+            .sortedBy { it.fraDato }
+            .map { it.copy(fraDato = it.fraDato.tilNorskDatoFormat()) }
+            .toList()
+    )
+
+
+fun PrivatAvtaleBarnOver18RequestDto.normalisert(): PrivatAvtaleBarnOver18RequestDto =
+    copy(
+        bidrag = bidrag.sortedBy { it.fraDato }
+    )
+
 
 /**
  * Sjekker om førsteside skal genereres basert på oppgjørsform og avtaletype.
