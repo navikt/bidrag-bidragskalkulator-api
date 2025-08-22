@@ -11,6 +11,7 @@ import jakarta.validation.constraints.Size
 import no.nav.bidrag.bidragskalkulator.dto.førstesidegenerator.NavSkjemaId
 import no.nav.bidrag.bidragskalkulator.dto.førstesidegenerator.Språkkode
 import no.nav.bidrag.bidragskalkulator.utils.tilNorskDatoFormat
+import no.nav.bidrag.bidragskalkulator.validering.GyldigPeriode
 import no.nav.bidrag.bidragskalkulator.validering.ValidAndreBestemmelser
 import no.nav.bidrag.bidragskalkulator.validering.ValidOppgjør
 import no.nav.bidrag.domene.ident.Personident
@@ -135,6 +136,7 @@ data class Oppgjør(
     val oppgjørsformIdag: Oppgjørsform? = null
 )
 
+@GyldigPeriode
 @Schema(description = "Informasjon om bidrag som skal betales i en privat avtale for barn over 18 år")
 data class Bidrag(
     @param:Schema(description = "Bidragsbeløp per måned i NOK", required = true, example = "1000")
