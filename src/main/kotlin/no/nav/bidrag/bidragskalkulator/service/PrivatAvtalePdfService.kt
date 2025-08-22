@@ -29,35 +29,37 @@ class PrivatAvtalePdfService(
         innsenderIdent: String,
         dto: PrivatAvtalePdf
     ): ByteArrayOutputStream {
-        val (label, dto) = when (dto) {
+        val (label, normalizedDto) = when (dto) {
             is PrivatAvtaleBarnUnder18RequestDto -> "under 18 år" to dto.medNorskeDatoer()
-            is PrivatAvtaleBarnOver18RequestDto -> "over 18 år" to dto
+            is PrivatAvtaleBarnOver18RequestDto -> "over 18 år" to dto.copy(
+                bidrag = dto.bidrag.sortedBy { it.fraDato }
+            )
         }
 
         logger.info("Privat avtale for barn $label: Starter generering av PDF for privat avtale")
 
         val hovedDokument = measureTimedValue { bidragDokumentConsumer
-            .genererPrivatAvtaleAPdf(dto.tilGenererPrivatAvtalePdfRequest()) }
+            .genererPrivatAvtaleAPdf(normalizedDto.tilGenererPrivatAvtalePdfRequest()) }
             .also { logger
                 .info("Privat avtale for barn $label: Hoveddokument generert på ${it.duration.inWholeMilliseconds} ms") }
             .value.toByteArray()
 
         val dokumenter = mutableListOf(hovedDokument)
 
-        if(dto.oppgjør.skalFørstesideGenereres()) {
-            val request = dto.tilGenererFørstesideRequestDto(innsenderIdent)
+        if(normalizedDto.oppgjør.skalFørstesideGenereres()) {
+            val request = normalizedDto.tilGenererFørstesideRequestDto(innsenderIdent)
             val førsteside = measureTimedValue { foerstesideConsumer.genererFørsteside(request).foersteside }
                 .also { logger
                     .info("Privat avtale for barn $label: Førsteside generert på ${it.duration.inWholeMilliseconds} ms") }
                 .value
-            
+
               dokumenter.add(0, førsteside)
         }
 
-        val sammenslaatt = pdfProcessor.prosesserOgSlåSammenDokumenter(dokumenter)
-        
+        val sammenslått = pdfProcessor.prosesserOgSlåSammenDokumenter(dokumenter)
+
         return ByteArrayOutputStream().apply {
-            write(sammenslaatt)
+            write(sammenslått)
         }
     }
 }
