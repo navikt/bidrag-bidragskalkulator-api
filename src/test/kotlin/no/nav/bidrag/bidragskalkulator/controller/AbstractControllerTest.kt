@@ -31,6 +31,9 @@ abstract class AbstractControllerTest {
     @Autowired
     protected lateinit var gyldigOAuth2Token: String
 
+    @Autowired
+    protected lateinit var ugyldigOAuth2Token: String
+
     protected fun postRequest(url: String, body: Any, token: String? = null): ResultActions {
         return mockMvc.perform(buildJsonRequest(post(url), body, token))
     }

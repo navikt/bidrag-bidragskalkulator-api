@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import no.nav.bidrag.bidragskalkulator.config.SecurityConstants
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtaleInformasjonDto
-import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtalePdfDto
+import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtaleBarnUnder18RequestDto
 import no.nav.bidrag.bidragskalkulator.service.PrivatAvtalePdfService
 import no.nav.bidrag.bidragskalkulator.service.PrivatAvtaleService
 import no.nav.bidrag.bidragskalkulator.utils.InnloggetBrukerUtils
@@ -18,6 +18,7 @@ import jakarta.validation.Valid
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.slf4j.MDCContext
+import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtaleBarnOver18RequestDto
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.context.annotation.Profile
 import org.springframework.http.MediaType
@@ -41,6 +42,15 @@ class PrivatAvtaleController(
 ) {
 
     private val logger = LoggerFactory.getLogger(PrivatAvtaleController::class.java)
+
+    private companion object {
+        private const val UNAUTHORIZED_TOKEN_MESSAGE = "Ugyldig token"
+    }
+
+
+    private fun InnloggetBrukerUtils.requirePåloggetPersonIdent(): String =
+        hentPåloggetPersonIdent()
+            ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED, UNAUTHORIZED_TOKEN_MESSAGE)
 
     @Operation(
         summary = "Henter informasjon for opprettelse av privat avtale",
@@ -71,9 +81,9 @@ class PrivatAvtaleController(
         }
     }
 
-    @PostMapping(produces = [MediaType.APPLICATION_PDF_VALUE])
+    @PostMapping("/under-18", produces = [MediaType.APPLICATION_PDF_VALUE])
     @Operation(
-        summary = "Generer privat avtale PDF",
+        summary = "Generer privat avtale PDF for barn under 18 år",
         description = "Genererer en privat avtale i PDF-format.",
     )
     @ApiResponses(
@@ -85,21 +95,36 @@ class PrivatAvtaleController(
         ]
     )
     @Validated
-    fun genererPrivatAvtale(@Valid @RequestBody privatAvtalePdfDto: PrivatAvtalePdfDto): ResponseEntity<ByteArray>? {
+    fun genererPrivatAvtaleForBarnUnder18(@Valid @RequestBody dto: PrivatAvtaleBarnUnder18RequestDto): ResponseEntity<ByteArray>? {
 
-        val personIdent = innloggetBrukerUtils.hentPåloggetPersonIdent()
-            ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Ugyldig token")
+        val personIdent = innloggetBrukerUtils.requirePåloggetPersonIdent()
+        val genererPrivatAvtalePdf =  privatAvtalePdfService.genererPrivatAvtalePdf(personIdent, dto)
+        val privatAvtaleByteArray = genererPrivatAvtalePdf.toByteArray()
 
-        if (privatAvtalePdfDto.andreBestemmelser.harAndreBestemmelser && privatAvtalePdfDto.andreBestemmelser.beskrivelse.isNullOrBlank()) {
-            throw IllegalArgumentException("Feltet 'andreBestemmelserTekst' er påkrevd når 'harAndreBestemmelser' er true.")
-        }
-
-        if (!privatAvtalePdfDto.oppgjør.nyAvtale && privatAvtalePdfDto.oppgjør.oppgjørsformIdag == null) {
-            throw IllegalArgumentException("Feltet 'oppgjørsformIdag' er påkrevd når det er eksisterende avtale.")
-        }
-
-        val genererPrivatAvtalePdf =  privatAvtalePdfService.genererPrivatAvtalePdf(personIdent, privatAvtalePdfDto)
-
+        return ResponseEntity
+            .ok()
+            .contentType(MediaType.APPLICATION_PDF)
+            .header("Content-Disposition", "inline; filename=\"privatavtale.pdf\"")
+            .body(privatAvtaleByteArray)
+    }
+    
+    @PostMapping("/over-18", produces = [MediaType.APPLICATION_PDF_VALUE])
+    @Operation(
+        summary = "Generer privat avtale PDF for barn over 18 år",
+        description = "Genererer en privat avtale i PDF-format.",
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "Privat avtale PDF generert"),
+            ApiResponse(responseCode = "400", description = "Ugyldig forespørsel – valideringsfeil eller ugyldig enumverdi"),
+            ApiResponse(responseCode = "401", description = "Uautorisert tilgang – mangler eller ugyldig token"),
+            ApiResponse(responseCode = "500", description = "Intern serverfeil")
+        ]
+    )
+    @Validated
+    fun genererPrivatAvtaleForBarnOver18(@Valid @RequestBody dto: PrivatAvtaleBarnOver18RequestDto): ResponseEntity<ByteArray>? {
+        val personIdent = innloggetBrukerUtils.requirePåloggetPersonIdent()
+        val genererPrivatAvtalePdf =  privatAvtalePdfService.genererPrivatAvtalePdf(personIdent, dto)
         val privatAvtaleByteArray = genererPrivatAvtalePdf.toByteArray()
 
         return ResponseEntity

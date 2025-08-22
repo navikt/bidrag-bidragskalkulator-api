@@ -1,10 +1,13 @@
 package no.nav.bidrag.bidragskalkulator.service
 
 import no.nav.bidrag.bidragskalkulator.consumer.BidragDokumentProduksjonConsumer
-import no.nav.bidrag.bidragskalkulator.consumer.FoerstesidegeneratorConsumer
-import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtalePdfDto
-import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.GenererFoerstesideRequestDto
-import no.nav.bidrag.bidragskalkulator.dto.skalFoerstesideGenereres
+import no.nav.bidrag.bidragskalkulator.consumer.FørstesidegeneratorConsumer
+import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtaleBarnOver18RequestDto
+import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtaleBarnUnder18RequestDto
+import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtalePdf
+import no.nav.bidrag.bidragskalkulator.mapper.skalFørstesideGenereres
+import no.nav.bidrag.bidragskalkulator.mapper.tilGenererFørstesideRequestDto
+import no.nav.bidrag.bidragskalkulator.mapper.tilGenererPrivatAvtalePdfRequest
 import no.nav.bidrag.bidragskalkulator.prosessor.PdfProsessor
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -15,7 +18,7 @@ import kotlin.time.measureTimedValue
 @Service
 class PrivatAvtalePdfService(
     val bidragDokumentConsumer: BidragDokumentProduksjonConsumer,
-    val foerstesideConsumer: FoerstesidegeneratorConsumer,
+    val foerstesideConsumer: FørstesidegeneratorConsumer,
     val pdfProcessor: PdfProsessor
 ) {
 
@@ -24,44 +27,37 @@ class PrivatAvtalePdfService(
     @Throws(IOException::class)
     fun genererPrivatAvtalePdf(
         innsenderIdent: String,
-        privatAvtalePdfDto: PrivatAvtalePdfDto
+        dto: PrivatAvtalePdf
     ): ByteArrayOutputStream {
-        logger.info("Starter generering av PDF for privat avtale")
+        val (label, dto) = when (dto) {
+            is PrivatAvtaleBarnUnder18RequestDto -> "under 18 år" to dto.medNorskeDatoer()
+            is PrivatAvtaleBarnOver18RequestDto -> "over 18 år" to dto
+        }
 
-        val hoveddokument = measureTimedValue {
-            bidragDokumentConsumer.genererPrivatAvtaleAPdf(privatAvtalePdfDto.medNorskeDatoer())
-        }.also {
-            logger.info("Hoveddokument generert på ${it.duration.inWholeMilliseconds} ms")
-        }.value
+        logger.info("Privat avtale for barn $label: Starter generering av PDF for privat avtale")
 
-        val dokumenter = mutableListOf(hoveddokument.toByteArray())
+        val hovedDokument = measureTimedValue { bidragDokumentConsumer
+            .genererPrivatAvtaleAPdf(dto.tilGenererPrivatAvtalePdfRequest()) }
+            .also { logger
+                .info("Privat avtale for barn $label: Hoveddokument generert på ${it.duration.inWholeMilliseconds} ms") }
+            .value.toByteArray()
 
-        if (privatAvtalePdfDto.oppgjør.skalFoerstesideGenereres()) {
-            val foersteside = measureTimedValue {
-                genererForsideForInnsending(innsenderIdent, privatAvtalePdfDto)
-            }.also {
-                logger.info("Førsteside generert på ${it.duration.inWholeMilliseconds} ms")
-            }.value
+        val dokumenter = mutableListOf(hovedDokument)
 
-            dokumenter.add(0, foersteside)
+        if(dto.oppgjør.skalFørstesideGenereres()) {
+            val request = dto.tilGenererFørstesideRequestDto(innsenderIdent)
+            val førsteside = measureTimedValue { foerstesideConsumer.genererFørsteside(request).foersteside }
+                .also { logger
+                    .info("Privat avtale for barn $label: Førsteside generert på ${it.duration.inWholeMilliseconds} ms") }
+                .value
+            
+              dokumenter.add(0, førsteside)
         }
 
         val sammenslaatt = pdfProcessor.prosesserOgSlåSammenDokumenter(dokumenter)
-
+        
         return ByteArrayOutputStream().apply {
             write(sammenslaatt)
         }
     }
-
-    fun genererForsideForInnsending(navIdent: String, dto: PrivatAvtalePdfDto): ByteArray =
-        foerstesideConsumer.genererFoersteside(
-            GenererFoerstesideRequestDto(
-                ident = navIdent,
-                navSkjemaId = dto.navSkjemaId,
-                arkivtittel = "Avtale om barnebidrag",
-                enhetsnummer = "1234",
-                språkkode = dto.språk
-            )
-        ).foersteside
-
 }

@@ -43,6 +43,7 @@ dependencies {
     api("org.springframework.boot:spring-boot-starter-webflux")
     api("org.jetbrains.kotlin:kotlin-reflect")
 
+
     //Springdoc
     api("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springDocWebmvcVersion")
 
@@ -51,9 +52,12 @@ dependencies {
         exclude(group = "com.google.errorprone", module = "error_prone_annotations")
         exclude(group = "io.github.oshai", module = "kotlin-logging-jvm")
     }
-    api("no.nav.bidrag:bidrag-transport-felles:${bidragFellesVersion}")
+    api("no.nav.bidrag:bidrag-transport-felles:${bidragFellesVersion}"){
+        exclude(group = "jakarta.persistence", module = "jakarta.persistence-api")
+    }
     api("no.nav.bidrag:bidrag-commons-felles:${bidragFellesVersion}"){
         exclude(group = "io.github.oshai", module = "kotlin-logging-jvm")
+        exclude(group = "jakarta.persistence", module = "jakarta.persistence-api")
     }
     api("no.nav.security:token-validation-spring:$tokenSupportVersion")
     api("no.nav.bidrag:bidrag-inntekt:${bidragBeregnFellesVersion}") {

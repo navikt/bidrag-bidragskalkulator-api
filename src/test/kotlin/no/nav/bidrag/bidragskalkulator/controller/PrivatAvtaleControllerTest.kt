@@ -7,20 +7,21 @@ import no.nav.bidrag.bidragskalkulator.dto.AndreBestemmelserSkjema
 import no.nav.bidrag.bidragskalkulator.dto.Oppgjør
 import no.nav.bidrag.bidragskalkulator.dto.Oppgjørsform
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtaleBarn
-import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtaleBidragsmottaker
-import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtaleBidragspliktig
-import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtalePdfDto
+import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtalePart
+import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtaleBarnUnder18RequestDto
 import no.nav.bidrag.bidragskalkulator.dto.Vedleggskrav
-import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.NavSkjemaId
-import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.Språkkode
+import no.nav.bidrag.bidragskalkulator.dto.førstesidegenerator.Språkkode
 import no.nav.bidrag.bidragskalkulator.mapper.tilPrivatAvtaleInformasjonDto
 import no.nav.bidrag.bidragskalkulator.service.PrivatAvtalePdfService
 import no.nav.bidrag.bidragskalkulator.service.PrivatAvtaleService
 import no.nav.bidrag.bidragskalkulator.utils.InnloggetBrukerUtils
 import no.nav.bidrag.bidragskalkulator.utils.JsonUtils
+import no.nav.bidrag.domene.ident.Personident
 import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
 import org.springframework.http.MediaType.APPLICATION_PDF
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
+import java.io.ByteArrayOutputStream
+import java.math.BigDecimal
 import kotlin.test.Test
 
 class PrivatAvtaleControllerTest: AbstractControllerTest() {
@@ -51,18 +52,17 @@ class PrivatAvtaleControllerTest: AbstractControllerTest() {
 
     @Test
     fun `skal gi feil hvis personIdent ikke kan hentes`() {
-
         every { innloggetBrukerUtils.hentPåloggetPersonIdent() } returns null
 
-        getRequest("/api/v1/privat-avtale/informasjon", gyldigOAuth2Token)
+        getRequest("/api/v1/privat-avtale/informasjon", ugyldigOAuth2Token)
             .andExpect(status().isUnauthorized)
-            .andExpect(jsonPath("$.error").value("Ugyldig token"))
+            .andExpect(jsonPath("$.detail").value("Ugyldig eller manglende token"))
     }
 
     @Test
     fun `skal generere privat avtale PDF`() {
         val personIdent = "12345678910"
-        val dto = lagGyldigPrivatAvtalePdfDto()
+        val dto = lagGyldigPrivatAvtaleBarnUnder18RequestDto()
 
         every { innloggetBrukerUtils.hentPåloggetPersonIdent() } returns personIdent
 
@@ -73,7 +73,7 @@ class PrivatAvtaleControllerTest: AbstractControllerTest() {
                 }
 
         postRequest(
-            "/api/v1/privat-avtale",
+            "/api/v1/privat-avtale/under-18",
             dto,
             gyldigOAuth2Token
         )
@@ -84,44 +84,49 @@ class PrivatAvtaleControllerTest: AbstractControllerTest() {
 
     @Test
     fun `skal gi feil hvis harAndreBestemmelser er true men beskrivelse mangler`() {
-        val dto = lagGyldigPrivatAvtalePdfDto().copy(
+        val dto = lagGyldigPrivatAvtaleBarnUnder18RequestDto().copy(
             andreBestemmelser = AndreBestemmelserSkjema(harAndreBestemmelser = true, beskrivelse = null)
         )
         val personIdent = "12345678910"
-
         every { innloggetBrukerUtils.hentPåloggetPersonIdent() } returns personIdent
+        every { privatAvtalePdfService.genererPrivatAvtalePdf(any(), any()) } returns ByteArrayOutputStream()
 
-        verify(exactly = 0) { privatAvtalePdfService.genererPrivatAvtalePdf(personIdent, any()) }
-
-        postRequest("/api/v1/privat-avtale", dto, gyldigOAuth2Token)
+        postRequest("/api/v1/privat-avtale/under-18", dto, gyldigOAuth2Token)
             .andExpect(status().isBadRequest)
-            .andExpect(jsonPath("$.detail").value("Feltet 'andreBestemmelserTekst' er påkrevd når 'harAndreBestemmelser' er true."))
+            .andExpect(jsonPath("\$.detail")
+                .value("andreBestemmelser.beskrivelse: beskrivelse må settes når harAndreBestemmelser=true"))
+
+        // Tjenesten skal ikke kalles når validering feiler
+        verify(exactly = 0) { privatAvtalePdfService.genererPrivatAvtalePdf(any(), any()) }
     }
 
     @Test
-    fun `skal gi feil hvis nyAvtale er false og oppgjorsformIdag er null`() {
-        val dto = lagGyldigPrivatAvtalePdfDto().copy(
-            oppgjør = Oppgjør(nyAvtale = false, oppgjørsformØnsket = Oppgjørsform.INNKREVING, oppgjørsformIdag = null)
+    fun `skal gi feil hvis nyAvtale er false og oppgjørsformIdag er null`() {
+        val dto = lagGyldigPrivatAvtaleBarnUnder18RequestDto().copy(
+            oppgjør = Oppgjør(
+                nyAvtale = false,
+                oppgjørsformØnsket = Oppgjørsform.INNKREVING,
+                oppgjørsformIdag = null // trigger @ValidOppgjør
+            )
         )
         val personIdent = "12345678910"
-
         every { innloggetBrukerUtils.hentPåloggetPersonIdent() } returns personIdent
+        every { privatAvtalePdfService.genererPrivatAvtalePdf(any(), any()) } returns ByteArrayOutputStream()
 
-        verify(exactly = 0) { privatAvtalePdfService.genererPrivatAvtalePdf(personIdent, any()) }
-
-        postRequest("/api/v1/privat-avtale", dto, gyldigOAuth2Token)
+        postRequest("/api/v1/privat-avtale/under-18", dto, gyldigOAuth2Token)
             .andExpect(status().isBadRequest)
-            .andExpect(jsonPath("$.detail").value("Feltet 'oppgjørsformIdag' er påkrevd når det er eksisterende avtale."))
+            .andExpect(jsonPath("\$.detail")
+                .value("oppgjør.oppgjørsformIdag: oppgjørsformIdag må settes når nyAvtale=false"))
+
+        verify(exactly = 0) { privatAvtalePdfService.genererPrivatAvtalePdf(any(), any()) }
     }
 
-
-    private fun lagGyldigPrivatAvtalePdfDto(): PrivatAvtalePdfDto {
-        return PrivatAvtalePdfDto(
-            navSkjemaId = NavSkjemaId.AVTALE_OM_BARNEBIDRAG_UNDER_18,
+    private fun lagGyldigPrivatAvtaleBarnUnder18RequestDto(): PrivatAvtaleBarnUnder18RequestDto {
+        return PrivatAvtaleBarnUnder18RequestDto(
             språk = Språkkode.NB,
-            bidragsmottaker = PrivatAvtaleBidragsmottaker("Ola", "Nordmann", "12345678901"),
-            bidragspliktig = PrivatAvtaleBidragspliktig("Kari", "Nordmann", "10987654321"),
-            barn = listOf(PrivatAvtaleBarn("Barn", "Nordmann", "01010112345", 1000.0, fraDato = "2025-01-01")),
+            bidragsmottaker = PrivatAvtalePart("Ola", "Nordmann", Personident("12345678901")),
+            bidragspliktig = PrivatAvtalePart("Kari", "Nordmann", Personident("10987654321")),
+            barn = listOf(PrivatAvtaleBarn("Barn", "Nordmann", Personident("01010112345"), BigDecimal("1000"), fraDato = "2025-01-01")),
             oppgjør = Oppgjør(nyAvtale = true, oppgjørsformØnsket = Oppgjørsform.INNKREVING),
             vedlegg = Vedleggskrav.INGEN_EKSTRA_DOKUMENTASJON,
             andreBestemmelser = AndreBestemmelserSkjema(false, null)

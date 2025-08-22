@@ -8,8 +8,8 @@ import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.media.Schema
 import no.nav.bidrag.bidragskalkulator.dto.Oppgjørsform
 import no.nav.bidrag.bidragskalkulator.dto.Vedleggskrav
-import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.NavSkjemaId
-import no.nav.bidrag.bidragskalkulator.dto.foerstesidegenerator.Språkkode
+import no.nav.bidrag.bidragskalkulator.dto.førstesidegenerator.NavSkjemaId
+import no.nav.bidrag.bidragskalkulator.dto.førstesidegenerator.Språkkode
 import no.nav.bidrag.domene.enums.beregning.Samværsklasse
 import org.springdoc.core.customizers.OpenApiCustomizer
 import org.springframework.context.annotation.Bean

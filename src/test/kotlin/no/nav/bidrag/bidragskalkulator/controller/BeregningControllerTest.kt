@@ -8,6 +8,7 @@ import no.nav.bidrag.bidragskalkulator.service.BeregningService
 import no.nav.bidrag.domene.enums.beregning.Samværsklasse
 import no.nav.bidrag.domene.ident.Personident
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -17,11 +18,6 @@ class BeregningControllerTest: AbstractControllerTest() {
     @MockkBean(relaxUnitFun = true)
     private lateinit var beregningService: BeregningService
 
-    @BeforeEach
-    fun setupMocks() {
-        every { runBlocking { beregningService.beregnBarnebidrag(mockGyldigRequest) } } returns mockRespons
-    }
-
     @Test
     fun `skal bekrefte at mock OAuth2-server kjører`() {
         val issuerUrl = mockOAuth2Server.issuerUrl("tokenx").toString()
@@ -29,87 +25,112 @@ class BeregningControllerTest: AbstractControllerTest() {
         assert(issuerUrl.contains("localhost"))
     }
 
-    @Test
-    fun `skal returnere 200 OK med gyldig OAuth2-token`() {
-        postRequest("/api/v1/beregning/barnebidrag", mockGyldigRequest, gyldigOAuth2Token)
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.resultater").isNotEmpty())
+    @Nested
+    inner class MedGyldigToken {
+        @BeforeEach
+        fun setupMocks() {
+            every { runBlocking { beregningService.beregnBarnebidrag(mockGyldigRequest) } } returns mockRespons
+        }
+
+        @Test
+        fun `skal returnere 200 OK med gyldig OAuth2-token`() {
+            postRequest("/api/v1/beregning/barnebidrag", mockGyldigRequest, gyldigOAuth2Token)
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("$.resultater").isNotEmpty())
+        }
+
+        @Test
+        fun `skal returnere 400 for negativ inntekt`() {
+            val request = mockGyldigRequest.copy(inntektForelder1 = -500000.0)
+
+            postRequest("/api/v1/beregning/barnebidrag", request, gyldigOAuth2Token)
+                .andExpect(status().isBadRequest)
+                .andExpect(jsonPath("$.detail").value("inntektForelder1: Inntekt for forelder 1 kan ikke være negativ"))
+        }
+
+        @Test
+        fun `skal returnere 400 for et tom barn liste`() {
+            val request = mockGyldigRequest.copy(barn = emptyList())
+
+            postRequest("/api/v1/beregning/barnebidrag", request, gyldigOAuth2Token)
+                .andExpect(status().isBadRequest)
+                .andExpect(jsonPath("$.detail").value("barn: Liste over barn kan ikke være tom"))
+        }
+
+        @Test
+        fun `skal returnere 400 hvis dittBoforhold mangler for PLIKTIG`() {
+            val ugyldigRequest = mockGyldigRequest.copy(dittBoforhold = null)
+
+            postRequest("/api/v1/beregning/barnebidrag", ugyldigRequest, gyldigOAuth2Token)
+                .andExpect(status().isBadRequest)
+                .andExpect(jsonPath("$.detail").value("'dittBoforhold' må være satt fordi forespørselen inneholder minst ett barn der du er bidragspliktig."))
+        }
+
+        @Test
+        fun `skal returnere 400 hvis medforelderBoforhold mangler for MOTTAKER`() {
+            val ugyldigRequest = mockGyldigRequest.copy(
+                barn = listOf(BarnMedIdentDto(ident = Personident(personIdent), samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0, bidragstype = BidragsType.MOTTAKER))
+            )
+
+            postRequest("/api/v1/beregning/barnebidrag", ugyldigRequest, gyldigOAuth2Token)
+                .andExpect(status().isBadRequest)
+                .andExpect(jsonPath("$.detail").value("'medforelderBoforhold' må være satt fordi forespørselen inneholder minst ett barn der du er bidragsmottaker."))
+        }
+
+        @Test
+        fun `skal returnere 400 hvis bruker er både bidragsmottaker og bidragspliktig, og begge boforhold mangler`() {
+            val ugyldigRequest = mockGyldigRequest.copy(
+                barn = listOf(
+                    BarnMedIdentDto(ident = Personident(personIdent), samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0, bidragstype = BidragsType.MOTTAKER),
+                    BarnMedIdentDto(ident = Personident(personIdent), samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0, bidragstype = BidragsType.PLIKTIG)
+                ),
+                dittBoforhold = null,
+                medforelderBoforhold = null
+            )
+
+            postRequest("/api/v1/beregning/barnebidrag", ugyldigRequest, gyldigOAuth2Token)
+                .andExpect(status().isBadRequest)
+                .andExpect(jsonPath("$.detail").value("Både 'dittBoforhold' og 'medforelderBoforhold' mangler, men må være satt når forespørselen inneholder barn der du er bidragspliktig og/eller bidragsmottaker."))
+        }
+
+        @Test
+        fun `skal returnere 400 hvis bruker er både bidragsmottaker og bidragspliktig, og medforelderBoforhold mangler i forespørselen`() {
+            val ugyldigRequest = mockGyldigRequest.copy(
+                barn = listOf(
+                    BarnMedIdentDto(ident = Personident(personIdent), samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0, bidragstype = BidragsType.MOTTAKER),
+                    BarnMedIdentDto(ident = Personident(personIdent), samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0, bidragstype = BidragsType.PLIKTIG)
+                ),
+                medforelderBoforhold = null
+            )
+
+            postRequest("/api/v1/beregning/barnebidrag", ugyldigRequest, gyldigOAuth2Token)
+                .andExpect(status().isBadRequest)
+                .andExpect(jsonPath("$.detail").value("'medforelderBoforhold' må være satt fordi forespørselen inneholder minst ett barn der du er bidragsmottaker."))
+        }
+
     }
 
-    @Test
-    fun `skal returnere 401 Unauthorized når ingen token er gitt`() {
-
-        postRequest("/api/v1/beregning/barnebidrag", mockGyldigRequest)
-            .andExpect(status().isUnauthorized)
-    }
-
-    @Test
-    fun `skal returnere 400 for negativ inntekt`() {
-        val request = mockGyldigRequest.copy(inntektForelder1 = -500000.0)
-
-        postRequest("/api/v1/beregning/barnebidrag", request, gyldigOAuth2Token)
-            .andExpect(status().isBadRequest)
-            .andExpect(jsonPath("$.errors[0]").value("inntektForelder1: Inntekt for forelder 1 kan ikke være negativ"))
-    }
-
-    @Test
-    fun `skal returnere 400 for et tom barn liste`() {
-        val request = mockGyldigRequest.copy(barn = emptyList())
-
-        postRequest("/api/v1/beregning/barnebidrag", request, gyldigOAuth2Token)
-            .andExpect(status().isBadRequest)
-            .andExpect(jsonPath("$.errors[0]").value("barn: Liste over barn kan ikke være tom"))
-    }
-
-    @Test
-    fun `skal returnere 400 hvis dittBoforhold mangler for PLIKTIG`() {
-        val ugyldigRequest = mockGyldigRequest.copy(dittBoforhold = null)
-
-        postRequest("/api/v1/beregning/barnebidrag", ugyldigRequest, gyldigOAuth2Token)
-            .andExpect(status().isBadRequest)
-            .andExpect(jsonPath("$.errors[0]").value("'dittBoforhold' må være satt fordi forespørselen inneholder minst ett barn der du er bidragspliktig."))
-    }
-
-    @Test
-    fun `skal returnere 400 hvis medforelderBoforhold mangler for MOTTAKER`() {
-        val ugyldigRequest = mockGyldigRequest.copy(
-            barn = listOf(BarnMedIdentDto(ident = Personident(personIdent), samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0, bidragstype = BidragsType.MOTTAKER))
-        )
-
-        postRequest("/api/v1/beregning/barnebidrag", ugyldigRequest, gyldigOAuth2Token)
-            .andExpect(status().isBadRequest)
-            .andExpect(jsonPath("$.errors[0]").value("'medforelderBoforhold' må være satt fordi forespørselen inneholder minst ett barn der du er bidragsmottaker."))
-    }
-
-    @Test
-    fun `skal returnere 400 hvis bruker er både bidragsmottaker og bidragspliktig, og begge boforhold mangler`() {
+    @Nested
+    inner class MedUgyldigToken {
         val ugyldigRequest = mockGyldigRequest.copy(
             barn = listOf(
                 BarnMedIdentDto(ident = Personident(personIdent), samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0, bidragstype = BidragsType.MOTTAKER),
                 BarnMedIdentDto(ident = Personident(personIdent), samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0, bidragstype = BidragsType.PLIKTIG)
-                ),
-            dittBoforhold = null,
+            ),
             medforelderBoforhold = null
         )
 
-        postRequest("/api/v1/beregning/barnebidrag", ugyldigRequest, gyldigOAuth2Token)
-            .andExpect(status().isBadRequest)
-            .andExpect(jsonPath("$.errors[0]").value("Både 'dittBoforhold' og 'medforelderBoforhold' mangler, men må være satt når forespørselen inneholder barn der du er bidragspliktig og/eller bidragsmottaker."))
-    }
+        @Test
+        fun `skal returnere 401 Unauthorized når token mangler`() {
+            postRequest("/api/v1/beregning/barnebidrag", ugyldigRequest)
+                .andExpect(status().isUnauthorized)
+        }
 
-    @Test
-    fun `skal returnere 400 hvis bruker er både bidragsmottaker og bidragspliktig, og medforelderBoforhold mangler i forespørselen`() {
-        val ugyldigRequest = mockGyldigRequest.copy(
-            barn = listOf(
-                BarnMedIdentDto(ident = Personident(personIdent), samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0, bidragstype = BidragsType.MOTTAKER),
-                BarnMedIdentDto(ident = Personident(personIdent), samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0, bidragstype = BidragsType.PLIKTIG)
-                ),
-            medforelderBoforhold = null
-        )
-
-        postRequest("/api/v1/beregning/barnebidrag", ugyldigRequest, gyldigOAuth2Token)
-            .andExpect(status().isBadRequest)
-            .andExpect(jsonPath("$.errors[0]").value("'medforelderBoforhold' må være satt fordi forespørselen inneholder minst ett barn der du er bidragsmottaker."))
+        @Test
+        fun `skal returnere 401 Unauthorized når ugyldig token er gitt`() {
+            postRequest("/api/v1/beregning/barnebidrag", ugyldigRequest, ugyldigOAuth2Token)
+                .andExpect(status().isUnauthorized)
+        }
     }
 
     companion object TestData {

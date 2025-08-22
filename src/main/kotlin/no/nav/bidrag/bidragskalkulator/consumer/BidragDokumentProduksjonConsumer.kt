@@ -1,10 +1,9 @@
 package no.nav.bidrag.bidragskalkulator.consumer
 
 import no.nav.bidrag.bidragskalkulator.config.DokumentproduksjonConfigurationProperties
-import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtalePdfDto
+import no.nav.bidrag.bidragskalkulator.dto.GenererPrivatAvtalePdfRequest
 import no.nav.bidrag.commons.util.secureLogger
 import org.springframework.http.HttpHeaders
-import org.springframework.http.MediaType
 import org.springframework.util.StreamUtils
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
@@ -13,7 +12,8 @@ import java.io.IOException
 
 class BidragDokumentProduksjonConsumer(
     val properties: DokumentproduksjonConfigurationProperties,
-    restTemplate: RestTemplate
+    restTemplate: RestTemplate,
+    private val headers: HttpHeaders
 ) : BaseConsumer(restTemplate, "bidrag.dokumentproduksjon") {
 
     init {
@@ -28,17 +28,14 @@ class BidragDokumentProduksjonConsumer(
             .toUri()
     }
 
-    fun genererPrivatAvtaleAPdf(privatAvtaleDto: PrivatAvtalePdfDto): ByteArrayOutputStream =
+    fun genererPrivatAvtaleAPdf(genererPrivatAvtalePdfRequest: GenererPrivatAvtalePdfRequest): ByteArrayOutputStream =
         medApplikasjonsKontekst {
-            val headers = HttpHeaders().apply {
-                accept = listOf(MediaType.APPLICATION_PDF)
-                contentType = MediaType.APPLICATION_JSON
-            }
-
             val outputStream = ByteArrayOutputStream()
             ByteArrayOutputStream().use {
                 try {
-                    val response = postForNonNullEntity<ByteArray>(produserPdfuri, privatAvtaleDto, headers)
+                    val response = postForNonNullEntity<ByteArray>(produserPdfuri,
+                        genererPrivatAvtalePdfRequest,
+                        headers)
                     response.let { StreamUtils.copy(it, outputStream) }
                 } catch (e: IOException) {
                     secureLogger.error(e) { "Feil ved generering av privat avtale PDF: ${e.message}" }
