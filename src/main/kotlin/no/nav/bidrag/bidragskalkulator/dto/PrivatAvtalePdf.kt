@@ -1,5 +1,6 @@
 package no.nav.bidrag.bidragskalkulator.dto
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnore
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.Valid
@@ -140,9 +141,11 @@ data class Bidrag(
     val bidragPerMåned: BigDecimal,
 
     @param:Schema(description = "Bidraget skal betales fra og med", required = true, example = "2025-01")
+    @param:JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM")
     val fraDato: YearMonth,
 
     @param:Schema(description = "Bidraget skal betales til og med", required = true, example = "2025-02")
+    @param:JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM")
     val tilDato: YearMonth
 )
 
