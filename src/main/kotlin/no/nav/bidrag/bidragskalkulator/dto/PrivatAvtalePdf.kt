@@ -14,6 +14,7 @@ import no.nav.bidrag.bidragskalkulator.validering.ValidAndreBestemmelser
 import no.nav.bidrag.bidragskalkulator.validering.ValidOppgjør
 import no.nav.bidrag.domene.ident.Personident
 import java.math.BigDecimal
+import java.time.YearMonth
 
 private const val FEILMELDING_FORNAVN = "Fornavn må være utfylt"
 private const val FEILMELDING_ETTERNAVN = "Etternavn må være utfylt"
@@ -135,15 +136,14 @@ data class Oppgjør(
 
 @Schema(description = "Informasjon om bidrag som skal betales i en privat avtale for barn over 18 år")
 data class Bidrag(
-    @param:Min(value = 1, message = "Beløpet må være større enn 0")
     @param:Schema(description = "Bidragsbeløp per måned i NOK", required = true, example = "1000")
     val bidragPerMåned: BigDecimal,
 
-    @param:Schema(description = "Bidraget skal betales fra og med", required = true, example = "01-2025")
-    val fraDato: String,
+    @param:Schema(description = "Bidraget skal betales fra og med", required = true, example = "2025-01")
+    val fraDato: YearMonth,
 
-    @param:Schema(description = "Bidraget skal betales til og med", required = true, example = "12-2025")
-    val tilDato: String
+    @param:Schema(description = "Bidraget skal betales til og med", required = true, example = "2025-02")
+    val tilDato: YearMonth
 )
 
 @Schema(description = "Informasjon for generering av en privat avtale PDF for barn under 18 år")
