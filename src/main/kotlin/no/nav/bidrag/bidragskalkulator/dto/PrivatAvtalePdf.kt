@@ -63,14 +63,14 @@ data class PrivatAvtalePart(
 
     @param:NotBlank(message = FEILMELDING_FODSELSNUMMER)
     @param:Schema(
-        description = "Partens personnummer (11 siffer)",
+        description = "Partens personnummer r eller d-nummer (11 siffer)",
         required = true,
         example = "12345678901"
     )
     override val ident: Personident,
 ) : PrivatAvtalePerson
 
-@Schema(description = "Informasjon om barnet i en privat avtale")
+@Schema(description = "Informasjon om barn under 18 år i en privat avtale")
 data class PrivatAvtaleBarn(
     @param:NotBlank(message = FEILMELDING_FORNAVN)
     @param:Schema(
@@ -90,14 +90,13 @@ data class PrivatAvtaleBarn(
 
     @param:NotBlank(message = FEILMELDING_FODSELSNUMMER)
     @param:Schema(
-        description = "Barn personnummer (11 siffer)",
+        description = "Barnets personnummer eller d-nummer (11 siffer)",
         required = true,
         example = "12345678901"
     )
     override val ident: Personident,
 
-    @param:Min(value = 1, message = "Bidraget må være større enn 0")
-    @param:Schema(description = "Barnets fødselsnummer", required = true, example = "2000")
+    @param:Schema(description = "Barnets fødselsnummer eller d-nummer (11 siffer)", required = true, example = "12345678901")
     val sumBidrag: BigDecimal,  // Beløp in NOK
 
     @param:Schema(description = "Gjelder fra og med dato (YYYY-MM-DD)", required = true, example = "2022-01-01")
@@ -134,7 +133,7 @@ data class Oppgjør(
     val oppgjørsformIdag: Oppgjørsform? = null
 )
 
-@Schema(description = "Informasjon om bidrag som skal betales i en privat avtale")
+@Schema(description = "Informasjon om bidrag som skal betales i en privat avtale for barn over 18 år")
 data class Bidrag(
     @param:Min(value = 1, message = "Beløpet må være større enn 0")
     @param:Schema(description = "Bidragsbeløp per måned i NOK", required = true, example = "1000")
