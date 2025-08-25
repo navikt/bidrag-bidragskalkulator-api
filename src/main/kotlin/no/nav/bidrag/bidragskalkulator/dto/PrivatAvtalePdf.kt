@@ -100,8 +100,8 @@ data class PrivatAvtaleBarn(
     @param:Schema(description = "Barnets fødselsnummer eller d-nummer (11 siffer)", required = true, example = "12345678901")
     val sumBidrag: BigDecimal,  // Beløp in NOK
 
-    @param:Schema(description = "Gjelder fra og med dato (YYYY-MM-DD)", required = true, example = "2022-01-01")
-    @param:JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @param:Schema(description = "Gjelder fra og med dato (dd.MM.yyyy)", required = true, example = "01.01.2025")
+    @param:JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy")
     val fraDato: LocalDate,
 ) : PrivatAvtalePerson
 

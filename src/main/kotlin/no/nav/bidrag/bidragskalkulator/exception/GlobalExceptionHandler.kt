@@ -73,7 +73,7 @@ class GlobalExceptionHandler {
             if (target == LocalDate::class.java) {
                 val field = cause.path.lastOrNull()?.let(JsonMappingException.Reference::getFieldName) ?: "ukjent felt"
                 val provided = cause.value?.toString() ?: "null"
-                val msg = "Ugyldig datoformat for felt '$field'. Forventet format er 'YYYY-MM-DD' (f.eks. 2025-08-01). Mottok: '$provided'."
+                val msg = "Ugyldig datoformat for felt '$field'. Forventet format er 'dd.MM.yyyyD' (f.eks. 08.01.2025). Mottok: '$provided'."
                 return problem(HttpStatus.BAD_REQUEST, msg, msg)
             }
         }
@@ -92,7 +92,7 @@ class GlobalExceptionHandler {
                 "Ugyldig verdi '${e.value}' for parameter '${e.name}'. Forventet format for YearMonth er 'yyyy-MM' (f.eks. 2025-08)."
             }
             required == LocalDate::class.java -> {
-                "Ugyldig verdi '${e.value}' for parameter '${e.name}'. Forventet format for YearMonth er 'YYYY-MM-DD' (f.eks. 2025-08-01)."
+                "Ugyldig verdi '${e.value}' for parameter '${e.name}'. Forventet format for YearMonth er 'dd.MM.yyyy' (f.eks. 08.01.2025)."
             }
             required != null && required.isEnum -> {
                 val allowed = required.enumConstants.joinToString(", ") { (it as Enum<*>).name }
