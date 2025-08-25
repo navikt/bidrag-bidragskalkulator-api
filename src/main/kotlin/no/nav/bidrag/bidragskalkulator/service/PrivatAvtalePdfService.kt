@@ -19,7 +19,7 @@ import kotlin.time.measureTimedValue
 @Service
 class PrivatAvtalePdfService(
     val bidragDokumentConsumer: BidragDokumentProduksjonConsumer,
-    val foerstesideConsumer: FørstesidegeneratorConsumer,
+    val førstesideConsumer: FørstesidegeneratorConsumer,
     val pdfProcessor: PdfProsessor
 ) {
 
@@ -47,7 +47,7 @@ class PrivatAvtalePdfService(
 
         if(normalisertDto.oppgjør.skalFørstesideGenereres()) {
             val request = normalisertDto.tilGenererFørstesideRequestDto(innsenderIdent)
-            val førsteside = measureTimedValue { foerstesideConsumer.genererFørsteside(request).foersteside }
+            val førsteside = measureTimedValue { førstesideConsumer.genererFørsteside(request).foersteside }
                 .also { logger
                     .info("Privat avtale for barn $label: Førsteside generert på ${it.duration.inWholeMilliseconds} ms") }
                 .value

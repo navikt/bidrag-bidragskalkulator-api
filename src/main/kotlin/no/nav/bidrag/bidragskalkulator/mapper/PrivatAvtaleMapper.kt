@@ -10,7 +10,6 @@ import no.nav.bidrag.bidragskalkulator.dto.førstesidegenerator.FørstesideBruke
 import no.nav.bidrag.bidragskalkulator.dto.førstesidegenerator.GenererFørstesideRequestDto
 import no.nav.bidrag.bidragskalkulator.dto.førstesidegenerator.Foerstesidetype
 import no.nav.bidrag.bidragskalkulator.dto.førstesidegenerator.NavSkjemaId
-import no.nav.bidrag.bidragskalkulator.utils.tilNorskDatoFormat
 
 fun PrivatAvtalePdf.navnSkjemaIdFor(): NavSkjemaId = when (this) {
     is PrivatAvtaleBarnUnder18RequestDto -> NavSkjemaId.AVTALE_OM_BARNEBIDRAG_UNDER_18
@@ -50,7 +49,7 @@ fun PrivatAvtaleBarnUnder18RequestDto.normalisert(): PrivatAvtaleBarnUnder18Requ
         barn = barn
             .asSequence()
             .sortedBy { it.fraDato }
-            .map { it.copy(fraDato = it.fraDato.tilNorskDatoFormat()) }
+            .map { it.copy(fraDato = it.fraDato) }
             .toList()
     )
 

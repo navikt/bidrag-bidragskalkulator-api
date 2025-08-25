@@ -13,6 +13,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
+import java.time.LocalDate
 import java.time.YearMonth
 
 @RestControllerAdvice
@@ -68,6 +69,13 @@ class GlobalExceptionHandler {
                 val msg = "Ugyldig datoformat for felt '$field'. Forventet format er 'yyyy-MM' (f.eks. 2025-08). Mottok: '$provided'."
                 return problem(HttpStatus.BAD_REQUEST, msg, msg)
             }
+
+            if (target == LocalDate::class.java) {
+                val field = cause.path.lastOrNull()?.let(JsonMappingException.Reference::getFieldName) ?: "ukjent felt"
+                val provided = cause.value?.toString() ?: "null"
+                val msg = "Ugyldig datoformat for felt '$field'. Forventet format er 'YYYY-MM-DD' (f.eks. 2025-08-01). Mottok: '$provided'."
+                return problem(HttpStatus.BAD_REQUEST, msg, msg)
+            }
         }
         return problem(HttpStatus.BAD_REQUEST, "Ugyldig request body (kunne ikke tolkes).")
     }
@@ -82,6 +90,9 @@ class GlobalExceptionHandler {
         val msg = when {
             required == YearMonth::class.java -> {
                 "Ugyldig verdi '${e.value}' for parameter '${e.name}'. Forventet format for YearMonth er 'yyyy-MM' (f.eks. 2025-08)."
+            }
+            required == LocalDate::class.java -> {
+                "Ugyldig verdi '${e.value}' for parameter '${e.name}'. Forventet format for YearMonth er 'YYYY-MM-DD' (f.eks. 2025-08-01)."
             }
             required != null && required.isEnum -> {
                 val allowed = required.enumConstants.joinToString(", ") { (it as Enum<*>).name }

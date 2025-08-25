@@ -13,6 +13,7 @@ import no.nav.bidrag.bidragskalkulator.validering.ValidAndreBestemmelser
 import no.nav.bidrag.bidragskalkulator.validering.ValidOppgjør
 import no.nav.bidrag.domene.ident.Personident
 import java.math.BigDecimal
+import java.time.LocalDate
 import java.time.YearMonth
 
 private const val FEILMELDING_FORNAVN = "Fornavn må være utfylt"
@@ -100,7 +101,8 @@ data class PrivatAvtaleBarn(
     val sumBidrag: BigDecimal,  // Beløp in NOK
 
     @param:Schema(description = "Gjelder fra og med dato (YYYY-MM-DD)", required = true, example = "2022-01-01")
-    val fraDato: String,
+    @param:JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    val fraDato: LocalDate,
 ) : PrivatAvtalePerson
 
 @ValidAndreBestemmelser
