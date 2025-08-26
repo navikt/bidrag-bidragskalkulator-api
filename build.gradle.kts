@@ -4,23 +4,23 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 group = "com.github.navikt"
 version = "0.0.1-SNAPSHOT"
 
-val bidragBeregnFellesVersion = "2025.08.08.151719"
-val bidragFellesVersion = "2025.08.09.141624"
-val kotlinLoggingJvmVersion = "7.0.12"
-val springDocWebmvcVersion = "2.8.9"
+val bidragBeregnFellesVersion = "2025.08.25.192329"
+val bidragFellesVersion = "2025.08.22.153257"
+val kotlinLoggingJvmVersion = "7.0.13"
+val springDocWebmvcVersion = "2.8.11"
 val springmockkVersion = "4.0.2"
 val tokenSupportVersion = "5.0.34"
 val jacksonVersion = "2.19.2"
 val junitJupiterVersion = "5.13.4"
 val coroutinesVersion = "1.10.2"
 val pdfBoxVersion = "2.0.31"
-val micrometerPrometheusVersion = "1.15.2"
+val micrometerPrometheusVersion = "1.15.3"
 
 plugins {
-    id("org.jetbrains.kotlin.plugin.spring") version "2.2.0"
-    id("org.springframework.boot") version "3.5.4"
+    id("org.jetbrains.kotlin.plugin.spring") version "2.2.10"
+    id("org.springframework.boot") version "3.5.5"
     id("io.spring.dependency-management") version "1.1.7"
-    kotlin("jvm") version "2.2.0"
+    kotlin("jvm") version "2.2.10"
     id("java")
     id("maven-publish")
 }
