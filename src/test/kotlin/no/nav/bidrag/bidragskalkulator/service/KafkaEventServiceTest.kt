@@ -39,7 +39,6 @@ class KafkaEventServiceTest {
 
     @AfterEach
     fun tearDown() {
-    }
 
 
     @Test
