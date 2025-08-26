@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayOutputStream
 import java.math.BigDecimal
+import java.time.LocalDate
 
 class PrivatAvtalePdfServiceTest {
 
@@ -51,7 +52,7 @@ class PrivatAvtalePdfServiceTest {
                 PrivatAvtaleBarn(
                     "Barn", "Etternavnesen", Personident("11111111111"),
                     sumBidrag = BigDecimal("1000"),
-                    fraDato = "2025-01-01"
+                    fraDato = LocalDate.now()
                 )
             ),
             oppgjør = Oppgjør(nyAvtale = nyAvtale, oppgjørsformØnsket = ønsket, oppgjørsformIdag = idag),

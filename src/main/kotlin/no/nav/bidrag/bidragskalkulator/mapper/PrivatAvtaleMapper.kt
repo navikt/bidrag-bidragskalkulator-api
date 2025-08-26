@@ -44,6 +44,22 @@ fun PrivatAvtalePdf.tilGenererFørstesideRequestDto(innsenderIdent: String,
     )
 }
 
+fun PrivatAvtaleBarnUnder18RequestDto.normalisert(): PrivatAvtaleBarnUnder18RequestDto =
+    copy(
+        barn = barn
+            .asSequence()
+            .sortedBy { it.fraDato }
+            .map { it.copy(fraDato = it.fraDato) }
+            .toList()
+    )
+
+
+fun PrivatAvtaleBarnOver18RequestDto.normalisert(): PrivatAvtaleBarnOver18RequestDto =
+    copy(
+        bidrag = bidrag.sortedBy { it.fraDato }
+    )
+
+
 /**
  * Sjekker om førsteside skal genereres basert på oppgjørsform og avtaletype.
  * - For ny avtale: Generer kun når ønsket oppgjørsform er INNKREVING.

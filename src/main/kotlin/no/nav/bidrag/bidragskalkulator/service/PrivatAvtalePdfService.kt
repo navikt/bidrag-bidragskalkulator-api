@@ -5,6 +5,7 @@ import no.nav.bidrag.bidragskalkulator.consumer.FørstesidegeneratorConsumer
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtaleBarnOver18RequestDto
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtaleBarnUnder18RequestDto
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtalePdf
+import no.nav.bidrag.bidragskalkulator.mapper.normalisert
 import no.nav.bidrag.bidragskalkulator.mapper.skalFørstesideGenereres
 import no.nav.bidrag.bidragskalkulator.mapper.tilGenererFørstesideRequestDto
 import no.nav.bidrag.bidragskalkulator.mapper.tilGenererPrivatAvtalePdfRequest
@@ -18,7 +19,7 @@ import kotlin.time.measureTimedValue
 @Service
 class PrivatAvtalePdfService(
     val bidragDokumentConsumer: BidragDokumentProduksjonConsumer,
-    val foerstesideConsumer: FørstesidegeneratorConsumer,
+    val førstesideConsumer: FørstesidegeneratorConsumer,
     val pdfProcessor: PdfProsessor
 ) {
 
@@ -29,35 +30,35 @@ class PrivatAvtalePdfService(
         innsenderIdent: String,
         dto: PrivatAvtalePdf
     ): ByteArrayOutputStream {
-        val (label, dto) = when (dto) {
-            is PrivatAvtaleBarnUnder18RequestDto -> "under 18 år" to dto.medNorskeDatoer()
-            is PrivatAvtaleBarnOver18RequestDto -> "over 18 år" to dto
+        val (label, normalisertDto) = when (dto) {
+            is PrivatAvtaleBarnUnder18RequestDto -> "under 18 år" to dto.normalisert()
+            is PrivatAvtaleBarnOver18RequestDto -> "over 18 år" to dto.normalisert()
         }
 
         logger.info("Privat avtale for barn $label: Starter generering av PDF for privat avtale")
 
         val hovedDokument = measureTimedValue { bidragDokumentConsumer
-            .genererPrivatAvtaleAPdf(dto.tilGenererPrivatAvtalePdfRequest()) }
+            .genererPrivatAvtaleAPdf(normalisertDto.tilGenererPrivatAvtalePdfRequest()) }
             .also { logger
                 .info("Privat avtale for barn $label: Hoveddokument generert på ${it.duration.inWholeMilliseconds} ms") }
             .value.toByteArray()
 
         val dokumenter = mutableListOf(hovedDokument)
 
-        if(dto.oppgjør.skalFørstesideGenereres()) {
-            val request = dto.tilGenererFørstesideRequestDto(innsenderIdent)
-            val førsteside = measureTimedValue { foerstesideConsumer.genererFørsteside(request).foersteside }
+        if(normalisertDto.oppgjør.skalFørstesideGenereres()) {
+            val request = normalisertDto.tilGenererFørstesideRequestDto(innsenderIdent)
+            val førsteside = measureTimedValue { førstesideConsumer.genererFørsteside(request).foersteside }
                 .also { logger
                     .info("Privat avtale for barn $label: Førsteside generert på ${it.duration.inWholeMilliseconds} ms") }
                 .value
-            
+
               dokumenter.add(0, førsteside)
         }
 
-        val sammenslaatt = pdfProcessor.prosesserOgSlåSammenDokumenter(dokumenter)
-        
+        val sammenslått = pdfProcessor.prosesserOgSlåSammenDokumenter(dokumenter)
+
         return ByteArrayOutputStream().apply {
-            write(sammenslaatt)
+            write(sammenslått)
         }
     }
 }

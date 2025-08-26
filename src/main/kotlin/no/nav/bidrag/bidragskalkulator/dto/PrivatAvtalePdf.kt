@@ -1,19 +1,20 @@
 package no.nav.bidrag.bidragskalkulator.dto
 
-import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonFormat
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.Valid
-import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
 import no.nav.bidrag.bidragskalkulator.dto.førstesidegenerator.NavSkjemaId
 import no.nav.bidrag.bidragskalkulator.dto.førstesidegenerator.Språkkode
-import no.nav.bidrag.bidragskalkulator.utils.tilNorskDatoFormat
+import no.nav.bidrag.bidragskalkulator.validering.GyldigPeriode
 import no.nav.bidrag.bidragskalkulator.validering.ValidAndreBestemmelser
 import no.nav.bidrag.bidragskalkulator.validering.ValidOppgjør
 import no.nav.bidrag.domene.ident.Personident
 import java.math.BigDecimal
+import java.time.LocalDate
+import java.time.YearMonth
 
 private const val FEILMELDING_FORNAVN = "Fornavn må være utfylt"
 private const val FEILMELDING_ETTERNAVN = "Etternavn må være utfylt"
@@ -99,8 +100,9 @@ data class PrivatAvtaleBarn(
     @param:Schema(description = "Barnets fødselsnummer eller d-nummer (11 siffer)", required = true, example = "12345678901")
     val sumBidrag: BigDecimal,  // Beløp in NOK
 
-    @param:Schema(description = "Gjelder fra og med dato (YYYY-MM-DD)", required = true, example = "2022-01-01")
-    val fraDato: String,
+    @param:Schema(description = "Gjelder fra og med dato (dd.MM.yyyy)", required = true, example = "01.01.2025")
+    @param:JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy")
+    val fraDato: LocalDate,
 ) : PrivatAvtalePerson
 
 @ValidAndreBestemmelser
@@ -133,17 +135,19 @@ data class Oppgjør(
     val oppgjørsformIdag: Oppgjørsform? = null
 )
 
+@GyldigPeriode
 @Schema(description = "Informasjon om bidrag som skal betales i en privat avtale for barn over 18 år")
 data class Bidrag(
-    @param:Min(value = 1, message = "Beløpet må være større enn 0")
     @param:Schema(description = "Bidragsbeløp per måned i NOK", required = true, example = "1000")
     val bidragPerMåned: BigDecimal,
 
-    @param:Schema(description = "Bidraget skal betales fra og med", required = true, example = "01-2025")
-    val fraDato: String,
+    @param:Schema(description = "Bidraget skal betales fra og med", required = true, example = "2025-01")
+    @param:JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM")
+    val fraDato: YearMonth,
 
-    @param:Schema(description = "Bidraget skal betales til og med", required = true, example = "12-2025")
-    val tilDato: String
+    @param:Schema(description = "Bidraget skal betales til og med", required = true, example = "2025-02")
+    @param:JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM")
+    val tilDato: YearMonth
 )
 
 @Schema(description = "Informasjon for generering av en privat avtale PDF for barn under 18 år")
@@ -178,13 +182,7 @@ data class PrivatAvtaleBarnUnder18RequestDto(
     @field:Valid
     @param:Schema(description = "Eventuelle andre bestemmelser som er inkludert i avtalen", required = true)
     override val andreBestemmelser: AndreBestemmelserSkjema
-): PrivatAvtalePdf  {
-    @JsonIgnore
-    @Schema(hidden = true)
-    fun medNorskeDatoer(): PrivatAvtaleBarnUnder18RequestDto = this.copy(
-        barn = this.barn.map { it.copy(fraDato = it.fraDato.tilNorskDatoFormat()) },
-    )
-}
+): PrivatAvtalePdf
 
 @Schema(description = "Informasjon for generering av en privat avtale PDF for barn over 18 år")
 data class PrivatAvtaleBarnOver18RequestDto (

@@ -13,6 +13,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
+import java.time.LocalDate
+import java.time.YearMonth
 
 @RestControllerAdvice
 class GlobalExceptionHandler {
@@ -45,7 +47,8 @@ class GlobalExceptionHandler {
     }
 
     /**
-     * Gjelder typisk feil enum-verdi i JSON body (Jackson deserialisering).
+     * Kastes når Spring ikke klarer å deserialisere JSON-body til objektet.
+     * f.eks. ugyldig verdi i JSON for et felt (f.eks. "fraDato": "2025/08" når DTO har YearMonth) eller ugyldig enum-verdi i body
      */
     @ExceptionHandler(HttpMessageNotReadableException::class)
     fun handleHttpMessageNotReadable(e: HttpMessageNotReadableException): ProblemDetail {
@@ -59,21 +62,45 @@ class GlobalExceptionHandler {
                 val msg = "Ugyldig verdi '$provided' for felt '$field'. Tillatte verdier: $allowed."
                 return problem(HttpStatus.BAD_REQUEST, msg, msg)
             }
+
+            if (target == YearMonth::class.java) {
+                val field = cause.path.lastOrNull()?.let(JsonMappingException.Reference::getFieldName) ?: "ukjent felt"
+                val provided = cause.value?.toString() ?: "null"
+                val msg = "Ugyldig datoformat for felt '$field'. Forventet format er 'yyyy-MM' (f.eks. 2025-08). Mottok: '$provided'."
+                return problem(HttpStatus.BAD_REQUEST, msg, msg)
+            }
+
+            if (target == LocalDate::class.java) {
+                val field = cause.path.lastOrNull()?.let(JsonMappingException.Reference::getFieldName) ?: "ukjent felt"
+                val provided = cause.value?.toString() ?: "null"
+                val msg = "Ugyldig datoformat for felt '$field'. Forventet format er 'dd.MM.yyyyD' (f.eks. 08.01.2025). Mottok: '$provided'."
+                return problem(HttpStatus.BAD_REQUEST, msg, msg)
+            }
         }
         return problem(HttpStatus.BAD_REQUEST, "Ugyldig request body (kunne ikke tolkes).")
     }
 
     /**
-     * Gjelder typisk feil enum-verdi i query/path-parametre.
+     * Kastes når en query parameter eller path variable ikke kan konverteres til riktig type.
+     * f.eks. URL: /api/v1/bidrag?fraDato=2025/08 når metodesignaturen har fraDato: YearMonth.
      */
     @ExceptionHandler(MethodArgumentTypeMismatchException::class)
     fun handleMethodArgumentTypeMismatch(e: MethodArgumentTypeMismatchException): ProblemDetail {
         val required = e.requiredType
-        val msg = if (required != null && required.isEnum) {
-            val allowed = required.enumConstants.joinToString(", ") { (it as Enum<*>).name }
-            "Ugyldig verdi '${e.value}' for parameter '${e.name}'. Tillatte verdier: $allowed."
-        } else {
-            "Ugyldig verdi for parameter '${e.name}'. Forventet type: ${required?.simpleName ?: "ukjent"}."
+        val msg = when {
+            required == YearMonth::class.java -> {
+                "Ugyldig verdi '${e.value}' for parameter '${e.name}'. Forventet format for YearMonth er 'yyyy-MM' (f.eks. 2025-08)."
+            }
+            required == LocalDate::class.java -> {
+                "Ugyldig verdi '${e.value}' for parameter '${e.name}'. Forventet format for YearMonth er 'dd.MM.yyyy' (f.eks. 08.01.2025)."
+            }
+            required != null && required.isEnum -> {
+                val allowed = required.enumConstants.joinToString(", ") { (it as Enum<*>).name }
+                "Ugyldig verdi '${e.value}' for parameter '${e.name}'. Tillatte verdier: $allowed."
+            }
+            else -> {
+                "Ugyldig verdi for parameter '${e.name}'. Forventet type: ${required?.simpleName ?: "ukjent"}."
+            }
         }
         return problem(HttpStatus.BAD_REQUEST, msg, msg)
     }

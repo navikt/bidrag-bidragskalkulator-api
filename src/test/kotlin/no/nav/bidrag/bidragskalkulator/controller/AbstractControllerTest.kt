@@ -1,7 +1,10 @@
 package no.nav.bidrag.bidragskalkulator.controller
 
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import no.nav.security.mock.oauth2.MockOAuth2Server
-import no.nav.security.mock.oauth2.http.objectMapper
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -33,6 +36,11 @@ abstract class AbstractControllerTest {
 
     @Autowired
     protected lateinit var ugyldigOAuth2Token: String
+
+    protected val objectMapper = jacksonObjectMapper()
+        .registerKotlinModule()
+        .registerModule(JavaTimeModule())
+        .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
 
     protected fun postRequest(url: String, body: Any, token: String? = null): ResultActions {
         return mockMvc.perform(buildJsonRequest(post(url), body, token))
