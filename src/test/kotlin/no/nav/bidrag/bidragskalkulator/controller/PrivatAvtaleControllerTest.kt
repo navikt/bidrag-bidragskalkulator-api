@@ -22,6 +22,7 @@ import org.springframework.http.MediaType.APPLICATION_PDF
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 import java.io.ByteArrayOutputStream
 import java.math.BigDecimal
+import java.time.LocalDate
 import kotlin.test.Test
 
 class PrivatAvtaleControllerTest: AbstractControllerTest() {
@@ -67,7 +68,7 @@ class PrivatAvtaleControllerTest: AbstractControllerTest() {
         every { innloggetBrukerUtils.hentPåloggetPersonIdent() } returns personIdent
 
         every { privatAvtalePdfService.genererPrivatAvtalePdf(personIdent, dto) } returns
-                java.io.ByteArrayOutputStream().apply {
+                ByteArrayOutputStream().apply {
                     // Minimal PDF-like bytes: "%PDF-1.4\n%%EOF"
                     write(byteArrayOf(0x25, 0x50, 0x44, 0x46, 0x2D, 0x31, 0x2E, 0x34, 0x0A, 0x25, 0x25, 0x45, 0x4F, 0x46))
                 }
@@ -126,7 +127,10 @@ class PrivatAvtaleControllerTest: AbstractControllerTest() {
             språk = Språkkode.NB,
             bidragsmottaker = PrivatAvtalePart("Ola", "Nordmann", Personident("12345678901")),
             bidragspliktig = PrivatAvtalePart("Kari", "Nordmann", Personident("10987654321")),
-            barn = listOf(PrivatAvtaleBarn("Barn", "Nordmann", Personident("01010112345"), BigDecimal("1000"), fraDato = "2025-01-01")),
+            barn = listOf(PrivatAvtaleBarn(
+                "Barn", "Nordmann", Personident("01010112345"), BigDecimal("1000"),
+                fraDato = LocalDate.of(2025, 1, 15)
+            )),
             oppgjør = Oppgjør(nyAvtale = true, oppgjørsformØnsket = Oppgjørsform.INNKREVING),
             vedlegg = Vedleggskrav.INGEN_EKSTRA_DOKUMENTASJON,
             andreBestemmelser = AndreBestemmelserSkjema(false, null)
