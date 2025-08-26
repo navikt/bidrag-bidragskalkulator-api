@@ -20,6 +20,15 @@ updates:
       timezone: "Europe/Oslo"
     commit-message:
       prefix: "[dependency] "
+    groups:
+      minor-patch-updates:
+        applies-to: version-updates
+        update-types:
+          - "minor"
+          - "patch"
+        patterns:
+          - "*"
+
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
