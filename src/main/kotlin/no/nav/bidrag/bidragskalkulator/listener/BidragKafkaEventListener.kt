@@ -2,7 +2,6 @@ package no.nav.bidrag.bidragskalkulator.listener
 
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.bidrag.bidragskalkulator.service.BidragKafkaEventService
 import no.nav.bidrag.commons.util.secureLogger
 import no.nav.bidrag.transport.sak.Sakshendelse
