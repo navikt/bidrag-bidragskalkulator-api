@@ -31,11 +31,11 @@ class MinSideController(
         val bruker = innloggetBrukerUtils.hentPåloggetPersonIdent()
             ?: throw IllegalStateException("Ugyldig token, ingen pålogget bruker ident funnet")
 
-        logger.info("Henter dokumenter for bruker ")
+        logger.info("Henter dokumenter for en bruker ")
 
         val dokumenter = safSelvbetjeningService.hentSelvbetjeningJournalposter(bruker)
 
-        logger.info("Ferdig hentet ${dokumenter.journalposter.size} dokumenter for bruker")
+        logger.info("Ferdig hentet ${dokumenter.journalposter.size} dokumenter for brukeren")
 
         return ResponseEntity.ok(dokumenter)
     }
@@ -45,7 +45,7 @@ class MinSideController(
         @PathVariable journalpostId: String,
         @PathVariable dokumentInfoId: String
     ): ResponseEntity<ByteArray> {
-        logger.info("Henter dokument med journalpost- og dokumentinfo-ID for bruker")
+        logger.info("Henter dokument med journalpost- og dokumentinfo-ID for en bruker")
 
         try {
             val dokumentRespons = safSelvbetjeningService.hentDokument(journalpostId, dokumentInfoId)
@@ -56,7 +56,7 @@ class MinSideController(
             }
             headers.contentType = MediaType.APPLICATION_PDF
 
-            logger.info( "Ferdig hentet dokument med journalpost- og dokumentinfo-ID for bruker")
+            logger.info( "Ferdig hentet dokument med journalpost- og dokumentinfo-ID for brukeren")
 
             return ResponseEntity(dokumentRespons.dokument, headers, HttpStatus.OK)
         } catch (e: HttpClientErrorException) {

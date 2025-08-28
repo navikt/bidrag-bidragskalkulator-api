@@ -2,11 +2,11 @@ package no.nav.bidrag.bidragskalkulator.consumer
 
 import no.nav.bidrag.bidragskalkulator.config.BidragPersonConfigurationProperties
 import no.nav.bidrag.bidragskalkulator.exception.NoContentException
-import no.nav.bidrag.commons.util.secureLogger
 import no.nav.bidrag.domene.ident.Personident
 import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
 import no.nav.bidrag.transport.person.PersonDto
 import no.nav.bidrag.transport.person.PersonRequest
+import org.slf4j.LoggerFactory
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
@@ -16,6 +16,7 @@ class BidragPersonConsumer(
     val bidragPersonConfig: BidragPersonConfigurationProperties,
     restTemplate: RestTemplate
 ) : BaseConsumer(restTemplate, "bidrag.person") {
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     init {
         check(bidragPersonConfig.url.isNotEmpty()) { "bidrag.person.url mangler i konfigurasjon" }
@@ -42,7 +43,7 @@ class BidragPersonConsumer(
     }
 
     fun hentPerson(ident: Personident): PersonDto = medApplikasjonsKontekst {
-        secureLogger.info { "Henter informasjon for person" }
+        logger.info ( "Henter informasjon for person" )
         postSafely(hentPersonUri, PersonRequest(ident), ident)
     }
 
@@ -52,16 +53,16 @@ class BidragPersonConsumer(
         } catch (e: HttpServerErrorException) {
             when (e.statusCode.value()) {
                 404 -> {
-                    secureLogger.warn { "Fant ikke person i bidrag-person" }
+                    logger.warn ("Fant ikke person i bidrag-person")
                     throw NoContentException("Fant ikke person i bidrag-person")
                 }
                 else -> {
-                    secureLogger.error(e) { "Serverfeil fra bidrag-person" }
+                    logger.error("Serverfeil fra bidrag-person", e)
                     throw e
                 }
             }
         } catch (e: Exception) {
-            secureLogger.error(e) { "Uventet feil ved kall til bidrag-person" }
+            logger.error("Uventet feil ved kall til bidrag-person", e)
             throw e
         }
     }

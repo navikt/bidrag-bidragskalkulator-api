@@ -1,12 +1,12 @@
 package no.nav.bidrag.bidragskalkulator.consumer
 
 import no.nav.bidrag.bidragskalkulator.config.GrunnlagConfigurationProperties
-import no.nav.bidrag.commons.util.secureLogger
 import no.nav.bidrag.domene.enums.grunnlag.GrunnlagRequestType
 import no.nav.bidrag.domene.enums.vedtak.Formål
 import no.nav.bidrag.transport.behandling.grunnlag.request.GrunnlagRequestDto
 import no.nav.bidrag.transport.behandling.grunnlag.request.HentGrunnlagRequestDto
 import no.nav.bidrag.transport.behandling.grunnlag.response.HentGrunnlagDto
+import org.slf4j.LoggerFactory
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
@@ -17,6 +17,7 @@ class BidragGrunnlagConsumer(
     val grunnlagConfig: GrunnlagConfigurationProperties,
     restTemplate: RestTemplate,
 ) : BaseConsumer(restTemplate, "bidrag.grunnlag") {
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     companion object {
         /**
@@ -54,16 +55,16 @@ class BidragGrunnlagConsumer(
         } catch(e: HttpServerErrorException) {
             when (e.statusCode.value()) {
                 404 -> {
-                    secureLogger.warn { "Fant ikke person" }
+                    logger.warn ("Fant ikke grunnlag for person i bidrag-grunnlag")
                     throw e
                 }
                 else -> {
-                    secureLogger.error(e) { "Feil ved serverkall til bidrag-grunnlag" }
+                    logger.error("Feil ved serverkall til bidrag-grunnlag", e)
                     throw e
                 }
             }
         } catch (e: Exception) {
-            secureLogger.error(e) { "Uventet feil ved kall til bidrag-grunnlag - ${e.localizedMessage}" }
+            logger.error("Uventet feil ved kall til bidrag-grunnlag - ${e.localizedMessage}", e)
             throw e
         }
     }
