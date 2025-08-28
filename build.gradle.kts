@@ -58,7 +58,13 @@ dependencies {
     api("no.nav.bidrag:bidrag-commons-felles:${bidragFellesVersion}"){
         exclude(group = "io.github.oshai", module = "kotlin-logging-jvm")
         exclude(group = "jakarta.persistence", module = "jakarta.persistence-api")
+
     }
+
+    implementation("ch.qos.logback:logback-core")
+    implementation("ch.qos.logback:logback-classic")
+    implementation("net.logstash.logback:logstash-logback-encoder")
+
     api("no.nav.security:token-validation-spring:$tokenSupportVersion")
     api("no.nav.bidrag:bidrag-inntekt:${bidragBeregnFellesVersion}") {
         exclude(group = "com.google.errorprone", module = "error_prone_annotations")
@@ -84,7 +90,9 @@ dependencies {
     api("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
 
     // PDF
-    implementation("org.apache.pdfbox:pdfbox:${pdfBoxVersion}")
+    implementation("org.apache.pdfbox:pdfbox:${pdfBoxVersion}") {
+        exclude(group = "commons-logging", module = "commons-logging")
+    }
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
