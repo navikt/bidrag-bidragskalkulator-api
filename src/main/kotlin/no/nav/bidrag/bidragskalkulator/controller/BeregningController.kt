@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import jakarta.servlet.http.HttpServletRequest
 import no.nav.bidrag.bidragskalkulator.dto.BeregningsresultatDto
 import no.nav.bidrag.bidragskalkulator.dto.BeregningRequestDto
 import jakarta.validation.Valid
@@ -19,11 +20,17 @@ import no.nav.bidrag.bidragskalkulator.service.BeregningService
 import no.nav.bidrag.bidragskalkulator.validering.BeregningRequestValidator
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.api.Unprotected
+import org.slf4j.LoggerFactory
 import org.springframework.web.bind.annotation.*
+import kotlin.time.measureTimedValue
 
 @RestController
 @RequestMapping("/api/v1/beregning")
-class BeregningController(private val beregningService: BeregningService, meterRegistry: MeterRegistry ) {
+class BeregningController(
+    private val httpServletRequest: HttpServletRequest,
+    private val beregningService: BeregningService,
+    meterRegistry: MeterRegistry ) {
+    private val logger = LoggerFactory.getLogger(BeregningController::class.java)
 
 private val aapenBeregningCounter = Counter.builder("bidragskalkulator_antall_beregninger")
         .description("Antall beregninger utført")
@@ -42,12 +49,19 @@ private val aapenBeregningCounter = Counter.builder("bidragskalkulator_antall_be
     )
     @PostMapping("/barnebidrag")
     @ProtectedWithClaims(issuer = SecurityConstants.TOKENX)
-    fun beregnBarnebidrag(@Valid @RequestBody request: BeregningRequestDto): BeregningsresultatDto = runBlocking(
-        Dispatchers.IO + MDCContext()
-    ) {
+    fun beregnBarnebidrag(@Valid @RequestBody request: BeregningRequestDto): BeregningsresultatDto {
+        logger.info("Starter beregning av barnebidrag (endepunkt=${httpServletRequest.requestURI})")
         BeregningRequestValidator.valider(request)
-        aapenBeregningCounter.increment()
-        beregningService.beregnBarnebidrag(request)
+
+        val (resultat, varighet) = measureTimedValue {
+            runBlocking(Dispatchers.IO + MDCContext()) {
+                aapenBeregningCounter.increment()
+                beregningService.beregnBarnebidrag(request)
+            }
+        }
+
+        logger.info("Fullført beregning av barnebidrag på ${varighet.inWholeMilliseconds} ms")
+        return resultat
     }
 
     @Operation(summary = "Beregner barnebidrag",
@@ -61,12 +75,18 @@ private val aapenBeregningCounter = Counter.builder("bidragskalkulator_antall_be
     )
     @PostMapping("/barnebidrag/åpen")
     @Unprotected
-    fun beregnBarnebidragÅpen(@Valid @RequestBody request: ÅpenBeregningRequestDto): ÅpenBeregningsresultatDto  = runBlocking(
-        Dispatchers.IO + MDCContext()
-    ) {
+    fun beregnBarnebidragÅpen(@Valid @RequestBody request: ÅpenBeregningRequestDto): ÅpenBeregningsresultatDto {
+        logger.info("Starter beregning av barnebidrag uten autentisering (endepunkt=${httpServletRequest.requestURI})")
         BeregningRequestValidator.valider(request)
-        aapenBeregningCounter.increment()
-        beregningService.beregnBarnebidragAnonym(request)
 
+        val (resultat, varighet) = measureTimedValue {
+            runBlocking(Dispatchers.IO + MDCContext()) {
+                aapenBeregningCounter.increment()
+                beregningService.beregnBarnebidragAnonym(request)
+            }
+        }
+
+        logger.info("Fullført beregning av barnebidrag uten autentisering  på ${varighet.inWholeMilliseconds} ms")
+        return resultat
     }
 }

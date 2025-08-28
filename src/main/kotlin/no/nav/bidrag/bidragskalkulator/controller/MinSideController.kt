@@ -1,5 +1,6 @@
 package no.nav.bidrag.bidragskalkulator.controller
 
+import jakarta.servlet.http.HttpServletRequest
 import no.nav.bidrag.bidragskalkulator.config.SecurityConstants
 import no.nav.bidrag.bidragskalkulator.dto.minSide.MinSideDokumenterDto
 import no.nav.bidrag.bidragskalkulator.service.SafSelvbetjeningService
@@ -15,11 +16,13 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.client.HttpClientErrorException
+import kotlin.time.measureTimedValue
 
 @RestController
 @RequestMapping("/api/v1/minside")
 @ProtectedWithClaims(issuer = SecurityConstants.TOKENX)
 class MinSideController(
+    private val request: HttpServletRequest,
     private val safSelvbetjeningService: SafSelvbetjeningService,
     private val innloggetBrukerUtils: InnloggetBrukerUtils
 ) {
@@ -28,14 +31,13 @@ class MinSideController(
 
     @GetMapping("/dokumenter")
     fun hentSelvbetjeningDokumenter(): ResponseEntity<MinSideDokumenterDto> {
-        val bruker = innloggetBrukerUtils.hentPåloggetPersonIdent()
-            ?: throw IllegalStateException("Ugyldig token, ingen pålogget bruker ident funnet")
+        logger.info("Starter henting av dokumenter for en bruker (endepunkt=${request.requestURI})")
 
-        logger.info("Henter dokumenter for en bruker ")
+        val bruker = innloggetBrukerUtils.requirePåloggetPersonIdent(logger)
 
         val dokumenter = safSelvbetjeningService.hentSelvbetjeningJournalposter(bruker)
 
-        logger.info("Ferdig hentet ${dokumenter.journalposter.size} dokumenter for brukeren")
+        logger.info("Fullført henting ${dokumenter.journalposter.size} dokumenter for brukeren")
 
         return ResponseEntity.ok(dokumenter)
     }
@@ -45,20 +47,22 @@ class MinSideController(
         @PathVariable journalpostId: String,
         @PathVariable dokumentInfoId: String
     ): ResponseEntity<ByteArray> {
-        logger.info("Henter dokument med journalpost- og dokumentinfo-ID for en bruker")
+        logger.info("Start henting av dokument med journalpost- og dokumentinfo-ID for en bruker (endepunkt=${request.requestURI})")
 
         try {
-            val dokumentRespons = safSelvbetjeningService.hentDokument(journalpostId, dokumentInfoId)
+            val (resultat, varighet) = measureTimedValue {
+                safSelvbetjeningService.hentDokument(journalpostId, dokumentInfoId)
+            }
+
 
             val headers = HttpHeaders()
-            if (dokumentRespons.filnavn != null) {
-                headers.setContentDispositionFormData("attachment", dokumentRespons.filnavn)
-            }
+            if (resultat.filnavn != null) {
+                resultat            }
             headers.contentType = MediaType.APPLICATION_PDF
 
-            logger.info( "Ferdig hentet dokument med journalpost- og dokumentinfo-ID for brukeren")
+            logger.info("Fullført henting av dokument med journalpost- og dokumentinfo-ID for en bruker på ${varighet.inWholeMilliseconds} ms)")
 
-            return ResponseEntity(dokumentRespons.dokument, headers, HttpStatus.OK)
+            return ResponseEntity(resultat.dokument, headers, HttpStatus.OK)
         } catch (e: HttpClientErrorException) {
             logger.error("Feil ved henting av dokument: ${e.statusCode}")
             throw e
