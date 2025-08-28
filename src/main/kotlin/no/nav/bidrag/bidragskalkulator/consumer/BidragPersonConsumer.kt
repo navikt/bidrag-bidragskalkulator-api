@@ -38,12 +38,11 @@ class BidragPersonConsumer(
     }
 
     fun hentFamilierelasjon(ident: String): MotpartBarnRelasjonDto = medApplikasjonsKontekst {
-            secureLogger.info("Henter familierelasjon for person $ident")
             postSafely(hentFamilierelasjonUri, PersonRequest(Personident(ident)), Personident(ident))
     }
 
     fun hentPerson(ident: Personident): PersonDto = medApplikasjonsKontekst {
-        secureLogger.info("Henter informasjon for person $ident")
+        secureLogger.info { "Henter informasjon for person" }
         postSafely(hentPersonUri, PersonRequest(ident), ident)
     }
 
@@ -53,16 +52,16 @@ class BidragPersonConsumer(
         } catch (e: HttpServerErrorException) {
             when (e.statusCode.value()) {
                 404 -> {
-                    secureLogger.warn("Fant ikke person med ident $ident")
-                    throw NoContentException("Fant ikke person med ident $ident")
+                    secureLogger.warn { "Fant ikke person i bidrag-person" }
+                    throw NoContentException("Fant ikke person i bidrag-person")
                 }
                 else -> {
-                    secureLogger.error("Serverfeil fra bidrag-person for ident $ident", e)
+                    secureLogger.error(e) { "Serverfeil fra bidrag-person" }
                     throw e
                 }
             }
         } catch (e: Exception) {
-            secureLogger.error("Uventet feil ved kall til bidrag-person for ident $ident", e)
+            secureLogger.error(e) { "Uventet feil ved kall til bidrag-person" }
             throw e
         }
     }
