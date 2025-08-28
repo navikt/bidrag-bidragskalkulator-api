@@ -54,16 +54,16 @@ class BidragGrunnlagConsumer(
         } catch(e: HttpServerErrorException) {
             when (e.statusCode.value()) {
                 404 -> {
-                    secureLogger.warn("Fant ikke person med ident $ident")
+                    secureLogger.warn { "Fant ikke person" }
                     throw e
                 }
                 else -> {
-                    secureLogger.error("Feil ved serverkall til bidrag-grunnlag for ident $ident", e)
+                    secureLogger.error(e) { "Feil ved serverkall til bidrag-grunnlag" }
                     throw e
                 }
             }
         } catch (e: Exception) {
-            secureLogger.error("Uventet feil ved kall til bidrag-grunnlag for ident $ident - ${e.localizedMessage}", e)
+            secureLogger.error(e) { "Uventet feil ved kall til bidrag-grunnlag - ${e.localizedMessage}" }
             throw e
         }
     }
