@@ -68,8 +68,7 @@
             <appender-ref ref="stdout"/>
         </root>
     </springProfile>
-
-
+    
     <springProfile name="test,local,local-nais">
         <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
             <layout class="ch.qos.logback.classic.PatternLayout">
@@ -84,12 +83,6 @@
         <appender-ref ref="stdout_json"/>
         <appender-ref ref="team-logs" />
     </root>
-
-    <springProfile name="test,local,local-nais">
-        <root level="info">
-            <appender-ref ref="stdout"/>
-        </root>
-    </springProfile>
 
     <logger name="secureLogger" level="INFO" additivity="false" >
         <appender-ref ref="secureLog" />
