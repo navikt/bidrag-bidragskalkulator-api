@@ -4,7 +4,6 @@ import no.nav.bidrag.bidragskalkulator.config.SecurityConstants
 import no.nav.bidrag.bidragskalkulator.dto.minSide.MinSideDokumenterDto
 import no.nav.bidrag.bidragskalkulator.service.SafSelvbetjeningService
 import no.nav.bidrag.bidragskalkulator.utils.InnloggetBrukerUtils
-import no.nav.bidrag.commons.util.secureLogger
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
@@ -32,11 +31,11 @@ class MinSideController(
         val bruker = innloggetBrukerUtils.hentPåloggetPersonIdent()
             ?: throw IllegalStateException("Ugyldig token, ingen pålogget bruker ident funnet")
 
-        secureLogger.info { "Henter dokumenter for bruker med ident: $bruker" }
+        logger.info("Henter dokumenter for bruker ")
 
         val dokumenter = safSelvbetjeningService.hentSelvbetjeningJournalposter(bruker)
 
-        secureLogger.info { "Hentet ${dokumenter.journalposter.size} dokumenter for bruker med ident: $bruker" }
+        logger.info("Ferdig hentet ${dokumenter.journalposter.size} dokumenter for bruker")
 
         return ResponseEntity.ok(dokumenter)
     }
@@ -46,10 +45,7 @@ class MinSideController(
         @PathVariable journalpostId: String,
         @PathVariable dokumentInfoId: String
     ): ResponseEntity<ByteArray> {
-        val bruker = innloggetBrukerUtils.hentPåloggetPersonIdent()
-            ?: throw IllegalStateException("Ugyldig token, ingen pålogget bruker ident funnet")
-
-        secureLogger.info { "Henter dokument med journalpostId: $journalpostId og dokumentInfoId: $dokumentInfoId for bruker med ident: $bruker" }
+        logger.info("Henter dokument med journalpost- og dokumentinfo-ID for bruker")
 
         try {
             val dokumentRespons = safSelvbetjeningService.hentDokument(journalpostId, dokumentInfoId)
@@ -60,7 +56,7 @@ class MinSideController(
             }
             headers.contentType = MediaType.APPLICATION_PDF
 
-            secureLogger.info { "Hentet dokument for bruker med ident: $bruker" }
+            logger.info( "Ferdig hentet dokument med journalpost- og dokumentinfo-ID for bruker")
 
             return ResponseEntity(dokumentRespons.dokument, headers, HttpStatus.OK)
         } catch (e: HttpClientErrorException) {
