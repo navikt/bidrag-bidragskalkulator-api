@@ -15,6 +15,9 @@ val junitJupiterVersion = "5.13.4"
 val coroutinesVersion = "1.10.2"
 val pdfBoxVersion = "2.0.31"
 val micrometerPrometheusVersion = "1.15.3"
+val logbackVersion = "1.5.18"
+val logstashEncoderVersion = "8.0"
+
 
 plugins {
     id("org.jetbrains.kotlin.plugin.spring") version "2.2.10"
@@ -61,9 +64,10 @@ dependencies {
 
     }
 
-    implementation("ch.qos.logback:logback-core")
-    implementation("ch.qos.logback:logback-classic")
-    implementation("net.logstash.logback:logstash-logback-encoder")
+    // logging
+    implementation("ch.qos.logback:logback-core:$logbackVersion")
+    implementation("ch.qos.logback:logback-classic:$logbackVersion")
+    implementation("net.logstash.logback:logstash-logback-encoder:$logstashEncoderVersion")
 
     api("no.nav.security:token-validation-spring:$tokenSupportVersion")
     api("no.nav.bidrag:bidrag-inntekt:${bidragBeregnFellesVersion}") {
