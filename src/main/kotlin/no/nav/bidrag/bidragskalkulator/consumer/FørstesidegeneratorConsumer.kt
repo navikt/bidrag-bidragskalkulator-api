@@ -3,6 +3,7 @@ package no.nav.bidrag.bidragskalkulator.consumer
 import no.nav.bidrag.bidragskalkulator.config.FørstesidegeneratorConfigurationProperties
 import no.nav.bidrag.bidragskalkulator.dto.førstesidegenerator.*
 import no.nav.bidrag.bidragskalkulator.exception.MetaforceException
+import no.nav.bidrag.commons.util.secureLogger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
 import org.springframework.web.client.HttpClientErrorException
@@ -58,18 +59,23 @@ class FørstesidegeneratorConsumer(
     fun genererFørsteside(dto: GenererFørstesideRequestDto): GenererFørstesideResultatDto =
         medApplikasjonsKontekst {
             try {
-                val timed = measureTimedValue {
+                val (output, varighet) = measureTimedValue {
                     postForEntity<GenererFørstesideResultatDto>(genererFørstesideUrl, dto, headers)
                         ?: throw RuntimeException("Tom respons fra førstesidegenerator")
                 }
-                logger.info("Fullført kall til førstesidegenerator på ${timed.duration.inWholeMilliseconds} ms")
-                timed.value
-            } catch (e: HttpClientErrorException) {
-                logger.error("Feil fra foerstesidegenerator", e)
 
-                throw RuntimeException("Generering av førsteside feilet: ${e.message}", e)
+                logger.info("Kall til førstesidegenerator OK (varighet_ms=${varighet.inWholeMilliseconds})")
+                output
+            } catch (e: HttpClientErrorException) {
+                logger.error("Kall til foerstesidegenerator feilet (status=${e.statusCode.value()})")
+                secureLogger.warn(e) {
+                    "Feil fra foerstesidegenerator: status=${e.statusCode.value()}, body='${e.responseBodyAsString.take(4000)}'"
+                }
+
+                throw RuntimeException("Generering av førsteside feilet (klientfeil ${e.statusCode.value()})", e)
             } catch (e: Exception) {
-                logger.error("Uventet feil ved generering av førsteside", e)
+                logger.error("Uventet feil ved generering av førsteside")
+                secureLogger.error(e) { "Uventet feil ved kall til foerstesidegenerator: ${e.message}" }
 
                 if (e.message?.contains("Metaforce:GS_CreateDocument", ignoreCase = true) == true) {
                     throw MetaforceException("Metaforce feilet ved dokumentgenerering", e)

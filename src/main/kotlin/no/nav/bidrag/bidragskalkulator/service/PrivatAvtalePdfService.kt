@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.io.ByteArrayOutputStream
 import java.io.IOException
-import kotlin.time.measureTimedValue
 
 @Service
 class PrivatAvtalePdfService(
@@ -30,35 +29,28 @@ class PrivatAvtalePdfService(
         innsenderIdent: String,
         dto: PrivatAvtalePdf
     ): ByteArrayOutputStream {
-        val (label, normalisertDto) = when (dto) {
-            is PrivatAvtaleBarnUnder18RequestDto -> "under 18 år" to dto.normalisert()
-            is PrivatAvtaleBarnOver18RequestDto -> "over 18 år" to dto.normalisert()
+        val normalisertDto = when (dto) {
+            is PrivatAvtaleBarnUnder18RequestDto -> dto.normalisert()
+            is PrivatAvtaleBarnOver18RequestDto -> dto.normalisert()
         }
 
-        logger.info("Privat avtale for barn $label: Starter generering av PDF for privat avtale")
+        logger.info("Generere hoveddokument – kaller bidrag-dokument-produksjon")
+        val hoveddokument = bidragDokumentConsumer
+            .genererPrivatAvtaleAPdf(normalisertDto.tilGenererPrivatAvtalePdfRequest())
+        hoveddokument.toByteArray()
 
-        val hovedDokument = measureTimedValue {
-            bidragDokumentConsumer
-                .genererPrivatAvtaleAPdf(normalisertDto.tilGenererPrivatAvtalePdfRequest()) }
-            .also {
-                logger
-                .info("Privat avtale for barn $label: Hoveddokument generert på ${it.duration.inWholeMilliseconds} ms") }
-            .value.toByteArray()
-
-        val dokumenter = mutableListOf(hovedDokument)
+        val dokumenter = mutableListOf(hoveddokument)
 
         if(normalisertDto.oppgjør.skalFørstesideGenereres()) {
             logger.info("Førsteside kreves – kaller førstesidegenerator")
-            val førsteside = measureTimedValue {
-                val request = normalisertDto.tilGenererFørstesideRequestDto(innsenderIdent)
-                førstesideConsumer.genererFørsteside(request).foersteside
-            }.also {
-                logger.info("Førsteside generert på ${it.duration.inWholeMilliseconds} ms")
-            }.value
-            dokumenter.add(0, førsteside)
+            val request = normalisertDto.tilGenererFørstesideRequestDto(innsenderIdent)
+            val førstesideBytes = førstesideConsumer.genererFørsteside(request).foersteside
+            val førstesideStream = ByteArrayOutputStream().apply { write(førstesideBytes) }
+
+            dokumenter.add(0, førstesideStream)
         }
 
-        val sammenslått = pdfProcessor.prosesserOgSlåSammenDokumenter(dokumenter)
+        val sammenslått = pdfProcessor.prosesserOgSlåSammenDokumenter(dokumenter.map { it.toByteArray() })
         return ByteArrayOutputStream().apply { write(sammenslått) }
     }
 }

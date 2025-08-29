@@ -68,7 +68,7 @@ class PrivatAvtaleController(
             }
         }
 
-        logger.info("Fullført henting av informasjon for opprettelse av privat avtale på ${varighet.inWholeMilliseconds} ms")
+        logger.info("Fullført henting av informasjon for opprettelse av privat avtale (varighet_ms=${varighet.inWholeMilliseconds})")
         return resultat
     }
 
@@ -131,7 +131,7 @@ class PrivatAvtaleController(
             }
         }
 
-        logger.info("Fullført generering av privat avtale PDF for barn over 18 år på ${varighet.inWholeMilliseconds} ms")
+        logger.info("Fullført generering av privat avtale PDF for barn over 18 år (varighet_ms=${varighet.inWholeMilliseconds})")
 
         return ResponseEntity
             .ok()
