@@ -11,8 +11,8 @@ import org.springframework.web.server.ResponseStatusException
 @Component
 class InnloggetBrukerUtils(private val oidcTokenManager: OidcTokenManager) {
 
-    private companion object {
-        private const val UNAUTHORIZED_TOKEN_MESSAGE = "Ugyldig token"
+    companion object {
+        private const val UNAUTHORIZED_TOKEN_MESSAGE = "Ugyldig eller manglende token"
     }
 
     fun hentPåloggetPersonIdent(): String? {
@@ -38,6 +38,6 @@ class InnloggetBrukerUtils(private val oidcTokenManager: OidcTokenManager) {
      fun requirePåloggetPersonIdent(logger: Logger): String =
         hentPåloggetPersonIdent() ?: run {
             logger.warn("Avbrøt operasjon: ugyldig eller manglende token")
-            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Ugyldig token")
+            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, UNAUTHORIZED_TOKEN_MESSAGE)
         }
 }
