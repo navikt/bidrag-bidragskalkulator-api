@@ -3,18 +3,22 @@ package no.nav.bidrag.bidragskalkulator.consumer
 import no.nav.bidrag.bidragskalkulator.config.DokumentproduksjonConfigurationProperties
 import no.nav.bidrag.bidragskalkulator.dto.GenererPrivatAvtalePdfRequest
 import no.nav.bidrag.commons.util.secureLogger
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
 import org.springframework.util.StreamUtils
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
 import java.io.ByteArrayOutputStream
 import java.io.IOException
+import kotlin.time.measureTimedValue
 
 class BidragDokumentProduksjonConsumer(
     val properties: DokumentproduksjonConfigurationProperties,
     restTemplate: RestTemplate,
     private val headers: HttpHeaders
 ) : BaseConsumer(restTemplate, "bidrag.dokumentproduksjon") {
+
+    val logger = LoggerFactory.getLogger(BidragDokumentProduksjonConsumer::class.java)
 
     init {
         check(properties.url.isNotEmpty()) { "bidrag.dokumentproduksjon.url mangler i konfigurasjon" }
@@ -37,6 +41,15 @@ class BidragDokumentProduksjonConsumer(
                         genererPrivatAvtalePdfRequest,
                         headers)
                     response.let { StreamUtils.copy(it, outputStream) }
+
+                    val timed = measureTimedValue {
+                        val response = postForNonNullEntity<ByteArray>(produserPdfuri, genererPrivatAvtalePdfRequest, headers)
+                        StreamUtils.copy(response, outputStream)
+                        outputStream
+                    }
+
+                    logger.info("Fullført kall til bidrag-dokument-produksjon på ${timed.duration.inWholeMilliseconds} ms")
+                    timed.value
                 } catch (e: IOException) {
                     secureLogger.error(e) { "Feil ved generering av privat avtale PDF: ${e.message}" }
 

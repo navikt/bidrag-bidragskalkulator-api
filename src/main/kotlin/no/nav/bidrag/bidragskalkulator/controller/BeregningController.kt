@@ -86,7 +86,7 @@ private val aapenBeregningCounter = Counter.builder("bidragskalkulator_antall_be
             }
         }
 
-        logger.info("Fullført beregning av barnebidrag uten autentisering  på ${varighet.inWholeMilliseconds} ms")
+        logger.info("Fullført beregning av barnebidrag uten autentisering på ${varighet.inWholeMilliseconds} ms")
         return resultat
     }
 }

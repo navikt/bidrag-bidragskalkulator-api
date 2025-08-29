@@ -37,28 +37,28 @@ class PrivatAvtalePdfService(
 
         logger.info("Privat avtale for barn $label: Starter generering av PDF for privat avtale")
 
-        val hovedDokument = measureTimedValue { bidragDokumentConsumer
-            .genererPrivatAvtaleAPdf(normalisertDto.tilGenererPrivatAvtalePdfRequest()) }
-            .also { logger
+        val hovedDokument = measureTimedValue {
+            bidragDokumentConsumer
+                .genererPrivatAvtaleAPdf(normalisertDto.tilGenererPrivatAvtalePdfRequest()) }
+            .also {
+                logger
                 .info("Privat avtale for barn $label: Hoveddokument generert på ${it.duration.inWholeMilliseconds} ms") }
             .value.toByteArray()
 
         val dokumenter = mutableListOf(hovedDokument)
 
         if(normalisertDto.oppgjør.skalFørstesideGenereres()) {
-            val request = normalisertDto.tilGenererFørstesideRequestDto(innsenderIdent)
-            val førsteside = measureTimedValue { førstesideConsumer.genererFørsteside(request).foersteside }
-                .also { logger
-                    .info("Privat avtale for barn $label: Førsteside generert på ${it.duration.inWholeMilliseconds} ms") }
-                .value
-
-              dokumenter.add(0, førsteside)
+            logger.info("Førsteside kreves – kaller førstesidegenerator")
+            val førsteside = measureTimedValue {
+                val request = normalisertDto.tilGenererFørstesideRequestDto(innsenderIdent)
+                førstesideConsumer.genererFørsteside(request).foersteside
+            }.also {
+                logger.info("Førsteside generert på ${it.duration.inWholeMilliseconds} ms")
+            }.value
+            dokumenter.add(0, førsteside)
         }
 
         val sammenslått = pdfProcessor.prosesserOgSlåSammenDokumenter(dokumenter)
-
-        return ByteArrayOutputStream().apply {
-            write(sammenslått)
-        }
+        return ByteArrayOutputStream().apply { write(sammenslått) }
     }
 }

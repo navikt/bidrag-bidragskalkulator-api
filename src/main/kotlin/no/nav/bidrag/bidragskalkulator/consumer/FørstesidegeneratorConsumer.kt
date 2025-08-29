@@ -9,6 +9,7 @@ import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
+import kotlin.time.measureTimedValue
 
 class FørstesidegeneratorConsumer(
     private val config: FørstesidegeneratorConfigurationProperties,
@@ -57,8 +58,12 @@ class FørstesidegeneratorConsumer(
     fun genererFørsteside(dto: GenererFørstesideRequestDto): GenererFørstesideResultatDto =
         medApplikasjonsKontekst {
             try {
-                postForEntity<GenererFørstesideResultatDto>(genererFørstesideUrl, dto, headers)
-                    ?: throw RuntimeException("Generering av førsteside feilet: tom respons fra server")
+                val timed = measureTimedValue {
+                    postForEntity<GenererFørstesideResultatDto>(genererFørstesideUrl, dto, headers)
+                        ?: throw RuntimeException("Tom respons fra førstesidegenerator")
+                }
+                logger.info("Fullført kall til førstesidegenerator på ${timed.duration.inWholeMilliseconds} ms")
+                timed.value
             } catch (e: HttpClientErrorException) {
                 logger.error("Feil fra foerstesidegenerator", e)
 
