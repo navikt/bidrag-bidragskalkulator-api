@@ -14,7 +14,7 @@ fun <T> CoroutineScope.asyncCatching(
     block: suspend CoroutineScope.() -> T
 ) = async(BidragAwareContext) {
     runCatching { block() }
-        .onFailure { logger.error("Feil ved henting av $navn", it) }
+        .onFailure { logger.error("Feil ved henting av $navn") }
         .getOrThrow()
 }
 

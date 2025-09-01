@@ -4,11 +4,13 @@ import no.nav.bidrag.bidragskalkulator.config.CacheConfig
 import no.nav.bidrag.bidragskalkulator.dto.SamværsfradragPeriode
 import no.nav.bidrag.commons.service.sjablon.Samværsfradrag
 import no.nav.bidrag.commons.service.sjablon.SjablonProvider
+import no.nav.bidrag.commons.util.secureLogger
 import org.slf4j.LoggerFactory
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.time.LocalDate
+import kotlin.time.measureTimedValue
 
 @Service
 class SjablonService {
@@ -24,22 +26,38 @@ class SjablonService {
         logger.info("Henter samværsfradrag")
         val nåværendeDato = LocalDate.now()
 
-        // 1) Hent original liste
-        val alle = SjablonProvider.hentSjablonSamværsfradrag()
-            .filter { it.datoFom != null && it.datoTom != null }
-            .filter { nåværendeDato >= it.datoFom && nåværendeDato <= it.datoTom }
+        val (filtrert, varighet) = runCatching {
+            measureTimedValue {
+                val alle = SjablonProvider.hentSjablonSamværsfradrag()
+                val ugyldige = alle.count { it.datoFom == null || it.datoTom == null }
+                if (ugyldige > 0) {
+                    logger.warn("Fant $ugyldige ugyldige elementer i sjablon for samværsfradrag")
+                }
+
+                alle.filter { it.datoFom != null && it.datoTom != null }
+                    .filter { nåværendeDato >= it.datoFom && nåværendeDato <= it.datoTom }
+            }
+        }.onFailure { e ->
+            logger.error("Kall til sjablon provider feilet")
+            secureLogger.error(e) { "Kall til sjablon provider feilet: ${e.message}" }
+        }.getOrThrow()
+
+        logger.info("Kall til sjablon provider OK (varighet_ms=${varighet.inWholeMilliseconds})")
 
         // 2) Gruppér på alderTom
-        val alderTomGrupper = alle.groupBy { it.alderTom ?: 99 }
+        val alderTomGrupper = filtrert.groupBy { it.alderTom ?: 99 }
 
         // 3) Lag sortert liste av alderTom
-        val sortedAlderTom = alderTomGrupper.keys.sorted()
+        val sortertAlderTom = alderTomGrupper.keys.sorted()
 
         // 4) Map til SamværsfradragPeriode
-        return mapTilSamværsfradragPeriode(
-            sortedAlderTom = sortedAlderTom,
-            alderTomGrupper = alderTomGrupper
+        val resultat = mapTilSamværsfradragPeriode(sortertAlderTom, alderTomGrupper)
+
+        logger.info(
+            "Mapping til samværsfradrag-perioder fullført."
         )
+
+        return resultat
     }
 
     /**

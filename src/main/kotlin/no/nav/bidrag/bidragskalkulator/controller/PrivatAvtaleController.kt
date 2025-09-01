@@ -97,7 +97,7 @@ class PrivatAvtaleController(
             }
         }
 
-        logger.info("Fullført generering av privat avtale PDF for barn under 18 år på ${varighet.inWholeMilliseconds} ms")
+        logger.info("Fullført generering av privat avtale PDF for barn under 18 år (varighet_ms=${varighet.inWholeMilliseconds})")
 
         return ResponseEntity
             .ok()

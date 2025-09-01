@@ -23,8 +23,6 @@ class BrukerinformasjonService(
 
     @Cacheable(CacheConfig.PERSONINFORMASJON)
     suspend fun hentBrukerinformasjon(personIdent: String): BrukerInformasjonDto = coroutineScope {
-        logger.info("Starter henting av person informasjon og inntektsgrunnlag for å utforme brukerinformasjon")
-
         val inntektsGrunnlagJobb = asyncCatching(logger, "inntektsgrunnlag") {
             grunnlagService.hentInntektsGrunnlag(personIdent)
         }
@@ -50,8 +48,6 @@ class BrukerinformasjonService(
         GrunnlagsDataDto(
             underholdskostnader = underholdskostnadService.genererUnderholdskostnadstabell(),
             samværsfradrag = sjablonService.hentSamværsfradrag(),
-        ).also {
-            logger.info("Grunnlagsdata hentet")
-        }
+        )
     }
 }

@@ -2,6 +2,7 @@ package no.nav.bidrag.bidragskalkulator.consumer
 
 import no.nav.bidrag.bidragskalkulator.config.BidragPersonConfigurationProperties
 import no.nav.bidrag.bidragskalkulator.exception.NoContentException
+import no.nav.bidrag.commons.util.secureLogger
 import no.nav.bidrag.domene.ident.Personident
 import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
 import no.nav.bidrag.transport.person.PersonDto
@@ -11,6 +12,7 @@ import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
+import kotlin.time.measureTimedValue
 
 class BidragPersonConsumer(
     val bidragPersonConfig: BidragPersonConfigurationProperties,
@@ -39,7 +41,8 @@ class BidragPersonConsumer(
     }
 
     fun hentFamilierelasjon(ident: String): MotpartBarnRelasjonDto = medApplikasjonsKontekst {
-            postSafely(hentFamilierelasjonUri, PersonRequest(Personident(ident)), Personident(ident))
+        logger.info ( "Henter familie relasjon for person" )
+        postSafely(hentFamilierelasjonUri, PersonRequest(Personident(ident)), Personident(ident))
     }
 
     fun hentPerson(ident: Personident): PersonDto = medApplikasjonsKontekst {
@@ -49,7 +52,12 @@ class BidragPersonConsumer(
 
     private inline fun <reified T : Any> postSafely(uri: URI, request: Any, ident: Personident): T {
         return try {
-            postForNonNullEntity<T>(uri, request)
+            val (output, varighet) = measureTimedValue {
+                postForNonNullEntity<T>(uri, request)
+            }
+
+            logger.info("Kall til bidrag-person OK (varighet_ms=${varighet.inWholeMilliseconds})")
+            output
         } catch (e: HttpServerErrorException) {
             when (e.statusCode.value()) {
                 404 -> {
@@ -57,12 +65,14 @@ class BidragPersonConsumer(
                     throw NoContentException("Fant ikke person i bidrag-person")
                 }
                 else -> {
-                    logger.error("Serverfeil fra bidrag-person", e)
+                    logger.error("Kall til bidrag-person feilet")
+                    secureLogger.error(e) { "Kall til bidrag-person feilet: ${e.message}" }
                     throw e
                 }
             }
         } catch (e: Exception) {
-            logger.error("Uventet feil ved kall til bidrag-person", e)
+            logger.error("Uventet feil ved kall til bidrag-person")
+            secureLogger.error(e) { "Uventet feil ved kall til bidrag-person: ${e.message}" }
             throw e
         }
     }

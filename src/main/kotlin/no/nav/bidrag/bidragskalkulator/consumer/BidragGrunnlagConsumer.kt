@@ -1,6 +1,7 @@
 package no.nav.bidrag.bidragskalkulator.consumer
 
 import no.nav.bidrag.bidragskalkulator.config.GrunnlagConfigurationProperties
+import no.nav.bidrag.commons.util.secureLogger
 import no.nav.bidrag.domene.enums.grunnlag.GrunnlagRequestType
 import no.nav.bidrag.domene.enums.vedtak.Formål
 import no.nav.bidrag.transport.behandling.grunnlag.request.GrunnlagRequestDto
@@ -12,6 +13,7 @@ import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
 import java.time.LocalDate
+import kotlin.time.measureTimedValue
 
 class BidragGrunnlagConsumer(
     val grunnlagConfig: GrunnlagConfigurationProperties,
@@ -41,17 +43,22 @@ class BidragGrunnlagConsumer(
     fun hentGrunnlag(ident: String, antallAar: Int = HENT_INNTEKT_ANTALl_ÅR_DEFAULT): HentGrunnlagDto =
         medApplikasjonsKontekst {
         try {
-            postForNonNullEntity<HentGrunnlagDto>(grunnlagUri,
-                HentGrunnlagRequestDto(
-                    Formål.FORSKUDD,
-                    listOf(GrunnlagRequestDto(
-                        type = GrunnlagRequestType.AINNTEKT,
-                        personId = ident,
-                        periodeFra = LocalDate.now().minusYears(antallAar.toLong()),
-                        periodeTil = LocalDate.now()
-                    ))
+            val (output, varighet) = measureTimedValue {
+                postForNonNullEntity<HentGrunnlagDto>(grunnlagUri,
+                    HentGrunnlagRequestDto(
+                        Formål.FORSKUDD,
+                        listOf(GrunnlagRequestDto(
+                            type = GrunnlagRequestType.AINNTEKT,
+                            personId = ident,
+                            periodeFra = LocalDate.now().minusYears(antallAar.toLong()),
+                            periodeTil = LocalDate.now()
+                        ))
+                    )
                 )
-            )
+            }
+
+            logger.info("Kall til bidrag-grunnlag OK (varighet_ms=${varighet.inWholeMilliseconds})")
+            output
         } catch(e: HttpServerErrorException) {
             when (e.statusCode.value()) {
                 404 -> {
@@ -59,12 +66,14 @@ class BidragGrunnlagConsumer(
                     throw e
                 }
                 else -> {
-                    logger.error("Feil ved serverkall til bidrag-grunnlag", e)
+                    logger.error("Feil ved serverkall til bidrag-grunnlag")
+                    secureLogger.error(e) { "Kall til bidrag-grunnlag feilet: ${e.message}" }
                     throw e
                 }
             }
         } catch (e: Exception) {
-            logger.error("Uventet feil ved kall til bidrag-grunnlag - ${e.localizedMessage}", e)
+            logger.error("Uventet feil ved kall til bidrag-grunnlag")
+            secureLogger.error(e) { "Uventet feil ved kall til bidrag-grunnlag: ${e.message}" }
             throw e
         }
     }
