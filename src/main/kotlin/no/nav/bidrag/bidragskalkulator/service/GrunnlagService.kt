@@ -2,6 +2,7 @@ package no.nav.bidrag.bidragskalkulator.service
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.bidrag.bidragskalkulator.consumer.BidragGrunnlagConsumer
+import no.nav.bidrag.bidragskalkulator.exception.InntektTransformException
 import no.nav.bidrag.bidragskalkulator.mapper.tilAinntektsposter
 import no.nav.bidrag.commons.security.SikkerhetsKontekst
 import no.nav.bidrag.commons.util.secureLogger
@@ -20,34 +21,24 @@ class GrunnlagService(
     private val inntektApi: InntektApi,
 ) {
 
-    fun hentInntektsGrunnlag(ident: String): TransformerInntekterResponse? = SikkerhetsKontekst.medApplikasjonKontekst {
-        runCatching {
+    fun hentInntektsGrunnlag(ident: String): TransformerInntekterResponse? =
+        SikkerhetsKontekst.medApplikasjonKontekst {
             logger.info { "Henter inntektsgrunnlag" }
             val grunnlag = grunnlagConsumer.hentGrunnlag(ident)
-            transformerInntekter(grunnlag)
-        }.getOrElse {
-            logger.info { "Henter inntektsgrunnlag feilet" }
-            secureLogger.error(it) { "Henter inntektsgrunnlag feilet: ${it.message}" }
-            null
-        }
-    }
 
-    private fun transformerInntekter(hentGrunnlagDto: HentGrunnlagDto): TransformerInntekterResponse {
-        logger.info { "Transformer inntekt i bidrag inntekt-api" }
-
-        return try {
-            val (inntekt, varighet) = measureTimedValue {
-                inntektApi.transformerInntekter(opprettTransformerInntekterRequest(hentGrunnlagDto))
+            try {
+                val (inntektsgrunnlag, varighet) = measureTimedValue {
+                    inntektApi.transformerInntekter(opprettTransformerInntekterRequest(grunnlag))
+                }
+                logger.info { "Transformering OK (ms=${varighet.inWholeMilliseconds})" }
+                inntektsgrunnlag
+            } catch (e: Exception) {
+                logger.error { "Transformering i inntekt-api feilet" }
+                secureLogger.error(e) { "Transformering feilet: ${e.message}" }
+                throw InntektTransformException("Feil ved kall til inntekt-api", e)
             }
-            logger.info { "Kall til bidrag inntekt-api OK (varighet_ms=${varighet.inWholeMilliseconds})" }
-            inntekt
-        } catch (e: Exception) {
-            logger.error{ "Transformer inntekt i bidrag inntekt-api feilet" }
-            secureLogger.error(e) { "Transformer inntekt i bidrag inntekt-api feilet: ${e.message}" }
-
-            throw RuntimeException("Feil ved kall til bidrag inntekt-api", e)
         }
-    }
+
 
     private fun opprettTransformerInntekterRequest(
         innhentetGrunnlag: HentGrunnlagDto

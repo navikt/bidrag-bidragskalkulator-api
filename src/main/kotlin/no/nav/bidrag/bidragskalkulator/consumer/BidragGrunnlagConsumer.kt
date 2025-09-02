@@ -2,6 +2,7 @@ package no.nav.bidrag.bidragskalkulator.consumer
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.bidrag.bidragskalkulator.config.GrunnlagConfigurationProperties
+import no.nav.bidrag.bidragskalkulator.exception.GrunnlagNotFoundException
 import no.nav.bidrag.commons.util.secureLogger
 import no.nav.bidrag.domene.enums.grunnlag.GrunnlagRequestType
 import no.nav.bidrag.domene.enums.vedtak.Formål
@@ -64,7 +65,7 @@ class BidragGrunnlagConsumer(
             when (e.statusCode.value()) {
                 404 -> {
                     logger.warn { "Fant ikke grunnlag for person i bidrag-grunnlag" }
-                    throw e
+                    throw GrunnlagNotFoundException("Ingen grunnlag funnet", e)
                 }
                 else -> {
                     logger.error{ "Feil ved serverkall til bidrag-grunnlag" }

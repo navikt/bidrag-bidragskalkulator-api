@@ -128,4 +128,12 @@ class GlobalExceptionHandler {
     @ExceptionHandler(Exception::class)
     fun handleGeneric(e: Exception, req: HttpServletRequest): ProblemDetail =
         problem(HttpStatus.INTERNAL_SERVER_ERROR, "Uventet feil oppstod.")
+
+    @ExceptionHandler(GrunnlagNotFoundException::class)
+    fun handleGrunnlagNotFound(e: GrunnlagNotFoundException) =
+        ResponseEntity.status(404).body(mapOf("message" to e.message))
+
+    @ExceptionHandler(InntektTransformException::class)
+    fun handleInntektTransform(e: InntektTransformException) =
+        ResponseEntity.status(502).body(mapOf("message" to e.message))
 }

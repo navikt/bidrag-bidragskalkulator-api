@@ -41,7 +41,7 @@ class BeregningService(
                 utførBarnebidragBeregning(grunnlag)
             }
         }.onFailure { e ->
-            logger.error("Beregning av barnebidrag feilet.")
+            logger.error{ "Beregning av barnebidrag feilet." }
             secureLogger.error(e) { "Beregning av barnebidrag feilet: ${e.message}" }
         }.getOrThrow()
 
