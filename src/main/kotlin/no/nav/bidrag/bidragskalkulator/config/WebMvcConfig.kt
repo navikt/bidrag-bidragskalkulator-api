@@ -12,7 +12,12 @@ class WebMvcConfig(
 
     override fun addInterceptors(registry: InterceptorRegistry) {
         registry.addInterceptor(apiRequestLoggingInterceptor)
-            .addPathPatterns("/api/v1/privat-avtale/**")         // begrens til dine APIer
+            .addPathPatterns(
+                "/api/v1/privat-avtale/**",
+                "/api/v1/beregning/**",
+                "/api/v1/minside/**",
+                "/api/v1/person/**"
+            )
             .excludePathPatterns("/actuator/**", "/swagger/**", "/v3/api-docs/**")
     }
 }
