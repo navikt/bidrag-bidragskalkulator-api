@@ -1,16 +1,16 @@
 package no.nav.bidrag.bidragskalkulator.web
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 import org.springframework.stereotype.Component
 import org.springframework.web.servlet.HandlerInterceptor
 
+private val logger = KotlinLogging.logger {}
+
 @Component
 class ApiRequestLoggingInterceptor : HandlerInterceptor {
-
-    private val logger = LoggerFactory.getLogger(ApiRequestLoggingInterceptor::class.java)
 
     // Hjelpenøkkel for å lagre starttid i request-attributter
     private val startTimeKey = "requestStartTimeMs"
@@ -31,16 +31,16 @@ class ApiRequestLoggingInterceptor : HandlerInterceptor {
 
         if (ex == null) {
             // Suksess/forventede svar → INFO
-            logger.info(
+            logger.info {
                 "HTTP $method $path fullført (status=$status, varighet_ms=$duration" +
                         (cid?.let { ", correlationId=$it" } ?: "") + ")"
-            )
+            }
         } else {
             // Uventet feil → ERROR + melding
-            logger.error(
+            logger.error{
                 "HTTP $method $path feilet (status=$status, varighet_ms=$duration" +
-                        (cid?.let { ", correlationId=$it" } ?: "") + "): ${ex.message}", ex
-            )
+                        (cid?.let { ", correlationId=$it" } ?: "") + "): ${ex.message}"
+            }
         }
     }
 }
