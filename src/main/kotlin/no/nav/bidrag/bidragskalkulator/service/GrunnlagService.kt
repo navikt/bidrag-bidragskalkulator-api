@@ -20,22 +20,25 @@ class GrunnlagService(
     private val inntektApi: InntektApi,
 ) {
 
-    fun hentInntektsGrunnlag(ident: String): TransformerInntekterResponse? {
-        return SikkerhetsKontekst.medApplikasjonKontekst {
-                logger.info { "Henter inntektsgrunnlag" }
-                val grunnlag = grunnlagConsumer.hentGrunnlag(ident)
-                transformerInntekter(grunnlag)
+    fun hentInntektsGrunnlag(ident: String): TransformerInntekterResponse? = SikkerhetsKontekst.medApplikasjonKontekst {
+        runCatching {
+            logger.info { "Henter inntektsgrunnlag" }
+            val grunnlag = grunnlagConsumer.hentGrunnlag(ident)
+            transformerInntekter(grunnlag)
+        }.getOrElse {
+            logger.info { "Henter inntektsgrunnlag feilet" }
+            secureLogger.error(it) { "Henter inntektsgrunnlag feilet: ${it.message}" }
+            null
         }
     }
 
     private fun transformerInntekter(hentGrunnlagDto: HentGrunnlagDto): TransformerInntekterResponse {
-        return try {
-            logger.info { "Transformer inntekt i bidrag inntekt-api" }
+        logger.info { "Transformer inntekt i bidrag inntekt-api" }
 
+        return try {
             val (inntekt, varighet) = measureTimedValue {
                 inntektApi.transformerInntekter(opprettTransformerInntekterRequest(hentGrunnlagDto))
             }
-
             logger.info { "Kall til bidrag inntekt-api OK (varighet_ms=${varighet.inWholeMilliseconds})" }
             inntekt
         } catch (e: Exception) {
