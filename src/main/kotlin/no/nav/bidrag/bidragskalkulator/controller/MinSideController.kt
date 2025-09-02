@@ -35,9 +35,11 @@ class MinSideController(
 
         val bruker = innloggetBrukerUtils.requirePåloggetPersonIdent(logger)
 
-        val dokumenter = safSelvbetjeningService.hentSelvbetjeningJournalposter(bruker)
+        val (dokumenter, varighet) = measureTimedValue {
+            safSelvbetjeningService.hentSelvbetjeningJournalposter(bruker)
+        }
 
-        logger.info("Fullført henting ${dokumenter.journalposter.size} dokumenter for brukeren")
+        logger.info("Fullført henting ${dokumenter.journalposter.size} dokumenter for brukeren varighet_ms=${varighet.inWholeMilliseconds})")
 
         return ResponseEntity.ok(dokumenter)
     }
@@ -54,20 +56,18 @@ class MinSideController(
                 safSelvbetjeningService.hentDokument(journalpostId, dokumentInfoId)
             }
 
-
             val headers = HttpHeaders()
             if (resultat.filnavn != null) {
                 resultat            }
             headers.contentType = MediaType.APPLICATION_PDF
 
-            logger.info("Fullført henting av dokument med journalpost- og dokumentinfo-ID for en bruker på ${varighet.inWholeMilliseconds} ms)")
-
+            logger.info("Fullført henting av dokument med journalpost- og dokumentinfo-ID for en bruker varighet_ms=${varighet.inWholeMilliseconds})")
             return ResponseEntity(resultat.dokument, headers, HttpStatus.OK)
         } catch (e: HttpClientErrorException) {
             logger.error("Feil ved henting av dokument: ${e.statusCode}")
             throw e
         } catch (e: Exception) {
-            logger.error("Uventet feil ved henting av dokument", e)
+            logger.error("Uventet feil ved henting av dokument")
             throw RuntimeException("Kunne ikke hente dokument", e)
         }
     }

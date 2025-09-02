@@ -59,13 +59,13 @@ class FørstesidegeneratorConsumer(
     fun genererFørsteside(dto: GenererFørstesideRequestDto): GenererFørstesideResultatDto =
         medApplikasjonsKontekst {
             try {
-                val (output, varighet) = measureTimedValue {
+                val (førstesideResultatDto, varighet) = measureTimedValue {
                     postForEntity<GenererFørstesideResultatDto>(genererFørstesideUrl, dto, headers)
                         ?: throw RuntimeException("Tom respons fra førstesidegenerator")
                 }
 
                 logger.info("Kall til førstesidegenerator OK (varighet_ms=${varighet.inWholeMilliseconds})")
-                output
+                førstesideResultatDto
             } catch (e: HttpClientErrorException) {
                 logger.error("Kall til foerstesidegenerator feilet (status=${e.statusCode.value()})")
                 secureLogger.warn(e) {
@@ -74,7 +74,7 @@ class FørstesidegeneratorConsumer(
 
                 throw RuntimeException("Generering av førsteside feilet (klientfeil ${e.statusCode.value()})", e)
             } catch (e: Exception) {
-                logger.error("Uventet feil ved generering av førsteside")
+                logger.error("Uventet feil ved kall til foerstesidegenerator")
                 secureLogger.error(e) { "Uventet feil ved kall til foerstesidegenerator: ${e.message}" }
 
                 if (e.message?.contains("Metaforce:GS_CreateDocument", ignoreCase = true) == true) {

@@ -16,11 +16,13 @@ import no.nav.bidrag.bidragskalkulator.model.FamilieRelasjon
 import no.nav.bidrag.bidragskalkulator.utils.asyncCatching
 import no.nav.bidrag.bidragskalkulator.utils.avrundeTilNærmesteHundre
 import no.nav.bidrag.bidragskalkulator.utils.kalkulerAlder
+import no.nav.bidrag.commons.util.secureLogger
 import no.nav.bidrag.domene.ident.Personident
 import no.nav.bidrag.transport.behandling.beregning.barnebidrag.ResultatPeriode
 import org.slf4j.LoggerFactory.getLogger
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
+import kotlin.time.measureTimedValue
 
 @Service
 class BeregningService(
@@ -33,27 +35,35 @@ class BeregningService(
     private val logger = getLogger(BeregningService::class.java)
 
     suspend fun beregnBarnebidrag(beregningRequest: BeregningRequestDto): BeregningsresultatDto {
-        logger.info("Start beregning av barnebidrag")
-        val beregningsgrunnlag = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(beregningRequest)
+        logger.info("Starter beregning av barnebidrag.")
+        val (resultatListe, varighet) = runCatching {
+            measureTimedValue {
+                val grunnlag = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(beregningRequest)
+                utførBarnebidragBeregning(grunnlag)
+            }
+        }.onFailure { e ->
+            logger.error("Beregning av barnebidrag feilet.")
+            secureLogger.error(e) { "Beregning av barnebidrag feilet: ${e.message}" }
+        }.getOrThrow()
 
-        val start = System.currentTimeMillis()
-        val beregningsresultat = utførBarnebidragBeregning(beregningsgrunnlag)
-        val duration = System.currentTimeMillis() - start
-
-        logger.info("Ferdig beregnet barnebidrag. Beregning av ${beregningsresultat.size} barn tok $duration ms")
-        return BeregningsresultatDto(beregningsresultat)
+        logger.info("Ferdig beregnet barnebidrag. Beregning av ${resultatListe.size} barn (varighet_ms=${varighet.inWholeMilliseconds}).")
+        return BeregningsresultatDto(resultatListe)
     }
 
     suspend fun beregnBarnebidragAnonym(beregningRequest: ÅpenBeregningRequestDto): ÅpenBeregningsresultatDto {
-        logger.info("Start beregning av barnebidrag anonym")
-        val beregningsgrunnlag = beregningsgrunnlagMapper.mapTilBeregningsgrunnlagAnonym(beregningRequest)
+        logger.info("Starter anonym beregning av barnebidrag.")
+        val (resultatListe, varighet) = runCatching {
+            measureTimedValue {
+                val grunnlag = beregningsgrunnlagMapper.mapTilBeregningsgrunnlagAnonym(beregningRequest)
+                utførBarnebidragBeregningAnonym(grunnlag)
+            }
+        }.onFailure { e ->
+            logger.error("Anonym beregning av barnebidrag feilet.")
+            secureLogger.error(e) { "Anonym beregning av barnebidrag feilet: ${e.message}" }
+        }.getOrThrow()
 
-        val start = System.currentTimeMillis()
-        val beregningsresultat = utførBarnebidragBeregningAnonym(beregningsgrunnlag)
-        val duration = System.currentTimeMillis() - start
-
-        logger.info("Ferdig beregnet barnebidrag anonym. Beregning av ${beregningsresultat.size} barn tok $duration ms")
-        return ÅpenBeregningsresultatDto(beregningsresultat)
+        logger.info("Ferdig med anonym beregning av barnebidrag. Beregning av ${resultatListe.size} barn (varighet_ms=${varighet.inWholeMilliseconds}).")
+        return ÅpenBeregningsresultatDto(resultatListe)
     }
 
     private suspend fun utførBarnebidragBeregning(grunnlag: List<PersonBeregningsgrunnlag>): List<BeregningsresultatBarnDto> =
@@ -105,7 +115,18 @@ class BeregningService(
     suspend fun beregnUnderholdskostnaderForBarnerelasjoner(
         barnerelasjoner: List<FamilieRelasjon>
     ): List<BarneRelasjonDto> = coroutineScope {
-        barnerelasjoner.map {  beregnUnderholdskostnadForRelasjon(it) }
+        logger.info("Starter beregning av underholdskostnader for barnerelasjoner.")
+        val (resultater, varighet) = runCatching {
+            measureTimedValue {
+                barnerelasjoner.map { beregnUnderholdskostnadForRelasjon(it) }
+            }
+        }.onFailure { e ->
+            logger.error("Beregning av underholdskostnader for barnerelasjoner feilet.")
+            secureLogger.error(e) { "Beregning av underholdskostnader for barnerelasjoner feilet: ${e.message}" }
+        }.getOrThrow()
+
+        logger.info("Fullførte beregning av underholdskostnader for ${resultater.size} relasjoner (varighet_ms=${varighet.inWholeMilliseconds}).")
+        resultater
     }
 
     private suspend fun beregnUnderholdskostnadForRelasjon(
