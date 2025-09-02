@@ -1,5 +1,6 @@
 package no.nav.bidrag.bidragskalkulator.controller
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.MeterRegistry
 import io.swagger.v3.oas.annotations.Operation
@@ -20,9 +21,10 @@ import no.nav.bidrag.bidragskalkulator.service.BeregningService
 import no.nav.bidrag.bidragskalkulator.validering.BeregningRequestValidator
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.api.Unprotected
-import org.slf4j.LoggerFactory
 import org.springframework.web.bind.annotation.*
 import kotlin.time.measureTimedValue
+
+private val logger = KotlinLogging.logger {}
 
 @RestController
 @RequestMapping("/api/v1/beregning")
@@ -30,7 +32,6 @@ class BeregningController(
     private val httpServletRequest: HttpServletRequest,
     private val beregningService: BeregningService,
     meterRegistry: MeterRegistry ) {
-    private val logger = LoggerFactory.getLogger(BeregningController::class.java)
 
 private val aapenBeregningCounter = Counter.builder("bidragskalkulator_antall_beregninger")
         .description("Antall beregninger utført")

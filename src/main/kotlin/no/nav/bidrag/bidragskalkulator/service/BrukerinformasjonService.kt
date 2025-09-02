@@ -27,6 +27,8 @@ class BrukerinformasjonService(
             grunnlagService.hentInntektsGrunnlag(personIdent)
         }
 
+        val inntekt = inntektsGrunnlagJobb.await()
+
         val personinformasjonJobb = asyncCatching(logger, "person informasjon") {
             personService.hentPersoninformasjon(Personident(personIdent))
         }
@@ -37,7 +39,7 @@ class BrukerinformasjonService(
 
         BrukerInformasjonDto(
             person = personinformasjonJobb.await().tilPersonInformasjonDto(),
-            inntekt = inntektsGrunnlagJobb.await()?.toInntektResultatDto()?.inntektSiste12Mnd,
+            inntekt = inntekt?.toInntektResultatDto()?.inntektSiste12Mnd,
             barnerelasjoner = emptyList(),
             underholdskostnader = grunnlagsdata.await().underholdskostnader,
             samværsfradrag = grunnlagsdata.await().samværsfradrag

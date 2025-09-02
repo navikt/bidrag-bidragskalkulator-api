@@ -1,5 +1,6 @@
 package no.nav.bidrag.bidragskalkulator.controller
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
@@ -19,8 +20,9 @@ import no.nav.security.token.support.core.api.Unprotected
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import org.slf4j.LoggerFactory
 import kotlin.time.measureTimedValue
+
+private val logger = KotlinLogging.logger {}
 
 @RestController
 @RequestMapping("/api/v1/person")
@@ -29,7 +31,6 @@ class PersonController(
     private val brukerinformasjonService: BrukerinformasjonService,
     private val innloggetBrukerUtils: InnloggetBrukerUtils
 ) {
-    private val logger = LoggerFactory.getLogger(PersonController::class.java)
 
     @Operation(
         summary = "Henter informasjon om pålogget person og relasjoner til barn",

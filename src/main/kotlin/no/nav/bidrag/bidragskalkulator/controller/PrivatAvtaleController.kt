@@ -1,5 +1,6 @@
 package no.nav.bidrag.bidragskalkulator.controller
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import kotlin.time.measureTimedValue
 
+private val logger = KotlinLogging.logger {}
 
 @RestController
 @RequestMapping("/api/v1/privat-avtale")
@@ -40,9 +42,6 @@ class PrivatAvtaleController(
     private val privatAvtaleService: PrivatAvtaleService,
     private val innloggetBrukerUtils: InnloggetBrukerUtils
 ) {
-
-    private val logger = LoggerFactory.getLogger(PrivatAvtaleController::class.java)
-
     @Operation(
         summary = "Henter informasjon for opprettelse av privat avtale",
         description = "Henter informasjon for opprettelse av privat avtale. Returnerer 200 ved vellykket henting, eller passende feilkoder.",

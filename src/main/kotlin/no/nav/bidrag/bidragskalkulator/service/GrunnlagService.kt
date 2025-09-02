@@ -29,7 +29,7 @@ class GrunnlagService(
     }
 
     private fun transformerInntekter(hentGrunnlagDto: HentGrunnlagDto): TransformerInntekterResponse {
-        try {
+        return try {
             logger.info("Transformer inntekt i bidrag inntekt-api")
 
             val (inntekt, varighet) = measureTimedValue {
@@ -37,7 +37,7 @@ class GrunnlagService(
             }
 
             logger.info("Kall til bidrag inntekt-api OK (varighet_ms=${varighet.inWholeMilliseconds})")
-            return inntekt
+            inntekt
         } catch (e: Exception) {
             logger.error("Transformer inntekt i bidrag inntekt-api feilet")
             secureLogger.error(e) { "Transformer inntekt i bidrag inntekt-api feilet: ${e.message}" }

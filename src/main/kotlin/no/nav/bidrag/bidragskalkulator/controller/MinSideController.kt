@@ -1,12 +1,12 @@
 package no.nav.bidrag.bidragskalkulator.controller
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletRequest
 import no.nav.bidrag.bidragskalkulator.config.SecurityConstants
 import no.nav.bidrag.bidragskalkulator.dto.minSide.MinSideDokumenterDto
 import no.nav.bidrag.bidragskalkulator.service.SafSelvbetjeningService
 import no.nav.bidrag.bidragskalkulator.utils.InnloggetBrukerUtils
 import no.nav.security.token.support.core.api.ProtectedWithClaims
-import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.client.HttpClientErrorException
 import kotlin.time.measureTimedValue
 
+private val logger = KotlinLogging.logger {}
+
 @RestController
 @RequestMapping("/api/v1/minside")
 @ProtectedWithClaims(issuer = SecurityConstants.TOKENX)
@@ -26,8 +28,6 @@ class MinSideController(
     private val safSelvbetjeningService: SafSelvbetjeningService,
     private val innloggetBrukerUtils: InnloggetBrukerUtils
 ) {
-
-    private val logger = LoggerFactory.getLogger(MinSideController::class.java)
 
     @GetMapping("/dokumenter")
     fun hentSelvbetjeningDokumenter(): ResponseEntity<MinSideDokumenterDto> {
