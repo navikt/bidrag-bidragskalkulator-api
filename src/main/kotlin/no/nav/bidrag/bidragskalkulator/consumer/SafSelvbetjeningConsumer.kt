@@ -1,10 +1,10 @@
 package no.nav.bidrag.bidragskalkulator.consumer
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.bidrag.bidragskalkulator.config.SafSelvbetjeningConfigurationProperties
 import no.nav.bidrag.bidragskalkulator.dto.SafSelvbetjeningResponsDto
 import no.nav.bidrag.bidragskalkulator.exception.NoContentException
 import no.nav.bidrag.commons.util.secureLogger
-import org.slf4j.LoggerFactory
 import org.springframework.http.*
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
@@ -12,12 +12,12 @@ import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
 import kotlin.time.measureTimedValue
 
+private val logger = KotlinLogging.logger {}
+
 class SafSelvbetjeningConsumer(
     private val properties: SafSelvbetjeningConfigurationProperties,
     private val restTemplate: RestTemplate,
 ) : BaseConsumer(restTemplate, "saf.selvbetjening") {
-
-    private val logger = LoggerFactory.getLogger(this::class.java)
 
     init {
         check(properties.url.isNotEmpty()) { "saf.selvbetjening.url mangler i konfigurasjon" }
@@ -47,7 +47,7 @@ class SafSelvbetjeningConsumer(
                 restTemplate.exchange(url, HttpMethod.GET, entity, ByteArray::class.java)
             }
 
-            logger.info("Kall til SAF selvbetjening for henting av dokument var vellykket (varighet_ms=${varighet.inWholeMilliseconds}).")
+            logger.info { "Kall til SAF selvbetjening for henting av dokument var vellykket (varighet_ms=${varighet.inWholeMilliseconds})." }
 
             val bytes = respons.body ?: ByteArray(0)
             val filnavn = respons.headers.contentDisposition?.filename
@@ -56,23 +56,23 @@ class SafSelvbetjeningConsumer(
         } catch (e: HttpClientErrorException) {
             when (e.statusCode) {
                 HttpStatus.NOT_FOUND -> {
-                    logger.error("Dokument ble ikke funnet i SAF selvbetjening.")
+                    logger.error{ "Dokument ble ikke funnet i SAF selvbetjening." }
                     secureLogger.error(e) { "Dokument ble ikke funnet i SAF selvbetjening: ${e.message}" }
                     throw NoContentException("Dokument ikke funnet i SAF selvbetjening")
                 }
                 HttpStatus.UNAUTHORIZED, HttpStatus.FORBIDDEN -> {
-                    logger.error("Tilgang feilet ved henting av dokument fra SAF selvbetjening.")
+                    logger.error{ "Tilgang feilet ved henting av dokument fra SAF selvbetjening." }
                     secureLogger.error(e) { "Tilgang feilet ved henting av dokument fra SAF selvbetjening: ${e.message}" }
                     throw HttpClientErrorException(e.statusCode, "Tilgang feilet ved henting av dokument fra SAF selvbetjening")
                 }
                 else -> {
-                    logger.error("Kall til SAF selvbetjening feilet ved henting av dokument.")
+                    logger.error{ "Kall til SAF selvbetjening feilet ved henting av dokument." }
                     secureLogger.error(e) { "Kall til SAF selvbetjening feilet ved henting av dokument: ${e.message}" }
                     throw RuntimeException("Kunne ikke hente dokument", e)
                 }
             }
         } catch (e: Exception) {
-            logger.error("Uventet feil ved kall til SAF selvbetjening for henting av dokument.")
+            logger.error{ "Uventet feil ved kall til SAF selvbetjening for henting av dokument." }
             secureLogger.error(e) { "Uventet feil ved kall til SAF selvbetjening for henting av dokument: ${e.message}" }
             throw RuntimeException("Kunne ikke hente dokument", e)
         }
@@ -124,19 +124,19 @@ class SafSelvbetjeningConsumer(
         } catch (e: HttpClientErrorException) {
             when (e.statusCode) {
                 HttpStatus.UNAUTHORIZED, HttpStatus.FORBIDDEN -> {
-                    logger.error("Tilgang feilet ved henting av dokumentoversikt fra SAF selvbetjening.")
+                    logger.error{ "Tilgang feilet ved henting av dokumentoversikt fra SAF selvbetjening." }
                     // Her logger vi MED exception for å bevare stacktrace i secure
                     secureLogger.error(e) { "Tilgang feilet ved henting av dokumentoversikt: ${e.message}" }
                     throw HttpClientErrorException(e.statusCode, "Tilgang feilet ved henting av dokumentoversikt")
                 }
                 else -> {
-                    logger.error("Kall til SAF selvbetjening feilet ved henting av dokumentoversikt.")
+                    logger.error{ "Kall til SAF selvbetjening feilet ved henting av dokumentoversikt." }
                     secureLogger.error(e) { "Feil ved henting av dokumentoversikt: ${e.message}" }
                     throw RuntimeException("Kunne ikke hente dokumenter", e)
                 }
             }
         } catch (e: Exception) {
-            logger.error("Uventet feil ved henting av dokumentoversikt fra SAF selvbetjening.")
+            logger.error{ "Uventet feil ved henting av dokumentoversikt fra SAF selvbetjening." }
             secureLogger.error(e) { "Uventet feil ved henting av dokumentoversikt: ${e.message}" }
             throw RuntimeException("Kunne ikke hente dokumenter", e)
         }

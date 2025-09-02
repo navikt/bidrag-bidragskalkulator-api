@@ -1,5 +1,6 @@
 package no.nav.bidrag.bidragskalkulator.consumer
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.bidrag.bidragskalkulator.config.GrunnlagConfigurationProperties
 import no.nav.bidrag.commons.util.secureLogger
 import no.nav.bidrag.domene.enums.grunnlag.GrunnlagRequestType
@@ -7,7 +8,6 @@ import no.nav.bidrag.domene.enums.vedtak.Formål
 import no.nav.bidrag.transport.behandling.grunnlag.request.GrunnlagRequestDto
 import no.nav.bidrag.transport.behandling.grunnlag.request.HentGrunnlagRequestDto
 import no.nav.bidrag.transport.behandling.grunnlag.response.HentGrunnlagDto
-import org.slf4j.LoggerFactory
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
@@ -15,11 +15,12 @@ import java.net.URI
 import java.time.LocalDate
 import kotlin.time.measureTimedValue
 
+private val logger = KotlinLogging.logger {}
+
 class BidragGrunnlagConsumer(
     val grunnlagConfig: GrunnlagConfigurationProperties,
     restTemplate: RestTemplate,
 ) : BaseConsumer(restTemplate, "bidrag.grunnlag") {
-    private val logger = LoggerFactory.getLogger(javaClass)
 
     companion object {
         /**
@@ -57,22 +58,22 @@ class BidragGrunnlagConsumer(
                 )
             }
 
-            logger.info("Kall til bidrag-grunnlag OK (varighet_ms=${varighet.inWholeMilliseconds})")
+            logger.info { "Kall til bidrag-grunnlag OK (varighet_ms=${varighet.inWholeMilliseconds})" }
             output
         } catch(e: HttpServerErrorException) {
             when (e.statusCode.value()) {
                 404 -> {
-                    logger.warn ("Fant ikke grunnlag for person i bidrag-grunnlag")
+                    logger.warn { "Fant ikke grunnlag for person i bidrag-grunnlag" }
                     throw e
                 }
                 else -> {
-                    logger.error("Feil ved serverkall til bidrag-grunnlag")
+                    logger.error{ "Feil ved serverkall til bidrag-grunnlag" }
                     secureLogger.error(e) { "Kall til bidrag-grunnlag feilet: ${e.message}" }
                     throw e
                 }
             }
         } catch (e: Exception) {
-            logger.error("Uventet feil ved kall til bidrag-grunnlag")
+            logger.error{ "Uventet feil ved kall til bidrag-grunnlag" }
             secureLogger.error(e) { "Uventet feil ved kall til bidrag-grunnlag: ${e.message}" }
             throw e
         }

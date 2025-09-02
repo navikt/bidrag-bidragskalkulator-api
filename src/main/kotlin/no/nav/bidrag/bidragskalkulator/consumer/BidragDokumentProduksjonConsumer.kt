@@ -1,9 +1,9 @@
 package no.nav.bidrag.bidragskalkulator.consumer
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.bidrag.bidragskalkulator.config.DokumentproduksjonConfigurationProperties
 import no.nav.bidrag.bidragskalkulator.dto.GenererPrivatAvtalePdfRequest
 import no.nav.bidrag.commons.util.secureLogger
-import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
@@ -11,13 +11,13 @@ import java.io.ByteArrayOutputStream
 import java.io.IOException
 import kotlin.time.measureTimedValue
 
+private val logger = KotlinLogging.logger {}
+
 class BidragDokumentProduksjonConsumer(
     val properties: DokumentproduksjonConfigurationProperties,
     restTemplate: RestTemplate,
     private val headers: HttpHeaders
 ) : BaseConsumer(restTemplate, "bidrag.dokumentproduksjon") {
-
-    val logger = LoggerFactory.getLogger(BidragDokumentProduksjonConsumer::class.java)
 
     init {
         check(properties.url.isNotEmpty()) { "bidrag.dokumentproduksjon.url mangler i konfigurasjon" }
@@ -40,10 +40,10 @@ class BidragDokumentProduksjonConsumer(
                     ByteArrayOutputStream(bytes.size).apply { write(bytes) }
                 }
 
-                logger.info("Kall til bidrag-dokument-produksjon OK (varighet_ms=${varighet.inWholeMilliseconds})")
+                logger.info { "Kall til bidrag-dokument-produksjon OK (varighet_ms=${varighet.inWholeMilliseconds})" }
                 output
             } catch (e: IOException) {
-                logger.error("Kall til bidrag-dokument-produksjon feilet")
+                logger.error{ "Kall til bidrag-dokument-produksjon feilet" }
                 secureLogger.error(e) { "Kall til bidrag-dokument-produksjon feilet: ${e.message}" }
 
                 throw RuntimeException("Kunne ikke generere privat avtale PDF", e)
