@@ -12,7 +12,6 @@ import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtaleBarnUnder18RequestDto
 import no.nav.bidrag.bidragskalkulator.service.PrivatAvtalePdfService
 import no.nav.bidrag.bidragskalkulator.service.PrivatAvtaleService
 import no.nav.bidrag.bidragskalkulator.utils.InnloggetBrukerUtils
-import org.slf4j.LoggerFactory
 import jakarta.validation.Valid
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -57,7 +56,7 @@ class PrivatAvtaleController(
     )
     @GetMapping("/informasjon")
     fun hentInformasjonForPrivatAvtale(): PrivatAvtaleInformasjonDto {
-        logger.info("Starter henting av informasjon for opprettelse av privat avtale (endepunkt=${request.requestURI})")
+        logger.info { "Starter henting av informasjon for opprettelse av privat avtale (endepunkt=${request.requestURI})" }
 
         val personIdent = innloggetBrukerUtils.requirePåloggetPersonIdent(logger)
 
@@ -67,7 +66,7 @@ class PrivatAvtaleController(
             }
         }
 
-        logger.info("Fullført henting av informasjon for opprettelse av privat avtale (varighet_ms=${varighet.inWholeMilliseconds})")
+        logger.info { "Fullført henting av informasjon for opprettelse av privat avtale (varighet_ms=${varighet.inWholeMilliseconds})" }
         return resultat
     }
 
@@ -86,7 +85,7 @@ class PrivatAvtaleController(
     )
     @Validated
     fun genererPrivatAvtaleForBarnUnder18(@Valid @RequestBody dto: PrivatAvtaleBarnUnder18RequestDto): ResponseEntity<ByteArray>? {
-        logger.info("Start generere privat avtale PDF for barn under 18 år (endepunkt=${request.requestURI})")
+        logger.info { "Start generere privat avtale PDF for barn under 18 år (endepunkt=${request.requestURI})" }
 
         val personIdent = innloggetBrukerUtils.requirePåloggetPersonIdent(logger)
 
@@ -96,7 +95,7 @@ class PrivatAvtaleController(
             }
         }
 
-        logger.info("Fullført generering av privat avtale PDF for barn under 18 år (varighet_ms=${varighet.inWholeMilliseconds})")
+        logger.info { "Fullført generering av privat avtale PDF for barn under 18 år (varighet_ms=${varighet.inWholeMilliseconds})" }
 
         return ResponseEntity
             .ok()
@@ -120,17 +119,17 @@ class PrivatAvtaleController(
     )
     @Validated
     fun genererPrivatAvtaleForBarnOver18(@Valid @RequestBody dto: PrivatAvtaleBarnOver18RequestDto): ResponseEntity<ByteArray>? {
-        logger.info("Start generere privat avtale PDF for barn over 18 år (endepunkt=${request.requestURI})")
+        logger.info { "Start generere privat avtale PDF for barn over 18 år (endepunkt=${request.requestURI})" }
 
         val personIdent = innloggetBrukerUtils.requirePåloggetPersonIdent(logger)
 
-        val(resultat, varighet) = measureTimedValue {
+        val (resultat, varighet) = measureTimedValue {
             runBlocking(Dispatchers.IO + MDCContext()) {
                 privatAvtalePdfService.genererPrivatAvtalePdf(personIdent, dto)
             }
         }
 
-        logger.info("Fullført generering av privat avtale PDF for barn over 18 år (varighet_ms=${varighet.inWholeMilliseconds})")
+        logger.info { "Fullført generering av privat avtale PDF for barn over 18 år (varighet_ms=${varighet.inWholeMilliseconds})" }
 
         return ResponseEntity
             .ok()

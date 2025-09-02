@@ -52,7 +52,7 @@ class PersonController(
     @GetMapping("/informasjon")
     @ProtectedWithClaims(issuer = SecurityConstants.TOKENX)
     fun hentInformasjon(): BrukerInformasjonDto {
-        logger.info("Starter henting av informasjon om pålogget person (endepunkt=${request.requestURI})")
+        logger.info { "Starter henting av informasjon om pålogget person (endepunkt=${request.requestURI})" }
 
         val personIdent = innloggetBrukerUtils.requirePåloggetPersonIdent(logger)
 
@@ -62,7 +62,7 @@ class PersonController(
             }
         }
 
-        logger.info("Fullført henting av informasjon om pålogget person (varighet=${varighet.inWholeMilliseconds}ms)")
+        logger.info { "Fullført henting av informasjon om pålogget person (varighet=${varighet.inWholeMilliseconds}ms)" }
 
         return resultat
     }
@@ -80,7 +80,7 @@ class PersonController(
     @Unprotected
     @GetMapping("/grunnlagsdata")
     fun hentGrunnlagsData(): GrunnlagsDataDto {
-        logger.info("Starter henting av grunnlagsdata for kalkulering uten autentisering (endepunkt=${request.requestURI})")
+        logger.info { "Starter henting av grunnlagsdata for kalkulering uten autentisering (endepunkt=${request.requestURI})" }
 
         val (resultat, varighet) = measureTimedValue {
             runBlocking(BidragAwareContext) {
@@ -88,7 +88,7 @@ class PersonController(
             }
         }
 
-        logger.info("Fullført henting av grunnlagsdata for kalkulering uten autentisering (varighet=${varighet.inWholeMilliseconds}ms)")
+        logger.info { "Fullført henting av grunnlagsdata for kalkulering uten autentisering (varighet=${varighet.inWholeMilliseconds}ms)" }
         return resultat
     }
 }

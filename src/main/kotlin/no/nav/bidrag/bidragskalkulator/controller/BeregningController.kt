@@ -51,7 +51,7 @@ private val aapenBeregningCounter = Counter.builder("bidragskalkulator_antall_be
     @PostMapping("/barnebidrag")
     @ProtectedWithClaims(issuer = SecurityConstants.TOKENX)
     fun beregnBarnebidrag(@Valid @RequestBody request: BeregningRequestDto): BeregningsresultatDto {
-        logger.info("Starter beregning av barnebidrag (endepunkt=${httpServletRequest.requestURI})")
+        logger.info { "Starter beregning av barnebidrag (endepunkt=${httpServletRequest.requestURI})" }
         BeregningRequestValidator.valider(request)
 
         val (resultat, varighet) = measureTimedValue {
@@ -61,7 +61,7 @@ private val aapenBeregningCounter = Counter.builder("bidragskalkulator_antall_be
             }
         }
 
-        logger.info("Fullført beregning av barnebidrag (varighet_ms=${varighet.inWholeMilliseconds})")
+        logger.info { "Fullført beregning av barnebidrag (varighet_ms=${varighet.inWholeMilliseconds})" }
         return resultat
     }
 
@@ -77,7 +77,7 @@ private val aapenBeregningCounter = Counter.builder("bidragskalkulator_antall_be
     @PostMapping("/barnebidrag/åpen")
     @Unprotected
     fun beregnBarnebidragÅpen(@Valid @RequestBody request: ÅpenBeregningRequestDto): ÅpenBeregningsresultatDto {
-        logger.info("Starter beregning av barnebidrag uten autentisering (endepunkt=${httpServletRequest.requestURI})")
+        logger.info { "Starter beregning av barnebidrag uten autentisering (endepunkt=${httpServletRequest.requestURI})" }
         BeregningRequestValidator.valider(request)
 
         val (resultat, varighet) = measureTimedValue {
@@ -87,7 +87,7 @@ private val aapenBeregningCounter = Counter.builder("bidragskalkulator_antall_be
             }
         }
 
-        logger.info("Fullført beregning av barnebidrag uten autentisering (varighet_ms=${varighet.inWholeMilliseconds})")
+        logger.info { "Fullført beregning av barnebidrag uten autentisering (varighet_ms=${varighet.inWholeMilliseconds})" }
         return resultat
     }
 }

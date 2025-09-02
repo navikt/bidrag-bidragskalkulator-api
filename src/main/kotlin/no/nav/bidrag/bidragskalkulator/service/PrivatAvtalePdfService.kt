@@ -1,5 +1,6 @@
 package no.nav.bidrag.bidragskalkulator.service
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.bidrag.bidragskalkulator.consumer.BidragDokumentProduksjonConsumer
 import no.nav.bidrag.bidragskalkulator.consumer.FørstesidegeneratorConsumer
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtaleBarnOver18RequestDto
@@ -10,10 +11,11 @@ import no.nav.bidrag.bidragskalkulator.mapper.skalFørstesideGenereres
 import no.nav.bidrag.bidragskalkulator.mapper.tilGenererFørstesideRequestDto
 import no.nav.bidrag.bidragskalkulator.mapper.tilGenererPrivatAvtalePdfRequest
 import no.nav.bidrag.bidragskalkulator.prosessor.PdfProsessor
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.io.ByteArrayOutputStream
 import java.io.IOException
+
+private val logger = KotlinLogging.logger {}
 
 @Service
 class PrivatAvtalePdfService(
@@ -21,8 +23,6 @@ class PrivatAvtalePdfService(
     val førstesideConsumer: FørstesidegeneratorConsumer,
     val pdfProcessor: PdfProsessor
 ) {
-
-    private val logger = LoggerFactory.getLogger(javaClass)
 
     @Throws(IOException::class)
     fun genererPrivatAvtalePdf(
@@ -34,7 +34,7 @@ class PrivatAvtalePdfService(
             is PrivatAvtaleBarnOver18RequestDto -> dto.normalisert()
         }
 
-        logger.info("Generere hoveddokument – kaller bidrag-dokument-produksjon")
+        logger.info { "Generere hoveddokument – kaller bidrag-dokument-produksjon" }
         val hoveddokument = bidragDokumentConsumer
             .genererPrivatAvtaleAPdf(normalisertDto.tilGenererPrivatAvtalePdfRequest())
         hoveddokument.toByteArray()
@@ -42,7 +42,7 @@ class PrivatAvtalePdfService(
         val dokumenter = mutableListOf(hoveddokument)
 
         if(normalisertDto.oppgjør.skalFørstesideGenereres()) {
-            logger.info("Førsteside kreves – kaller førstesidegenerator")
+            logger.info { "Førsteside kreves – kaller førstesidegenerator" }
             val request = normalisertDto.tilGenererFørstesideRequestDto(innsenderIdent)
             val førstesideBytes = førstesideConsumer.genererFørsteside(request).foersteside
             val førstesideStream = ByteArrayOutputStream().apply { write(førstesideBytes) }

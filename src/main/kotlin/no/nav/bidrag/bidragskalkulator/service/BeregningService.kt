@@ -1,5 +1,6 @@
 package no.nav.bidrag.bidragskalkulator.service
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -19,10 +20,11 @@ import no.nav.bidrag.bidragskalkulator.utils.kalkulerAlder
 import no.nav.bidrag.commons.util.secureLogger
 import no.nav.bidrag.domene.ident.Personident
 import no.nav.bidrag.transport.behandling.beregning.barnebidrag.ResultatPeriode
-import org.slf4j.LoggerFactory.getLogger
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import kotlin.time.measureTimedValue
+
+private val logger = KotlinLogging.logger {}
 
 @Service
 class BeregningService(
@@ -31,11 +33,8 @@ class BeregningService(
     private val beregningsgrunnlagMapper: BeregningsgrunnlagMapper,
     private val personService: PersonService
 ) {
-
-    private val logger = getLogger(BeregningService::class.java)
-
     suspend fun beregnBarnebidrag(beregningRequest: BeregningRequestDto): BeregningsresultatDto {
-        logger.info("Starter beregning av barnebidrag.")
+        logger.info { "Starter beregning av barnebidrag." }
         val (resultatListe, varighet) = runCatching {
             measureTimedValue {
                 val grunnlag = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(beregningRequest)
@@ -46,12 +45,12 @@ class BeregningService(
             secureLogger.error(e) { "Beregning av barnebidrag feilet: ${e.message}" }
         }.getOrThrow()
 
-        logger.info("Ferdig beregnet barnebidrag. Beregning av ${resultatListe.size} barn (varighet_ms=${varighet.inWholeMilliseconds}).")
+        logger.info { "Ferdig beregnet barnebidrag. Beregning av ${resultatListe.size} barn (varighet_ms=${varighet.inWholeMilliseconds})." }
         return BeregningsresultatDto(resultatListe)
     }
 
     suspend fun beregnBarnebidragAnonym(beregningRequest: ÅpenBeregningRequestDto): ÅpenBeregningsresultatDto {
-        logger.info("Starter anonym beregning av barnebidrag.")
+        logger.info { "Starter anonym beregning av barnebidrag." }
         val (resultatListe, varighet) = runCatching {
             measureTimedValue {
                 val grunnlag = beregningsgrunnlagMapper.mapTilBeregningsgrunnlagAnonym(beregningRequest)
@@ -62,7 +61,7 @@ class BeregningService(
             secureLogger.error(e) { "Anonym beregning av barnebidrag feilet: ${e.message}" }
         }.getOrThrow()
 
-        logger.info("Ferdig med anonym beregning av barnebidrag. Beregning av ${resultatListe.size} barn (varighet_ms=${varighet.inWholeMilliseconds}).")
+        logger.info { "Ferdig med anonym beregning av barnebidrag. Beregning av ${resultatListe.size} barn (varighet_ms=${varighet.inWholeMilliseconds})." }
         return ÅpenBeregningsresultatDto(resultatListe)
     }
 
@@ -115,7 +114,7 @@ class BeregningService(
     suspend fun beregnUnderholdskostnaderForBarnerelasjoner(
         barnerelasjoner: List<FamilieRelasjon>
     ): List<BarneRelasjonDto> = coroutineScope {
-        logger.info("Starter beregning av underholdskostnader for barnerelasjoner.")
+        logger.info { "Starter beregning av underholdskostnader for barnerelasjoner." }
         val (resultater, varighet) = runCatching {
             measureTimedValue {
                 barnerelasjoner.map { beregnUnderholdskostnadForRelasjon(it) }
@@ -125,7 +124,7 @@ class BeregningService(
             secureLogger.error(e) { "Beregning av underholdskostnader for barnerelasjoner feilet: ${e.message}" }
         }.getOrThrow()
 
-        logger.info("Fullførte beregning av underholdskostnader for ${resultater.size} relasjoner (varighet_ms=${varighet.inWholeMilliseconds}).")
+        logger.info { "Fullførte beregning av underholdskostnader for ${resultater.size} relasjoner (varighet_ms=${varighet.inWholeMilliseconds})." }
         resultater
     }
 

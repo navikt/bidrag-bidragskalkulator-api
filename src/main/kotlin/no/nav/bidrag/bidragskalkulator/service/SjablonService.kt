@@ -1,20 +1,21 @@
 package no.nav.bidrag.bidragskalkulator.service
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.bidrag.bidragskalkulator.config.CacheConfig
 import no.nav.bidrag.bidragskalkulator.dto.SamværsfradragPeriode
 import no.nav.bidrag.commons.service.sjablon.Samværsfradrag
 import no.nav.bidrag.commons.service.sjablon.SjablonProvider
 import no.nav.bidrag.commons.util.secureLogger
-import org.slf4j.LoggerFactory
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.time.LocalDate
 import kotlin.time.measureTimedValue
 
+private val logger = KotlinLogging.logger {}
+
 @Service
 class SjablonService {
-    private val logger = LoggerFactory.getLogger(SjablonService::class.java)
 
     /**
      * Henter samværsfradrag fra sjablon, filtrerer på dato og grupperer etter alderTom.
@@ -23,7 +24,7 @@ class SjablonService {
      */
     @Cacheable(CacheConfig.SAMVÆRSFRADRAG)
     fun hentSamværsfradrag(): List<SamværsfradragPeriode> {
-        logger.info("Henter samværsfradrag")
+        logger.info { "Henter samværsfradrag" }
         val nåværendeDato = LocalDate.now()
 
         val (filtrert, varighet) = runCatching {
@@ -38,11 +39,11 @@ class SjablonService {
                     .filter { nåværendeDato >= it.datoFom && nåværendeDato <= it.datoTom }
             }
         }.onFailure { e ->
-            logger.error("Kall til sjablon provider feilet")
+            logger.error{ "Kall til sjablon provider feilet" }
             secureLogger.error(e) { "Kall til sjablon provider feilet: ${e.message}" }
         }.getOrThrow()
 
-        logger.info("Kall til sjablon provider OK (varighet_ms=${varighet.inWholeMilliseconds})")
+        logger.info { "Kall til sjablon provider OK (varighet_ms=${varighet.inWholeMilliseconds})" }
 
         // 2) Gruppér på alderTom
         val alderTomGrupper = filtrert.groupBy { it.alderTom ?: 99 }
@@ -53,9 +54,9 @@ class SjablonService {
         // 4) Map til SamværsfradragPeriode
         val resultat = mapTilSamværsfradragPeriode(sortertAlderTom, alderTomGrupper)
 
-        logger.info(
+        logger.info {
             "Mapping til samværsfradrag-perioder fullført."
-        )
+        }
 
         return resultat
     }

@@ -1,5 +1,6 @@
 package no.nav.bidrag.bidragskalkulator.service
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.coroutineScope
 import no.nav.bidrag.bidragskalkulator.config.CacheConfig
 import no.nav.bidrag.bidragskalkulator.dto.BrukerInformasjonDto
@@ -8,9 +9,10 @@ import no.nav.bidrag.bidragskalkulator.mapper.tilPersonInformasjonDto
 import no.nav.bidrag.bidragskalkulator.mapper.toInntektResultatDto
 import no.nav.bidrag.bidragskalkulator.utils.asyncCatching
 import no.nav.bidrag.domene.ident.Personident
-import org.slf4j.LoggerFactory
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
+
+private val logger = KotlinLogging.logger {}
 
 @Service
 class BrukerinformasjonService(
@@ -19,7 +21,6 @@ class BrukerinformasjonService(
     private val sjablonService: SjablonService,
     private val underholdskostnadService: UnderholdskostnadService
 ) {
-    private val logger = LoggerFactory.getLogger(BrukerinformasjonService::class.java)
 
     @Cacheable(CacheConfig.PERSONINFORMASJON)
     suspend fun hentBrukerinformasjon(personIdent: String): BrukerInformasjonDto = coroutineScope {
@@ -35,7 +36,7 @@ class BrukerinformasjonService(
 
         val grunnlagsdata = asyncCatching(logger, "gunnlagsdata") { hentGrunnlagsData() }
 
-        logger.info("Ferdig med henting av person informasjon og inntektsgrunnlag for å utforme brukerinformasjon")
+        logger.info { "Ferdig med henting av person informasjon og inntektsgrunnlag for å utforme brukerinformasjon" }
 
         BrukerInformasjonDto(
             person = personinformasjonJobb.await().tilPersonInformasjonDto(),

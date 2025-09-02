@@ -31,7 +31,7 @@ class MinSideController(
 
     @GetMapping("/dokumenter")
     fun hentSelvbetjeningDokumenter(): ResponseEntity<MinSideDokumenterDto> {
-        logger.info("Starter henting av dokumenter for en bruker (endepunkt=${request.requestURI})")
+        logger.info { "Starter henting av dokumenter for en bruker (endepunkt=${request.requestURI})" }
 
         val bruker = innloggetBrukerUtils.requirePåloggetPersonIdent(logger)
 
@@ -39,7 +39,7 @@ class MinSideController(
             safSelvbetjeningService.hentSelvbetjeningJournalposter(bruker)
         }
 
-        logger.info("Fullført henting ${dokumenter.journalposter.size} dokumenter for brukeren varighet_ms=${varighet.inWholeMilliseconds})")
+        logger.info { "Fullført henting ${dokumenter.journalposter.size} dokumenter for brukeren varighet_ms=${varighet.inWholeMilliseconds})" }
 
         return ResponseEntity.ok(dokumenter)
     }
@@ -49,7 +49,7 @@ class MinSideController(
         @PathVariable journalpostId: String,
         @PathVariable dokumentInfoId: String
     ): ResponseEntity<ByteArray> {
-        logger.info("Start henting av dokument med journalpost- og dokumentinfo-ID for en bruker (endepunkt=${request.requestURI})")
+        logger.info { "Start henting av dokument med journalpost- og dokumentinfo-ID for en bruker (endepunkt=${request.requestURI})" }
 
         try {
             val (resultat, varighet) = measureTimedValue {
@@ -61,13 +61,13 @@ class MinSideController(
                 resultat            }
             headers.contentType = MediaType.APPLICATION_PDF
 
-            logger.info("Fullført henting av dokument med journalpost- og dokumentinfo-ID for en bruker varighet_ms=${varighet.inWholeMilliseconds})")
+            logger.info { "Fullført henting av dokument med journalpost- og dokumentinfo-ID for en bruker varighet_ms=${varighet.inWholeMilliseconds})" }
             return ResponseEntity(resultat.dokument, headers, HttpStatus.OK)
         } catch (e: HttpClientErrorException) {
-            logger.error("Feil ved henting av dokument: ${e.statusCode}")
+            logger.error{ "Feil ved henting av dokument: ${e.statusCode}" }
             throw e
         } catch (e: Exception) {
-            logger.error("Uventet feil ved henting av dokument")
+            logger.error{ "Uventet feil ved henting av dokument" }
             throw RuntimeException("Kunne ikke hente dokument", e)
         }
     }

@@ -1,5 +1,6 @@
 package no.nav.bidrag.bidragskalkulator.utils
 
+import io.github.oshai.kotlinlogging.KLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -7,10 +8,9 @@ import kotlinx.coroutines.slf4j.MDCContext
 import no.nav.bidrag.commons.util.RequestContextAsyncContext
 import no.nav.bidrag.commons.util.SecurityCoroutineContext
 import no.nav.bidrag.commons.util.secureLogger
-import org.slf4j.Logger
 
 fun <T> CoroutineScope.asyncCatching(
-    logger: Logger,
+    logger: KLogger,
     navn: String,
     block: suspend CoroutineScope.() -> T
 ) = async(BidragAwareContext) {
