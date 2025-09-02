@@ -57,7 +57,7 @@ class BeregningService(
                 utførBarnebidragBeregningAnonym(grunnlag)
             }
         }.onFailure { e ->
-            logger.error("Anonym beregning av barnebidrag feilet.")
+            logger.error{ "Anonym beregning av barnebidrag feilet." }
             secureLogger.error(e) { "Anonym beregning av barnebidrag feilet: ${e.message}" }
         }.getOrThrow()
 
@@ -120,7 +120,7 @@ class BeregningService(
                 barnerelasjoner.map { beregnUnderholdskostnadForRelasjon(it) }
             }
         }.onFailure { e ->
-            logger.error("Beregning av underholdskostnader for barnerelasjoner feilet.")
+            logger.error{ "Beregning av underholdskostnader for barnerelasjoner feilet." }
             secureLogger.error(e) { "Beregning av underholdskostnader for barnerelasjoner feilet: ${e.message}" }
         }.getOrThrow()
 

@@ -16,7 +16,7 @@ fun <T> CoroutineScope.asyncCatching(
 ) = async(BidragAwareContext) {
     runCatching { block() }
         .onFailure { e ->
-            logger.error("Feil ved henting av $navn")
+            logger.error{ "Feil ved henting av $navn" }
             secureLogger.error(e) { "Kall i $navn feilet: ${e.message}" }
         }
         .getOrThrow()
