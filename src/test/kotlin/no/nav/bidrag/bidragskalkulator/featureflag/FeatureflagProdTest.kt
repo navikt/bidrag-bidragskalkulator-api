@@ -23,7 +23,7 @@ import org.springframework.context.annotation.Import
         BidragskalkulatorGrunnlagController::class
     ]
 )
-@Import(TestBeans::class)
+@Import(FeatureflagTestBeans::class)
 @ActiveProfiles("prod")
 @TestPropertySource(
     properties = [
@@ -33,21 +33,26 @@ import org.springframework.context.annotation.Import
 )
 class FeatureflagProdTest {
 
-    @Autowired lateinit var context: ApplicationContext
+    @Autowired
+    lateinit var context: ApplicationContext
 
-    @Test fun `PrivatAvtaleController skal IKKE være tilgjengelig i prod`() {
+    @Test
+    fun `PrivatAvtaleController skal IKKE være tilgjengelig i prod`() {
         assertThat(context.getBeansOfType(PrivatAvtaleController::class.java)).isEmpty()
     }
 
-    @Test fun `MinSideController skal IKKE være tilgjengelig i prod`() {
+    @Test
+    fun `MinSideController skal IKKE være tilgjengelig i prod`() {
         assertThat(context.getBeansOfType(MinSideController::class.java)).isEmpty()
     }
 
-    @Test fun `BeregningController skal være tilgjengelig i prod`() {
+    @Test
+    fun `BeregningController skal være tilgjengelig i prod`() {
         assertThat(context.getBeansOfType(BeregningController::class.java)).isNotEmpty
     }
 
-    @Test fun `BidragskalkulatorGrunnlagController skal være tilgjengelig i prod`() {
+    @Test
+    fun `BidragskalkulatorGrunnlagController skal være tilgjengelig i prod`() {
         assertThat(context.getBeansOfType(BidragskalkulatorGrunnlagController::class.java)).isNotEmpty
     }
 }

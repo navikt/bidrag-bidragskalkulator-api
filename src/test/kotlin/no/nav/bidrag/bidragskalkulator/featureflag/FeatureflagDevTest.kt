@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Import
         BidragskalkulatorGrunnlagController::class
     ]
 )
-@Import(TestBeans::class)
+@Import(FeatureflagTestBeans::class)
 @ActiveProfiles("dev")
 @TestPropertySource(
     properties = [
@@ -28,7 +28,8 @@ import org.springframework.context.annotation.Import
 )
 class FeatureflagDevTest {
 
-    @Autowired lateinit var context: ApplicationContext
+    @Autowired
+    lateinit var context: ApplicationContext
 
     @Test
     fun `PrivatAvtaleController skal være tilgjengelig i dev`() {

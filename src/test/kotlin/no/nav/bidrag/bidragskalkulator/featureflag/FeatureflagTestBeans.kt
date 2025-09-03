@@ -10,28 +10,36 @@ import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 
 @TestConfiguration
-class TestBeans {
+class FeatureflagTestBeans {
 
-    @Bean fun httpServletRequest(): HttpServletRequest =
+    @Bean
+    fun httpServletRequest(): HttpServletRequest =
         Mockito.mock(HttpServletRequest::class.java)
 
-    @Bean fun beregningService(): BeregningService =
+    @Bean
+    fun beregningService(): BeregningService =
         Mockito.mock(BeregningService::class.java)
 
-    @Bean fun bidragskalkulatorGrunnlagService(): BidragskalkulatorGrunnlagService =
+    @Bean
+    fun bidragskalkulatorGrunnlagService(): BidragskalkulatorGrunnlagService =
         Mockito.mock(BidragskalkulatorGrunnlagService::class.java)
 
-    @Bean fun privatAvtaleService(): PrivatAvtaleService =
+    @Bean
+    fun privatAvtaleService(): PrivatAvtaleService =
         Mockito.mock(PrivatAvtaleService::class.java)
 
-    @Bean fun privatAvtalePdfService(): PrivatAvtalePdfService =
+    @Bean
+    fun privatAvtalePdfService(): PrivatAvtalePdfService =
         Mockito.mock(PrivatAvtalePdfService::class.java)
 
-    @Bean fun safSelvbetjeningService(): SafSelvbetjeningService =
+    @Bean
+    fun safSelvbetjeningService(): SafSelvbetjeningService =
         Mockito.mock(SafSelvbetjeningService::class.java)
 
-    @Bean fun innloggetBrukerUtils(): InnloggetBrukerUtils =
+    @Bean
+    fun innloggetBrukerUtils(): InnloggetBrukerUtils =
         Mockito.mock(InnloggetBrukerUtils::class.java)
 
-    @Bean fun meterRegistry(): MeterRegistry = SimpleMeterRegistry()
+    @Bean
+    fun meterRegistry(): MeterRegistry = SimpleMeterRegistry()
 }
