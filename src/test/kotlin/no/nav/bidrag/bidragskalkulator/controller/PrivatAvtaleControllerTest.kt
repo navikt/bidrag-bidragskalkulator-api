@@ -52,7 +52,7 @@ class PrivatAvtaleControllerTest: AbstractControllerTest() {
             val personIdent = "03848797048"
             val forventetDto = mockResponsPersonMedEnBarnRelasjon.person.tilPrivatAvtaleInformasjonDto()
 
-            every { innloggetBrukerUtils.hentPåloggetPersonIdent() } returns personIdent
+            every { innloggetBrukerUtils.requirePåloggetPersonIdent(any()) } returns personIdent
             every { privatAvtaleService.hentInformasjonForPrivatAvtale(personIdent) } returns forventetDto
 
             getRequest("/api/v1/privat-avtale/informasjon", gyldigOAuth2Token)
@@ -76,7 +76,7 @@ class PrivatAvtaleControllerTest: AbstractControllerTest() {
             val personIdent = "12345678910"
             val dto = lagGyldigPrivatAvtaleBarnUnder18RequestDto()
 
-            every { innloggetBrukerUtils.hentPåloggetPersonIdent() } returns personIdent
+            every { innloggetBrukerUtils.requirePåloggetPersonIdent(any()) } returns personIdent
 
             every { privatAvtalePdfService.genererPrivatAvtalePdf(personIdent, dto) } returns
                     ByteArrayOutputStream().apply { write(pdfMock) }
@@ -169,7 +169,7 @@ class PrivatAvtaleControllerTest: AbstractControllerTest() {
             val personIdent = "12345678910"
             val dto = lagGyldigPrivatAvtaleBarnOver18RequestDto()
 
-            every { innloggetBrukerUtils.hentPåloggetPersonIdent() } returns personIdent
+            every { innloggetBrukerUtils.requirePåloggetPersonIdent(any()) } returns personIdent
             every { privatAvtalePdfService.genererPrivatAvtalePdf(personIdent, dto) } returns
                     ByteArrayOutputStream().apply { write(pdfMock) }
 

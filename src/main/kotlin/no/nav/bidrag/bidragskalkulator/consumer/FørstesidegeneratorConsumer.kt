@@ -1,22 +1,24 @@
 package no.nav.bidrag.bidragskalkulator.consumer
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.bidrag.bidragskalkulator.config.FørstesidegeneratorConfigurationProperties
 import no.nav.bidrag.bidragskalkulator.dto.førstesidegenerator.*
 import no.nav.bidrag.bidragskalkulator.exception.MetaforceException
-import org.slf4j.LoggerFactory
+import no.nav.bidrag.commons.util.secureLogger
 import org.springframework.http.HttpHeaders
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
+import kotlin.time.measureTimedValue
+
+private val logger = KotlinLogging.logger {}
 
 class FørstesidegeneratorConsumer(
     private val config: FørstesidegeneratorConfigurationProperties,
     restTemplate: RestTemplate,
     private val headers: HttpHeaders
 ) : BaseConsumer(restTemplate, "foerstesidegenerator") {
-
-    val logger = LoggerFactory.getLogger(FørstesidegeneratorConsumer::class.java)
 
     init {
         check(config.url.isNotEmpty()) { "foerstesidegenerator.url mangler i konfigurasjon" }
@@ -57,14 +59,23 @@ class FørstesidegeneratorConsumer(
     fun genererFørsteside(dto: GenererFørstesideRequestDto): GenererFørstesideResultatDto =
         medApplikasjonsKontekst {
             try {
-                postForEntity<GenererFørstesideResultatDto>(genererFørstesideUrl, dto, headers)
-                    ?: throw RuntimeException("Generering av førsteside feilet: tom respons fra server")
-            } catch (e: HttpClientErrorException) {
-                logger.error("Feil fra foerstesidegenerator", e)
+                val (førstesideResultatDto, varighet) = measureTimedValue {
+                    postForEntity<GenererFørstesideResultatDto>(genererFørstesideUrl, dto, headers)
+                        ?: throw RuntimeException("Tom respons fra førstesidegenerator")
+                }
 
-                throw RuntimeException("Generering av førsteside feilet: ${e.message}", e)
+                logger.info { "Kall til førstesidegenerator OK (varighet_ms=${varighet.inWholeMilliseconds})" }
+                førstesideResultatDto
+            } catch (e: HttpClientErrorException) {
+                logger.error{ "Kall til foerstesidegenerator feilet (status=${e.statusCode.value()})" }
+                secureLogger.warn(e) {
+                    "Feil fra foerstesidegenerator: status=${e.statusCode.value()}, body='${e.responseBodyAsString.take(4000)}'"
+                }
+
+                throw RuntimeException("Generering av førsteside feilet (klientfeil ${e.statusCode.value()})", e)
             } catch (e: Exception) {
-                logger.error("Uventet feil ved generering av førsteside", e)
+                logger.error{ "Uventet feil ved kall til foerstesidegenerator" }
+                secureLogger.error(e) { "Uventet feil ved kall til foerstesidegenerator: ${e.message}" }
 
                 if (e.message?.contains("Metaforce:GS_CreateDocument", ignoreCase = true) == true) {
                     throw MetaforceException("Metaforce feilet ved dokumentgenerering", e)

@@ -1,16 +1,16 @@
 package no.nav.bidrag.bidragskalkulator.mapper
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.bidrag.bidragskalkulator.model.FamilieRelasjon
 import no.nav.bidrag.transport.person.MotpartBarnRelasjon
-import org.slf4j.LoggerFactory
 
-val logger = LoggerFactory.getLogger("MotpartBarnRelasjonMapper")
+private val logger = KotlinLogging.logger {}
 
 fun List<MotpartBarnRelasjon>.filtrerRelasjonerMedGyldigMotpartOgBarn(): List<FamilieRelasjon> =
     this.mapNotNull { relasjon ->
             val motpart = relasjon.motpart
             if(motpart == null) {
-                logger.info("Filtrerer bort relasjon: mangler motpart")
+                logger.info { "Filtrerer bort relasjon: mangler motpart" }
                 // Hopp over denne relasjonen og ikke inkluder dette elementet i resultatet. Fortsett med resten
                 return@mapNotNull null
             }

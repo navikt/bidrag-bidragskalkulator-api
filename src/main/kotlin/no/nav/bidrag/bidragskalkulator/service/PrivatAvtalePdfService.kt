@@ -1,5 +1,6 @@
 package no.nav.bidrag.bidragskalkulator.service
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.bidrag.bidragskalkulator.consumer.BidragDokumentProduksjonConsumer
 import no.nav.bidrag.bidragskalkulator.consumer.FørstesidegeneratorConsumer
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtaleBarnOver18RequestDto
@@ -10,11 +11,11 @@ import no.nav.bidrag.bidragskalkulator.mapper.skalFørstesideGenereres
 import no.nav.bidrag.bidragskalkulator.mapper.tilGenererFørstesideRequestDto
 import no.nav.bidrag.bidragskalkulator.mapper.tilGenererPrivatAvtalePdfRequest
 import no.nav.bidrag.bidragskalkulator.prosessor.PdfProsessor
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.io.ByteArrayOutputStream
 import java.io.IOException
-import kotlin.time.measureTimedValue
+
+private val logger = KotlinLogging.logger {}
 
 @Service
 class PrivatAvtalePdfService(
@@ -23,42 +24,33 @@ class PrivatAvtalePdfService(
     val pdfProcessor: PdfProsessor
 ) {
 
-    private val logger = LoggerFactory.getLogger(javaClass)
-
     @Throws(IOException::class)
     fun genererPrivatAvtalePdf(
         innsenderIdent: String,
         dto: PrivatAvtalePdf
     ): ByteArrayOutputStream {
-        val (label, normalisertDto) = when (dto) {
-            is PrivatAvtaleBarnUnder18RequestDto -> "under 18 år" to dto.normalisert()
-            is PrivatAvtaleBarnOver18RequestDto -> "over 18 år" to dto.normalisert()
+        val normalisertDto = when (dto) {
+            is PrivatAvtaleBarnUnder18RequestDto -> dto.normalisert()
+            is PrivatAvtaleBarnOver18RequestDto -> dto.normalisert()
         }
 
-        logger.info("Privat avtale for barn $label: Starter generering av PDF for privat avtale")
+        logger.info { "Generere hoveddokument – kaller bidrag-dokument-produksjon" }
+        val hoveddokument = bidragDokumentConsumer
+            .genererPrivatAvtaleAPdf(normalisertDto.tilGenererPrivatAvtalePdfRequest())
+        hoveddokument.toByteArray()
 
-        val hovedDokument = measureTimedValue { bidragDokumentConsumer
-            .genererPrivatAvtaleAPdf(normalisertDto.tilGenererPrivatAvtalePdfRequest()) }
-            .also { logger
-                .info("Privat avtale for barn $label: Hoveddokument generert på ${it.duration.inWholeMilliseconds} ms") }
-            .value.toByteArray()
-
-        val dokumenter = mutableListOf(hovedDokument)
+        val dokumenter = mutableListOf(hoveddokument)
 
         if(normalisertDto.oppgjør.skalFørstesideGenereres()) {
+            logger.info { "Førsteside kreves – kaller førstesidegenerator" }
             val request = normalisertDto.tilGenererFørstesideRequestDto(innsenderIdent)
-            val førsteside = measureTimedValue { førstesideConsumer.genererFørsteside(request).foersteside }
-                .also { logger
-                    .info("Privat avtale for barn $label: Førsteside generert på ${it.duration.inWholeMilliseconds} ms") }
-                .value
+            val førstesideBytes = førstesideConsumer.genererFørsteside(request).foersteside
+            val førstesideStream = ByteArrayOutputStream().apply { write(førstesideBytes) }
 
-              dokumenter.add(0, førsteside)
+            dokumenter.add(0, førstesideStream)
         }
 
-        val sammenslått = pdfProcessor.prosesserOgSlåSammenDokumenter(dokumenter)
-
-        return ByteArrayOutputStream().apply {
-            write(sammenslått)
-        }
+        val sammenslått = pdfProcessor.prosesserOgSlåSammenDokumenter(dokumenter.map { it.toByteArray() })
+        return ByteArrayOutputStream().apply { write(sammenslått) }
     }
 }

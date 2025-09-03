@@ -2,11 +2,18 @@ package no.nav.bidrag.bidragskalkulator.utils
 
 import com.nimbusds.jwt.JWTParser
 import com.nimbusds.jwt.SignedJWT
+import io.github.oshai.kotlinlogging.KLogger
 import no.nav.bidrag.commons.security.service.OidcTokenManager
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
+import org.springframework.web.server.ResponseStatusException
 
 @Component
 class InnloggetBrukerUtils(private val oidcTokenManager: OidcTokenManager) {
+
+    companion object {
+        private const val UNAUTHORIZED_TOKEN_MESSAGE = "Ugyldig eller manglende token"
+    }
 
     fun hentPåloggetPersonIdent(): String? {
         val token = oidcTokenManager.hentToken()
@@ -27,4 +34,10 @@ class InnloggetBrukerUtils(private val oidcTokenManager: OidcTokenManager) {
         return jwt.jwtClaimsSet.getStringClaim("pid")
             ?: throw IllegalStateException("Token mangler 'pid'-claim")
     }
+
+     fun requirePåloggetPersonIdent(logger: KLogger): String =
+        hentPåloggetPersonIdent() ?: run {
+            logger.warn { "Avbrøt operasjon: ugyldig eller manglende token" }
+            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, UNAUTHORIZED_TOKEN_MESSAGE)
+        }
 }

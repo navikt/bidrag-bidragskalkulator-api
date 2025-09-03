@@ -1,15 +1,18 @@
 package no.nav.bidrag.bidragskalkulator.prosessor
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.bidrag.bidragskalkulator.utils.PdfUtils
 import no.nav.bidrag.bidragskalkulator.utils.PdfUtils.Companion.convertAllPagesToA4
 import no.nav.bidrag.bidragskalkulator.utils.skalerTilA4
+import no.nav.bidrag.commons.util.secureLogger
 import org.apache.pdfbox.io.MemoryUsageSetting
 import org.apache.pdfbox.multipdf.PDFMergerUtility
 import org.apache.pdfbox.pdmodel.PDDocument
-import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.IOException
 import java.util.UUID
+
+private val logger = KotlinLogging.logger {}
 
 interface PdfProsessor {
     fun konverterPdfTilA4(pdf:  ByteArray): ByteArray?
@@ -17,8 +20,6 @@ interface PdfProsessor {
 }
 
 class PrivatAvtalePdfProsessor : PdfProsessor {
-
-    val logger = LoggerFactory.getLogger(PrivatAvtalePdfProsessor::class.java)
 
     override fun konverterPdfTilA4(pdf: ByteArray): ByteArray? {
         return prosesserOgSlåSammenDokumenter(listOf(pdf))
@@ -53,7 +54,8 @@ class PrivatAvtalePdfProsessor : PdfProsessor {
             pdfMerger.mergeDocuments(MemoryUsageSetting.setupMainMemoryOnly())
 
         } catch (e: Exception) {
-            logger.error("Feil ved sammenslåing av PDF-filer: ${e.message}", e)
+            logger.error{ "Feil ved sammenslåing av PDF-filer: ${e.message}" }
+            secureLogger.error(e) { "Feil ved sammenslåing av PDF-filer ${e.message}" }
             throw e
         } finally {
             tempFiles.forEach { it.delete() }

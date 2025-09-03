@@ -3,6 +3,7 @@ package no.nav.bidrag.bidragskalkulator.validering
 import no.nav.bidrag.bidragskalkulator.dto.BidragsType.*
 import no.nav.bidrag.bidragskalkulator.dto.FellesBeregningRequestDto
 import no.nav.bidrag.bidragskalkulator.dto.IFellesBarnDto
+import no.nav.bidrag.bidragskalkulator.exception.BidragKalkulatorException
 import no.nav.bidrag.bidragskalkulator.exception.UgyldigBeregningRequestException
 
 object BeregningRequestValidator {

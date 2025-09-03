@@ -1,14 +1,15 @@
 package no.nav.bidrag.bidragskalkulator.controller
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import jakarta.servlet.http.HttpServletRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.slf4j.MDCContext
 import no.nav.bidrag.bidragskalkulator.config.SecurityConstants
-import no.nav.bidrag.commons.util.secureLogger
 import no.nav.bidrag.bidragskalkulator.dto.BrukerInformasjonDto
 import no.nav.bidrag.bidragskalkulator.dto.GrunnlagsDataDto
 import no.nav.bidrag.bidragskalkulator.service.BrukerinformasjonService
@@ -19,20 +20,17 @@ import no.nav.security.token.support.core.api.Unprotected
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import org.slf4j.LoggerFactory
-import org.springframework.http.CacheControl
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
-import org.springframework.web.server.ResponseStatusException
-import java.util.concurrent.TimeUnit
+import kotlin.time.measureTimedValue
+
+private val logger = KotlinLogging.logger {}
 
 @RestController
 @RequestMapping("/api/v1/person")
 class PersonController(
+    private val request: HttpServletRequest,
     private val brukerinformasjonService: BrukerinformasjonService,
     private val innloggetBrukerUtils: InnloggetBrukerUtils
 ) {
-    private val logger = LoggerFactory.getLogger(PersonController::class.java)
 
     @Operation(
         summary = "Henter informasjon om pålogget person og relasjoner til barn",
@@ -54,19 +52,19 @@ class PersonController(
     @GetMapping("/informasjon")
     @ProtectedWithClaims(issuer = SecurityConstants.TOKENX)
     fun hentInformasjon(): BrukerInformasjonDto {
-        logger.info("Henter informasjon om pålogget person og personens barn")
+        logger.info { "Starter henting av informasjon om pålogget person (endepunkt=${request.requestURI})" }
 
-        val personIdent = innloggetBrukerUtils.hentPåloggetPersonIdent()
-            ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Ugyldig token")
+        val personIdent = innloggetBrukerUtils.requirePåloggetPersonIdent(logger)
 
-        return runBlocking(Dispatchers.IO + MDCContext()) {
-            secureLogger.info { "Henter informasjon om pålogget person $personIdent og personens barn" }
-
-            brukerinformasjonService.hentBrukerinformasjon(personIdent).also {
-                secureLogger.info { "Henter informasjon om pålogget person $personIdent fullført" }
+        val (resultat, varighet) = measureTimedValue {
+            runBlocking(Dispatchers.IO + MDCContext()) {
+                brukerinformasjonService.hentBrukerinformasjon(personIdent)
             }
-
         }
+
+        logger.info { "Fullført henting av informasjon om pålogget person (varighet=${varighet.inWholeMilliseconds}ms)" }
+
+        return resultat
     }
 
     @Operation(
@@ -82,13 +80,15 @@ class PersonController(
     @Unprotected
     @GetMapping("/grunnlagsdata")
     fun hentGrunnlagsData(): GrunnlagsDataDto {
-        secureLogger.info { "Henter Grunnlagsdata (underholdskostnader og samværsfradrag)" }
+        logger.info { "Starter henting av grunnlagsdata for kalkulering uten autentisering (endepunkt=${request.requestURI})" }
 
-        val result = runBlocking(BidragAwareContext) {
-            brukerinformasjonService.hentGrunnlagsData().also {
-                secureLogger.info { "Grunnlagsdata hentet" }
+        val (resultat, varighet) = measureTimedValue {
+            runBlocking(BidragAwareContext) {
+                brukerinformasjonService.hentGrunnlagsData()
             }
         }
-        return result
+
+        logger.info { "Fullført henting av grunnlagsdata for kalkulering uten autentisering (varighet=${varighet.inWholeMilliseconds}ms)" }
+        return resultat
     }
 }

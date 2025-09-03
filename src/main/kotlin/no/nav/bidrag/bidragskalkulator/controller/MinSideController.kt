@@ -1,12 +1,12 @@
 package no.nav.bidrag.bidragskalkulator.controller
 
+import io.github.oshai.kotlinlogging.KotlinLogging
+import jakarta.servlet.http.HttpServletRequest
 import no.nav.bidrag.bidragskalkulator.config.SecurityConstants
 import no.nav.bidrag.bidragskalkulator.dto.minSide.MinSideDokumenterDto
 import no.nav.bidrag.bidragskalkulator.service.SafSelvbetjeningService
 import no.nav.bidrag.bidragskalkulator.utils.InnloggetBrukerUtils
-import no.nav.bidrag.commons.util.secureLogger
 import no.nav.security.token.support.core.api.ProtectedWithClaims
-import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -16,27 +16,30 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.client.HttpClientErrorException
+import kotlin.time.measureTimedValue
+
+private val logger = KotlinLogging.logger {}
 
 @RestController
 @RequestMapping("/api/v1/minside")
 @ProtectedWithClaims(issuer = SecurityConstants.TOKENX)
 class MinSideController(
+    private val request: HttpServletRequest,
     private val safSelvbetjeningService: SafSelvbetjeningService,
     private val innloggetBrukerUtils: InnloggetBrukerUtils
 ) {
 
-    private val logger = LoggerFactory.getLogger(MinSideController::class.java)
-
     @GetMapping("/dokumenter")
     fun hentSelvbetjeningDokumenter(): ResponseEntity<MinSideDokumenterDto> {
-        val bruker = innloggetBrukerUtils.hentPåloggetPersonIdent()
-            ?: throw IllegalStateException("Ugyldig token, ingen pålogget bruker ident funnet")
+        logger.info { "Starter henting av dokumenter for en bruker (endepunkt=${request.requestURI})" }
 
-        secureLogger.info { "Henter dokumenter for bruker med ident: $bruker" }
+        val bruker = innloggetBrukerUtils.requirePåloggetPersonIdent(logger)
 
-        val dokumenter = safSelvbetjeningService.hentSelvbetjeningJournalposter(bruker)
+        val (dokumenter, varighet) = measureTimedValue {
+            safSelvbetjeningService.hentSelvbetjeningJournalposter(bruker)
+        }
 
-        secureLogger.info { "Hentet ${dokumenter.journalposter.size} dokumenter for bruker med ident: $bruker" }
+        logger.info { "Fullført henting ${dokumenter.journalposter.size} dokumenter for brukeren varighet_ms=${varighet.inWholeMilliseconds})" }
 
         return ResponseEntity.ok(dokumenter)
     }
@@ -46,28 +49,25 @@ class MinSideController(
         @PathVariable journalpostId: String,
         @PathVariable dokumentInfoId: String
     ): ResponseEntity<ByteArray> {
-        val bruker = innloggetBrukerUtils.hentPåloggetPersonIdent()
-            ?: throw IllegalStateException("Ugyldig token, ingen pålogget bruker ident funnet")
-
-        secureLogger.info { "Henter dokument med journalpostId: $journalpostId og dokumentInfoId: $dokumentInfoId for bruker med ident: $bruker" }
+        logger.info { "Start henting av dokument med journalpost- og dokumentinfo-ID for en bruker (endepunkt=${request.requestURI})" }
 
         try {
-            val dokumentRespons = safSelvbetjeningService.hentDokument(journalpostId, dokumentInfoId)
+            val (resultat, varighet) = measureTimedValue {
+                safSelvbetjeningService.hentDokument(journalpostId, dokumentInfoId)
+            }
 
             val headers = HttpHeaders()
-            if (dokumentRespons.filnavn != null) {
-                headers.setContentDispositionFormData("attachment", dokumentRespons.filnavn)
-            }
+            if (resultat.filnavn != null) {
+                resultat            }
             headers.contentType = MediaType.APPLICATION_PDF
 
-            secureLogger.info { "Hentet dokument for bruker med ident: $bruker" }
-
-            return ResponseEntity(dokumentRespons.dokument, headers, HttpStatus.OK)
+            logger.info { "Fullført henting av dokument med journalpost- og dokumentinfo-ID for en bruker varighet_ms=${varighet.inWholeMilliseconds})" }
+            return ResponseEntity(resultat.dokument, headers, HttpStatus.OK)
         } catch (e: HttpClientErrorException) {
-            logger.error("Feil ved henting av dokument: ${e.statusCode}")
+            logger.error{ "Feil ved henting av dokument: ${e.statusCode}" }
             throw e
         } catch (e: Exception) {
-            logger.error("Uventet feil ved henting av dokument", e)
+            logger.error{ "Uventet feil ved henting av dokument" }
             throw RuntimeException("Kunne ikke hente dokument", e)
         }
     }

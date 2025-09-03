@@ -1,19 +1,17 @@
 package no.nav.bidrag.bidragskalkulator.controller
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import jakarta.servlet.http.HttpServletRequest
 import no.nav.bidrag.bidragskalkulator.config.SecurityConstants
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtaleInformasjonDto
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtaleBarnUnder18RequestDto
 import no.nav.bidrag.bidragskalkulator.service.PrivatAvtalePdfService
 import no.nav.bidrag.bidragskalkulator.service.PrivatAvtaleService
 import no.nav.bidrag.bidragskalkulator.utils.InnloggetBrukerUtils
-import no.nav.bidrag.commons.util.secureLogger
-import org.slf4j.LoggerFactory
-import org.springframework.http.HttpStatus
-import org.springframework.web.server.ResponseStatusException
 import jakarta.validation.Valid
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -29,29 +27,20 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import kotlin.time.measureTimedValue
 
+private val logger = KotlinLogging.logger {}
 
 @RestController
 @RequestMapping("/api/v1/privat-avtale")
 @ProtectedWithClaims(issuer = SecurityConstants.TOKENX)
 @Profile("!prod")
 class PrivatAvtaleController(
+    private val request: HttpServletRequest,
     private val privatAvtalePdfService: PrivatAvtalePdfService,
     private val privatAvtaleService: PrivatAvtaleService,
     private val innloggetBrukerUtils: InnloggetBrukerUtils
 ) {
-
-    private val logger = LoggerFactory.getLogger(PrivatAvtaleController::class.java)
-
-    private companion object {
-        private const val UNAUTHORIZED_TOKEN_MESSAGE = "Ugyldig token"
-    }
-
-
-    private fun InnloggetBrukerUtils.requirePåloggetPersonIdent(): String =
-        hentPåloggetPersonIdent()
-            ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED, UNAUTHORIZED_TOKEN_MESSAGE)
-
     @Operation(
         summary = "Henter informasjon for opprettelse av privat avtale",
         description = "Henter informasjon for opprettelse av privat avtale. Returnerer 200 ved vellykket henting, eller passende feilkoder.",
@@ -67,18 +56,18 @@ class PrivatAvtaleController(
     )
     @GetMapping("/informasjon")
     fun hentInformasjonForPrivatAvtale(): PrivatAvtaleInformasjonDto {
-        logger.info("Henter informasjon for opprettelse av privat avtale")
+        logger.info { "Starter henting av informasjon for opprettelse av privat avtale (endepunkt=${request.requestURI})" }
 
-        val personIdent = innloggetBrukerUtils.hentPåloggetPersonIdent()
-            ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Ugyldig token")
+        val personIdent = innloggetBrukerUtils.requirePåloggetPersonIdent(logger)
 
-        return runBlocking(Dispatchers.IO + MDCContext()) {
-            secureLogger.info { "Henter informasjon om pålogget person $personIdent til bruk i en privat avtale" }
-
-            privatAvtaleService.hentInformasjonForPrivatAvtale(personIdent).also {
-                secureLogger.info { "Henter informasjon om pålogget person $personIdent til bruk i en privat avtale fullført" }
+        val (resultat, varighet) = measureTimedValue {
+            runBlocking(Dispatchers.IO + MDCContext()) {
+                privatAvtaleService.hentInformasjonForPrivatAvtale(personIdent)
             }
         }
+
+        logger.info { "Fullført henting av informasjon for opprettelse av privat avtale (varighet_ms=${varighet.inWholeMilliseconds})" }
+        return resultat
     }
 
     @PostMapping("/under-18", produces = [MediaType.APPLICATION_PDF_VALUE])
@@ -96,18 +85,25 @@ class PrivatAvtaleController(
     )
     @Validated
     fun genererPrivatAvtaleForBarnUnder18(@Valid @RequestBody dto: PrivatAvtaleBarnUnder18RequestDto): ResponseEntity<ByteArray>? {
+        logger.info { "Start generere privat avtale PDF for barn under 18 år (endepunkt=${request.requestURI})" }
 
-        val personIdent = innloggetBrukerUtils.requirePåloggetPersonIdent()
-        val genererPrivatAvtalePdf =  privatAvtalePdfService.genererPrivatAvtalePdf(personIdent, dto)
-        val privatAvtaleByteArray = genererPrivatAvtalePdf.toByteArray()
+        val personIdent = innloggetBrukerUtils.requirePåloggetPersonIdent(logger)
+
+        val (resultat, varighet) = measureTimedValue {
+            runBlocking(Dispatchers.IO + MDCContext()) {
+                privatAvtalePdfService.genererPrivatAvtalePdf(personIdent, dto)
+            }
+        }
+
+        logger.info { "Fullført generering av privat avtale PDF for barn under 18 år (varighet_ms=${varighet.inWholeMilliseconds})" }
 
         return ResponseEntity
             .ok()
             .contentType(MediaType.APPLICATION_PDF)
             .header("Content-Disposition", "inline; filename=\"privatavtale.pdf\"")
-            .body(privatAvtaleByteArray)
+            .body(resultat.toByteArray())
     }
-    
+
     @PostMapping("/over-18", produces = [MediaType.APPLICATION_PDF_VALUE])
     @Operation(
         summary = "Generer privat avtale PDF for barn over 18 år",
@@ -123,14 +119,22 @@ class PrivatAvtaleController(
     )
     @Validated
     fun genererPrivatAvtaleForBarnOver18(@Valid @RequestBody dto: PrivatAvtaleBarnOver18RequestDto): ResponseEntity<ByteArray>? {
-        val personIdent = innloggetBrukerUtils.requirePåloggetPersonIdent()
-        val genererPrivatAvtalePdf =  privatAvtalePdfService.genererPrivatAvtalePdf(personIdent, dto)
-        val privatAvtaleByteArray = genererPrivatAvtalePdf.toByteArray()
+        logger.info { "Start generere privat avtale PDF for barn over 18 år (endepunkt=${request.requestURI})" }
+
+        val personIdent = innloggetBrukerUtils.requirePåloggetPersonIdent(logger)
+
+        val (resultat, varighet) = measureTimedValue {
+            runBlocking(Dispatchers.IO + MDCContext()) {
+                privatAvtalePdfService.genererPrivatAvtalePdf(personIdent, dto)
+            }
+        }
+
+        logger.info { "Fullført generering av privat avtale PDF for barn over 18 år (varighet_ms=${varighet.inWholeMilliseconds})" }
 
         return ResponseEntity
             .ok()
             .contentType(MediaType.APPLICATION_PDF)
             .header("Content-Disposition", "inline; filename=\"privatavtale.pdf\"")
-            .body(privatAvtaleByteArray)
+            .body(resultat.toByteArray())
     }
 }

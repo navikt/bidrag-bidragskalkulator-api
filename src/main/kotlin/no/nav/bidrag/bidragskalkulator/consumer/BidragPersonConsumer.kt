@@ -1,5 +1,6 @@
 package no.nav.bidrag.bidragskalkulator.consumer
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.bidrag.bidragskalkulator.config.BidragPersonConfigurationProperties
 import no.nav.bidrag.bidragskalkulator.exception.NoContentException
 import no.nav.bidrag.commons.util.secureLogger
@@ -11,6 +12,9 @@ import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
+import kotlin.time.measureTimedValue
+
+private val logger = KotlinLogging.logger {}
 
 class BidragPersonConsumer(
     val bidragPersonConfig: BidragPersonConfigurationProperties,
@@ -38,31 +42,38 @@ class BidragPersonConsumer(
     }
 
     fun hentFamilierelasjon(ident: String): MotpartBarnRelasjonDto = medApplikasjonsKontekst {
-            secureLogger.info("Henter familierelasjon for person $ident")
-            postSafely(hentFamilierelasjonUri, PersonRequest(Personident(ident)), Personident(ident))
+        logger.info { "Henter familie relasjon for person" }
+        postSafely(hentFamilierelasjonUri, PersonRequest(Personident(ident)), Personident(ident))
     }
 
     fun hentPerson(ident: Personident): PersonDto = medApplikasjonsKontekst {
-        secureLogger.info("Henter informasjon for person $ident")
+        logger.info { "Henter informasjon for person" }
         postSafely(hentPersonUri, PersonRequest(ident), ident)
     }
 
     private inline fun <reified T : Any> postSafely(uri: URI, request: Any, ident: Personident): T {
         return try {
-            postForNonNullEntity<T>(uri, request)
+            val (output, varighet) = measureTimedValue {
+                postForNonNullEntity<T>(uri, request)
+            }
+
+            logger.info { "Kall til bidrag-person OK (varighet_ms=${varighet.inWholeMilliseconds})" }
+            output
         } catch (e: HttpServerErrorException) {
             when (e.statusCode.value()) {
                 404 -> {
-                    secureLogger.warn("Fant ikke person med ident $ident")
-                    throw NoContentException("Fant ikke person med ident $ident")
+                    logger.warn { "Fant ikke person i bidrag-person" }
+                    throw NoContentException("Fant ikke person i bidrag-person")
                 }
                 else -> {
-                    secureLogger.error("Serverfeil fra bidrag-person for ident $ident", e)
+                    logger.error{ "Kall til bidrag-person feilet" }
+                    secureLogger.error(e) { "Kall til bidrag-person feilet: ${e.message}" }
                     throw e
                 }
             }
         } catch (e: Exception) {
-            secureLogger.error("Uventet feil ved kall til bidrag-person for ident $ident", e)
+            logger.error{ "Uventet feil ved kall til bidrag-person" }
+            secureLogger.error(e) { "Uventet feil ved kall til bidrag-person: ${e.message}" }
             throw e
         }
     }
