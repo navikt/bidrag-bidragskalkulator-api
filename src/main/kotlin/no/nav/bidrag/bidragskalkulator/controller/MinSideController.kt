@@ -7,6 +7,7 @@ import no.nav.bidrag.bidragskalkulator.dto.minSide.MinSideDokumenterDto
 import no.nav.bidrag.bidragskalkulator.service.SafSelvbetjeningService
 import no.nav.bidrag.bidragskalkulator.utils.InnloggetBrukerUtils
 import no.nav.security.token.support.core.api.ProtectedWithClaims
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -20,6 +21,7 @@ import kotlin.time.measureTimedValue
 
 private val logger = KotlinLogging.logger {}
 
+@ConditionalOnProperty(prefix="feature.minside", name=["enabled"], havingValue="true", matchIfMissing=false)
 @RestController
 @RequestMapping("/api/v1/minside")
 @ProtectedWithClaims(issuer = SecurityConstants.TOKENX)
