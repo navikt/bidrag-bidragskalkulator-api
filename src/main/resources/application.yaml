@@ -26,8 +26,28 @@ bidrag:
     url: ${BIDRAG_GRUNNLAG_URL}
     hentGrunnlagPath: hentgrunnlag
 
+---
+
+spring.config.activate.on-profile: prod
+
+feature:
+  privat-avtale:
+    enabled: false
+  minside:
+    enabled: false
 
 ---
+
+spring.config.activate.on-profile: dev, local-nais
+
+feature:
+  privat-avtale:
+    enabled: true
+  minside:
+    enabled: true
+
+---
+
 spring.config.activate.on-profile: prod, dev, local-nais
 
 management:
