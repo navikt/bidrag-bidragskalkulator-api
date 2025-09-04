@@ -43,7 +43,6 @@ dependencies {
     api("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     api("org.springframework.boot:spring-boot-starter-oauth2-client")
     api("org.springframework.boot:spring-boot-starter-graphql")
-    api("org.springframework.boot:spring-boot-starter-webflux")
     api("org.jetbrains.kotlin:kotlin-reflect")
 
 

@@ -18,7 +18,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.slf4j.MDCContext
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtaleBarnOver18RequestDto
 import no.nav.security.token.support.core.api.ProtectedWithClaims
-import org.springframework.context.annotation.Profile
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
@@ -31,10 +31,10 @@ import kotlin.time.measureTimedValue
 
 private val logger = KotlinLogging.logger {}
 
+@ConditionalOnProperty(prefix="feature.privat-avtale", name=["enabled"], havingValue="true", matchIfMissing=false)
 @RestController
 @RequestMapping("/api/v1/privat-avtale")
 @ProtectedWithClaims(issuer = SecurityConstants.TOKENX)
-@Profile("!prod")
 class PrivatAvtaleController(
     private val request: HttpServletRequest,
     private val privatAvtalePdfService: PrivatAvtalePdfService,

@@ -16,7 +16,7 @@ class WebMvcConfig(
                 "/api/v1/privat-avtale/**",
                 "/api/v1/beregning/**",
                 "/api/v1/minside/**",
-                "/api/v1/person/**"
+                "/api/v1/bidragskalkulator/**"
             )
             .excludePathPatterns("/actuator/**", "/swagger/**", "/v3/api-docs/**")
     }
