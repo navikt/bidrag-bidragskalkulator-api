@@ -4,8 +4,8 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 group = "com.github.navikt"
 version = "0.0.1-SNAPSHOT"
 
-val bidragBeregnFellesVersion = "2025.08.25.192329"
-val bidragFellesVersion = "2025.08.22.153257"
+val bidragBeregnFellesVersion = "2025.09.05.140513"
+val bidragFellesVersion = "2025.09.05.123643"
 val kotlinLoggingJvmVersion = "7.0.13"
 val springDocWebmvcVersion = "2.8.11"
 val springmockkVersion = "4.0.2"
@@ -36,28 +36,28 @@ repositories {
 
 dependencies {
     //Spring
-    api("org.springframework.boot:spring-boot-starter")
-    api("org.springframework.boot:spring-boot-starter-web")
-    api("org.springframework.boot:spring-boot-starter-validation")
-    api("org.springframework.boot:spring-boot-starter-security")
-    api("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
-    api("org.springframework.boot:spring-boot-starter-oauth2-client")
-    api("org.springframework.boot:spring-boot-starter-graphql")
-    api("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("org.springframework.boot:spring-boot-starter")
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
+    implementation("org.springframework.boot:spring-boot-starter-graphql")
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
 
 
     //Springdoc
-    api("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springDocWebmvcVersion")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springDocWebmvcVersion")
 
     //Nav
-    api("no.nav.bidrag:bidrag-beregn-barnebidrag:${bidragBeregnFellesVersion}") {
+    implementation("no.nav.bidrag:bidrag-beregn-barnebidrag:${bidragBeregnFellesVersion}") {
         exclude(group = "com.google.errorprone", module = "error_prone_annotations")
         exclude(group = "io.github.oshai", module = "kotlin-logging-jvm")
     }
-    api("no.nav.bidrag:bidrag-transport-felles:${bidragFellesVersion}"){
+    implementation("no.nav.bidrag:bidrag-transport-felles:${bidragFellesVersion}"){
         exclude(group = "jakarta.persistence", module = "jakarta.persistence-api")
     }
-    api("no.nav.bidrag:bidrag-commons-felles:${bidragFellesVersion}"){
+    implementation("no.nav.bidrag:bidrag-commons-felles:${bidragFellesVersion}"){
         exclude(group = "io.github.oshai", module = "kotlin-logging-jvm")
         exclude(group = "jakarta.persistence", module = "jakarta.persistence-api")
 
@@ -68,29 +68,29 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashEncoderVersion")
 
-    api("no.nav.security:token-validation-spring:$tokenSupportVersion")
-    api("no.nav.bidrag:bidrag-inntekt:${bidragBeregnFellesVersion}") {
+    implementation("no.nav.security:token-validation-spring:$tokenSupportVersion")
+    implementation("no.nav.bidrag:bidrag-inntekt:${bidragBeregnFellesVersion}") {
         exclude(group = "com.google.errorprone", module = "error_prone_annotations")
         exclude(group = "io.github.oshai", module = "kotlin-logging-jvm")
     }
 
     // Kotlin Coroutines
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:${coroutinesVersion}")
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:${coroutinesVersion}")
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:${coroutinesVersion}")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${coroutinesVersion}")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:${coroutinesVersion}")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:${coroutinesVersion}")
 
     // Caching
-    api("org.springframework.boot:spring-boot-starter-cache")
-    api("com.github.ben-manes.caffeine:caffeine")
+    implementation("org.springframework.boot:spring-boot-starter-cache")
+    implementation("com.github.ben-manes.caffeine:caffeine")
 
     // Monitoring
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("io.micrometer:micrometer-registry-prometheus:${micrometerPrometheusVersion}")
 
     // Annet
-    api("io.github.oshai:kotlin-logging-jvm:$kotlinLoggingJvmVersion")
-    api("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
-    api("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
+    implementation("io.github.oshai:kotlin-logging-jvm:$kotlinLoggingJvmVersion")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
 
     // PDF
     implementation("org.apache.pdfbox:pdfbox:${pdfBoxVersion}") {
