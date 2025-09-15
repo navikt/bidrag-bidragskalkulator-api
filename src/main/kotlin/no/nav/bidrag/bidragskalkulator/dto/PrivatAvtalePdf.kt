@@ -37,6 +37,7 @@ interface PrivatAvtalePerson {
 
 sealed interface PrivatAvtalePdf {
     val språk: Språkkode
+    val bidragstype: BidragsType
     val bidragsmottaker: PrivatAvtalePart
     val bidragspliktig: PrivatAvtalePart
     val oppgjør: Oppgjør
@@ -155,6 +156,9 @@ data class PrivatAvtaleBarnUnder18RequestDto(
     @param:Schema(ref = "#/components/schemas/Språkkode", required = true)
     override val språk: Språkkode,
 
+    @param:Schema(ref = "#/components/schemas/BidragsType", required = true)
+    override val bidragstype: BidragsType,
+
     @field:Valid
     @param:Schema(description = "Informasjon om bidragsmottaker", required = true)
     override val bidragsmottaker: PrivatAvtalePart,
@@ -188,6 +192,9 @@ data class PrivatAvtaleBarnUnder18RequestDto(
 data class PrivatAvtaleBarnOver18RequestDto (
     @param:Schema(ref = "#/components/schemas/Språkkode", required = true)
     override val språk: Språkkode,
+
+    @param:Schema(ref = "#/components/schemas/BidragsType", required = true)
+    override val bidragstype: BidragsType,
 
     @field:Valid
     @param:Schema(description = "Informasjon om bidragsmottaker (barn over 18 år)", required = true)
