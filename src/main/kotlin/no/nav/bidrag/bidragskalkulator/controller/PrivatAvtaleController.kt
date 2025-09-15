@@ -18,6 +18,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.slf4j.MDCContext
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtaleBarnOver18RequestDto
 import no.nav.security.token.support.core.api.ProtectedWithClaims
+import no.nav.security.token.support.core.api.Unprotected
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -34,7 +35,6 @@ private val logger = KotlinLogging.logger {}
 @ConditionalOnProperty(prefix="feature.privat-avtale", name=["enabled"], havingValue="true", matchIfMissing=false)
 @RestController
 @RequestMapping("/api/v1/privat-avtale")
-@ProtectedWithClaims(issuer = SecurityConstants.TOKENX)
 class PrivatAvtaleController(
     private val request: HttpServletRequest,
     private val privatAvtalePdfService: PrivatAvtalePdfService,
@@ -55,6 +55,7 @@ class PrivatAvtaleController(
         ]
     )
     @GetMapping("/informasjon")
+    @ProtectedWithClaims(issuer = SecurityConstants.TOKENX)
     fun hentInformasjonForPrivatAvtale(): PrivatAvtaleInformasjonDto {
         logger.info { "Starter henting av informasjon for opprettelse av privat avtale (endepunkt=${request.requestURI})" }
 
@@ -84,14 +85,13 @@ class PrivatAvtaleController(
         ]
     )
     @Validated
+    @Unprotected
     fun genererPrivatAvtaleForBarnUnder18(@Valid @RequestBody dto: PrivatAvtaleBarnUnder18RequestDto): ResponseEntity<ByteArray>? {
         logger.info { "Start generere privat avtale PDF for barn under 18 år (endepunkt=${request.requestURI})" }
 
-        val personIdent = innloggetBrukerUtils.requirePåloggetPersonIdent(logger)
-
         val (resultat, varighet) = measureTimedValue {
             runBlocking(Dispatchers.IO + MDCContext()) {
-                privatAvtalePdfService.genererPrivatAvtalePdf(personIdent, dto)
+                privatAvtalePdfService.genererPrivatAvtalePdf(dto)
             }
         }
 
@@ -118,6 +118,7 @@ class PrivatAvtaleController(
         ]
     )
     @Validated
+    @Unprotected
     fun genererPrivatAvtaleForBarnOver18(@Valid @RequestBody dto: PrivatAvtaleBarnOver18RequestDto): ResponseEntity<ByteArray>? {
         logger.info { "Start generere privat avtale PDF for barn over 18 år (endepunkt=${request.requestURI})" }
 
@@ -125,7 +126,7 @@ class PrivatAvtaleController(
 
         val (resultat, varighet) = measureTimedValue {
             runBlocking(Dispatchers.IO + MDCContext()) {
-                privatAvtalePdfService.genererPrivatAvtalePdf(personIdent, dto)
+                privatAvtalePdfService.genererPrivatAvtalePdf(dto)
             }
         }
 
