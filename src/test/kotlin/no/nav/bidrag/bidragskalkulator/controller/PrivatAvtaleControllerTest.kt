@@ -5,6 +5,7 @@ import io.mockk.every
 import io.mockk.verify
 import no.nav.bidrag.bidragskalkulator.dto.AndreBestemmelserSkjema
 import no.nav.bidrag.bidragskalkulator.dto.Bidrag
+import no.nav.bidrag.bidragskalkulator.dto.BidragsType
 import no.nav.bidrag.bidragskalkulator.dto.Oppgjør
 import no.nav.bidrag.bidragskalkulator.dto.Oppgjørsform
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtaleBarn
@@ -73,18 +74,14 @@ class PrivatAvtaleControllerTest: AbstractControllerTest() {
 
         @Test
         fun `skal generere privat avtale PDF`() {
-            val personIdent = "12345678910"
             val dto = lagGyldigPrivatAvtaleBarnUnder18RequestDto()
 
-            every { innloggetBrukerUtils.requirePåloggetPersonIdent(any()) } returns personIdent
-
-            every { privatAvtalePdfService.genererPrivatAvtalePdf(personIdent, dto) } returns
+            every { privatAvtalePdfService.genererPrivatAvtalePdf(dto) } returns
                     ByteArrayOutputStream().apply { write(pdfMock) }
 
             postRequest(
                 "/api/v1/privat-avtale/under-18",
                 dto,
-                gyldigOAuth2Token
             )
                 .andExpect(status().isOk)
                 .andExpect(content().contentType(APPLICATION_PDF))
@@ -97,12 +94,11 @@ class PrivatAvtaleControllerTest: AbstractControllerTest() {
             val dto = lagGyldigPrivatAvtaleBarnUnder18RequestDto().copy(
                 andreBestemmelser = AndreBestemmelserSkjema(harAndreBestemmelser = true, beskrivelse = null)
             )
-            val personIdent = "12345678910"
-            every { innloggetBrukerUtils.hentPåloggetPersonIdent() } returns personIdent
-            every { privatAvtalePdfService.genererPrivatAvtalePdf(any(), any()) } returns
+
+            every { privatAvtalePdfService.genererPrivatAvtalePdf(any()) } returns
                     ByteArrayOutputStream()
 
-            postRequest("/api/v1/privat-avtale/under-18", dto, gyldigOAuth2Token)
+            postRequest("/api/v1/privat-avtale/under-18", dto)
                 .andExpect(status().isBadRequest)
                 .andExpect(jsonPath("\$.detail")
                     .value(
@@ -111,7 +107,7 @@ class PrivatAvtaleControllerTest: AbstractControllerTest() {
                 )
 
             // Tjenesten skal ikke kalles når validering feiler
-            verify(exactly = 0) { privatAvtalePdfService.genererPrivatAvtalePdf(any(), any()) }
+            verify(exactly = 0) { privatAvtalePdfService.genererPrivatAvtalePdf(any()) }
         }
 
         @Test
@@ -125,19 +121,20 @@ class PrivatAvtaleControllerTest: AbstractControllerTest() {
             )
             val personIdent = "12345678910"
             every { innloggetBrukerUtils.hentPåloggetPersonIdent() } returns personIdent
-            every { privatAvtalePdfService.genererPrivatAvtalePdf(any(), any()) } returns ByteArrayOutputStream()
+            every { privatAvtalePdfService.genererPrivatAvtalePdf(any()) } returns ByteArrayOutputStream()
 
-            postRequest("/api/v1/privat-avtale/under-18", dto, gyldigOAuth2Token)
+            postRequest("/api/v1/privat-avtale/under-18", dto)
                 .andExpect(status().isBadRequest)
                 .andExpect(jsonPath("\$.detail")
                     .value("oppgjør.oppgjørsformIdag: oppgjørsformIdag må settes når nyAvtale=false"))
 
-            verify(exactly = 0) { privatAvtalePdfService.genererPrivatAvtalePdf(any(), any()) }
+            verify(exactly = 0) { privatAvtalePdfService.genererPrivatAvtalePdf(any()) }
         }
 
         private fun lagGyldigPrivatAvtaleBarnUnder18RequestDto(): PrivatAvtaleBarnUnder18RequestDto {
             return PrivatAvtaleBarnUnder18RequestDto(
                 språk = Språkkode.NB,
+                bidragstype = BidragsType.MOTTAKER,
                 bidragsmottaker = PrivatAvtalePart(
                     "Ola",
                     "Nordmann",
@@ -166,17 +163,14 @@ class PrivatAvtaleControllerTest: AbstractControllerTest() {
     inner class BarnOver18 {
         @Test
         fun `skal generere privat avtale PDF for barn over 18`() {
-            val personIdent = "12345678910"
             val dto = lagGyldigPrivatAvtaleBarnOver18RequestDto()
 
-            every { innloggetBrukerUtils.requirePåloggetPersonIdent(any()) } returns personIdent
-            every { privatAvtalePdfService.genererPrivatAvtalePdf(personIdent, dto) } returns
+            every { privatAvtalePdfService.genererPrivatAvtalePdf(dto) } returns
                     ByteArrayOutputStream().apply { write(pdfMock) }
 
             postRequest(
                 "/api/v1/privat-avtale/over-18",
                 dto,
-                gyldigOAuth2Token
             )
                 .andExpect(status().isOk)
                 .andExpect(content().contentType(APPLICATION_PDF))
@@ -186,13 +180,11 @@ class PrivatAvtaleControllerTest: AbstractControllerTest() {
                     )
                 )
 
-            verify(exactly = 1) { privatAvtalePdfService.genererPrivatAvtalePdf(personIdent, dto) }
+            verify(exactly = 1) { privatAvtalePdfService.genererPrivatAvtalePdf(dto) }
         }
 
         @Test
         fun `skal gi feil for barn over 18 hvis tilDato er før fraDato`() {
-            val personIdent = "12345678910"
-
             // Ugyldig: tilDato < fraDato
             val ugyldigDto = lagGyldigPrivatAvtaleBarnOver18RequestDto().copy(
                 bidrag = listOf(
@@ -204,23 +196,23 @@ class PrivatAvtaleControllerTest: AbstractControllerTest() {
                 )
             )
 
-            every { innloggetBrukerUtils.hentPåloggetPersonIdent() } returns personIdent
-            every { privatAvtalePdfService.genererPrivatAvtalePdf(any(), any()) } returns
+            every { privatAvtalePdfService.genererPrivatAvtalePdf(any()) } returns
                     ByteArrayOutputStream()
 
-            postRequest("/api/v1/privat-avtale/over-18", ugyldigDto, gyldigOAuth2Token)
+            postRequest("/api/v1/privat-avtale/over-18", ugyldigDto)
                 .andExpect(status().isBadRequest)
                 .andExpect(jsonPath("\$.detail")
                     .value(org.hamcrest.Matchers.containsString(
                         "tilDato kan ikke være før fraDato"
                     )))
 
-            verify(exactly = 0) { privatAvtalePdfService.genererPrivatAvtalePdf(any(), any()) }
+            verify(exactly = 0) { privatAvtalePdfService.genererPrivatAvtalePdf(any()) }
         }
 
         private fun lagGyldigPrivatAvtaleBarnOver18RequestDto(): PrivatAvtaleBarnOver18RequestDto {
             return PrivatAvtaleBarnOver18RequestDto(
                 språk = Språkkode.NB,
+                bidragstype = BidragsType.MOTTAKER,
                 bidragsmottaker = PrivatAvtalePart(
                     "Ola",
                     "Nordmann",

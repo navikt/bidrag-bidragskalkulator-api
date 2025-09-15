@@ -10,6 +10,7 @@ import no.nav.bidrag.bidragskalkulator.dto.førstesidegenerator.FørstesideBruke
 import no.nav.bidrag.bidragskalkulator.dto.førstesidegenerator.GenererFørstesideRequestDto
 import no.nav.bidrag.bidragskalkulator.dto.førstesidegenerator.Foerstesidetype
 import no.nav.bidrag.bidragskalkulator.dto.førstesidegenerator.NavSkjemaId
+import no.nav.bidrag.domene.ident.Personident
 
 fun PrivatAvtalePdf.navnSkjemaIdFor(): NavSkjemaId = when (this) {
     is PrivatAvtaleBarnUnder18RequestDto -> NavSkjemaId.AVTALE_OM_BARNEBIDRAG_UNDER_18
@@ -21,7 +22,7 @@ fun PrivatAvtalePdf.tilGenererPrivatAvtalePdfRequest(): GenererPrivatAvtalePdfRe
     navSkjemaId = this.navnSkjemaIdFor()
 )
 
-fun PrivatAvtalePdf.tilGenererFørstesideRequestDto(innsenderIdent: String,
+fun PrivatAvtalePdf.tilGenererFørstesideRequestDto(innsenderIdent: Personident,
                                       netsPostboks: String = "1400",
                                       arkivtittel: String = "Avtale om barnebidrag",
                                       ): GenererFørstesideRequestDto {

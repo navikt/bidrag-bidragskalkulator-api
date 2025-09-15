@@ -57,6 +57,7 @@ class PrivatAvtalePdfServiceTest {
             ),
             oppgjør = Oppgjør(nyAvtale = nyAvtale, oppgjørsformØnsket = ønsket, oppgjørsformIdag = idag),
             språk = Språkkode.NB,
+            bidragstype = BidragsType.MOTTAKER,
             vedlegg = Vedleggskrav.INGEN_EKSTRA_DOKUMENTASJON,
             andreBestemmelser = AndreBestemmelserSkjema(harAndreBestemmelser = false),
         )
@@ -88,7 +89,7 @@ class PrivatAvtalePdfServiceTest {
             val forventetSammenslaatt = "MERGED_FORSIDE_KONTRAKT_1".toByteArray()
             mockSammenslåingMedForside(forventetSammenslaatt)
 
-            val faktisk = service.genererPrivatAvtalePdf("fnr", dtoUnder18(false, Oppgjørsform.INNKREVING, Oppgjørsform.INNKREVING))
+            val faktisk = service.genererPrivatAvtalePdf(dtoUnder18(false, Oppgjørsform.INNKREVING, Oppgjørsform.INNKREVING))
                 .toByteArray()
 
             // Forvent at forside ble brukt og at output er sammenslått dokument
@@ -103,7 +104,7 @@ class PrivatAvtalePdfServiceTest {
             val forventetSammenslaatt = "MERGED_FORSIDE_KONTRAKT_2".toByteArray()
             mockSammenslåingMedForside(forventetSammenslaatt)
 
-            val faktisk = service.genererPrivatAvtalePdf("fnr", dtoUnder18(false, Oppgjørsform.INNKREVING, Oppgjørsform.PRIVAT))
+            val faktisk = service.genererPrivatAvtalePdf(dtoUnder18(false, Oppgjørsform.INNKREVING, Oppgjørsform.PRIVAT))
                 .toByteArray()
 
             verify(exactly = 1) { mockFoerstesideConsumer.genererFørsteside(any()) }
@@ -117,7 +118,7 @@ class PrivatAvtalePdfServiceTest {
             val forventetSammenslaatt = "MERGED_FORSIDE_KONTRAKT_3".toByteArray()
             mockSammenslåingMedForside(forventetSammenslaatt)
 
-            val faktisk = service.genererPrivatAvtalePdf("fnr", dtoUnder18(false, Oppgjørsform.PRIVAT, Oppgjørsform.INNKREVING))
+            val faktisk = service.genererPrivatAvtalePdf(dtoUnder18(false, Oppgjørsform.PRIVAT, Oppgjørsform.INNKREVING))
                 .toByteArray()
 
             verify(exactly = 1) { mockFoerstesideConsumer.genererFørsteside(any()) }
@@ -131,7 +132,7 @@ class PrivatAvtalePdfServiceTest {
             val forventetSammenslaatt = "MERGED_FORSIDE_KONTRAKT_4".toByteArray()
             mockSammenslåingMedForside(forventetSammenslaatt)
 
-            val faktisk = service.genererPrivatAvtalePdf("fnr", dtoUnder18(true, Oppgjørsform.INNKREVING))
+            val faktisk = service.genererPrivatAvtalePdf(dtoUnder18(true, Oppgjørsform.INNKREVING))
                 .toByteArray()
 
             verify(exactly = 1) { mockFoerstesideConsumer.genererFørsteside(any()) }
@@ -145,7 +146,7 @@ class PrivatAvtalePdfServiceTest {
             mockPrivatAvtaleDokument()
             mockSammenslåingUtenForside()
 
-            val faktisk = service.genererPrivatAvtalePdf("fnr", dtoUnder18(false, Oppgjørsform.PRIVAT, Oppgjørsform.PRIVAT))
+            val faktisk = service.genererPrivatAvtalePdf(dtoUnder18(false, Oppgjørsform.PRIVAT, Oppgjørsform.PRIVAT))
                 .toByteArray()
 
             // Forvent at forside ikke ble generert og kontrakt returneres
@@ -158,7 +159,7 @@ class PrivatAvtalePdfServiceTest {
             mockPrivatAvtaleDokument()
             mockSammenslåingUtenForside()
 
-            val faktisk = service.genererPrivatAvtalePdf("fnr", dtoUnder18(true, Oppgjørsform.PRIVAT))
+            val faktisk = service.genererPrivatAvtalePdf(dtoUnder18(true, Oppgjørsform.PRIVAT))
                 .toByteArray()
 
             verify(exactly = 0) { mockFoerstesideConsumer.genererFørsteside(any()) }

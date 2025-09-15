@@ -73,7 +73,7 @@ class GlobalExceptionHandler {
             if (target == LocalDate::class.java) {
                 val field = cause.path.lastOrNull()?.let(JsonMappingException.Reference::getFieldName) ?: "ukjent felt"
                 val provided = cause.value?.toString() ?: "null"
-                val msg = "Ugyldig datoformat for felt '$field'. Forventet format er 'dd.MM.yyyyD' (f.eks. 08.01.2025). Mottok: '$provided'."
+                val msg = "Ugyldig datoformat for felt '$field'. Forventet format er 'dd.MM.yyyy' (f.eks. 08.01.2025). Mottok: '$provided'."
                 return problem(HttpStatus.BAD_REQUEST, msg, msg)
             }
         }

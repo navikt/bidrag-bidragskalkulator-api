@@ -3,6 +3,7 @@ package no.nav.bidrag.bidragskalkulator.service
 import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.bidrag.bidragskalkulator.consumer.BidragDokumentProduksjonConsumer
 import no.nav.bidrag.bidragskalkulator.consumer.FørstesidegeneratorConsumer
+import no.nav.bidrag.bidragskalkulator.dto.BidragsType
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtaleBarnOver18RequestDto
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtaleBarnUnder18RequestDto
 import no.nav.bidrag.bidragskalkulator.dto.PrivatAvtalePdf
@@ -26,7 +27,6 @@ class PrivatAvtalePdfService(
 
     @Throws(IOException::class)
     fun genererPrivatAvtalePdf(
-        innsenderIdent: String,
         dto: PrivatAvtalePdf
     ): ByteArrayOutputStream {
         val normalisertDto = when (dto) {
@@ -40,6 +40,7 @@ class PrivatAvtalePdfService(
         hoveddokument.toByteArray()
 
         val dokumenter = mutableListOf(hoveddokument)
+        val innsenderIdent = if (dto.bidragstype === BidragsType.MOTTAKER) dto.bidragsmottaker.ident else dto.bidragsmottaker.ident
 
         if(normalisertDto.oppgjør.skalFørstesideGenereres()) {
             logger.info { "Førsteside kreves – kaller førstesidegenerator" }
