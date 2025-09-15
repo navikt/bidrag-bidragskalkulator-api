@@ -122,8 +122,6 @@ class PrivatAvtaleController(
     fun genererPrivatAvtaleForBarnOver18(@Valid @RequestBody dto: PrivatAvtaleBarnOver18RequestDto): ResponseEntity<ByteArray>? {
         logger.info { "Start generere privat avtale PDF for barn over 18 år (endepunkt=${request.requestURI})" }
 
-        val personIdent = innloggetBrukerUtils.requirePåloggetPersonIdent(logger)
-
         val (resultat, varighet) = measureTimedValue {
             runBlocking(Dispatchers.IO + MDCContext()) {
                 privatAvtalePdfService.genererPrivatAvtalePdf(dto)
