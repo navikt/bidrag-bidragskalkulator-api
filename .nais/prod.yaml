@@ -10,6 +10,12 @@ env:
   BIDRAG_GRUNNLAG_SCOPE: prod-gcp.bidrag.bidrag-grunnlag
   KODEVERK_URL: https://kodeverk.prod-fss-pub.nais.io
   NAIS_APP_NAME: bidrag-bidragskalkulator-api
+  SAFSELVBETJENING_URL: https://safselvbetjening.prod-fss-pub.nais.io
+  SAFSELVBETJENING_SCOPE: prod-fss.teamdokumenthandtering.safselvbetjening
+  BIDRAG_DOKUMENT_PRODUKSJON_URL: https://bidrag-dokument-produksjon.intern.nav.no
+  BIDRAG_DOKUMENT_PRODUKSJON_SCOPE: prod-gcp.bidrag.bidrag-dokument-produksjon
+  FOERSTESIDE_GENERATOR_SCOPE: prod-fss.teamdokumenthandtering.foerstesidegenerator
+  FOERSTESIDE_GENERATOR_URL: https://foerstesidegenerator.prod-fss-pub.nais.io
 inbound_application:
   - application: bidrag-bidragskalkulator-v2
     namespace: bidrag

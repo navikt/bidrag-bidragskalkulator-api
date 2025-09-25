@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.models.Components
 import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.media.Schema
+import no.nav.bidrag.bidragskalkulator.dto.BidragsType
 import no.nav.bidrag.bidragskalkulator.dto.Oppgjørsform
 import no.nav.bidrag.bidragskalkulator.dto.Vedleggskrav
 import no.nav.bidrag.bidragskalkulator.dto.førstesidegenerator.NavSkjemaId
@@ -68,12 +69,20 @@ class SwaggerConfig {
                     enum = NavSkjemaId.entries.map { it.name }
                 }
 
+            val bidragsTypeSchema = Schema<String>()
+                .description("Typen bidrag – man skal betale eller motta bidrag")
+                .example(BidragsType.MOTTAKER.name)
+                .apply {
+                    enum = BidragsType.entries.map { it.name }
+                }
+
             openApi.components = (openApi.components ?: Components())
                 .addSchemas("Samværsklasse", samværsklasseSchema)
                 .addSchemas("Oppgjørsform", oppgjørsformSchema)
                 .addSchemas("Vedleggskrav", vedleggskravSchema)
                 .addSchemas("Språkkode", språkkodeSchema)
                 .addSchemas("NavSkjemaId", navSkjemaIdSchema)
+                .addSchemas("bidragsTypeSchema", bidragsTypeSchema)
         }
     }
 }

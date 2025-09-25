@@ -1,5 +1,7 @@
 package no.nav.bidrag.bidragskalkulator.dto.førstesidegenerator
 
+import no.nav.bidrag.domene.ident.Personident
+
 
 data class GenererFørstesideRequestDto(
     val spraakkode: Språkkode,
@@ -28,7 +30,7 @@ data class FørstesideAvsenderDto(
 )
 
 data class FørstesideBrukerDto(
-    val brukerId: String,
+    val brukerId: Personident,
     val brukerType: String
 )
 

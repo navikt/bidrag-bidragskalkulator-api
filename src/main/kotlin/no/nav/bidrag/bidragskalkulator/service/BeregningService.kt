@@ -87,9 +87,8 @@ class BeregningService(
     }
 
     private suspend fun utførBarnebidragBeregningAnonym(grunnlag: List<PersonBeregningsgrunnlagAnonym>): List<ÅpenBeregningsresultatBarnDto> =
-        coroutineScope {
+
             grunnlag.map { data ->
-                asyncCatching(logger, "utførBarnebidragBeregningAnonym") {
                     val beregnet = beregnBarnebidragApi.beregn(data.grunnlag)
                     val sum = summerBeregnedeBeløp(beregnet.beregnetBarnebidragPeriodeListe)
 
@@ -99,8 +98,7 @@ class BeregningService(
                         alder = data.alder
                     )
                 }
-            }.awaitAll()
-        }
+
 
     fun beregnPersonUnderholdskostnad(personident: Personident): BigDecimal {
         val alder = kalkulerAlder(personident.fødselsdato())
