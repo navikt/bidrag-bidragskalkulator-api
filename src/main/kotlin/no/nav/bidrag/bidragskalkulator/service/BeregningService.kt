@@ -141,6 +141,6 @@ class BeregningService(
     }
 
     private fun summerBeregnedeBeløp(periodeListe: List<ResultatPeriode>): BigDecimal =
-        periodeListe.sumOf { it.resultat.beløp ?: BigDecimal.ZERO }.avrundeTilNærmesteHundre()
+        periodeListe.sumOf { it.resultat.beløp ?: BigDecimal.ZERO }
 
 }
