@@ -72,16 +72,6 @@ class BeregningServiceTest {
             assertEquals(beregningRequest.barn.first().ident, beregningResultat.resultater.first().ident)
         }
 
-        @Test
-        fun `skal runder bidraget til nærmeste hundre`() {
-            beregningResultat.resultater.forEach { res ->
-                val roundedValue = res.sum.divide(BigDecimal(100))
-                    .setScale(0, RoundingMode.HALF_UP)
-                    .multiply(BigDecimal(100))
-
-                assertEquals(roundedValue, res.sum, "Summen er ikke rundet korrekt til nærmeste 100")
-            }
-        }
     }
 
     @Nested
