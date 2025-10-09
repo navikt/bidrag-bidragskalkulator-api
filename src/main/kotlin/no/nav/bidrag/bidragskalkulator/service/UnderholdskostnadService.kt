@@ -27,7 +27,7 @@ open class UnderholdskostnadService(
         logger.info { "Genererer underholdskostnadstabell for aldersintervall 0–25." }
         val (resultat, varighet) = runCatching {
             measureTimedValue {
-                (0..25).associateWith { alder -> beregnCachedPersonUnderholdskostnad(alder) }
+                (1..25).associateWith { alder -> beregnCachedPersonUnderholdskostnad(alder) }
             }
         }.onFailure { e ->
             logger.error{ "Generering av underholdskostnadstabell feilet." }
