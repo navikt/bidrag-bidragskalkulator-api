@@ -12,7 +12,7 @@ class CacheoppvarmingService(
     private val sjablonService: SjablonService
 ) : ApplicationRunner {
     override fun run(args: ApplicationArguments?): Unit {
-        underholdskostnadService.genererUnderholdskostnadstabell()
+        underholdskostnadService.genererBoOgForbruksutgiftstabell()
         sjablonService.hentSamværsfradrag()
     }
 }

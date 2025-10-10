@@ -25,7 +25,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
-import java.math.RoundingMode
 import java.time.YearMonth
 
 class BeregningServiceTest {
@@ -101,7 +100,7 @@ class BeregningServiceTest {
         @Test
         fun `skal beregne underholdskostnad for en person`() {
             val beregnUnderholdskostnadRespons: List<GrunnlagDto> = JsonUtils.readJsonFile("/underholdskostnad/beregn_underholdskostnad_respons.json")
-            every { underholdskostnadServiceMock.beregnCachedPersonUnderholdskostnad(any()) } returns 8471.toBigDecimal()
+            every { underholdskostnadServiceMock.beregnCachedPersonBoOgForbruksutgiftskostnad(any()) } returns 8471.toBigDecimal()
 
             val personident = Personident("29891198289")
             val forventetBeløp = BigDecimal(8471)
@@ -113,7 +112,7 @@ class BeregningServiceTest {
 
         @Test
         fun `skal returnere 0 dersom ingen underholdskostnad finnes`() {
-            every { underholdskostnadServiceMock.beregnCachedPersonUnderholdskostnad(any()) } returns BigDecimal.ZERO
+            every { underholdskostnadServiceMock.beregnCachedPersonBoOgForbruksutgiftskostnad(any()) } returns BigDecimal.ZERO
 
             val result = beregningService.beregnPersonUnderholdskostnad(Personident("29891198289"))
 
@@ -131,7 +130,7 @@ class BeregningServiceTest {
             val barn2Ident = fellesBarn[1].ident
             val forventetUnderholdskostnad = BigDecimal(8471)
 
-            every { underholdskostnadServiceMock.beregnCachedPersonUnderholdskostnad(any()) } returns BigDecimal.ZERO
+            every { underholdskostnadServiceMock.beregnCachedPersonBoOgForbruksutgiftskostnad(any()) } returns BigDecimal.ZERO
             every { beregningService.beregnPersonUnderholdskostnad(barn1Ident) } returns forventetUnderholdskostnad
             every { beregningService.beregnPersonUnderholdskostnad(barn2Ident) } returns forventetUnderholdskostnad
 

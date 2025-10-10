@@ -15,7 +15,6 @@ import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningsresulta
 import no.nav.bidrag.bidragskalkulator.mapper.*
 import no.nav.bidrag.bidragskalkulator.model.FamilieRelasjon
 import no.nav.bidrag.bidragskalkulator.utils.asyncCatching
-import no.nav.bidrag.bidragskalkulator.utils.avrundeTilNærmesteHundre
 import no.nav.bidrag.bidragskalkulator.utils.kalkulerAlder
 import no.nav.bidrag.commons.util.secureLogger
 import no.nav.bidrag.domene.ident.Personident
@@ -102,7 +101,7 @@ class BeregningService(
 
     fun beregnPersonUnderholdskostnad(personident: Personident): BigDecimal {
         val alder = kalkulerAlder(personident.fødselsdato())
-        return underholdskostnadService.beregnCachedPersonUnderholdskostnad(alder)
+        return underholdskostnadService.beregnCachedPersonBoOgForbruksutgiftskostnad(alder)
     }
 
     /**

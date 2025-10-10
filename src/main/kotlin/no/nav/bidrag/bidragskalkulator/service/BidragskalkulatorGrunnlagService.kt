@@ -12,7 +12,7 @@ class BidragskalkulatorGrunnlagService(
 ) {
     suspend fun hentGrunnlagsData(): BidragskalkulatorGrunnlagDto = coroutineScope {
         BidragskalkulatorGrunnlagDto(
-            underholdskostnader = underholdskostnadService.genererUnderholdskostnadstabell(),
+            boOgForbruksutgifter = underholdskostnadService.genererBoOgForbruksutgiftstabell(),
             samværsfradrag = sjablonService.hentSamværsfradrag(),
         )
     }
