@@ -17,7 +17,7 @@ import kotlin.time.measureTimedValue
 private val logger = KotlinLogging.logger {}
 
 @Service
-open class UnderholdskostnadService(
+open class BoOgForbruksutgiftService(
     private val beregnBarnebidragApi: BeregnBarnebidragApi,
     private val beregningsgrunnlagMapper: BeregningsgrunnlagMapper,
 

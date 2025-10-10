@@ -8,11 +8,11 @@ import org.springframework.stereotype.Component
 @Component
 @Profile("!test")
 class CacheoppvarmingService(
-    private val underholdskostnadService: UnderholdskostnadService,
+    private val boOgForbruksutgiftService: BoOgForbruksutgiftService,
     private val sjablonService: SjablonService
 ) : ApplicationRunner {
     override fun run(args: ApplicationArguments?): Unit {
-        underholdskostnadService.genererBoOgForbruksutgiftstabell()
+        boOgForbruksutgiftService.genererBoOgForbruksutgiftstabell()
         sjablonService.hentSamværsfradrag()
     }
 }

@@ -28,7 +28,7 @@ private val logger = KotlinLogging.logger {}
 @Service
 class BeregningService(
     private val beregnBarnebidragApi: BeregnBarnebidragApi,
-    private val underholdskostnadService: UnderholdskostnadService,
+    private val boOgForbruksutgiftService: BoOgForbruksutgiftService,
     private val beregningsgrunnlagMapper: BeregningsgrunnlagMapper,
     private val personService: PersonService
 ) {
@@ -101,7 +101,7 @@ class BeregningService(
 
     fun beregnPersonUnderholdskostnad(personident: Personident): BigDecimal {
         val alder = kalkulerAlder(personident.fødselsdato())
-        return underholdskostnadService.beregnCachedPersonBoOgForbruksutgiftskostnad(alder)
+        return boOgForbruksutgiftService.beregnCachedPersonBoOgForbruksutgiftskostnad(alder)
     }
 
     /**

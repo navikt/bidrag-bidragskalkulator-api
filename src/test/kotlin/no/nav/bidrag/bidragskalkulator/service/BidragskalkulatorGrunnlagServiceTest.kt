@@ -13,12 +13,12 @@ import kotlin.test.assertEquals
 
 class BidragskalkulatorGrunnlagServiceTest {
 
-    private val underholdskostnadService: UnderholdskostnadService = mockk()
+    private val boOgForbruksutgiftService: BoOgForbruksutgiftService = mockk()
     private val sjablonService: SjablonService = mockk()
 
     private val service = BidragskalkulatorGrunnlagService(
         sjablonService = sjablonService,
-        underholdskostnadService = underholdskostnadService
+        boOgForbruksutgiftService = boOgForbruksutgiftService
     )
 
     @Test
@@ -39,7 +39,7 @@ class BidragskalkulatorGrunnlagServiceTest {
             )
         )
 
-        every { underholdskostnadService.genererBoOgForbruksutgiftstabell() } returns underhold
+        every { boOgForbruksutgiftService.genererBoOgForbruksutgiftstabell() } returns underhold
         every { sjablonService.hentSamværsfradrag() } returns samvaer
 
         // when
@@ -49,26 +49,26 @@ class BidragskalkulatorGrunnlagServiceTest {
         assertEquals(underhold, result.boOgForbruksutgifter)
         assertEquals(samvaer, result.samværsfradrag)
 
-        verify(exactly = 1) { underholdskostnadService.genererBoOgForbruksutgiftstabell() }
+        verify(exactly = 1) { boOgForbruksutgiftService.genererBoOgForbruksutgiftstabell() }
         verify(exactly = 1) { sjablonService.hentSamværsfradrag() }
     }
 
     @Test
     fun `hentGrunnlagsData kaster videre hvis underholdskostnadService feiler`() = runBlocking {
-        every { underholdskostnadService.genererBoOgForbruksutgiftstabell() } throws RuntimeException("Feil")
+        every { boOgForbruksutgiftService.genererBoOgForbruksutgiftstabell() } throws RuntimeException("Feil")
         every { sjablonService.hentSamværsfradrag() } returns emptyList()
 
         assertThrows<RuntimeException> {
             service.hentGrunnlagsData()
         }
 
-        verify(exactly = 1) { underholdskostnadService.genererBoOgForbruksutgiftstabell() }
+        verify(exactly = 1) { boOgForbruksutgiftService.genererBoOgForbruksutgiftstabell() }
         verify(exactly = 0) { sjablonService.hentSamværsfradrag() }
     }
 
     @Test
     fun `hentGrunnlagsData kaster videre hvis sjablonService feiler`() = runBlocking {
-        every { underholdskostnadService.genererBoOgForbruksutgiftstabell() } returns mapOf(
+        every { boOgForbruksutgiftService.genererBoOgForbruksutgiftstabell() } returns mapOf(
             6 to BigDecimal(6547)
         )
         every { sjablonService.hentSamværsfradrag() } throws IllegalStateException("sjablon nede")
@@ -77,7 +77,7 @@ class BidragskalkulatorGrunnlagServiceTest {
             service.hentGrunnlagsData()
         }
 
-        verify(exactly = 1) { underholdskostnadService.genererBoOgForbruksutgiftstabell() }
+        verify(exactly = 1) { boOgForbruksutgiftService.genererBoOgForbruksutgiftstabell() }
         verify(exactly = 1) { sjablonService.hentSamværsfradrag() }
     }
 }

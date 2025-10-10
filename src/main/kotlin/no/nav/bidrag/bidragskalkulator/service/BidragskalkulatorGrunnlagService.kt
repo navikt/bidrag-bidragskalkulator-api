@@ -8,11 +8,11 @@ import org.springframework.stereotype.Service
 @Service
 class BidragskalkulatorGrunnlagService(
     private val sjablonService: SjablonService,
-    private val underholdskostnadService: UnderholdskostnadService
+    private val boOgForbruksutgiftService: BoOgForbruksutgiftService
 ) {
     suspend fun hentGrunnlagsData(): BidragskalkulatorGrunnlagDto = coroutineScope {
         BidragskalkulatorGrunnlagDto(
-            boOgForbruksutgifter = underholdskostnadService.genererBoOgForbruksutgiftstabell(),
+            boOgForbruksutgifter = boOgForbruksutgiftService.genererBoOgForbruksutgiftstabell(),
             samværsfradrag = sjablonService.hentSamværsfradrag(),
         )
     }

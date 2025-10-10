@@ -8,7 +8,7 @@ import no.nav.bidrag.bidragskalkulator.mapper.BeregningsgrunnlagBuilder
 import no.nav.bidrag.bidragskalkulator.mapper.BeregningsgrunnlagMapper
 import no.nav.bidrag.bidragskalkulator.mapper.tilFamilieRelasjon
 import no.nav.bidrag.bidragskalkulator.service.BeregningService
-import no.nav.bidrag.bidragskalkulator.service.UnderholdskostnadService
+import no.nav.bidrag.bidragskalkulator.service.BoOgForbruksutgiftService
 import no.nav.bidrag.bidragskalkulator.service.PersonService
 import no.nav.bidrag.bidragskalkulator.utils.JsonUtils
 import no.nav.bidrag.bidragskalkulator.utils.kalkulerAlder
@@ -31,13 +31,13 @@ class BeregningServiceTest {
 
     private val beregnBarnebidragApi = mockk<BeregnBarnebidragApi>()
     private val personService = mockk<PersonService>()
-    private val underholdskostnadServiceMock = mockk<UnderholdskostnadService>()
+    private val boOgForbruksutgiftServiceMock = mockk<BoOgForbruksutgiftService>()
 
     // bruk ekte
     private val mockBeregningsgrunnlagBuilder = BeregningsgrunnlagBuilder()
     private val beregningsgrunnlagMapper = BeregningsgrunnlagMapper(mockBeregningsgrunnlagBuilder)
 
-    private val beregningService = BeregningService(beregnBarnebidragApi, underholdskostnadServiceMock, beregningsgrunnlagMapper, personService)
+    private val beregningService = BeregningService(beregnBarnebidragApi, boOgForbruksutgiftServiceMock, beregningsgrunnlagMapper, personService)
 
     @Nested
     inner class BeregningBarnebidragForEttBarn {
@@ -100,7 +100,7 @@ class BeregningServiceTest {
         @Test
         fun `skal beregne underholdskostnad for en person`() {
             val beregnUnderholdskostnadRespons: List<GrunnlagDto> = JsonUtils.readJsonFile("/underholdskostnad/beregn_underholdskostnad_respons.json")
-            every { underholdskostnadServiceMock.beregnCachedPersonBoOgForbruksutgiftskostnad(any()) } returns 8471.toBigDecimal()
+            every { boOgForbruksutgiftServiceMock.beregnCachedPersonBoOgForbruksutgiftskostnad(any()) } returns 8471.toBigDecimal()
 
             val personident = Personident("29891198289")
             val forventetBeløp = BigDecimal(8471)
@@ -112,7 +112,7 @@ class BeregningServiceTest {
 
         @Test
         fun `skal returnere 0 dersom ingen underholdskostnad finnes`() {
-            every { underholdskostnadServiceMock.beregnCachedPersonBoOgForbruksutgiftskostnad(any()) } returns BigDecimal.ZERO
+            every { boOgForbruksutgiftServiceMock.beregnCachedPersonBoOgForbruksutgiftskostnad(any()) } returns BigDecimal.ZERO
 
             val result = beregningService.beregnPersonUnderholdskostnad(Personident("29891198289"))
 
@@ -130,7 +130,7 @@ class BeregningServiceTest {
             val barn2Ident = fellesBarn[1].ident
             val forventetUnderholdskostnad = BigDecimal(8471)
 
-            every { underholdskostnadServiceMock.beregnCachedPersonBoOgForbruksutgiftskostnad(any()) } returns BigDecimal.ZERO
+            every { boOgForbruksutgiftServiceMock.beregnCachedPersonBoOgForbruksutgiftskostnad(any()) } returns BigDecimal.ZERO
             every { beregningService.beregnPersonUnderholdskostnad(barn1Ident) } returns forventetUnderholdskostnad
             every { beregningService.beregnPersonUnderholdskostnad(barn2Ident) } returns forventetUnderholdskostnad
 
