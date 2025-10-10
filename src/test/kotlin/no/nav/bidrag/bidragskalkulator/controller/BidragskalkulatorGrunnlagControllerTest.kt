@@ -22,14 +22,14 @@ class BidragskalkulatorGrunnlagControllerTest : AbstractControllerTest() {
     fun `skal returnere 200 OK og tom payload naar service returnerer tomme data`() {
         every { runBlocking { brukerinformasjonService.hentGrunnlagsData() } } returns
                 BidragskalkulatorGrunnlagDto(
-                    underholdskostnader = emptyMap(),
+                    boOgForbruksutgifter = emptyMap(),
                     samværsfradrag = emptyList()
                 )
 
         getRequest("/api/v1/bidragskalkulator/grunnlagsdata")
             .andExpect(status().isOk)
             .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-            .andExpect(content().json("""{"underholdskostnader":{},"samværsfradrag":[]}""", true))
+            .andExpect(content().json("""{"boOgForbruksutgifter":{},"samværsfradrag":[]}""", true))
 
         verify(exactly = 1) { runBlocking { brukerinformasjonService.hentGrunnlagsData() } }
     }
@@ -38,7 +38,7 @@ class BidragskalkulatorGrunnlagControllerTest : AbstractControllerTest() {
     fun `skal returnere 200 OK og seriell payload fra service`() {
         val expectedJson = """
             {
-              "underholdskostnader": {
+              "boOgForbruksutgifter": {
                 "6": 6547,
                 "11": 7240
               },
@@ -68,7 +68,7 @@ class BidragskalkulatorGrunnlagControllerTest : AbstractControllerTest() {
         """.trimIndent()
 
         val dto = BidragskalkulatorGrunnlagDto(
-            underholdskostnader = linkedMapOf(
+            boOgForbruksutgifter = linkedMapOf(
                 6 to BigDecimal(6547),
                 11 to BigDecimal(7240)
             ),
