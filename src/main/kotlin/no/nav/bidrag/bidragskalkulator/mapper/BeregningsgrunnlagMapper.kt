@@ -83,7 +83,7 @@ class BeregningsgrunnlagMapper(
         }
     }
 
-    fun mapTilUnderholdkostnadsgrunnlag(fødselsdato: LocalDate, barnReferanse: String): BeregnGrunnlag {
+    fun mapTilBoOgForbruksutgiftsgrunnlag(fødselsdato: LocalDate, barnReferanse: String): BeregnGrunnlag {
         val grunnlagListe = buildList{
             add(byggGrunnlag(BIDRAGSMOTTAKER, Grunnlagstype.PERSON_BIDRAGSMOTTAKER))
             add(byggGrunnlag(BIDRAGSPLIKTIG, Grunnlagstype.PERSON_BIDRAGSPLIKTIG))

@@ -20,7 +20,7 @@ jobs:
           distribution: 'temurin'
           cache: 'gradle'
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v5
       - name: Build the application
         run: ./gradlew assemble
       - name: Run tests

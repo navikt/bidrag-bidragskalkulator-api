@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit
 class CacheConfig {
 
     companion object Cachenøkler {
-        const val UNDERHOLDSKOSTNAD = "underholdskostnad"
+        const val BOOGFORBRUKSUTGIFT = "boOgForbruksutgift"
         const val PERSONINFORMASJON = "personinformasjon"
         const val PRIVAT_AVTALE_INFORMASJON = "privatAvtaleInformasjon"
         const val SAMVÆRSFRADRAG = "samværsfradrag"
@@ -29,7 +29,7 @@ class CacheConfig {
 
         val caffeineCacheManager = CaffeineCacheManager()
         caffeineCacheManager.registerCustomCache(
-            UNDERHOLDSKOSTNAD,
+            BOOGFORBRUKSUTGIFT,
             Caffeine.newBuilder().expireAfter(årligUtløp).build()
         )
         caffeineCacheManager.registerCustomCache(PERSONINFORMASJON, Caffeine.newBuilder().expireAfterWrite(1, TimeUnit.DAYS).build())
