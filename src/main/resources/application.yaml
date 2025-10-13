@@ -12,7 +12,7 @@ spring:
   main:
     banner-mode: off
   cache:
-    cache-names: underholdskostnad,personinformasjon, privatAvtaleInformasjon, samværsfradrag
+    cache-names: boOgForbruksutgift, personinformasjon, privatAvtaleInformasjon, samværsfradrag
     caffeine:
       spec: maximumSize=500,expireAfterWrite=1h
 
