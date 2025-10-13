@@ -4,8 +4,8 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 group = "com.github.navikt"
 version = "0.0.1-SNAPSHOT"
 
-val bidragBeregnFellesVersion = "2025.09.22.105317"
-val bidragFellesVersion = "2025.09.24.092109"
+val bidragBeregnFellesVersion = "2025.10.08.105136"
+val bidragFellesVersion = "2025.10.09.102316"
 val kotlinLoggingJvmVersion = "7.0.13"
 val springDocWebmvcVersion = "2.8.13"
 val springmockkVersion = "4.0.2"
@@ -15,7 +15,7 @@ val junitJupiterVersion = "5.13.4"
 val coroutinesVersion = "1.10.2"
 val pdfBoxVersion = "2.0.31"
 val micrometerPrometheusVersion = "1.15.4"
-val logbackVersion = "1.5.18"
+val logbackVersion = "1.5.19"
 val logstashEncoderVersion = "8.1"
 
 
