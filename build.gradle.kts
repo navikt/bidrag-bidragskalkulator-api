@@ -16,7 +16,7 @@ val coroutinesVersion = "1.10.2"
 val pdfBoxVersion = "2.0.31"
 val micrometerPrometheusVersion = "1.15.5"
 val logbackVersion = "1.5.20"
-val logstashEncoderVersion = "8.1"
+val logstashEncoderVersion = "9.0"
 
 
 plugins {
