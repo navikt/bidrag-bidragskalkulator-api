@@ -4,14 +4,14 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 group = "com.github.navikt"
 version = "0.0.1-SNAPSHOT"
 
-val bidragBeregnFellesVersion = "2025.10.15.133314"
-val bidragFellesVersion = "2025.10.17.145012"
+val bidragBeregnFellesVersion = "2025.10.28.142051"
+val bidragFellesVersion = "2025.10.31.143245"
 val kotlinLoggingJvmVersion = "7.0.13"
 val springDocWebmvcVersion = "2.8.13"
 val springmockkVersion = "4.0.2"
-val tokenSupportVersion = "5.0.37"
-val jacksonVersion = "2.20.0"
-val junitJupiterVersion = "6.0.0"
+val tokenSupportVersion = "5.0.39"
+val jacksonVersion = "2.20.1"
+val junitJupiterVersion = "6.0.1"
 val coroutinesVersion = "1.10.2"
 val pdfBoxVersion = "2.0.31"
 val micrometerPrometheusVersion = "1.15.5"
@@ -20,10 +20,10 @@ val logstashEncoderVersion = "8.1"
 
 
 plugins {
-    id("org.jetbrains.kotlin.plugin.spring") version "2.2.20"
-    id("org.springframework.boot") version "3.5.6"
+    id("org.jetbrains.kotlin.plugin.spring") version "2.2.21"
+    id("org.springframework.boot") version "3.5.7"
     id("io.spring.dependency-management") version "1.1.7"
-    kotlin("jvm") version "2.2.20"
+    kotlin("jvm") version "2.2.21"
     id("java")
     id("maven-publish")
 }
