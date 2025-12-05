@@ -66,8 +66,7 @@ data class PrivatAvtalePart(
     @param:NotBlank(message = FEILMELDING_FODSELSNUMMER)
     @param:Schema(
         description = "Partens personnummer r eller d-nummer (11 siffer)",
-        required = true,
-        example = "12345678901"
+        required = true
     )
     override val ident: Personident,
 ) : PrivatAvtalePerson

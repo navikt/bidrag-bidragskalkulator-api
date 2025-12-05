@@ -3,7 +3,7 @@
   "inntektForelder2": 60000.0,
   "barn": [
     {
-      "ident": "06450659610",
+      "ident": "{BARN1_FNR}",
       "samværsklasse": "SAMVÆRSKLASSE_4",
       "bidragstype": "PLIKTIG"
     }

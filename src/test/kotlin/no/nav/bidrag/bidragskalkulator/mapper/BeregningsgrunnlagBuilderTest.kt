@@ -1,7 +1,6 @@
 package no.nav.bidrag.bidragskalkulator.mapper
 
 import no.nav.bidrag.bidragskalkulator.dto.*
-import no.nav.bidrag.bidragskalkulator.mapper.BeregningsgrunnlagMapper.Referanser
 import no.nav.bidrag.bidragskalkulator.utils.JsonUtils
 import no.nav.bidrag.domene.enums.grunnlag.Grunnlagstype
 import no.nav.bidrag.domene.enums.person.Bostatuskode
@@ -22,7 +21,7 @@ class BeregningsgrunnlagBuilderTest {
 
         @Test
         fun `skal bygge bostatusgrunnlag for bidragspliktig med barn som bor fast`() {
-            val beregningRequestMedBarnBorFast: BeregningRequestDto = JsonUtils.readJsonFile("/barnebidrag/beregning_et_barn.json")
+            val beregningRequestMedBarnBorFast: BeregningRequestDto = JsonUtils.lesJsonFil("/barnebidrag/beregning_et_barn.json")
 
             val kontekst = lagKontekst(beregningRequestMedBarnBorFast, 0, beregningRequestMedBarnBorFast.barn.first().bidragstype)
 
@@ -43,7 +42,7 @@ class BeregningsgrunnlagBuilderTest {
 
         @Test
         fun `skal bygge bostatusgrunnlag for bidragspliktig med delt bolig med annen voksen`() {
-            val beregningRequestDeltBolig: BeregningRequestDto = JsonUtils.readJsonFile("/barnebidrag/beregning_et_barn.json")
+            val beregningRequestDeltBolig: BeregningRequestDto = JsonUtils.lesJsonFil("/barnebidrag/beregning_et_barn.json")
 
             val kontekst = lagKontekst(beregningRequestDeltBolig, 0, beregningRequestDeltBolig.barn.first().bidragstype)
 
@@ -58,7 +57,7 @@ class BeregningsgrunnlagBuilderTest {
         @Test
         fun `skal bygge bostatusgrunnlag for bidragspliktig som bor alene`() {
             val beregningRequestBorIkkeMedAndreVoksne: BeregningRequestDto =
-                JsonUtils.readJsonFile("/barnebidrag/beregning_to_barn.json")
+                JsonUtils.lesJsonFil("/barnebidrag/beregning_to_barn.json")
 
             beregningRequestBorIkkeMedAndreVoksne.barn.map {
                 val kontekst = lagKontekst(beregningRequestBorIkkeMedAndreVoksne, 0, it.bidragstype)
@@ -75,7 +74,7 @@ class BeregningsgrunnlagBuilderTest {
         @Test
         fun `skal ikke lage grunnlag for barn i samme husstand hvis personen ikke har barn som bor fast`() {
             val beregningRequestIngenBarnBorFast: BeregningRequestDto =
-                JsonUtils.readJsonFile("/barnebidrag/beregning_to_barn.json")
+                JsonUtils.lesJsonFil("/barnebidrag/beregning_to_barn.json")
 
             beregningRequestIngenBarnBorFast.barn.map {
                 val kontekst = lagKontekst(beregningRequestIngenBarnBorFast, 0, it.bidragstype)
@@ -90,7 +89,7 @@ class BeregningsgrunnlagBuilderTest {
 
         @Test
         fun `skal bygge bostatusgrunnlag korrekt når samme person er både bidragspliktig og bidragsmottaker`() {
-            val request: BeregningRequestDto = JsonUtils.readJsonFile("/barnebidrag/beregning_person_er_baade_bp_og_bm.json")
+            val request: BeregningRequestDto = JsonUtils.lesJsonFil("/barnebidrag/beregning_person_er_baade_bp_og_bm.json")
 
             val bostatusgrunnlagAlleBarn = request.barn.flatMapIndexed { index, barn ->
                 val kontekst = BeregningKontekst(
@@ -116,7 +115,7 @@ class BeregningsgrunnlagBuilderTest {
 
         @Test
         fun `skal bruke dittBoforhold for bidragspliktig og medforelderBoforhold for bidragsmottaker`() {
-            val request: BeregningRequestDto = JsonUtils.readJsonFile("/barnebidrag/beregning_person_er_baade_bp_og_bm.json")
+            val request: BeregningRequestDto = JsonUtils.lesJsonFil("/barnebidrag/beregning_person_er_baade_bp_og_bm.json")
 
             // barn indeks 0 = personen er bidragspliktig
             val kontekstPliktig = lagKontekst(request, 0, request.barn[0].bidragstype)
@@ -144,7 +143,7 @@ class BeregningsgrunnlagBuilderTest {
     inner class InntektsgrunnlagTest {
         @Test
         fun `skal bygge inntektsgrunnlag med riktige beløp og referanser`() {
-            val beregningRequest: BeregningRequestDto = JsonUtils.readJsonFile("/barnebidrag/beregning_et_barn.json")
+            val beregningRequest: BeregningRequestDto = JsonUtils.lesJsonFil("/barnebidrag/beregning_et_barn.json")
             val kontekst = lagKontekst(beregningRequest, 0, beregningRequest.barn.first().bidragstype)
 
             val result = builder.byggInntektsgrunnlag(kontekst)
@@ -161,7 +160,7 @@ class BeregningsgrunnlagBuilderTest {
 
         @Test
         fun `skal bygge samværsgrunnlag med korrekt klasse og referanser`() {
-            val beregningRequest: BeregningRequestDto = JsonUtils.readJsonFile("/barnebidrag/beregning_et_barn.json")
+            val beregningRequest: BeregningRequestDto = JsonUtils.lesJsonFil("/barnebidrag/beregning_et_barn.json")
 
             val result = builder.byggSamværsgrunnlag(beregningRequest.barn.first().samværsklasse, "Person_Søknadsbarn_0")
 
@@ -177,7 +176,7 @@ class BeregningsgrunnlagBuilderTest {
 
         @Test
         fun `skal bygge mottatt faktisk utgift med riktig grunnlagstype og referanser`() {
-            val beregningRequest: BeregningRequestDto = JsonUtils.readJsonFile("/barnebidrag/beregning_et_barn.json")
+            val beregningRequest: BeregningRequestDto = JsonUtils.lesJsonFil("/barnebidrag/beregning_et_barn.json")
             val barn = beregningRequest.barn.first()
 
             val resultat = builder.byggMottattFaktiskUtgift(

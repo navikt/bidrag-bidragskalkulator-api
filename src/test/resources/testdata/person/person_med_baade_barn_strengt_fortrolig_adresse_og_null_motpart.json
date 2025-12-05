@@ -1,6 +1,6 @@
 {
   "person": {
-    "ident": "08025327080",
+    "ident": "{PERSON_FNR}",
     "navn": "Mandel, Håndfast",
     "fornavn": "Håndfast",
     "mellomnavn": "",
@@ -9,8 +9,8 @@
     "kjoenn": "KVINNE",
     "fødselsdato": "1953-02-08",
     "foedselsdato": "1953-02-08",
-    "aktørId": "2876824888346",
-    "aktoerId": "2876824888346",
+    "aktørId": "{PERSON_AKTOERID}",
+    "aktoerId": "{PERSON_AKTOERID}",
     "kortnavn": "Håndfast Mandel",
     "kortNavn": "Håndfast Mandel",
     "visningsnavn": "Håndfast Mandel"
@@ -21,7 +21,7 @@
       "motpart": null,
       "fellesBarn": [
         {
-          "ident": "16482086857",
+          "ident": "{BARN1_FNR}",
           "navn": "Dugnad, Konvensjonell",
           "fornavn": "Konvensjonell",
           "mellomnavn": "",
@@ -30,8 +30,8 @@
           "kjoenn": "KVINNE",
           "fødselsdato": "2020-08-16",
           "foedselsdato": "2020-08-16",
-          "aktørId": "2728125664634",
-          "aktoerId": "2728125664634",
+          "aktørId": "{BARN1_AKTOERID}",
+          "aktoerId": "{BARN1_AKTOERID}",
           "kortnavn": "Konvensjonell Dugnad",
           "kortNavn": "Konvensjonell Dugnad",
           "visningsnavn": "Konvensjonell Dugnad",
@@ -42,7 +42,7 @@
     {
       "forelderrolleMotpart": "FAR",
       "motpart": {
-        "ident": "21828597504",
+        "ident": "{MOTPART1_FNR}",
         "navn": "TREGRENSE, NORMAL",
         "fornavn": "Normal",
         "mellomnavn": "",
@@ -51,15 +51,15 @@
         "kjoenn": "MANN",
         "fødselsdato": "1985-02-21",
         "foedselsdato": "1985-02-21",
-        "aktørId": "2506308456558",
-        "aktoerId": "2506308456558",
+        "aktørId": "{MOTPART1_AKTOERID}",
+        "aktoerId": "{MOTPART1_AKTOERID}",
         "kortnavn": "Normal Tregrense",
         "kortNavn": "Normal Tregrense",
         "visningsnavn": "Normal Tregrense"
       },
       "fellesBarn": [
         {
-          "ident": "16482086857",
+          "ident": "{BARN2_FNR}",
           "navn": "Dugnad, Konvensjonell",
           "fornavn": "Konvensjonell",
           "mellomnavn": "",
@@ -68,15 +68,15 @@
           "kjoenn": "KVINNE",
           "fødselsdato": "2020-08-16",
           "foedselsdato": "2020-08-16",
-          "aktørId": "2728125664634",
-          "aktoerId": "2728125664634",
+          "aktørId": "{BARN2_AKTOERID}",
+          "aktoerId": "{BARN2_AKTOERID}",
           "kortnavn": "Konvensjonell Dugnad",
           "kortNavn": "Konvensjonell Dugnad",
           "visningsnavn": "Konvensjonell Dugnad",
           "diskresjonskode": "SPSF"
         },
         {
-          "ident": "16441876924",
+          "ident": "{BARN3_FNR}",
           "navn": "Tannbørste, Klartenkt",
           "fornavn": "Klartenkt",
           "mellomnavn": "",
@@ -85,15 +85,15 @@
           "kjoenn": "MANN",
           "fødselsdato": "2018-04-16",
           "foedselsdato": "2018-04-16",
-          "aktørId": "2088757611240",
-          "aktoerId": "2088757611240",
+          "aktørId": "{BARN3_AKTOERID}",
+          "aktoerId": "{BARN3_AKTOERID}",
           "kortnavn": "Klartenkt Tannbørste",
           "kortNavn": "Klartenkt Tannbørste",
           "visningsnavn": "Klartenkt Tannbørste",
           "diskresjonskode": "SPFO"
         },
         {
-          "ident": "22461675194",
+          "ident": "{BARN4_FNR}",
           "navn": "Bil, Handlekraftig",
           "fornavn": "Handlekraftig",
           "mellomnavn": "",
@@ -102,8 +102,8 @@
           "kjoenn": "MANN",
           "fødselsdato": "2016-06-22",
           "foedselsdato": "2016-06-22",
-          "aktørId": "2050978840829",
-          "aktoerId": "2050978840829",
+          "aktørId": "{BARN4_AKTOERID}",
+          "aktoerId": "{BARN4_AKTOERID}",
           "kortnavn": "Handlekraftig Bil",
           "kortNavn": "Handlekraftig Bil",
           "visningsnavn": "Handlekraftig Bil"

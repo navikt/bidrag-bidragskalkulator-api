@@ -19,7 +19,8 @@ import no.nav.bidrag.bidragskalkulator.service.PrivatAvtalePdfService
 import no.nav.bidrag.bidragskalkulator.service.PrivatAvtaleService
 import no.nav.bidrag.bidragskalkulator.utils.InnloggetBrukerUtils
 import no.nav.bidrag.bidragskalkulator.utils.JsonUtils
-import no.nav.bidrag.domene.ident.Personident
+import no.nav.bidrag.generer.testdata.person.genererFødselsnummer
+import no.nav.bidrag.generer.testdata.person.genererPersonident
 import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
 import org.junit.jupiter.api.Nested
 import org.springframework.http.MediaType.APPLICATION_PDF
@@ -39,7 +40,7 @@ class PrivatAvtaleControllerTest: AbstractControllerTest() {
     private lateinit var innloggetBrukerUtils: InnloggetBrukerUtils
 
     private val mockResponsPersonMedEnBarnRelasjon: MotpartBarnRelasjonDto =
-        JsonUtils.readJsonFile("/person/person_med_barn_et_motpart.json")
+        JsonUtils.lesJsonFil("/person/person_med_barn_et_motpart.json")
 
     // Minimal PDF-like bytes: "%PDF-1.4\n%%EOF"
     private val pdfMock = byteArrayOf(
@@ -50,7 +51,7 @@ class PrivatAvtaleControllerTest: AbstractControllerTest() {
     inner class BarnUnder18 {
         @Test
         fun `skal returnere informasjon for privat avtale`() {
-            val personIdent = "03848797048"
+            val personIdent = genererFødselsnummer()
             val forventetDto = mockResponsPersonMedEnBarnRelasjon.person.tilPrivatAvtaleInformasjonDto()
 
             every { innloggetBrukerUtils.requirePåloggetPersonIdent(any()) } returns personIdent
@@ -119,7 +120,7 @@ class PrivatAvtaleControllerTest: AbstractControllerTest() {
                     oppgjørsformIdag = null // trigger @ValidOppgjør
                 )
             )
-            val personIdent = "12345678910"
+            val personIdent = genererFødselsnummer()
             every { innloggetBrukerUtils.hentPåloggetPersonIdent() } returns personIdent
             every { privatAvtalePdfService.genererPrivatAvtalePdf(any()) } returns ByteArrayOutputStream()
 
@@ -138,17 +139,17 @@ class PrivatAvtaleControllerTest: AbstractControllerTest() {
                 bidragsmottaker = PrivatAvtalePart(
                     "Ola",
                     "Nordmann",
-                    Personident("12345678901")
+                    genererPersonident()
                 ),
                 bidragspliktig = PrivatAvtalePart(
                     "Kari",
                     "Nordmann",
-                    Personident("10987654321")
+                    genererPersonident()
                 ),
                 barn = listOf(PrivatAvtaleBarn(
                     "Barn",
                     "Nordmann",
-                    Personident("01010112345"),
+                    genererPersonident(),
                     BigDecimal("1000"),
                     fraDato = LocalDate.of(2025, 1, 15)
                 )),
@@ -216,12 +217,12 @@ class PrivatAvtaleControllerTest: AbstractControllerTest() {
                 bidragsmottaker = PrivatAvtalePart(
                     "Ola",
                     "Nordmann",
-                    Personident("12345678901")
+                    genererPersonident()
                 ),
                 bidragspliktig = PrivatAvtalePart(
                     "Kari",
                     "Nordmann",
-                    Personident("10987654321")
+                    genererPersonident()
                 ),
                 bidrag = listOf(
                     Bidrag(

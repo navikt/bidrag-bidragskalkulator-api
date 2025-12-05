@@ -2,7 +2,7 @@ package no.nav.bidrag.bidragskalkulator.config
 
 import com.nimbusds.jose.JOSEObjectType
 import no.nav.bidrag.domene.enums.person.Kjønn
-import no.nav.bidrag.domene.ident.Personident
+import no.nav.bidrag.generer.testdata.person.genererPersonident
 import no.nav.bidrag.transport.person.PersonDto
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback
@@ -41,17 +41,18 @@ class TestOAuth2TokenProvider(private val mockOAuth2Server: MockOAuth2Server) {
     }
 
     @Bean
-    fun ugyldigOAuth2Token(): String =  gyldigOAuth2Token() + "x"
+    fun ugyldigOAuth2Token(): String = gyldigOAuth2Token() + "x"
 
     companion object TestData {
         val påloggetPerson = PersonDto(
-            ident = Personident("03848797048"),
+            ident = genererPersonident(),
             navn = "LIGGESTOL, EKSAKT",
             fornavn = "Eksakt",
             mellomnavn = "",
             etternavn = "LIGGESTOL",
             kjønn = Kjønn.KVINNE,
             fødselsdato = LocalDate.parse("1987-04-03"),
-            visningsnavn = "Eksakt Liggestol")
+            visningsnavn = "Eksakt Liggestol"
+        )
     }
 }
