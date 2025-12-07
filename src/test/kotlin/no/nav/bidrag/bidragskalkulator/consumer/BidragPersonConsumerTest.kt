@@ -42,7 +42,7 @@ class BidragPersonbidragPersonConsumerTest {
     fun `skal returnere familierelasjon`() {
         val ident = genererFødselsnummer()
         val forventetRespons: MotpartBarnRelasjonDto =
-            JsonUtils.lesJsonFil(filnavn = "/person/person_med_barn_et_motpart.json")
+            JsonUtils.lesJsonFil(filnavn = "/person/person_med_barn_en_motpart.json")
 
        mockPostCall(forventetRespons)
 

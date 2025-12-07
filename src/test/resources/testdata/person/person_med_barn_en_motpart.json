@@ -61,7 +61,7 @@
           "kjoenn": "KVINNE",
           "fødselsdato": "2020-09-20",
           "foedselsdato": "2020-09-20",
-          "aktørId": "{$BARN2_AKTOERID}",
+          "aktørId": "{BARN2_AKTOERID}",
           "aktoerId": "{BARN2_AKTOERID}",
           "kortnavn": "Trådløs Tregrense",
           "kortNavn": "Trådløs Tregrense",

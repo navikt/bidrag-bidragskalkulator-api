@@ -45,7 +45,7 @@ class PersonServiceTest {
     fun `skal hente og filtrere gyldig familierelasjon`() {
         // Arrange
         val dataMed2Barn1Motpart =
-            JsonUtils.lesJsonFil<MotpartBarnRelasjonDto>("/person/person_med_barn_et_motpart.json")
+            JsonUtils.lesJsonFil<MotpartBarnRelasjonDto>("/person/person_med_barn_en_motpart.json")
         val personIdent = dataMed2Barn1Motpart.person.ident.verdi
         val relasjon = dataMed2Barn1Motpart.personensMotpartBarnRelasjon.first()
 

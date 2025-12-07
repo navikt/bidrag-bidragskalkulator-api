@@ -120,7 +120,7 @@ class BeregningServiceTest {
         @Test
         fun `skal beregne underholdskostnader for barnerelasjoner og sortere etter alder`() = runTest {
             // Arrange
-            val motpartBarnRelasjon: MotpartBarnRelasjonDto = JsonUtils.lesJsonFil("/person/person_med_barn_et_motpart.json")
+            val motpartBarnRelasjon: MotpartBarnRelasjonDto = JsonUtils.lesJsonFil("/person/person_med_barn_en_motpart.json")
             val fellesBarn = motpartBarnRelasjon.personensMotpartBarnRelasjon.first().fellesBarn
 
             val barn1Ident = fellesBarn[0].ident

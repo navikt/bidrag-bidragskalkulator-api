@@ -40,7 +40,7 @@ class PrivatAvtaleControllerTest: AbstractControllerTest() {
     private lateinit var innloggetBrukerUtils: InnloggetBrukerUtils
 
     private val mockResponsPersonMedEnBarnRelasjon: MotpartBarnRelasjonDto =
-        JsonUtils.lesJsonFil("/person/person_med_barn_et_motpart.json")
+        JsonUtils.lesJsonFil("/person/person_med_barn_en_motpart.json")
 
     // Minimal PDF-like bytes: "%PDF-1.4\n%%EOF"
     private val pdfMock = byteArrayOf(

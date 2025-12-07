@@ -18,7 +18,7 @@ class PrivatAvtaleServiceTest {
     @Test
     fun `skal hente informasjon for privat avtale`() {
         val ident = genererPersonident()
-        val personDto = JsonUtils.lesJsonFil<MotpartBarnRelasjonDto>("/person/person_med_barn_et_motpart.json")
+        val personDto = JsonUtils.lesJsonFil<MotpartBarnRelasjonDto>("/person/person_med_barn_en_motpart.json")
         val forventetDto = personDto.person.tilPrivatAvtaleInformasjonDto()
 
         every { personConsumer.hentPerson(ident) } returns personDto.person
