@@ -1,11 +1,11 @@
-package no.nav.bidrag.bidragskalkulator.bidragPersonConsumer
+package no.nav.bidrag.bidragskalkulator.consumer
 
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.bidrag.bidragskalkulator.config.BidragPersonConfigurationProperties
-import no.nav.bidrag.bidragskalkulator.consumer.BidragPersonConsumer
 import no.nav.bidrag.bidragskalkulator.exception.NoContentException
 import no.nav.bidrag.bidragskalkulator.utils.JsonUtils
+import no.nav.bidrag.generer.testdata.person.genererFødselsnummer
 import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -40,9 +40,9 @@ class BidragPersonbidragPersonConsumerTest {
 
     @Test
     fun `skal returnere familierelasjon`() {
-        val ident = "12345678901"
+        val ident = genererFødselsnummer()
         val forventetRespons: MotpartBarnRelasjonDto =
-            JsonUtils.readJsonFile("/person/person_med_barn_et_motpart.json")
+            JsonUtils.lesJsonFil(filnavn = "/person/person_med_barn_en_motpart.json")
 
        mockPostCall(forventetRespons)
 
@@ -53,7 +53,7 @@ class BidragPersonbidragPersonConsumerTest {
 
     @Test
     fun `skal kaste NoContentException når 404 fra bidrag-person`() {
-        val ident = "12345678901"
+        val ident = genererFødselsnummer()
         val exception = HttpServerErrorException.create(HttpStatus.NOT_FOUND, "Not Found", null, null, null)
 
         mockPostCallThrows(exception)
@@ -65,7 +65,7 @@ class BidragPersonbidragPersonConsumerTest {
 
     @Test
     fun `skal kaste original feil ved 500`() {
-        val ident = "12345678901"
+        val ident = genererFødselsnummer()
         val exception = HttpServerErrorException.create(HttpStatus.INTERNAL_SERVER_ERROR, "Serverfeil", null, null, null)
 
         mockPostCallThrows(exception)

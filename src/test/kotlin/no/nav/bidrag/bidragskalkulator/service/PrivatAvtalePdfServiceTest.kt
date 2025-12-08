@@ -9,7 +9,7 @@ import no.nav.bidrag.bidragskalkulator.dto.*
 import no.nav.bidrag.bidragskalkulator.dto.førstesidegenerator.GenererFørstesideResultatDto
 import no.nav.bidrag.bidragskalkulator.dto.førstesidegenerator.Språkkode
 import no.nav.bidrag.bidragskalkulator.prosessor.PdfProsessor
-import no.nav.bidrag.domene.ident.Personident
+import no.nav.bidrag.generer.testdata.person.genererPersonident
 import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -46,11 +46,11 @@ class PrivatAvtalePdfServiceTest {
             ønsket: Oppgjørsform,
             idag: Oppgjørsform? = null
         ) = PrivatAvtaleBarnUnder18RequestDto(
-            bidragsmottaker = PrivatAvtalePart("Ola", "Nordmann", Personident("12345678901")),
-            bidragspliktig = PrivatAvtalePart("Kari", "Nordmann", Personident("10987654321")),
+            bidragsmottaker = PrivatAvtalePart("Ola", "Nordmann", genererPersonident()),
+            bidragspliktig = PrivatAvtalePart("Kari", "Nordmann", genererPersonident()),
             barn = listOf(
                 PrivatAvtaleBarn(
-                    "Barn", "Etternavnesen", Personident("11111111111"),
+                    "Barn", "Etternavnesen", genererPersonident(),
                     sumBidrag = BigDecimal("1000"),
                     fraDato = LocalDate.now()
                 )

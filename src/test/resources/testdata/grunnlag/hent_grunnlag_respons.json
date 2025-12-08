@@ -1,7 +1,7 @@
 {
   "ainntektListe": [
     {
-      "personId": "10107400090",
+      "personId": "{PERSON_FNR}",
       "periodeFra": "2024-04-01",
       "periodeTil": "2024-05-01",
       "ainntektspostListe": [
@@ -23,7 +23,7 @@
       ]
     },
     {
-      "personId": "10107400090",
+      "personId": "{PERSON_FNR}",
       "periodeFra": "2024-05-01",
       "periodeTil": "2024-06-01",
       "ainntektspostListe": [
@@ -45,7 +45,7 @@
       ]
     },
     {
-      "personId": "10107400090",
+      "personId": "{PERSON_FNR}",
       "periodeFra": "2024-06-01",
       "periodeTil": "2024-07-01",
       "ainntektspostListe": [
@@ -67,7 +67,7 @@
       ]
     },
     {
-      "personId": "10107400090",
+      "personId": "{PERSON_FNR}",
       "periodeFra": "2024-07-01",
       "periodeTil": "2024-08-01",
       "ainntektspostListe": [
@@ -89,7 +89,7 @@
       ]
     },
     {
-      "personId": "10107400090",
+      "personId": "{PERSON_FNR}",
       "periodeFra": "2024-08-01",
       "periodeTil": "2024-09-01",
       "ainntektspostListe": [
@@ -111,7 +111,7 @@
       ]
     },
     {
-      "personId": "10107400090",
+      "personId": "{PERSON_FNR}",
       "periodeFra": "2024-09-01",
       "periodeTil": "2024-10-01",
       "ainntektspostListe": [
@@ -133,7 +133,7 @@
       ]
     },
     {
-      "personId": "10107400090",
+      "personId": "{PERSON_FNR}",
       "periodeFra": "2024-10-01",
       "periodeTil": "2024-11-01",
       "ainntektspostListe": [
