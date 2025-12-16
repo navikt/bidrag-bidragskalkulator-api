@@ -4,6 +4,8 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 group = "com.github.navikt"
 version = "0.0.1-SNAPSHOT"
 
+extra["tomcat.version"] = "10.1.47"
+
 val bidragBeregnFellesVersion = "2025.10.15.133314"
 val bidragFellesVersion = "2025.12.16.103515"
 val kotlinLoggingJvmVersion = "7.0.13"
@@ -131,5 +133,14 @@ tasks {
             events = setOf(TestLogEvent.PASSED, TestLogEvent.SKIPPED, TestLogEvent.FAILED)
         }
         systemProperty("spring.profiles.active", "test")
+    }
+}
+
+configurations.all {
+    resolutionStrategy.eachDependency {
+        if (requested.group == "org.apache.commons" && requested.name == "commons-lang3") {
+            useVersion("3.18.0")
+            because("Fix CVE-2025-48924")
+        }
     }
 }
