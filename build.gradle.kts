@@ -134,13 +134,13 @@ tasks {
         }
         systemProperty("spring.profiles.active", "test")
     }
+}
 
-    configurations.all {
-        resolutionStrategy.eachDependency {
-            if (requested.group == "org.apache.commons" && requested.name == "commons-lang3") {
-                useVersion("3.18.0")
-                because("Fix CVE-2025-48924")
-            }
+configurations.all {
+    resolutionStrategy.eachDependency {
+        if (requested.group == "org.apache.commons" && requested.name == "commons-lang3") {
+            useVersion("3.18.0")
+            because("Fix CVE-2025-48924")
         }
     }
 }
