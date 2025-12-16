@@ -12,13 +12,13 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import com.fasterxml.jackson.databind.JsonMappingException
-import no.nav.bidrag.domene.ident.Personident
+import no.nav.bidrag.generer.testdata.person.genererPersonident
 
 class BeregningServiceValidationTest {
 
     private lateinit var validator: Validator
     private lateinit var objectMapper: ObjectMapper
-    private val personIdent = "12345678910"
+    private val personIdent = genererPersonident()
 
     @BeforeEach
     fun setup() {
@@ -34,7 +34,7 @@ class BeregningServiceValidationTest {
             inntektForelder2 = 600000.0,
             barn = listOf(
                 BarnMedIdentDto(
-                    ident = Personident(personIdent),
+                    ident = personIdent,
                     samværsklasse = Samværsklasse.SAMVÆRSKLASSE_1,
                     bidragstype = BidragsType.PLIKTIG
                 )
@@ -51,7 +51,7 @@ class BeregningServiceValidationTest {
                 "inntektForelder2": 600000.0,
                 "barn": [
                     {
-                        "ident": "14429546002",
+                        "ident": "${personIdent.verdi}",
                         "samværsklasse": "SAMVÆRSKLASSE_1"
                     }
                 ]
@@ -81,7 +81,7 @@ class BeregningServiceValidationTest {
         val request = BeregningRequestDto(
             inntektForelder1 = -50000.0, // Ugyldig
             inntektForelder2 = 600000.0,
-            barn = listOf(BarnMedIdentDto(Personident(personIdent), Samværsklasse.SAMVÆRSKLASSE_1, BidragsType.PLIKTIG))
+            barn = listOf(BarnMedIdentDto(personIdent, Samværsklasse.SAMVÆRSKLASSE_1, BidragsType.PLIKTIG))
         )
 
         val violations = validator.validate(request)
@@ -93,7 +93,7 @@ class BeregningServiceValidationTest {
         val request = BeregningRequestDto(
             inntektForelder1 = 1_000_000_000.0,  // 1 milliard
             inntektForelder2 = 900_000_000.0,  // 900 millioner
-            barn = listOf(BarnMedIdentDto(Personident(personIdent), Samværsklasse.SAMVÆRSKLASSE_1, BidragsType.MOTTAKER))
+            barn = listOf(BarnMedIdentDto(personIdent, Samværsklasse.SAMVÆRSKLASSE_1, BidragsType.MOTTAKER))
         )
 
         val violations = validator.validate(request)

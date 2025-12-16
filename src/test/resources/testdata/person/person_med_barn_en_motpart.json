@@ -1,6 +1,6 @@
 {
   "person": {
-    "ident": "03848797048",
+    "ident": "{PERSON_FNR}",
     "navn": "LIGGESTOL, EKSAKT",
     "fornavn": "Eksakt",
     "mellomnavn": "",
@@ -9,8 +9,8 @@
     "kjoenn": "KVINNE",
     "fødselsdato": "1987-04-03",
     "foedselsdato": "1987-04-03",
-    "aktørId": "2995022845225",
-    "aktoerId": "2995022845225",
+    "aktørId": "{PERSON_AKTOERID}",
+    "aktoerId": "{PERSON_AKTOERID}",
     "kortnavn": "Eksakt Liggestol",
     "kortNavn": "Eksakt Liggestol",
     "visningsnavn": "Eksakt Liggestol"
@@ -19,7 +19,7 @@
     {
       "forelderrolleMotpart": "FAR",
       "motpart": {
-        "ident": "21828597504",
+        "ident": "{MOTPART1_FNR}",
         "navn": "TREGRENSE, NORMAL",
         "fornavn": "Normal",
         "mellomnavn": "",
@@ -28,15 +28,15 @@
         "kjoenn": "MANN",
         "fødselsdato": "1985-02-21",
         "foedselsdato": "1985-02-21",
-        "aktørId": "2506308456558",
-        "aktoerId": "2506308456558",
+        "aktørId": "{MOTPART1_AKTOERID}",
+        "aktoerId": "{MOTPART1_AKTOERID}",
         "kortnavn": "Normal Tregrense",
         "kortNavn": "Normal Tregrense",
         "visningsnavn": "Normal Tregrense"
       },
       "fellesBarn": [
         {
-          "ident": "29891198289",
+          "ident": "{BARN1_FNR}",
           "navn": "TREGRENSE, NØDVENDIG",
           "fornavn": "Nødvendig",
           "mellomnavn": "",
@@ -45,14 +45,14 @@
           "kjoenn": "KVINNE",
           "fødselsdato": "2011-09-29",
           "foedselsdato": "2011-09-29",
-          "aktørId": "2223945105690",
-          "aktoerId": "2223945105690",
+          "aktørId": "{BARN1_AKTOERID}",
+          "aktoerId": "{BARN1_AKTOERID}",
           "kortnavn": "Nødvendig Tregrense",
           "kortNavn": "Nødvendig Tregrense",
           "visningsnavn": "Nødvendig Tregrense"
         },
         {
-          "ident": "20892098426",
+          "ident": "{BARN2_FNR}",
           "navn": "TREGRENSE, TRÅDLØS",
           "fornavn": "Trådløs",
           "mellomnavn": "",
@@ -61,8 +61,8 @@
           "kjoenn": "KVINNE",
           "fødselsdato": "2020-09-20",
           "foedselsdato": "2020-09-20",
-          "aktørId": "2046359567767",
-          "aktoerId": "2046359567767",
+          "aktørId": "{BARN2_AKTOERID}",
+          "aktoerId": "{BARN2_AKTOERID}",
           "kortnavn": "Trådløs Tregrense",
           "kortNavn": "Trådløs Tregrense",
           "visningsnavn": "Trådløs Tregrense"
