@@ -7,25 +7,25 @@ version = "0.0.1-SNAPSHOT"
 extra["tomcat.version"] = "10.1.47"
 
 val bidragBeregnFellesVersion = "2025.10.15.133314"
-val bidragFellesVersion = "2025.12.05.111904"
+val bidragFellesVersion = "2025.12.16.103515"
 val kotlinLoggingJvmVersion = "7.0.13"
 val springDocWebmvcVersion = "2.8.13"
 val springmockkVersion = "4.0.2"
 val tokenSupportVersion = "5.0.37"
-val jacksonVersion = "2.20.0"
-val junitJupiterVersion = "6.0.0"
+val jacksonVersion = "2.20.1"
+val junitJupiterVersion = "6.0.1"
 val coroutinesVersion = "1.10.2"
 val pdfBoxVersion = "2.0.31"
-val micrometerPrometheusVersion = "1.15.5"
-val logbackVersion = "1.5.20"
+val micrometerPrometheusVersion = "1.16.1"
+val logbackVersion = "1.5.21"
 val logstashEncoderVersion = "9.0"
 
 
 plugins {
-    id("org.jetbrains.kotlin.plugin.spring") version "2.2.20"
+    id("org.jetbrains.kotlin.plugin.spring") version "2.2.21"
     id("org.springframework.boot") version "3.5.6"
     id("io.spring.dependency-management") version "1.1.7"
-    kotlin("jvm") version "2.2.20"
+    kotlin("jvm") version "2.2.21"
     id("java")
     id("maven-publish")
 }
