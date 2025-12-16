@@ -37,10 +37,6 @@ repositories {
 }
 
 dependencies {
-    constraints {
-        implementation("org.apache.commons:commons-lang3:3.18.0")
-    }
-
     //Spring
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-web")
@@ -137,5 +133,14 @@ tasks {
             events = setOf(TestLogEvent.PASSED, TestLogEvent.SKIPPED, TestLogEvent.FAILED)
         }
         systemProperty("spring.profiles.active", "test")
+    }
+
+    configurations.all {
+        resolutionStrategy.eachDependency {
+            if (requested.group == "org.apache.commons" && requested.name == "commons-lang3") {
+                useVersion("3.18.0")
+                because("Fix CVE-2025-48924")
+            }
+        }
     }
 }
