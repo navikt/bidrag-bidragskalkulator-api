@@ -4,6 +4,8 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 group = "com.github.navikt"
 version = "0.0.1-SNAPSHOT"
 
+extra["tomcat.version"] = "10.1.47"
+
 val bidragBeregnFellesVersion = "2025.10.15.133314"
 val bidragFellesVersion = "2025.12.05.111904"
 val kotlinLoggingJvmVersion = "7.0.13"
@@ -35,6 +37,10 @@ repositories {
 }
 
 dependencies {
+    constraints {
+        implementation("org.apache.commons:commons-lang3:3.18.0")
+    }
+
     //Spring
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-web")
