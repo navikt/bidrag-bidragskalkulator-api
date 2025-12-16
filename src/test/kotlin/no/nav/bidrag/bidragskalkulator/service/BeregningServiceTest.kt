@@ -12,12 +12,11 @@ import no.nav.bidrag.bidragskalkulator.service.BoOgForbruksutgiftService
 import no.nav.bidrag.bidragskalkulator.service.PersonService
 import no.nav.bidrag.bidragskalkulator.utils.JsonUtils
 import no.nav.bidrag.bidragskalkulator.utils.kalkulerAlder
-import no.nav.bidrag.domene.ident.Personident
 import no.nav.bidrag.domene.tid.ÅrMånedsperiode
+import no.nav.bidrag.generer.testdata.person.genererPersonident
 import no.nav.bidrag.transport.behandling.beregning.barnebidrag.BeregnetBarnebidragResultat
 import no.nav.bidrag.transport.behandling.beregning.barnebidrag.ResultatBeregning
 import no.nav.bidrag.transport.behandling.beregning.barnebidrag.ResultatPeriode
-import no.nav.bidrag.transport.behandling.felles.grunnlag.GrunnlagDto
 import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
 import no.nav.bidrag.transport.person.PersonDto
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -99,10 +98,9 @@ class BeregningServiceTest {
 
         @Test
         fun `skal beregne underholdskostnad for en person`() {
-            val beregnUnderholdskostnadRespons: List<GrunnlagDto> = JsonUtils.readJsonFile("/underholdskostnad/beregn_underholdskostnad_respons.json")
             every { boOgForbruksutgiftServiceMock.beregnCachedPersonBoOgForbruksutgiftskostnad(any()) } returns 8471.toBigDecimal()
 
-            val personident = Personident("29891198289")
+            val personident = genererPersonident()
             val forventetBeløp = BigDecimal(8471)
 
             val resultat = beregningService.beregnPersonUnderholdskostnad(personident)
@@ -114,7 +112,7 @@ class BeregningServiceTest {
         fun `skal returnere 0 dersom ingen underholdskostnad finnes`() {
             every { boOgForbruksutgiftServiceMock.beregnCachedPersonBoOgForbruksutgiftskostnad(any()) } returns BigDecimal.ZERO
 
-            val result = beregningService.beregnPersonUnderholdskostnad(Personident("29891198289"))
+            val result = beregningService.beregnPersonUnderholdskostnad(genererPersonident())
 
             assertEquals(BigDecimal.ZERO, result, "Forventet underholdskostnad skal være 0 når ingen data finnes")
         }
@@ -122,8 +120,7 @@ class BeregningServiceTest {
         @Test
         fun `skal beregne underholdskostnader for barnerelasjoner og sortere etter alder`() = runTest {
             // Arrange
-            val motpartBarnRelasjon: MotpartBarnRelasjonDto = JsonUtils.readJsonFile("/person/person_med_barn_et_motpart.json")
-            val underholdskostnadRespons: List<GrunnlagDto> = JsonUtils.readJsonFile("/underholdskostnad/beregn_underholdskostnad_respons.json")
+            val motpartBarnRelasjon: MotpartBarnRelasjonDto = JsonUtils.lesJsonFil("/person/person_med_barn_en_motpart.json")
             val fellesBarn = motpartBarnRelasjon.personensMotpartBarnRelasjon.first().fellesBarn
 
             val barn1Ident = fellesBarn[0].ident
@@ -164,9 +161,9 @@ class BeregningServiceTest {
     }
 
     private fun mockOppsett(filNavn: String): BeregningRequestDto {
-        val beregningRequest: BeregningRequestDto = JsonUtils.readJsonFile(filNavn)
+        val beregningRequest: BeregningRequestDto = JsonUtils.lesJsonFil(filNavn)
 
-        val result: List<PersonDto> = beregningRequest.barn.mapIndexed  { index, barn ->
+        val result: List<PersonDto> = beregningRequest.barn.mapIndexed  { _, barn ->
             PersonDto(
                 ident = barn.ident,
                 navn = "Navn Navnesen",
@@ -187,7 +184,7 @@ class BeregningServiceTest {
             every { personService.hentPersoninformasjon(any()) } returns it
         }
 
-        return beregningRequest;
+        return beregningRequest
     }
 
 

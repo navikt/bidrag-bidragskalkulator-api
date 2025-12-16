@@ -1,16 +1,18 @@
 package no.nav.bidrag.bidragskalkulator.utils
 
+import com.nimbusds.jose.JWSAlgorithm
+import com.nimbusds.jose.JWSHeader
+import com.nimbusds.jose.crypto.MACSigner
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.bidrag.commons.security.service.OidcTokenManager
-import org.junit.jupiter.api.Assertions.*
+import no.nav.bidrag.generer.testdata.person.genererFødselsnummer
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import com.nimbusds.jose.JWSHeader
-import com.nimbusds.jose.JWSAlgorithm
-import com.nimbusds.jose.crypto.MACSigner
 
 class InnloggetBrukerUtilsTest {
     private val oidcTokenManager = mockk<OidcTokenManager>()
@@ -18,7 +20,7 @@ class InnloggetBrukerUtilsTest {
 
     @Test
     fun `skal hente pid fra gyldig token`() {
-        val pid = "12345678910"
+        val pid = genererFødselsnummer()
         val claims = JWTClaimsSet.Builder().claim("pid", pid).build()
         val header = JWSHeader(JWSAlgorithm.HS256)
         val jwt = SignedJWT(header, claims)

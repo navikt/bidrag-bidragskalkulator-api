@@ -8,16 +8,13 @@ import no.nav.bidrag.bidragskalkulator.service.PersonService
 import no.nav.bidrag.bidragskalkulator.utils.JsonUtils
 import no.nav.bidrag.domene.enums.grunnlag.Grunnlagstype
 import no.nav.bidrag.domene.enums.vedtak.Stønadstype
-import no.nav.bidrag.domene.ident.Personident
-import no.nav.bidrag.transport.behandling.felles.grunnlag.BostatusPeriode
-import no.nav.bidrag.transport.behandling.felles.grunnlag.FaktiskUtgiftPeriode
-import no.nav.bidrag.transport.behandling.felles.grunnlag.innholdTilObjekt
+import no.nav.bidrag.generer.testdata.person.genererFødselsnummer
+import no.nav.bidrag.generer.testdata.person.genererPersonident
 import no.nav.bidrag.transport.person.PersonDto
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import java.math.BigDecimal
 import java.time.LocalDate
 
 @ExtendWith(MockKExtension::class)
@@ -37,7 +34,7 @@ class BeregningsgrunnlagMapperTest {
 
         every { mockPersonService.hentPersoninformasjon(any()) } returns PersonDto(
             fødselsdato = fødselsdato,
-            ident = Personident("06451759610"),
+            ident = genererPersonident(),
             fornavn = "Navn",
             visningsnavn = "Navn Navnesen",
         )
@@ -47,7 +44,7 @@ class BeregningsgrunnlagMapperTest {
 
     @Test
     fun `skal mappe BeregningRequestDto med ett barn til BeregnGrunnlag`() {
-        val beregningRequest: BeregningRequestDto = JsonUtils.readJsonFile("/barnebidrag/beregning_et_barn.json")
+        val beregningRequest: BeregningRequestDto = JsonUtils.lesJsonFil("/barnebidrag/beregning_et_barn.json")
 
         val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(beregningRequest)
 
@@ -57,7 +54,7 @@ class BeregningsgrunnlagMapperTest {
 
     @Test
     fun `skal mappe BeregningRequestDto med to barn til BeregnGrunnlag`() {
-        val beregningRequest: BeregningRequestDto = JsonUtils.readJsonFile("/barnebidrag/beregning_to_barn.json")
+        val beregningRequest: BeregningRequestDto = JsonUtils.lesJsonFil("/barnebidrag/beregning_to_barn.json")
 
         val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(beregningRequest)
 
@@ -69,7 +66,7 @@ class BeregningsgrunnlagMapperTest {
 
     @Test
     fun `skal ha riktig antall grunnlagselementer`() {
-        val beregningRequest: BeregningRequestDto = JsonUtils.readJsonFile("/barnebidrag/beregning_to_barn.json")
+        val beregningRequest: BeregningRequestDto = JsonUtils.lesJsonFil("/barnebidrag/beregning_to_barn.json")
 
         val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(beregningRequest)
 
@@ -80,7 +77,7 @@ class BeregningsgrunnlagMapperTest {
 
     @Test
     fun `skal sette stønadstype til BIDRAG18AAR for barn over 18`() {
-        val beregningRequest: BeregningRequestDto = JsonUtils.readJsonFile("/barnebidrag/beregning_barn_over_18.json")
+        val beregningRequest: BeregningRequestDto = JsonUtils.lesJsonFil(filnavn = "/barnebidrag/beregning_barn_over_18.json", barn1Fnr = genererFødselsnummer(LocalDate.now().minusYears(19)))
         val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(beregningRequest)
 
         assertEquals(1, result.size, "Forventet én beregning")
@@ -89,7 +86,8 @@ class BeregningsgrunnlagMapperTest {
 
     @Test
     fun `skal sette stønadstype til BIDRAG for barn under 18`() {
-        val beregningRequest: BeregningRequestDto = JsonUtils.readJsonFile("/barnebidrag/beregning_et_barn.json")
+        val beregningRequest: BeregningRequestDto = JsonUtils.lesJsonFil(filnavn = "/barnebidrag/beregning_et_barn.json", barn1Fnr = genererFødselsnummer(
+            LocalDate.now().minusYears(10)))
         val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(beregningRequest)
 
         assertEquals(Stønadstype.BIDRAG, result.first().grunnlag.stønadstype)
@@ -97,7 +95,7 @@ class BeregningsgrunnlagMapperTest {
 
     @Test
     fun `skal inkludere faktisk utgift grunnlag når brnetilsynsutgift er satt`() {
-        val beregningRequest: BeregningRequestDto = JsonUtils.readJsonFile("/barnebidrag/beregning_et_barn.json")
+        val beregningRequest: BeregningRequestDto = JsonUtils.lesJsonFil("/barnebidrag/beregning_et_barn.json")
         val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(beregningRequest)
         val faktiskUtgiftGrunnlag = result.first().grunnlag.grunnlagListe
             .find { it.type == Grunnlagstype.FAKTISK_UTGIFT_PERIODE }
@@ -107,7 +105,7 @@ class BeregningsgrunnlagMapperTest {
 
     @Test
     fun `skal ikke inkludere faktisk utgift grunnlag når brnetilsynsutgift ikke er satt`() {
-        val beregningRequest: BeregningRequestDto = JsonUtils.readJsonFile("/barnebidrag/beregning_barn_over_18.json")
+        val beregningRequest: BeregningRequestDto = JsonUtils.lesJsonFil(filnavn = "/barnebidrag/beregning_barn_over_18.json", barn1Fnr = genererFødselsnummer(LocalDate.now().minusYears(19)))
         val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(beregningRequest)
         val faktiskUtgiftGrunnlag = result.first().grunnlag.grunnlagListe
             .find { it.type == Grunnlagstype.FAKTISK_UTGIFT_PERIODE }

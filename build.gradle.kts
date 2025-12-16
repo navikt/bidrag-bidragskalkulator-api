@@ -5,7 +5,7 @@ group = "com.github.navikt"
 version = "0.0.1-SNAPSHOT"
 
 val bidragBeregnFellesVersion = "2025.10.15.133314"
-val bidragFellesVersion = "2025.10.17.145012"
+val bidragFellesVersion = "2025.12.05.111904"
 val kotlinLoggingJvmVersion = "7.0.13"
 val springDocWebmvcVersion = "2.8.13"
 val springmockkVersion = "4.0.2"
@@ -56,6 +56,8 @@ dependencies {
     }
     implementation("no.nav.bidrag:bidrag-transport-felles:${bidragFellesVersion}"){
         exclude(group = "jakarta.persistence", module = "jakarta.persistence-api")
+    }
+    implementation("no.nav.bidrag:bidrag-generer-testdata-felles:${bidragFellesVersion}"){
     }
     implementation("no.nav.bidrag:bidrag-commons-felles:${bidragFellesVersion}"){
         exclude(group = "io.github.oshai", module = "kotlin-logging-jvm")

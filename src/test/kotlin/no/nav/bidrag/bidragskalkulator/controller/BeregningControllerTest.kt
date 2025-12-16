@@ -3,17 +3,22 @@ package no.nav.bidrag.bidragskalkulator.controller
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import kotlinx.coroutines.runBlocking
-import no.nav.bidrag.bidragskalkulator.dto.*
+import no.nav.bidrag.bidragskalkulator.dto.BarnMedIdentDto
+import no.nav.bidrag.bidragskalkulator.dto.BeregningRequestDto
+import no.nav.bidrag.bidragskalkulator.dto.BeregningsresultatBarnDto
+import no.nav.bidrag.bidragskalkulator.dto.BeregningsresultatDto
+import no.nav.bidrag.bidragskalkulator.dto.BidragsType
+import no.nav.bidrag.bidragskalkulator.dto.BoforholdDto
 import no.nav.bidrag.bidragskalkulator.service.BeregningService
 import no.nav.bidrag.domene.enums.beregning.Samværsklasse
-import no.nav.bidrag.domene.ident.Personident
+import no.nav.bidrag.generer.testdata.person.genererPersonident
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.math.BigDecimal
 
-class BeregningControllerTest: AbstractControllerTest() {
+class BeregningControllerTest : AbstractControllerTest() {
     @MockkBean(relaxUnitFun = true)
     private lateinit var beregningService: BeregningService
 
@@ -59,7 +64,13 @@ class BeregningControllerTest: AbstractControllerTest() {
     @Test
     fun `skal returnere 400 hvis medforelderBoforhold mangler for MOTTAKER`() {
         val ugyldigRequest = mockGyldigRequest.copy(
-            barn = listOf(BarnMedIdentDto(ident = Personident(personIdent), samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0, bidragstype = BidragsType.MOTTAKER))
+            barn = listOf(
+                BarnMedIdentDto(
+                    ident = personIdent,
+                    samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0,
+                    bidragstype = BidragsType.MOTTAKER
+                )
+            )
         )
 
         postRequest("/api/v1/beregning/barnebidrag/åpen", ugyldigRequest, gyldigOAuth2Token)
@@ -71,8 +82,16 @@ class BeregningControllerTest: AbstractControllerTest() {
     fun `skal returnere 400 hvis bruker er både bidragsmottaker og bidragspliktig, og begge boforhold mangler`() {
         val ugyldigRequest = mockGyldigRequest.copy(
             barn = listOf(
-                BarnMedIdentDto(ident = Personident(personIdent), samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0, bidragstype = BidragsType.MOTTAKER),
-                BarnMedIdentDto(ident = Personident(personIdent), samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0, bidragstype = BidragsType.PLIKTIG)
+                BarnMedIdentDto(
+                    ident = personIdent,
+                    samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0,
+                    bidragstype = BidragsType.MOTTAKER
+                ),
+                BarnMedIdentDto(
+                    ident = personIdent,
+                    samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0,
+                    bidragstype = BidragsType.PLIKTIG
+                )
             ),
             dittBoforhold = null,
             medforelderBoforhold = null
@@ -87,8 +106,16 @@ class BeregningControllerTest: AbstractControllerTest() {
     fun `skal returnere 400 hvis bruker er både bidragsmottaker og bidragspliktig, og medforelderBoforhold mangler i forespørselen`() {
         val ugyldigRequest = mockGyldigRequest.copy(
             barn = listOf(
-                BarnMedIdentDto(ident = Personident(personIdent), samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0, bidragstype = BidragsType.MOTTAKER),
-                BarnMedIdentDto(ident = Personident(personIdent), samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0, bidragstype = BidragsType.PLIKTIG)
+                BarnMedIdentDto(
+                    ident = personIdent,
+                    samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0,
+                    bidragstype = BidragsType.MOTTAKER
+                ),
+                BarnMedIdentDto(
+                    ident = personIdent,
+                    samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0,
+                    bidragstype = BidragsType.PLIKTIG
+                )
             ),
             medforelderBoforhold = null
         )
@@ -100,18 +127,31 @@ class BeregningControllerTest: AbstractControllerTest() {
 
 
     companion object TestData {
-        private val personIdent = "12345678910"
+        private val personIdent = genererPersonident()
 
         val mockGyldigRequest = BeregningRequestDto(
             inntektForelder1 = 500000.0,
             inntektForelder2 = 400000.0,
-            barn = listOf(BarnMedIdentDto(ident = Personident(personIdent), samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0, bidragstype = BidragsType.PLIKTIG)),
+            barn = listOf(
+                BarnMedIdentDto(
+                    ident = personIdent,
+                    samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0,
+                    bidragstype = BidragsType.PLIKTIG
+                )
+            ),
             dittBoforhold = BoforholdDto(antallBarnBorFast = 0, antallBarnDeltBosted = 0, borMedAnnenVoksen = false)
         )
 
         val mockRespons = BeregningsresultatDto(
             resultater = listOf(
-                BeregningsresultatBarnDto(sum = BigDecimal(100), ident = Personident(personIdent), fulltNavn = "Navn Navnesen", fornavn = "Navn", alder = 10, bidragstype = mockGyldigRequest.barn.first().bidragstype)
+                BeregningsresultatBarnDto(
+                    sum = BigDecimal(100),
+                    ident = personIdent,
+                    fulltNavn = "Navn Navnesen",
+                    fornavn = "Navn",
+                    alder = 10,
+                    bidragstype = mockGyldigRequest.barn.first().bidragstype
+                )
             )
         )
     }
