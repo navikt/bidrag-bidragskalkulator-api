@@ -17,7 +17,7 @@ val junitJupiterVersion = "6.0.1"
 val coroutinesVersion = "1.10.2"
 val pdfBoxVersion = "2.0.31"
 val micrometerPrometheusVersion = "1.16.1"
-val logbackVersion = "1.5.21"
+val logbackVersion = "1.5.22"
 val logstashEncoderVersion = "9.0"
 
 
