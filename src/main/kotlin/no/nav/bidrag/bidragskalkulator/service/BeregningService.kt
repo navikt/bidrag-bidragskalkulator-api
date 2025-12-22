@@ -1,5 +1,6 @@
 package no.nav.bidrag.bidragskalkulator.service
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -30,7 +31,8 @@ class BeregningService(
     private val beregnBarnebidragApi: BeregnBarnebidragApi,
     private val boOgForbruksutgiftService: BoOgForbruksutgiftService,
     private val beregningsgrunnlagMapper: BeregningsgrunnlagMapper,
-    private val personService: PersonService
+    private val personService: PersonService,
+    private val objectMapper: ObjectMapper,
 ) {
     suspend fun beregnBarnebidrag(beregningRequest: BeregningRequestDto): BeregningsresultatDto {
         logger.info { "Starter beregning av barnebidrag." }
@@ -53,7 +55,17 @@ class BeregningService(
         val (resultatListe, varighet) = runCatching {
             measureTimedValue {
                 val grunnlag = beregningsgrunnlagMapper.mapTilBeregningsgrunnlagAnonym(beregningRequest)
+// pretty print for lesbarhet
+                val grunnlagJson = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(grunnlag)
+
+// Anonym-endepunkt: kan være OK å bruke vanlig logger, men jeg ville fortsatt brukt secureLogger
+                secureLogger.info { "beregnBarnebidragAnonym grunnlag:\n$grunnlagJson" }
+
+// evt. hvis du vil ha “kort” logg i vanlig logger:
+                logger.debug { "beregnBarnebidragAnonym grunnlag size=${grunnlag.size}" }
+
                 utførBarnebidragBeregningAnonym(grunnlag)
+
             }
         }.onFailure { e ->
             logger.error{ "Anonym beregning av barnebidrag feilet." }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import no.nav.bidrag.bidragskalkulator.dto.BidragsType
+import no.nav.bidrag.bidragskalkulator.dto.IFellesBarnDto
 import no.nav.bidrag.bidragskalkulator.mapper.BeregningsgrunnlagMapper.Referanser
 import no.nav.bidrag.bidragskalkulator.utils.kalkulerAlder
 import no.nav.bidrag.domene.enums.beregning.Samværsklasse
@@ -102,8 +103,28 @@ class BeregningsgrunnlagBuilder(
         return listOf(
             nyttInntektsgrunnlag("Inntekt_Bidragspliktig", lønnBidragspliktig.toBigDecimal(), Referanser.BIDRAGSPLIKTIG),
             nyttInntektsgrunnlag("Inntekt_Bidragsmottaker", lønnBidragsmottaker.toBigDecimal(), Referanser.BIDRAGSMOTTAKER),
-            nyttInntektsgrunnlag("Inntekt_${data.barnReferanse}", BigDecimal.ZERO, data.barnReferanse)
         )
+    }
+
+    fun byggBarnInntektsgrunnlag(barnListe: List<IFellesBarnDto>): List<GrunnlagDto> {
+        return barnListe.mapIndexedNotNull { index, barn ->
+            barn.inntekt?.let { beløp ->
+                GrunnlagDto(
+                    referanse = "Inntekt_Person_Søknadsbarn_$index",
+                    type = Grunnlagstype.INNTEKT_RAPPORTERING_PERIODE,
+                    innhold = objectMapper.valueToTree(
+                        InntektsrapporteringPeriode(
+                            periode = ÅrMånedsperiode(YearMonth.now(), null),
+                            inntektsrapportering = Inntektsrapportering.SAKSBEHANDLER_BEREGNET_INNTEKT,
+                            beløp = beløp,
+                            manueltRegistrert = true,
+                            valgt = true
+                        )
+                    ),
+                    gjelderReferanse = "Person_Søknadsbarn_$index"
+                )
+            }
+        }
     }
 
     fun byggSamværsgrunnlag(samværsklasse: Samværsklasse, gjelderBarnReferanse: String): GrunnlagDto =
