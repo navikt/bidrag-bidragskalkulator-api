@@ -37,6 +37,7 @@ data class BarnMedIdentDto(
     override val bidragstype: BidragsType,
 
     @param:Schema(description = "Utgifter i kroner per måned som den bidragsmottaker har til barnetilsyn for dette barnet", required = false, example = "2000")
+    @field:Min(value = 0)
     override val barnetilsynsutgift: BigDecimal? = null,
 
     @param:Schema(
@@ -44,6 +45,7 @@ data class BarnMedIdentDto(
         required = false,
         example = "5000"
     )
+    @field:Min(value = 0)
     override val inntekt: BigDecimal? = null,
 ) : IFellesBarnDto
 

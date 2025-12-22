@@ -106,11 +106,10 @@ class BeregningsgrunnlagBuilder(
         )
     }
 
-    fun byggBarnInntektsgrunnlag(barnListe: List<IFellesBarnDto>): List<GrunnlagDto> {
-        return barnListe.mapIndexedNotNull { index, barn ->
-            barn.inntekt?.let { beløp ->
+    fun byggBarnInntektsgrunnlag(barn: IFellesBarnDto, referanse: String): GrunnlagDto? {
+        return barn.inntekt?.let { beløp ->
                 GrunnlagDto(
-                    referanse = "Inntekt_Person_Søknadsbarn_$index",
+                    referanse = "Inntekt_Person_Søknadsbarn_$referanse",
                     type = Grunnlagstype.INNTEKT_RAPPORTERING_PERIODE,
                     innhold = objectMapper.valueToTree(
                         InntektsrapporteringPeriode(
@@ -121,10 +120,10 @@ class BeregningsgrunnlagBuilder(
                             valgt = true
                         )
                     ),
-                    gjelderReferanse = "Person_Søknadsbarn_$index"
+                    gjelderReferanse = referanse
                 )
             }
-        }
+
     }
 
     fun byggSamværsgrunnlag(samværsklasse: Samværsklasse, gjelderBarnReferanse: String): GrunnlagDto =
