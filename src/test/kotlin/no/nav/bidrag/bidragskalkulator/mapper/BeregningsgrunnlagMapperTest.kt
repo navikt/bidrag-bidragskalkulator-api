@@ -120,7 +120,7 @@ class BeregningsgrunnlagMapperTest {
     fun `skal legge kontantstøtte til BM inntekt`() {
         val beregningRequest: BeregningRequestDto = JsonUtils.lesJsonFil("/barnebidrag/beregning_et_barn.json")
 
-        // Legg kontantstøtte på begge barn (måned)
+        // Legg kontantstøtte på alle barn (måned)
         val oppdatertRequest = beregningRequest.copy(
             barn = beregningRequest.barn.map { b ->
                 b.copy(kontantstøtte = BigDecimal("100"))
