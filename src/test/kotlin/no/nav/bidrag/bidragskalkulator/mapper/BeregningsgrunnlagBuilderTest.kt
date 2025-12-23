@@ -148,10 +148,10 @@ class BeregningsgrunnlagBuilderTest {
 
             val result = builder.byggInntektsgrunnlag(kontekst)
 
-            assertThat(result).hasSize(3)
+            // BP inntekt og BM inntekt
+            assertThat(result).hasSize(2)
             assertThat(result).anyMatch { it.referanse == "Inntekt_Bidragspliktig" && it.gjelderReferanse == "Person_Bidragspliktig" }
             assertThat(result).anyMatch { it.referanse == "Inntekt_Bidragsmottaker" && it.gjelderReferanse == "Person_Bidragsmottaker" }
-            assertThat(result).anyMatch { it.referanse == "Inntekt_Person_Søknadsbarn_0" && it.gjelderReferanse == "Person_Søknadsbarn_0" }
         }
     }
 

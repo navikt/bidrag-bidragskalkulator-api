@@ -69,10 +69,9 @@ class BeregningsgrunnlagMapperTest {
         val beregningRequest: BeregningRequestDto = JsonUtils.lesJsonFil("/barnebidrag/beregning_to_barn.json")
 
         val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(beregningRequest)
-
         // barnsreferanse, bidragspliktigsreferanse, bidragsmottakersreferanse, bidragspliktig inntekt,
-        // bidragsmottaker inntekt, barn inntekt, samværsklasse, bidragspliktig bostatus, barn bostatus
-        assertEquals(9, result.first().grunnlag.grunnlagListe.size, "Forventet 9 grunnlagselementer")
+        // bidragsmottaker inntekt, samværsklasse, bidragspliktig bostatus, barn bostatus
+        assertEquals(8, result.first().grunnlag.grunnlagListe.size, "Forventet 8 grunnlagselementer")
     }
 
     @Test

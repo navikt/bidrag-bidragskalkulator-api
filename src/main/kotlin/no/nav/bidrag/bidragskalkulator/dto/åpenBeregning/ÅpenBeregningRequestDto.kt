@@ -17,19 +17,26 @@ data class BarnMedAlderDto(
     @field:NotNull(message = "Alder må være satt")
     @field:Min(value = 0, message = "Alder kan ikke være negativ")
     @field:Max(value = 25, message = "Alder kan ikke være høyere enn 25")
-    @Schema(description = "Alder til barnet", required = true, example = "10")
+    @param:Schema(description = "Alder til barnet", required = true, example = "10")
     val alder: Int,
 
     @field:NotNull(message = "Samværsklasse må være satt")
-    @Schema(ref = "#/components/schemas/Samværsklasse") // Reference dynamically registered schema. See BeregnBarnebidragConfig
+    @param:Schema(ref = "#/components/schemas/Samværsklasse") // Reference dynamically registered schema. See BeregnBarnebidragConfig
     override val samværsklasse: Samværsklasse,
 
     @field:NotNull(message = "Bidragstype må være satt")
-    @Schema(description = "Angir om den påloggede personen er pliktig eller mottaker for dette barnet", required = true)
+    @param:Schema(description = "Angir om den påloggede personen er pliktig eller mottaker for dette barnet", required = true)
     override val bidragstype: BidragsType,
 
-    @Schema(description = "Utgifter i kroner per måned som den bidragsmottaker har til barnetilsyn for dette barnet", required = false)
-    override val barnetilsynsutgift: BigDecimal?
+    @param:Schema(description = "Utgifter i kroner per måned som den bidragsmottaker har til barnetilsyn for dette barnet", required = false)
+    override val barnetilsynsutgift: BigDecimal?,
+
+    @param:Schema(
+        description = "Inntekt i kroner per måned for dette barnet. Oppgis kun hvis barnet har egen inntekt.",
+        required = false,
+        example = "5000"
+    )
+    override val inntekt: BigDecimal?
 ): IFellesBarnDto {
     @JsonIgnore
     @Schema(hidden = true) // Hides from Swagger
@@ -43,23 +50,23 @@ data class BarnMedAlderDto(
 data class ÅpenBeregningRequestDto(
     @field:NotNull(message = "Inntekt for forelder 1 må være satt")
     @field:Min(value = 0, message = "Inntekt for forelder 1 kan ikke være negativ")
-    @Schema(description = "Inntekt for forelder 1 i norske kroner", required = true, example = "500000.0")
+    @param:Schema(description = "Inntekt for forelder 1 i norske kroner", required = true, example = "500000.0")
     override val inntektForelder1: Double,
 
     @field:NotNull(message = "Inntekt for forelder 2 må være satt")
     @field:Min(value = 0, message = "Inntekt for forelder 2 kan ikke være negativ")
-    @Schema(description = "Inntekt for forelder 2 i norske kroner", required = true, example = "450000.0")
+    @param:Schema(description = "Inntekt for forelder 2 i norske kroner", required = true, example = "450000.0")
     override val inntektForelder2: Double,
 
     @field:NotEmpty(message = "Liste over barn kan ikke være tom")
     @field:Valid
-    @Schema(description = "Liste over barn som inngår i beregningen", required = true)
+    @param:Schema(description = "Liste over barn som inngår i beregningen", required = true)
     override val barn: List<BarnMedAlderDto>,
 
-    @Schema(description = "Boforhold for den påloggede personen. Må være satt hvis bidragstype for minst ett barn er PLIKTIG", required = false)
+    @param:Schema(description = "Boforhold for den påloggede personen. Må være satt hvis bidragstype for minst ett barn er PLIKTIG", required = false)
     override val dittBoforhold: BoforholdDto? = null,
 
-    @Schema(description = "Boforhold for den andre forelderen. Må være satt hvis bidragstype for minst ett barn er MOTTAKER", required = false)
+    @param:Schema(description = "Boforhold for den andre forelderen. Må være satt hvis bidragstype for minst ett barn er MOTTAKER", required = false)
     override val medforelderBoforhold: BoforholdDto? = null,
 ) : FellesBeregningRequestDto<BarnMedAlderDto>(
     inntektForelder1, inntektForelder2, barn, dittBoforhold, medforelderBoforhold

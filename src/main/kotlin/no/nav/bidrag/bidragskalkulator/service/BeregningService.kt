@@ -30,7 +30,7 @@ class BeregningService(
     private val beregnBarnebidragApi: BeregnBarnebidragApi,
     private val boOgForbruksutgiftService: BoOgForbruksutgiftService,
     private val beregningsgrunnlagMapper: BeregningsgrunnlagMapper,
-    private val personService: PersonService
+    private val personService: PersonService,
 ) {
     suspend fun beregnBarnebidrag(beregningRequest: BeregningRequestDto): BeregningsresultatDto {
         logger.info { "Starter beregning av barnebidrag." }
@@ -54,6 +54,7 @@ class BeregningService(
             measureTimedValue {
                 val grunnlag = beregningsgrunnlagMapper.mapTilBeregningsgrunnlagAnonym(beregningRequest)
                 utførBarnebidragBeregningAnonym(grunnlag)
+
             }
         }.onFailure { e ->
             logger.error{ "Anonym beregning av barnebidrag feilet." }
