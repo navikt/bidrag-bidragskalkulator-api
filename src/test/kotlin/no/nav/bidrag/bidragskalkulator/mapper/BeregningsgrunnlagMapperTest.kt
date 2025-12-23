@@ -130,7 +130,7 @@ class BeregningsgrunnlagMapperTest {
 
         val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(oppdatertRequest)
 
-        // kontantstøtteTilleggBm = (750 + 100) * 12
+        // kontantstøtteTilleggBm = 100 * 12
         val forventetTilleggÅr = BigDecimal("100").multiply(BigDecimal("12"))
 
         // For bidragstype=PLIKTIG => BM er forelder2
