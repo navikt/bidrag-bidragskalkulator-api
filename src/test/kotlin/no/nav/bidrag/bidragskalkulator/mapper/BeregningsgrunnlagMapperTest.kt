@@ -10,11 +10,15 @@ import no.nav.bidrag.domene.enums.grunnlag.Grunnlagstype
 import no.nav.bidrag.domene.enums.vedtak.Stønadstype
 import no.nav.bidrag.generer.testdata.person.genererFødselsnummer
 import no.nav.bidrag.generer.testdata.person.genererPersonident
+import no.nav.bidrag.transport.behandling.felles.grunnlag.InntektsrapporteringPeriode
+import no.nav.bidrag.transport.behandling.felles.grunnlag.innholdTilObjekt
 import no.nav.bidrag.transport.person.PersonDto
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import java.math.BigDecimal
 import java.time.LocalDate
 
 @ExtendWith(MockKExtension::class)
@@ -110,6 +114,33 @@ class BeregningsgrunnlagMapperTest {
             .find { it.type == Grunnlagstype.FAKTISK_UTGIFT_PERIODE }
 
         assertNull(faktiskUtgiftGrunnlag, "Forventet ikke grunnlag for faktisk utgift til barnetilsyn når barnetilsynsutgift ikke er satt")
+    }
+
+    @Test
+    fun `skal legge kontantstøtte til BM inntekt`() {
+        val beregningRequest: BeregningRequestDto = JsonUtils.lesJsonFil("/barnebidrag/beregning_et_barn.json")
+
+        // Legg kontantstøtte på alle barn (måned)
+        val oppdatertRequest = beregningRequest.copy(
+            barn = beregningRequest.barn.map { b ->
+                b.copy(kontantstøtte = BigDecimal("100"))
+            }
+        )
+
+
+        val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(oppdatertRequest)
+
+        // kontantstøtteTilleggBm = 100 * 12
+        val forventetTilleggÅr = BigDecimal("100").multiply(BigDecimal("12"))
+
+        // For bidragstype=PLIKTIG => BM er forelder2
+        val forventetBmInntekt = BigDecimal.valueOf(oppdatertRequest.inntektForelder2) + forventetTilleggÅr
+
+        val inntektBmGrunnlag = result.first().grunnlag.grunnlagListe
+            .first { it.referanse == "Inntekt_Bidragsmottaker" }
+
+        val beløp = inntektBmGrunnlag.innholdTilObjekt<InntektsrapporteringPeriode>().beløp
+        assertThat(beløp).isEqualByComparingTo(forventetBmInntekt)
     }
 
     private fun assertBarnetsAlderOgReferanse(
