@@ -154,7 +154,7 @@ class BeregningControllerTest : AbstractControllerTest() {
     }
 
     @Test
-    fun `skal returnere 200 OK når kontantstotte er satt for barn som er 1 år`() {
+    fun `skal returnere 200 OK når kontantstøtte er satt for barn som er 1 år`() {
         val request = mockGyldigÅpenRequest.copy(
             barn = listOf(
                 BarnMedAlderDto(

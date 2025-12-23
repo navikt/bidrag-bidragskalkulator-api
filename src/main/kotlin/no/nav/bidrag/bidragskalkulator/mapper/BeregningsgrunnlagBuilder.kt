@@ -82,7 +82,7 @@ class BeregningsgrunnlagBuilder(
         val erBidragspliktig = data.bidragstype == BidragsType.PLIKTIG
 
         val lønnBidragsmottaker = (if (erBidragspliktig) data.inntektForelder2 else data.inntektForelder1)
-        val lønnBidragsmottakerMedPengestøtte =
+        val lønnBidragsmottakerMedKontantstøtte =
             BigDecimal.valueOf(lønnBidragsmottaker) +
                     (data.kontantstøtte ?: BigDecimal.ZERO)
         val lønnBidragspliktig = if (erBidragspliktig) data.inntektForelder1 else data.inntektForelder2
@@ -105,7 +105,7 @@ class BeregningsgrunnlagBuilder(
 
         return listOf(
             nyttInntektsgrunnlag("Inntekt_Bidragspliktig", lønnBidragspliktig.toBigDecimal(), Referanser.BIDRAGSPLIKTIG),
-            nyttInntektsgrunnlag("Inntekt_Bidragsmottaker", lønnBidragsmottakerMedPengestøtte, Referanser.BIDRAGSMOTTAKER),
+            nyttInntektsgrunnlag("Inntekt_Bidragsmottaker", lønnBidragsmottakerMedKontantstøtte, Referanser.BIDRAGSMOTTAKER),
         )
     }
 
