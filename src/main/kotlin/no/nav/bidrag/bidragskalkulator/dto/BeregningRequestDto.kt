@@ -2,6 +2,7 @@ package no.nav.bidrag.bidragskalkulator.dto
 
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.Valid
+import jakarta.validation.constraints.DecimalMin
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Min
@@ -20,6 +21,7 @@ interface IFellesBarnDto {
     val samværsklasse: Samværsklasse
     val barnetilsynsutgift: BigDecimal?
     val inntekt: BigDecimal?
+    val kontantstøtte: BigDecimal?
 }
 
 @Schema(description = "Informasjon om et barn i beregningen")
@@ -38,6 +40,7 @@ data class BarnMedIdentDto(
 
     @param:Schema(description = "Utgifter i kroner per måned som den bidragsmottaker har til barnetilsyn for dette barnet", required = false, example = "2000")
     @field:Min(value = 0)
+    @field:DecimalMin(value = "0.00", inclusive = true, message = "Barnetilsynutgift kan ikke være negativ")
     override val barnetilsynsutgift: BigDecimal? = null,
 
     @param:Schema(
@@ -46,7 +49,18 @@ data class BarnMedIdentDto(
         example = "5000"
     )
     @field:Min(value = 0)
+    @field:DecimalMin(value = "0.00", inclusive = true, message = "Barnets inntekt kan ikke være negativ")
     override val inntekt: BigDecimal? = null,
+
+    @param:Schema(
+        description = "Kontantstøtte per måned knyttet til barnet (relevant kun når alder = 1). " +
+                "Beløpet legges til inntekt for bidragsmottaker (BM).",
+        example = "7500"
+    )
+    @field:Min(value = 0)
+    @field:DecimalMin(value = "0.00", inclusive = true, message = "Kontantstøtte kan ikke være negativ")
+    override val kontantstøtte
+    : BigDecimal? = null,
 ) : IFellesBarnDto
 
 @Schema(description = "Modellen brukes til å beregne barnebidragbasert på barnets id")

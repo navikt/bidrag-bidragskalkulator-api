@@ -24,7 +24,6 @@ import java.time.YearMonth
 class BeregningsgrunnlagBuilder(
     private val objectMapper: ObjectMapper = ObjectMapper().registerKotlinModule().registerModule(JavaTimeModule())
 ) {
-
     fun byggPersongrunnlag(referanse: String, type: Grunnlagstype, fødselsdato: LocalDate? = null) = GrunnlagDto(
         referanse = referanse,
         type = type,
@@ -81,7 +80,11 @@ class BeregningsgrunnlagBuilder(
 
     fun byggInntektsgrunnlag(data: BeregningKontekst): List<GrunnlagDto> {
         val erBidragspliktig = data.bidragstype == BidragsType.PLIKTIG
-        val lønnBidragsmottaker = if (erBidragspliktig) data.inntektForelder2 else data.inntektForelder1
+
+        val lønnBidragsmottaker = (if (erBidragspliktig) data.inntektForelder2 else data.inntektForelder1)
+        val lønnBidragsmottakerMedPengestøtte =
+            BigDecimal.valueOf(lønnBidragsmottaker) +
+                    (data.kontantstøtte ?: BigDecimal.ZERO)
         val lønnBidragspliktig = if (erBidragspliktig) data.inntektForelder1 else data.inntektForelder2
 
         fun nyttInntektsgrunnlag(referanse: String, beløp: BigDecimal, eierReferanse: String) =
@@ -102,7 +105,7 @@ class BeregningsgrunnlagBuilder(
 
         return listOf(
             nyttInntektsgrunnlag("Inntekt_Bidragspliktig", lønnBidragspliktig.toBigDecimal(), Referanser.BIDRAGSPLIKTIG),
-            nyttInntektsgrunnlag("Inntekt_Bidragsmottaker", lønnBidragsmottaker.toBigDecimal(), Referanser.BIDRAGSMOTTAKER),
+            nyttInntektsgrunnlag("Inntekt_Bidragsmottaker", lønnBidragsmottakerMedPengestøtte, Referanser.BIDRAGSMOTTAKER),
         )
     }
 

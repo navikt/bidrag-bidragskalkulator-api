@@ -5,9 +5,11 @@ import no.nav.bidrag.bidragskalkulator.utils.JsonUtils
 import no.nav.bidrag.domene.enums.grunnlag.Grunnlagstype
 import no.nav.bidrag.domene.enums.person.Bostatuskode
 import no.nav.bidrag.transport.behandling.felles.grunnlag.BostatusPeriode
+import no.nav.bidrag.transport.behandling.felles.grunnlag.InntektsrapporteringPeriode
 import no.nav.bidrag.transport.behandling.felles.grunnlag.innholdTilObjekt
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
+import java.math.BigDecimal
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -23,7 +25,8 @@ class BeregningsgrunnlagBuilderTest {
         fun `skal bygge bostatusgrunnlag for bidragspliktig med barn som bor fast`() {
             val beregningRequestMedBarnBorFast: BeregningRequestDto = JsonUtils.lesJsonFil("/barnebidrag/beregning_et_barn.json")
 
-            val kontekst = lagKontekst(beregningRequestMedBarnBorFast, 0, beregningRequestMedBarnBorFast.barn.first().bidragstype)
+            val kontekst = lagKontekst(beregningRequestMedBarnBorFast, 0, beregningRequestMedBarnBorFast.barn.first().bidragstype,
+                BigDecimal.ZERO)
 
             val result = builder.byggBostatusgrunnlag(kontekst)
 
@@ -44,7 +47,8 @@ class BeregningsgrunnlagBuilderTest {
         fun `skal bygge bostatusgrunnlag for bidragspliktig med delt bolig med annen voksen`() {
             val beregningRequestDeltBolig: BeregningRequestDto = JsonUtils.lesJsonFil("/barnebidrag/beregning_et_barn.json")
 
-            val kontekst = lagKontekst(beregningRequestDeltBolig, 0, beregningRequestDeltBolig.barn.first().bidragstype)
+            val kontekst = lagKontekst(beregningRequestDeltBolig, 0, beregningRequestDeltBolig.barn.first().bidragstype,
+                BigDecimal.ZERO)
 
             val result = builder.byggBostatusgrunnlag(kontekst)
             val deltBoligGrunnlag = result.find { it.type == Grunnlagstype.BOSTATUS_PERIODE }?.innholdTilObjekt<BostatusPeriode>()?.bostatus == Bostatuskode.BOR_MED_ANDRE_VOKSNE
@@ -60,7 +64,8 @@ class BeregningsgrunnlagBuilderTest {
                 JsonUtils.lesJsonFil("/barnebidrag/beregning_to_barn.json")
 
             beregningRequestBorIkkeMedAndreVoksne.barn.map {
-                val kontekst = lagKontekst(beregningRequestBorIkkeMedAndreVoksne, 0, it.bidragstype)
+                val kontekst = lagKontekst(beregningRequestBorIkkeMedAndreVoksne, 0, it.bidragstype,
+                    BigDecimal.ZERO)
                 val result = builder.byggBostatusgrunnlag(kontekst)
                 val borIkkeMedAndreVoksneGrunnlag = result
                     .find { it.innholdTilObjekt<BostatusPeriode>().bostatus == Bostatuskode.BOR_IKKE_MED_ANDRE_VOKSNE }
@@ -77,7 +82,8 @@ class BeregningsgrunnlagBuilderTest {
                 JsonUtils.lesJsonFil("/barnebidrag/beregning_to_barn.json")
 
             beregningRequestIngenBarnBorFast.barn.map {
-                val kontekst = lagKontekst(beregningRequestIngenBarnBorFast, 0, it.bidragstype)
+                val kontekst = lagKontekst(beregningRequestIngenBarnBorFast, 0, it.bidragstype,
+                    BigDecimal.ZERO)
                 val result = builder.byggBostatusgrunnlag(kontekst)
                 val harBarnBorFast = result
                     .find { it.innholdTilObjekt<BostatusPeriode>().bostatus == Bostatuskode.MED_FORELDER }
@@ -98,7 +104,8 @@ class BeregningsgrunnlagBuilderTest {
                     inntektForelder2 = request.inntektForelder2,
                     bidragstype = barn.bidragstype,
                     dittBoforhold = request.dittBoforhold,
-                    medforelderBoforhold = request.medforelderBoforhold
+                    medforelderBoforhold = request.medforelderBoforhold,
+                    kontantstøtte = BigDecimal.ZERO
                 )
 
                 builder.byggBostatusgrunnlag(kontekst)
@@ -118,9 +125,11 @@ class BeregningsgrunnlagBuilderTest {
             val request: BeregningRequestDto = JsonUtils.lesJsonFil("/barnebidrag/beregning_person_er_baade_bp_og_bm.json")
 
             // barn indeks 0 = personen er bidragspliktig
-            val kontekstPliktig = lagKontekst(request, 0, request.barn[0].bidragstype)
+            val kontekstPliktig = lagKontekst(request, 0, request.barn[0].bidragstype,
+                BigDecimal.ZERO)
             // barn indeks 1 = personen er bidragsmottaker
-            val kontekstMottaker = lagKontekst(request, 1, request.barn[1].bidragstype)
+            val kontekstMottaker = lagKontekst(request, 1, request.barn[1].bidragstype,
+                BigDecimal.ZERO)
 
             val grunnlagPliktig = builder.byggBostatusgrunnlag(kontekstPliktig)
             val grunnlagMottaker = builder.byggBostatusgrunnlag(kontekstMottaker)
@@ -144,7 +153,8 @@ class BeregningsgrunnlagBuilderTest {
         @Test
         fun `skal bygge inntektsgrunnlag med riktige beløp og referanser`() {
             val beregningRequest: BeregningRequestDto = JsonUtils.lesJsonFil("/barnebidrag/beregning_et_barn.json")
-            val kontekst = lagKontekst(beregningRequest, 0, beregningRequest.barn.first().bidragstype)
+            val kontekst = lagKontekst(beregningRequest, 0, beregningRequest.barn.first().bidragstype,
+                BigDecimal.ZERO)
 
             val result = builder.byggInntektsgrunnlag(kontekst)
 
@@ -152,6 +162,42 @@ class BeregningsgrunnlagBuilderTest {
             assertThat(result).hasSize(2)
             assertThat(result).anyMatch { it.referanse == "Inntekt_Bidragspliktig" && it.gjelderReferanse == "Person_Bidragspliktig" }
             assertThat(result).anyMatch { it.referanse == "Inntekt_Bidragsmottaker" && it.gjelderReferanse == "Person_Bidragsmottaker" }
+        }
+
+        @Test
+        fun `skal legge kontantstøtte til BM inntekt i inntektsgrunnlag`() {
+            val beregningRequest: BeregningRequestDto = JsonUtils.lesJsonFil("/barnebidrag/beregning_et_barn.json")
+
+            val kontantstøtte = BigDecimal("12000")
+            val kontekst = lagKontekst(beregningRequest, 0, beregningRequest.barn.first().bidragstype, kontantstøtte)
+
+            val result = builder.byggInntektsgrunnlag(kontekst)
+
+            val bm = result.first { it.referanse == "Inntekt_Bidragsmottaker" }
+                .innholdTilObjekt<InntektsrapporteringPeriode>()
+                .beløp
+
+            // barn er PLIKTIG => BM er forelder2
+            val forventet = BigDecimal.valueOf(beregningRequest.inntektForelder2) + kontantstøtte
+            assertThat(bm).isEqualByComparingTo(forventet)
+        }
+
+        @Test
+        fun `skal legge kontantstøtte til BM inntekt også når bidragstype er MOTTAKER`() {
+            val request: BeregningRequestDto = JsonUtils.lesJsonFil("/barnebidrag/beregning_person_er_baade_bp_og_bm.json")
+
+            val kontantstøtte = BigDecimal("240")
+            // barn[1] er MOTTAKER => BM er forelder1 i builder-logikken din
+            val kontekst = lagKontekst(request, 1, request.barn[1].bidragstype, kontantstøtte)
+
+            val result = builder.byggInntektsgrunnlag(kontekst)
+
+            val bmBeløp = result.first { it.referanse == "Inntekt_Bidragsmottaker" }
+                .innholdTilObjekt<InntektsrapporteringPeriode>()
+                .beløp
+
+            val forventet = BigDecimal.valueOf(request.inntektForelder1) + kontantstøtte
+            assertThat(bmBeløp).isEqualByComparingTo(forventet)
         }
     }
 
@@ -188,14 +234,16 @@ class BeregningsgrunnlagBuilderTest {
         }
     }
 
-    private fun lagKontekst(dto: BeregningRequestDto, barnIndex: Int, bidragstype: BidragsType): BeregningKontekst {
+
+    private fun lagKontekst(dto: BeregningRequestDto, barnIndex: Int, bidragstype: BidragsType, kontantstøtte: BigDecimal): BeregningKontekst {
         return BeregningKontekst(
             barnReferanse = "Person_Søknadsbarn_$barnIndex",
             inntektForelder1 = dto.inntektForelder1,
             inntektForelder2 = dto.inntektForelder2,
             bidragstype = bidragstype,
             dittBoforhold = dto.dittBoforhold,
-            medforelderBoforhold = dto.medforelderBoforhold
+            medforelderBoforhold = dto.medforelderBoforhold,
+            kontantstøtte = kontantstøtte
         )
     }
 }

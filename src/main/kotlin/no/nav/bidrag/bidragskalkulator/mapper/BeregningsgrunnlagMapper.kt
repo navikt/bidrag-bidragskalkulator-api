@@ -8,6 +8,7 @@ import no.nav.bidrag.domene.ident.Personident
 import no.nav.bidrag.transport.behandling.beregning.felles.BeregnGrunnlag
 import no.nav.bidrag.transport.behandling.felles.grunnlag.*
 import org.springframework.stereotype.Component
+import java.math.BigDecimal
 import java.time.LocalDate
 
 @Component
@@ -19,6 +20,15 @@ class BeregningsgrunnlagMapper(
         const val BIDRAGSMOTTAKER = "Person_Bidragsmottaker"
         const val BIDRAGSPLIKTIG = "Person_Bidragspliktig"
     }
+
+    private fun kontantstøtteTilleggBm(barn: List<IFellesBarnDto>): BigDecimal {
+        val sumPerMnd = barn.asSequence()
+            .map { it.kontantstøtte ?: BigDecimal.ZERO }
+            .fold(BigDecimal.ZERO, BigDecimal::add)
+
+        return sumPerMnd.multiply(BigDecimal.valueOf(12L))
+    }
+
 
     fun mapTilBeregningsgrunnlag(dto: BeregningRequestDto): List<PersonBeregningsgrunnlag> {
         return dto.barn.mapIndexed { index, søknadsbarn ->
@@ -63,13 +73,15 @@ class BeregningsgrunnlagMapper(
         dto: R,
         barnReferanse: String
     ): List<GrunnlagDto> {
+
         val kontekst = BeregningKontekst(
             barnReferanse = barnReferanse,
             bidragstype = søknadsbarn.bidragstype,
             dittBoforhold = dto.dittBoforhold,
             medforelderBoforhold = dto.medforelderBoforhold,
             inntektForelder1 = dto.inntektForelder1,
-            inntektForelder2 = dto.inntektForelder2
+            inntektForelder2 = dto.inntektForelder2,
+            kontantstøtte = kontantstøtteTilleggBm(dto.barn)
         )
 
         return buildList{
@@ -119,4 +131,5 @@ data class BeregningKontekst(
     val bidragstype: BidragsType,
     val dittBoforhold: BoforholdDto?,
     val medforelderBoforhold: BoforholdDto?,
+    val kontantstøtte: BigDecimal?
 )

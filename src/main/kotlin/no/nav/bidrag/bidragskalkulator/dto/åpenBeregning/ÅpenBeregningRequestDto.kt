@@ -2,7 +2,10 @@ package no.nav.bidrag.bidragskalkulator.dto.åpenBeregning
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import io.swagger.v3.oas.annotations.media.Schema
+import jakarta.annotation.Nullable
 import jakarta.validation.Valid
+import jakarta.validation.constraints.DecimalMin
+import jakarta.validation.constraints.Digits
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotEmpty
@@ -28,15 +31,28 @@ data class BarnMedAlderDto(
     @param:Schema(description = "Angir om den påloggede personen er pliktig eller mottaker for dette barnet", required = true)
     override val bidragstype: BidragsType,
 
+    @field:Nullable
     @param:Schema(description = "Utgifter i kroner per måned som den bidragsmottaker har til barnetilsyn for dette barnet", required = false)
-    override val barnetilsynsutgift: BigDecimal?,
+    override val barnetilsynsutgift: BigDecimal? = null,
 
+    @field:Nullable
     @param:Schema(
         description = "Inntekt i kroner per måned for dette barnet. Oppgis kun hvis barnet har egen inntekt.",
         required = false,
         example = "5000"
     )
-    override val inntekt: BigDecimal?
+    override val inntekt: BigDecimal? = null,
+
+    @field:Nullable
+    @param:Schema(
+        description = "Kontantstøtte per måned knyttet til barnet (relevant kun når alder = 1). " +
+                "Beløpet legges til inntekt for bidragsmottaker (BM).",
+        example = "7500"
+    )
+    @field:Min(value = 0)
+    @field:DecimalMin(value = "0.00", inclusive = true, message = "Kontantstøtte kan ikke være negativ")
+    override val kontantstøtte
+    : BigDecimal? = null,
 ): IFellesBarnDto {
     @JsonIgnore
     @Schema(hidden = true) // Hides from Swagger
