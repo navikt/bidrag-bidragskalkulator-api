@@ -81,6 +81,7 @@ class BeregningsgrunnlagMapper(
             medforelderBoforhold = dto.medforelderBoforhold,
             inntektForelder1 = dto.inntektForelder1,
             inntektForelder2 = dto.inntektForelder2,
+            // kontantstøtte er en del av inntekten til bidragsmottaker, uansett hvilket barn det gjelder
             kontantstøtte = kontantstøtteTilleggBm(dto.barn)
         )
 
