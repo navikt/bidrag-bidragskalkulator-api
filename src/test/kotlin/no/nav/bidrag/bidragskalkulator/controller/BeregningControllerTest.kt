@@ -134,7 +134,7 @@ class BeregningControllerTest : AbstractControllerTest() {
     }
 
     @Test
-    fun `skal returnere 400 hvis kontantstotte er satt og alder ikke er 1`() {
+    fun `skal returnere 400 hvis kontantstøtte er satt og alder ikke er 1`() {
         val request = mockGyldigÅpenRequest.copy(
             barn = listOf(
                 BarnMedAlderDto(
