@@ -59,10 +59,8 @@ data class BarnMedIdentDto(
     )
     @field:Min(value = 0)
     @field:DecimalMin(value = "0.00", inclusive = true, message = "Kontantstøtte kan ikke være negativ")
-    override val kontantstøtte
-    : BigDecimal? = null,
+    override val kontantstøtte: BigDecimal? = null,
 ) : IFellesBarnDto
-
 @Schema(description = "Modellen brukes til å beregne barnebidragbasert på barnets id")
 data class BeregningRequestDto(
     @field:NotNull(message = "Inntekt for forelder 1 må være satt")
