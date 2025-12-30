@@ -133,7 +133,7 @@ class BeregningsgrunnlagMapper(
             utvidetBarnetrygd = dto.utvidetBarnetrygd
         )
 
-        val småbarnstillegg = hentSmåbarnstilleggÅrlig(sjablontall)
+        val småbarnstillegg = if (dto.småbarnstillegg) hentSmåbarnstilleggÅrlig(sjablontall) else BigDecimal.ZERO
 
         return BmTilleggÅrlig(kontantstøtteÅrlig, utvidetBarnetrygdÅrlig, småbarnstillegg)
     }
