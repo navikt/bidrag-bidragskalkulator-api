@@ -142,4 +142,4 @@ abstract class FellesBeregningRequestDto<T : IFellesBarnDto>(
     open val medforelderBoforhold: BoforholdDto? = null,
     open val utvidetBarnetrygd: UtvidetBarnetrygdDto? = null,
     open val småbarnstillegg: Boolean = false,
-    )
+)
