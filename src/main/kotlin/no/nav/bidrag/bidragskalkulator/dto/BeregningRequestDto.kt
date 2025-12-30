@@ -160,7 +160,7 @@ data class ForelderInntektDto(
     @field:Digits(integer = 12, fraction = 2, message = "Netto positiv kapitalinntekt må ha maks 2 desimaler")
     @param:Schema(
         description =
-            "Årlig netto positiv kapitalinntekt, for eksempel inntekter fra utleie. Oppgis kun hvis beløpet er 10 000 kr eller mer per år.",
+            "Årlig netto positiv kapitalinntekt, for eksempel inntekter fra utleie. Beløp under 10 000 kr per år vil ikke påvirke beregningen på grunn av bunntrekk.",
         required = false,
         example = "25000.00",
         defaultValue = "0.00"
