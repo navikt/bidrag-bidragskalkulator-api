@@ -15,6 +15,15 @@ object BeregningRequestValidator {
         val manglerDittBoforhold = harPliktigeBarn && dto.dittBoforhold == null
         val manglerMedforelderBoforhold = harMottakerBarn && dto.medforelderBoforhold == null
 
+        val utvidetBarnetrygd = dto.utvidetBarnetrygd
+        if (utvidetBarnetrygd != null) {
+            // delerMedMedforelder er kun relevant når harUtvidetBarnetrygd = true
+            // Hvis harUtvidetBarnetrygd = false, forventer vi at delerMedMedforelder er false.
+            if (!utvidetBarnetrygd.harUtvidetBarnetrygd && utvidetBarnetrygd.delerMedMedforelder) {
+                feil("utvidetBarnetrygd.delerMedMedforelder kan ikke være true når utvidetBarnetrygd.harUtvidetBarnetrygd = false")
+            }
+        }
+
         dto.barn.forEachIndexed { index, barn ->
             val barnKontantstøtte = barn.kontantstøtte
 
