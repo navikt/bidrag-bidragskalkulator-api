@@ -86,7 +86,7 @@ class BeregningsgrunnlagBuilder(
         val utvidetBarnetrygd = data.bmTilleggÅrlig.utvidetBarnetrygdÅrlig
         val småbarnstillegg = data.bmTilleggÅrlig.småbarnstilleggÅrlig
 
-        val samletInntektBidragsmottaker =  BigDecimal.valueOf(inntektBidragsmottaker).setScale(2) +
+        val samletInntektBidragsmottaker = BigDecimal.valueOf(inntektBidragsmottaker).setScale(2) +
                 kontantstøtte + utvidetBarnetrygd + småbarnstillegg
 
         val inntektBidragspliktig = if (erBidragspliktig) data.inntektForelder1 else data.inntektForelder2
