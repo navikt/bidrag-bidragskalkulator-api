@@ -82,8 +82,15 @@ data class BeregningRequestDto(
 
     @param:Schema(description = "Boforhold for den andre forelderen. Må være satt hvis bidragstype for minst ett barn er MOTTAKER", required = false)
     override val medforelderBoforhold: BoforholdDto? = null,
+
+    @param:Schema(
+        description = "Opplysninger om utvidet barnetrygd. Kan utelates dersom det ikke foreligger utvidet barnetrygd.",
+        nullable = true,
+        implementation = UtvidetBarnetrygdDto::class
+    )
+    override val utvidetBarnetrygd: UtvidetBarnetrygdDto? = null,
 ) : FellesBeregningRequestDto<BarnMedIdentDto>(
-    inntektForelder1, inntektForelder2, barn, dittBoforhold, medforelderBoforhold
+    inntektForelder1, inntektForelder2, barn, dittBoforhold, medforelderBoforhold, utvidetBarnetrygd
 )
 
 @Schema(description = "Boforholdsinformasjon for en forelder")
@@ -101,10 +108,30 @@ data class BoforholdDto(
     val borMedAnnenVoksen: Boolean,
 )
 
+@Schema(
+    description = "Opplysninger om utvidet barnetrygd for beregningen. Brukes når bidragsmottaker har utvidet barnetrygd og eventuelt deler denne med bidragspliktig."
+)
+data class UtvidetBarnetrygdDto(
+    @param:Schema(
+        description = "Om det foreligger utvidet barnetrygd i perioden som beregningen gjelder for.",
+        example = "true",
+        required = true
+    )
+    val harUtvidetBarnetrygd: Boolean,
+
+    @param:Schema(
+        description = "Om utvidet barnetrygd deles med bidragspliktig. Relevant kun når harUtvidetBarnetrygd = true.",
+        example = "false",
+        required = true
+    )
+    val delerMedMedforelder: Boolean,
+)
+
 abstract class FellesBeregningRequestDto<T : IFellesBarnDto>(
     open val inntektForelder1: Double,
     open val inntektForelder2: Double,
     open val barn: List<T>,
     open val dittBoforhold: BoforholdDto? = null,
     open val medforelderBoforhold: BoforholdDto? = null,
-)
+    open val utvidetBarnetrygd: UtvidetBarnetrygdDto? = null,
+    )
