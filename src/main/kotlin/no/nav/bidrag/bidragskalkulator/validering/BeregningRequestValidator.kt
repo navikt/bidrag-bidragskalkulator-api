@@ -9,12 +9,7 @@ import no.nav.bidrag.bidragskalkulator.exception.UgyldigBeregningRequestExceptio
 object BeregningRequestValidator {
 
     fun <T : IFellesBarnDto, R : FellesBeregningRequestDto<T>> valider(dto: R) {
-        val harPliktigeBarn = dto.barn.any { it.bidragstype == PLIKTIG }
-        val harMottakerBarn = dto.barn.any { it.bidragstype == MOTTAKER }
-
-        val manglerDittBoforhold = harPliktigeBarn && dto.dittBoforhold == null
-        val manglerMedforelderBoforhold = harMottakerBarn && dto.medforelderBoforhold == null
-
+        // Utvidet barnetrygd
         val utvidetBarnetrygd = dto.utvidetBarnetrygd
         if (utvidetBarnetrygd != null) {
             // delerMedMedforelder er kun relevant når harUtvidetBarnetrygd = true
@@ -24,16 +19,35 @@ object BeregningRequestValidator {
             }
         }
 
+        // Kontantstøtte
         dto.barn.forEachIndexed { index, barn ->
             val barnKontantstøtte = barn.kontantstøtte
 
             if (barnKontantstøtte != null) {
                 val alder = (barn as? BarnMedAlderDto)?.alder
                 if (alder != null && alder != 1) {
-                    throw IllegalArgumentException("Kontantstøtte kan kun settes for barn som er 1 år (barn[$index] har alder=$alder)")
+                    feil("Kontantstøtte kan kun settes for barn som er 1 år (barn[$index] har alder=$alder)")
                 }
             }
         }
+
+        // Småbarnstillegg
+        if (dto.småbarnstillegg) {
+            val harBarn0Til3År = dto.barn
+                .mapNotNull { (it as? BarnMedAlderDto)?.alder }
+                .any { it in 0..3 }
+
+            if (!harBarn0Til3År) {
+                feil("småbarnstillegg kan kun settes til true når det finnes minst ett barn med alder 0-3 år")
+            }
+        }
+
+        // Boforhold
+        val harPliktigeBarn = dto.barn.any { it.bidragstype == PLIKTIG }
+        val harMottakerBarn = dto.barn.any { it.bidragstype == MOTTAKER }
+
+        val manglerDittBoforhold = harPliktigeBarn && dto.dittBoforhold == null
+        val manglerMedforelderBoforhold = harMottakerBarn && dto.medforelderBoforhold == null
 
         when {
             manglerDittBoforhold && manglerMedforelderBoforhold ->
