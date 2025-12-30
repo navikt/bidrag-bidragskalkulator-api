@@ -139,8 +139,7 @@ class BeregningsgrunnlagMapperTest {
         // kontantstøtteTilleggBm = 100 * 12
         val forventetTilleggÅr = BigDecimal("100").multiply(BigDecimal("12"))
 
-        // For bidragstype=PLIKTIG => BM er forelder2
-        val forventetBmInntekt = BigDecimal.valueOf(oppdatertRequest.inntektForelder2) + forventetTilleggÅr
+        val forventetBmInntekt = beregningRequest.bidragsmottakerInntekt.inntekt + forventetTilleggÅr
 
         val inntektBmGrunnlag = result.first().grunnlag.grunnlagListe
             .first { it.referanse == "Inntekt_Bidragsmottaker" }
@@ -177,7 +176,7 @@ class BeregningsgrunnlagMapperTest {
         val beløp = inntektBmGrunnlag.innholdTilObjekt<InntektsrapporteringPeriode>().beløp
 
         val forventetUtvidetÅrlig = BigDecimal("2000").multiply(BigDecimal("12"))
-        val forventet = BigDecimal.valueOf(request.inntektForelder2).setScale(2) + forventetUtvidetÅrlig
+        val forventet = request.bidragsmottakerInntekt.inntekt + forventetUtvidetÅrlig
 
         assertThat(beløp).isEqualByComparingTo(forventet)
     }
@@ -211,7 +210,7 @@ class BeregningsgrunnlagMapperTest {
         val forventetUtvidetÅrligHalv = BigDecimal("2000").multiply(BigDecimal("12"))
             .divide(BigDecimal("2"))
 
-        val forventet = BigDecimal.valueOf(request.inntektForelder2).setScale(2) + forventetUtvidetÅrligHalv
+        val forventet = request.bidragsmottakerInntekt.inntekt + forventetUtvidetÅrligHalv
         assertThat(beløp).isEqualByComparingTo(forventet)
     }
 
@@ -240,7 +239,7 @@ class BeregningsgrunnlagMapperTest {
             .beløp
 
         val forventetSmåbarnÅrlig = BigDecimal("1500").multiply(BigDecimal("12"))
-        val forventet = BigDecimal.valueOf(request.inntektForelder2).setScale(2) + forventetSmåbarnÅrlig
+        val forventet = request.bidragsmottakerInntekt.inntekt + forventetSmåbarnÅrlig
 
         assertThat(beløp).isEqualByComparingTo(forventet)
     }
@@ -282,7 +281,7 @@ class BeregningsgrunnlagMapperTest {
         val utvidetÅrlig = BigDecimal("2000").multiply(BigDecimal("12"))
         val småbarnÅrlig = BigDecimal("1500").multiply(BigDecimal("12"))
 
-        val forventet = BigDecimal.valueOf(request.inntektForelder2).setScale(2) +
+        val forventet = request.bidragsmottakerInntekt.inntekt +
                 kontantstøtteÅrlig + utvidetÅrlig + småbarnÅrlig
 
         assertThat(beløp).isEqualByComparingTo(forventet)
@@ -315,7 +314,7 @@ class BeregningsgrunnlagMapperTest {
             .innholdTilObjekt<InntektsrapporteringPeriode>()
             .beløp
 
-        val forventet = BigDecimal.valueOf(request.inntektForelder2).setScale(2)
+        val forventet = request.bidragsmottakerInntekt.inntekt
 
         assertThat(beløp).isEqualByComparingTo(forventet)
     }

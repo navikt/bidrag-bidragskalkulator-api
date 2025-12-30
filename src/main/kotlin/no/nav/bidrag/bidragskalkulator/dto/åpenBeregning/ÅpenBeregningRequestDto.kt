@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.annotation.Nullable
 import jakarta.validation.Valid
 import jakarta.validation.constraints.DecimalMin
-import jakarta.validation.constraints.Digits
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotEmpty
@@ -64,16 +63,6 @@ data class BarnMedAlderDto(
 
 @Schema(description = "Modellen brukes til å beregne barnebidrag basert på barnets alder")
 data class ÅpenBeregningRequestDto(
-    @field:NotNull(message = "Inntekt for forelder 1 må være satt")
-    @field:Min(value = 0, message = "Inntekt for forelder 1 kan ikke være negativ")
-    @param:Schema(description = "Inntekt for forelder 1 i norske kroner", required = true, example = "500000.0")
-    override val inntektForelder1: Double,
-
-    @field:NotNull(message = "Inntekt for forelder 2 må være satt")
-    @field:Min(value = 0, message = "Inntekt for forelder 2 kan ikke være negativ")
-    @param:Schema(description = "Inntekt for forelder 2 i norske kroner", required = true, example = "450000.0")
-    override val inntektForelder2: Double,
-
     @field:NotEmpty(message = "Liste over barn kan ikke være tom")
     @field:Valid
     @param:Schema(description = "Liste over barn som inngår i beregningen", required = true)
@@ -98,6 +87,24 @@ data class ÅpenBeregningRequestDto(
         example = "false",
     )
     override val småbarnstillegg: Boolean = false,
+
+    @field:NotNull(message = "Bidragsmottaker sin inntekt må være satt")
+    @field:Valid
+    @param:Schema(
+        description = "Inntektsopplysninger for bidragsmottaker (BM).",
+        required = true,
+        implementation = ForelderInntektDto::class
+    )
+    override val bidragsmottakerInntekt: ForelderInntektDto,
+
+    @field:NotNull(message = "Bidragspliktig sin inntekt må være satt")
+    @field:Valid
+    @param:Schema(
+        description = "Inntektsopplysninger for bidragspliktig (BP).",
+        required = true,
+        implementation = ForelderInntektDto::class
+    )
+    override val bidragspliktigInntekt: ForelderInntektDto,
 ) : FellesBeregningRequestDto<BarnMedAlderDto>(
-    inntektForelder1, inntektForelder2, barn, dittBoforhold, medforelderBoforhold, utvidetBarnetrygd, småbarnstillegg
+    bidragsmottakerInntekt, bidragspliktigInntekt, barn, dittBoforhold, medforelderBoforhold, utvidetBarnetrygd, småbarnstillegg
 )

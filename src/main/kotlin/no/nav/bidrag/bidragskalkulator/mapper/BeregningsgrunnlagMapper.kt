@@ -95,8 +95,8 @@ class BeregningsgrunnlagMapper(
             bidragstype = barn.bidragstype,
             dittBoforhold = dto.dittBoforhold,
             medforelderBoforhold = dto.medforelderBoforhold,
-            inntektForelder1 = dto.inntektForelder1,
-            inntektForelder2 = dto.inntektForelder2,
+            bidragsmottakerInntekt = dto.bidragsmottakerInntekt,
+            bidragspliktigInntekt = dto.bidragspliktigInntekt,
             bmTilleggÅrlig = bmTilleggÅrlig
         )
 
@@ -196,8 +196,8 @@ data class BmTilleggÅrlig(
 
 data class BeregningKontekst(
     val barnReferanse: String,
-    val inntektForelder1: Double,
-    val inntektForelder2: Double,
+    val bidragsmottakerInntekt: ForelderInntektDto,
+    val bidragspliktigInntekt: ForelderInntektDto,
     val bidragstype: BidragsType,
     val dittBoforhold: BoforholdDto?,
     val medforelderBoforhold: BoforholdDto?,

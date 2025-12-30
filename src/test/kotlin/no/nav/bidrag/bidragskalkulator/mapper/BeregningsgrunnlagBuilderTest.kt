@@ -100,8 +100,8 @@ class BeregningsgrunnlagBuilderTest {
             val bostatusgrunnlagAlleBarn = request.barn.flatMapIndexed { index, barn ->
                 val kontekst = BeregningKontekst(
                     barnReferanse = "Person_Søknadsbarn_$index",
-                    inntektForelder1 = request.inntektForelder1,
-                    inntektForelder2 = request.inntektForelder2,
+                    bidragsmottakerInntekt = request.bidragsmottakerInntekt,
+                    bidragspliktigInntekt = request.bidragspliktigInntekt,
                     bidragstype = barn.bidragstype,
                     dittBoforhold = request.dittBoforhold,
                     medforelderBoforhold = request.medforelderBoforhold,
@@ -181,8 +181,7 @@ class BeregningsgrunnlagBuilderTest {
                 .innholdTilObjekt<InntektsrapporteringPeriode>()
                 .beløp
 
-            // barn er PLIKTIG => BM er forelder2
-            val forventet = BigDecimal.valueOf(beregningRequest.inntektForelder2) + kontantstøtte
+            val forventet = beregningRequest.bidragsmottakerInntekt.inntekt + kontantstøtte
             assertThat(bm).isEqualByComparingTo(forventet)
         }
 
@@ -200,7 +199,7 @@ class BeregningsgrunnlagBuilderTest {
                 .innholdTilObjekt<InntektsrapporteringPeriode>()
                 .beløp
 
-            val forventet = BigDecimal.valueOf(request.inntektForelder1) + kontantstøtte
+            val forventet = request.bidragsmottakerInntekt.inntekt + kontantstøtte
             assertThat(bmBeløp).isEqualByComparingTo(forventet)
         }
 
@@ -224,7 +223,7 @@ class BeregningsgrunnlagBuilderTest {
                 .innholdTilObjekt<InntektsrapporteringPeriode>()
                 .beløp
 
-            val forventet = BigDecimal.valueOf(request.inntektForelder2).setScale(2) + utvidetBarnetrygdÅrlig
+            val forventet = request.bidragsmottakerInntekt.inntekt + utvidetBarnetrygdÅrlig
             assertThat(bmBeløp).isEqualByComparingTo(forventet)
         }
 
@@ -248,7 +247,7 @@ class BeregningsgrunnlagBuilderTest {
                 .innholdTilObjekt<InntektsrapporteringPeriode>()
                 .beløp
 
-            val forventet = BigDecimal.valueOf(request.inntektForelder2).setScale(2) + småbarnstilleggÅrlig
+            val forventet = request.bidragsmottakerInntekt.inntekt + småbarnstilleggÅrlig
             assertThat(bmBeløp).isEqualByComparingTo(forventet)
         }
 
@@ -275,9 +274,61 @@ class BeregningsgrunnlagBuilderTest {
                 .innholdTilObjekt<InntektsrapporteringPeriode>()
                 .beløp
 
-            val forventet = BigDecimal.valueOf(request.inntektForelder2).setScale(2) +
+            val forventet = request.bidragsmottakerInntekt.inntekt +
                     kontantstøtteÅrlig + utvidetBarnetrygdÅrlig + småbarnstilleggÅrlig
 
+            assertThat(bmBeløp).isEqualByComparingTo(forventet)
+        }
+
+        @Test
+        fun `skal ikke legge til kapitalinntekt i BM inntekt når nettoPositivKapitalinntekt er under 10 000`() {
+            val request: BeregningRequestDto = JsonUtils.lesJsonFil("/barnebidrag/beregning_et_barn.json")
+
+            val kontekst = BeregningKontekst(
+                barnReferanse = "Person_Søknadsbarn_0",
+                bidragsmottakerInntekt = request.bidragsmottakerInntekt.copy(
+                    nettoPositivKapitalinntekt = BigDecimal("9000")
+                ),
+                bidragspliktigInntekt = request.bidragspliktigInntekt,
+                bidragstype = request.barn.first().bidragstype,
+                dittBoforhold = request.dittBoforhold,
+                medforelderBoforhold = request.medforelderBoforhold,
+                bmTilleggÅrlig = BmTilleggÅrlig(BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO)
+            )
+
+            val result = builder.byggInntektsgrunnlag(kontekst)
+
+            val bmBeløp = result.first { it.referanse == "Inntekt_Bidragsmottaker" }
+                .innholdTilObjekt<InntektsrapporteringPeriode>()
+                .beløp
+
+            assertThat(bmBeløp).isEqualByComparingTo(request.bidragsmottakerInntekt.inntekt)
+        }
+
+        @Test
+        fun `skal legge til kapitalinntekt over 10 000 minus terskel i BM inntekt`() {
+            val request: BeregningRequestDto = JsonUtils.lesJsonFil("/barnebidrag/beregning_et_barn.json")
+
+            val kontekst = BeregningKontekst(
+                barnReferanse = "Person_Søknadsbarn_0",
+                bidragsmottakerInntekt = request.bidragsmottakerInntekt.copy(
+                    nettoPositivKapitalinntekt = BigDecimal("25000")
+                ),
+                bidragspliktigInntekt = request.bidragspliktigInntekt,
+                bidragstype = request.barn.first().bidragstype,
+                dittBoforhold = request.dittBoforhold,
+                medforelderBoforhold = request.medforelderBoforhold,
+                bmTilleggÅrlig = BmTilleggÅrlig(BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO)
+            )
+
+            val result = builder.byggInntektsgrunnlag(kontekst)
+
+            val bmBeløp = result.first { it.referanse == "Inntekt_Bidragsmottaker" }
+                .innholdTilObjekt<InntektsrapporteringPeriode>()
+                .beløp
+
+            val forventetTillegg = BigDecimal("25000") - BigDecimal("10000") // = 15000
+            val forventet = request.bidragsmottakerInntekt.inntekt + forventetTillegg
             assertThat(bmBeløp).isEqualByComparingTo(forventet)
         }
     }
@@ -315,7 +366,6 @@ class BeregningsgrunnlagBuilderTest {
         }
     }
 
-
     private fun lagKontekst(dto: BeregningRequestDto,
                             barnIndex: Int,
                             bidragstype: BidragsType,
@@ -325,8 +375,8 @@ class BeregningsgrunnlagBuilderTest {
     ): BeregningKontekst {
         return BeregningKontekst(
             barnReferanse = "Person_Søknadsbarn_$barnIndex",
-            inntektForelder1 = dto.inntektForelder1,
-            inntektForelder2 = dto.inntektForelder2,
+            bidragsmottakerInntekt = dto.bidragsmottakerInntekt,
+            bidragspliktigInntekt = dto.bidragspliktigInntekt,
             bidragstype = bidragstype,
             dittBoforhold = dto.dittBoforhold,
             medforelderBoforhold = dto.medforelderBoforhold,

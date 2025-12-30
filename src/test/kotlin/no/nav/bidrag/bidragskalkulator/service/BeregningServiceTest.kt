@@ -4,6 +4,7 @@ import kotlinx.coroutines.test.runTest
 import no.nav.bidrag.beregn.barnebidrag.BeregnBarnebidragApi
 import no.nav.bidrag.bidragskalkulator.dto.BeregningRequestDto
 import no.nav.bidrag.bidragskalkulator.dto.BeregningsresultatDto
+import no.nav.bidrag.bidragskalkulator.dto.ForelderInntektDto
 import no.nav.bidrag.bidragskalkulator.mapper.BeregningsgrunnlagBuilder
 import no.nav.bidrag.bidragskalkulator.mapper.BeregningsgrunnlagMapper
 import no.nav.bidrag.bidragskalkulator.mapper.tilFamilieRelasjon
@@ -69,8 +70,8 @@ class BeregningServiceTest {
         @Test
         fun `skal returnere tomt resultat dersom ingen barn er oppgitt`() = runTest {
             val beregningRequest = BeregningRequestDto(
-                inntektForelder1 = 500000.0,
-                inntektForelder2 = 600000.0,
+                bidragsmottakerInntekt = ForelderInntektDto(inntekt = BigDecimal("500000")),
+                bidragspliktigInntekt = ForelderInntektDto(inntekt = BigDecimal("600000")),
                 barn = emptyList()
             )
 

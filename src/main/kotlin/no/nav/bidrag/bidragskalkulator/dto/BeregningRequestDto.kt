@@ -3,6 +3,7 @@ package no.nav.bidrag.bidragskalkulator.dto
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.Valid
 import jakarta.validation.constraints.DecimalMin
+import jakarta.validation.constraints.Digits
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Min
@@ -61,18 +62,9 @@ data class BarnMedIdentDto(
     @field:DecimalMin(value = "0.00", inclusive = true, message = "Kontantstøtte kan ikke være negativ")
     override val kontantstøtte: BigDecimal? = null,
 ) : IFellesBarnDto
+
 @Schema(description = "Modellen brukes til å beregne barnebidragbasert på barnets id")
 data class BeregningRequestDto(
-    @field:NotNull(message = "Inntekt for forelder 1 må være satt")
-    @field:Min(value = 0, message = "Inntekt for forelder 1 kan ikke være negativ")
-    @param:Schema(description = "Inntekt for forelder 1 i norske kroner", required = true, example = "500000.0")
-    override val inntektForelder1: Double,
-
-    @field:NotNull(message = "Inntekt for forelder 2 må være satt")
-    @field:Min(value = 0, message = "Inntekt for forelder 2 kan ikke være negativ")
-    @param:Schema(description = "Inntekt for forelder 2 i norske kroner", required = true, example = "450000.0")
-    override val inntektForelder2: Double,
-
     @field:NotEmpty(message = "Liste over barn kan ikke være tom")
     @field:Valid
     override val barn: List<BarnMedIdentDto>,
@@ -96,8 +88,26 @@ data class BeregningRequestDto(
         example = "false",
     )
     override val småbarnstillegg: Boolean = false,
+
+    @field:NotNull(message = "Bidragsmottaker sin inntekt må være satt")
+    @field:Valid
+    @param:Schema(
+        description = "Inntektsopplysninger for bidragsmottaker (BM).",
+        required = true,
+        implementation = ForelderInntektDto::class
+    )
+    override val bidragsmottakerInntekt: ForelderInntektDto,
+
+    @field:NotNull(message = "Bidragspliktig sin inntekt må være satt")
+    @field:Valid
+    @param:Schema(
+        description = "Inntektsopplysninger for bidragspliktig (BP).",
+        required = true,
+        implementation = ForelderInntektDto::class
+    )
+    override val bidragspliktigInntekt: ForelderInntektDto,
 ) : FellesBeregningRequestDto<BarnMedIdentDto>(
-    inntektForelder1, inntektForelder2, barn, dittBoforhold, medforelderBoforhold, utvidetBarnetrygd, småbarnstillegg
+    bidragsmottakerInntekt, bidragspliktigInntekt, barn, dittBoforhold, medforelderBoforhold, utvidetBarnetrygd, småbarnstillegg
 )
 
 @Schema(description = "Boforholdsinformasjon for en forelder")
@@ -134,9 +144,33 @@ data class UtvidetBarnetrygdDto(
     val delerMedMedforelder: Boolean,
 )
 
+@Schema(description = "Inntektsopplysninger for en forelder som brukes i beregningen.")
+data class ForelderInntektDto(
+    @field:NotNull(message = "Inntekt må være satt")
+    @field:DecimalMin(value = "0.00", inclusive = true, message = "Inntekt kan ikke være negativ")
+    @field:Digits(integer = 12, fraction = 2, message = "Inntekt må ha maks 2 desimaler")
+    @param:Schema(
+        description = "Årlig inntekt i kroner.",
+        required = true,
+        example = "550000.00"
+    )
+    val inntekt: BigDecimal,
+
+    @field:DecimalMin(value = "0.00", inclusive = true, message = "Netto positiv kapitalinntekt kan ikke være negativ")
+    @field:Digits(integer = 12, fraction = 2, message = "Netto positiv kapitalinntekt må ha maks 2 desimaler")
+    @param:Schema(
+        description =
+            "Årlig netto positiv kapitalinntekt, for eksempel inntekter fra utleie. Beløp under 10 000 kr per år vil ikke påvirke beregningen på grunn av bunntrekk.",
+        required = false,
+        example = "25000.00",
+        defaultValue = "0.00"
+    )
+    val nettoPositivKapitalinntekt: BigDecimal = BigDecimal.ZERO,
+)
+
 abstract class FellesBeregningRequestDto<T : IFellesBarnDto>(
-    open val inntektForelder1: Double,
-    open val inntektForelder2: Double,
+    open val bidragsmottakerInntekt: ForelderInntektDto,
+    open val bidragspliktigInntekt: ForelderInntektDto,
     open val barn: List<T>,
     open val dittBoforhold: BoforholdDto? = null,
     open val medforelderBoforhold: BoforholdDto? = null,

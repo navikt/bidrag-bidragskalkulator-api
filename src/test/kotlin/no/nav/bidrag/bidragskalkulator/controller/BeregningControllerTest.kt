@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPat
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.math.BigDecimal
 import io.mockk.verify
+import no.nav.bidrag.bidragskalkulator.dto.ForelderInntektDto
 import no.nav.bidrag.bidragskalkulator.dto.UtvidetBarnetrygdDto
 import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningsresultatBarnDto
 import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningsresultatDto
@@ -44,11 +45,11 @@ class BeregningControllerTest : AbstractControllerTest() {
 
     @Test
     fun `skal returnere 400 for negativ inntekt`() {
-        val request = mockGyldigÅpenRequest.copy(inntektForelder1 = -500000.0)
+        val request = mockGyldigÅpenRequest.copy(bidragsmottakerInntekt = ForelderInntektDto(inntekt = BigDecimal("-100000")))
 
         postRequest("/api/v1/beregning/barnebidrag/åpen", request)
             .andExpect(status().isBadRequest)
-            .andExpect(jsonPath("$.detail").value("inntektForelder1: Inntekt for forelder 1 kan ikke være negativ"))
+            .andExpect(jsonPath("$.detail").value("bidragsmottakerInntekt.inntekt: Inntekt kan ikke være negativ"))
     }
 
     @Test
@@ -211,8 +212,8 @@ class BeregningControllerTest : AbstractControllerTest() {
         private val personIdent = genererPersonident()
 
         val mockGyldigRequest = BeregningRequestDto(
-            inntektForelder1 = 500000.0,
-            inntektForelder2 = 400000.0,
+            bidragsmottakerInntekt = ForelderInntektDto(inntekt = BigDecimal("500000")),
+            bidragspliktigInntekt = ForelderInntektDto(inntekt = BigDecimal("400000")),
             barn = listOf(
                 BarnMedIdentDto(
                     ident = personIdent,
@@ -224,8 +225,8 @@ class BeregningControllerTest : AbstractControllerTest() {
         )
 
         val mockGyldigÅpenRequest = ÅpenBeregningRequestDto(
-            inntektForelder1 = 500000.0,
-            inntektForelder2 = 400000.0,
+            bidragsmottakerInntekt = ForelderInntektDto(inntekt = BigDecimal("500000")),
+            bidragspliktigInntekt = ForelderInntektDto(inntekt = BigDecimal("400000")),
             barn = listOf(
                 BarnMedAlderDto(
                     alder = 1,
