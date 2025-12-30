@@ -82,10 +82,10 @@ class BeregningsgrunnlagBuilder(
         val erBidragspliktig = data.bidragstype == BidragsType.PLIKTIG
 
         val inntektBidragsmottaker = if (erBidragspliktig) data.inntektForelder2 else data.inntektForelder1
-        val kontantstøtte = data.kontantstøtte
-        val utvidetBarnetrygd = data.årligUtvidetBarnetrygd
+        val kontantstøtte = data.bmTilleggÅrlig.kontantstøtteÅrlig
+        val utvidetBarnetrygd = data.bmTilleggÅrlig.utvidetBarnetrygdÅrlig
 
-        val samletInntektBidragsmottaker =  BigDecimal.valueOf(inntektBidragsmottaker) + kontantstøtte + utvidetBarnetrygd
+        val samletInntektBidragsmottaker =  BigDecimal.valueOf(inntektBidragsmottaker).setScale(2) + kontantstøtte + utvidetBarnetrygd
         val inntektBidragspliktig = if (erBidragspliktig) data.inntektForelder1 else data.inntektForelder2
 
         fun nyttInntektsgrunnlag(referanse: String, beløp: BigDecimal, eierReferanse: String) =
@@ -113,7 +113,7 @@ class BeregningsgrunnlagBuilder(
     fun byggBarnInntektsgrunnlag(barn: IFellesBarnDto, referanse: String): GrunnlagDto? {
         return barn.inntekt?.let { beløp ->
                 GrunnlagDto(
-                    referanse = "Inntekt_Person_Søknadsbarn_$referanse",
+                    referanse = "Inntekt_$referanse",
                     type = Grunnlagstype.INNTEKT_RAPPORTERING_PERIODE,
                     innhold = objectMapper.valueToTree(
                         InntektsrapporteringPeriode(

@@ -8,7 +8,7 @@ import no.nav.bidrag.commons.service.sjablon.Sjablontall
 import no.nav.bidrag.domene.enums.grunnlag.Grunnlagstype
 import no.nav.bidrag.domene.ident.Personident
 import no.nav.bidrag.transport.behandling.beregning.felles.BeregnGrunnlag
-import no.nav.bidrag.transport.behandling.felles.grunnlag.*
+import no.nav.bidrag.transport.behandling.felles.grunnlag.GrunnlagDto
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -18,7 +18,7 @@ private const val TYPE_SJABLON_UTVIDET_BARNETRYGD_PER_MND = "0042"
 @Component
 class BeregningsgrunnlagMapper(
     private val beregningsgrunnlagBuilder: BeregningsgrunnlagBuilder,
-    private val sjablonService: SjablonService
+    private val sjablonService: SjablonService,
 ) {
 
     companion object Referanser {
@@ -26,100 +26,116 @@ class BeregningsgrunnlagMapper(
         const val BIDRAGSPLIKTIG = "Person_Bidragspliktig"
     }
 
-    private fun kontantstøtteTilleggBm(barn: List<IFellesBarnDto>): BigDecimal {
-        val sumPerMnd = barn.asSequence()
-            .map { it.kontantstøtte ?: BigDecimal.ZERO }
-            .fold(BigDecimal.ZERO, BigDecimal::add)
-
-        return sumPerMnd.multiply(BigDecimal.valueOf(12L))
-    }
-
-
     fun mapTilBeregningsgrunnlag(dto: BeregningRequestDto): List<PersonBeregningsgrunnlag> {
-        return dto.barn.mapIndexed { index, søknadsbarn ->
-            val barnReferanse = "Person_Søknadsbarn_$index"
+        val bmTilleggÅrlig = beregnBmTilleggÅrlig(dto)
+
+        return dto.barn.mapIndexed { index, barn ->
+            val barnReferanse = barnReferanse(index)
+            val fødselsdato = barn.ident.fødselsdato()
+
             val grunnlagListe = lagGrunnlagsliste(
-                søknadsbarn,
-                søknadsbarn.ident.fødselsdato(),
-                dto,
-                barnReferanse
-                )
+                barn = barn,
+                fødselsdato = fødselsdato,
+                dto = dto,
+                barnReferanse = barnReferanse,
+                bmTilleggÅrlig = bmTilleggÅrlig
+            )
 
             PersonBeregningsgrunnlag(
-                ident = søknadsbarn.ident,
-                bidragsType = søknadsbarn.bidragstype,
-                alder = kalkulerAlder(søknadsbarn.ident.fødselsdato()),
-                grunnlag = beregningsgrunnlagBuilder
-                    .byggFellesBeregnGrunnlag(barnReferanse, søknadsbarn.ident.fødselsdato(), grunnlagListe)
+                ident = barn.ident,
+                bidragsType = barn.bidragstype,
+                alder = kalkulerAlder(fødselsdato),
+                grunnlag = beregningsgrunnlagBuilder.byggFellesBeregnGrunnlag(barnReferanse, fødselsdato, grunnlagListe)
             )
         }
     }
 
     fun mapTilBeregningsgrunnlagAnonym(dto: ÅpenBeregningRequestDto): List<PersonBeregningsgrunnlagAnonym> {
-        return dto.barn.mapIndexed { index, søknadsbarn ->
-            val barnReferanse = "Person_Søknadsbarn_$index"
-            val grunnlagListe = lagGrunnlagsliste(søknadsbarn,
-                søknadsbarn.getEstimertFødselsdato(),
-                dto, barnReferanse
+        val bmTilleggÅrlig = beregnBmTilleggÅrlig(dto)
+
+        return dto.barn.mapIndexed { index, barn ->
+            val barnReferanse = barnReferanse(index)
+            val fødselsdato = barn.getEstimertFødselsdato()
+
+            val grunnlagListe = lagGrunnlagsliste(
+                barn = barn,
+                fødselsdato = fødselsdato,
+                dto = dto,
+                barnReferanse = barnReferanse,
+                bmTilleggÅrlig = bmTilleggÅrlig
             )
 
             PersonBeregningsgrunnlagAnonym(
-                bidragsType = søknadsbarn.bidragstype,
-                alder = søknadsbarn.alder,
-                grunnlag = beregningsgrunnlagBuilder
-                    .byggFellesBeregnGrunnlag(barnReferanse, søknadsbarn.getEstimertFødselsdato(), grunnlagListe)
+                alder = barn.alder,
+                bidragsType = barn.bidragstype,
+                grunnlag = beregningsgrunnlagBuilder.byggFellesBeregnGrunnlag(barnReferanse, fødselsdato, grunnlagListe)
             )
-        }
-    }
-
-    private fun <T: IFellesBarnDto, R: FellesBeregningRequestDto<T>> lagGrunnlagsliste(
-        søknadsbarn: T,
-        fødselsdato: LocalDate,
-        dto: R,
-        barnReferanse: String
-    ): List<GrunnlagDto> {
-
-        val årligUtvidetBarnetrygd = beregnÅrligUtvidetBarnetrygd(
-            sjablontall = sjablonService.hentSjablontall(),
-            utvidetBarnetrygd = dto.utvidetBarnetrygd
-        )
-
-        val kontekst = BeregningKontekst(
-            barnReferanse = barnReferanse,
-            bidragstype = søknadsbarn.bidragstype,
-            dittBoforhold = dto.dittBoforhold,
-            medforelderBoforhold = dto.medforelderBoforhold,
-            inntektForelder1 = dto.inntektForelder1,
-            inntektForelder2 = dto.inntektForelder2,
-            // kontantstøtte og årlig utvidet barnetrygd er en del av inntekten til bidragsmottaker,
-            // uansett hvilket barn det gjelder
-            kontantstøtte = kontantstøtteTilleggBm(dto.barn),
-            årligUtvidetBarnetrygd = årligUtvidetBarnetrygd
-        )
-
-        return buildList{
-            add(byggGrunnlag(BIDRAGSMOTTAKER, Grunnlagstype.PERSON_BIDRAGSMOTTAKER))
-            add(byggGrunnlag(BIDRAGSPLIKTIG, Grunnlagstype.PERSON_BIDRAGSPLIKTIG))
-            add(byggGrunnlag(barnReferanse, Grunnlagstype.PERSON_SØKNADSBARN, fødselsdato))
-            addAll(beregningsgrunnlagBuilder.byggInntektsgrunnlag(kontekst))
-            beregningsgrunnlagBuilder.byggBarnInntektsgrunnlag(søknadsbarn, barnReferanse)?.let { add(it) }
-            addAll(beregningsgrunnlagBuilder.byggBostatusgrunnlag(kontekst))
-            søknadsbarn.barnetilsynsutgift?.let { add(beregningsgrunnlagBuilder.byggMottattFaktiskUtgift(fødselsdato, barnReferanse, it)) }
-            add(beregningsgrunnlagBuilder.byggSamværsgrunnlag(søknadsbarn.samværsklasse, barnReferanse))
         }
     }
 
     fun mapTilBoOgForbruksutgiftsgrunnlag(fødselsdato: LocalDate, barnReferanse: String): BeregnGrunnlag {
-        val grunnlagListe = buildList{
-            add(byggGrunnlag(BIDRAGSMOTTAKER, Grunnlagstype.PERSON_BIDRAGSMOTTAKER))
-            add(byggGrunnlag(BIDRAGSPLIKTIG, Grunnlagstype.PERSON_BIDRAGSPLIKTIG))
-            add(byggGrunnlag(barnReferanse, Grunnlagstype.PERSON_SØKNADSBARN, fødselsdato))
-        }
-
+        val grunnlagListe = listOf(
+            byggGrunnlag(BIDRAGSMOTTAKER, Grunnlagstype.PERSON_BIDRAGSMOTTAKER),
+            byggGrunnlag(BIDRAGSPLIKTIG, Grunnlagstype.PERSON_BIDRAGSPLIKTIG),
+            byggGrunnlag(barnReferanse, Grunnlagstype.PERSON_SØKNADSBARN, fødselsdato),
+        )
         return beregningsgrunnlagBuilder.byggFellesBeregnGrunnlag(barnReferanse, fødselsdato, grunnlagListe)
     }
 
-    private fun byggGrunnlag(referanse: String, type: Grunnlagstype, fødselsdato: LocalDate? = null) =
+    private fun <T : IFellesBarnDto, R : FellesBeregningRequestDto<T>> lagGrunnlagsliste(
+        barn: T,
+        fødselsdato: LocalDate,
+        dto: R,
+        barnReferanse: String,
+        bmTilleggÅrlig: BmTilleggÅrlig
+    ): List<GrunnlagDto> {
+        val kontekst = BeregningKontekst(
+            barnReferanse = barnReferanse,
+            bidragstype = barn.bidragstype,
+            dittBoforhold = dto.dittBoforhold,
+            medforelderBoforhold = dto.medforelderBoforhold,
+            inntektForelder1 = dto.inntektForelder1,
+            inntektForelder2 = dto.inntektForelder2,
+            bmTilleggÅrlig = bmTilleggÅrlig
+        )
+
+        return buildList {
+            add(byggGrunnlag(BIDRAGSMOTTAKER, Grunnlagstype.PERSON_BIDRAGSMOTTAKER))
+            add(byggGrunnlag(BIDRAGSPLIKTIG, Grunnlagstype.PERSON_BIDRAGSPLIKTIG))
+            add(byggGrunnlag(barnReferanse, Grunnlagstype.PERSON_SØKNADSBARN, fødselsdato))
+
+            addAll(beregningsgrunnlagBuilder.byggInntektsgrunnlag(kontekst))
+            beregningsgrunnlagBuilder.byggBarnInntektsgrunnlag(barn, barnReferanse)?.let { add(it) }
+
+            addAll(beregningsgrunnlagBuilder.byggBostatusgrunnlag(kontekst))
+
+            barn.barnetilsynsutgift?.let {
+                add(beregningsgrunnlagBuilder.byggMottattFaktiskUtgift(fødselsdato, barnReferanse, it))
+            }
+
+            add(beregningsgrunnlagBuilder.byggSamværsgrunnlag(barn.samværsklasse, barnReferanse))
+        }
+    }
+
+    /** Beregner årlig tillegg for bidragsmottaker basert på kontantstøtte og utvidet barnetrygd for alle barn i beregningsgrunnlaget.
+     * Kontantstøtte og årlig utvidet barnetrygd er en del av inntekten til bidragsmottaker, uansett hvilket barn det gjelder
+     */
+    private fun beregnBmTilleggÅrlig(dto: FellesBeregningRequestDto<*>): BmTilleggÅrlig {
+        val kontantstøtteÅrlig =
+            dto.barn.sumOf { it.kontantstøtte ?: BigDecimal.ZERO }
+                .multiply(BigDecimal.valueOf(12L))
+
+        val utvidetBarnetrygdÅrlig = beregnÅrligUtvidetBarnetrygd(
+            sjablontall = sjablonService.hentSjablontall(),
+            utvidetBarnetrygd = dto.utvidetBarnetrygd
+        )
+
+        return BmTilleggÅrlig(kontantstøtteÅrlig, utvidetBarnetrygdÅrlig)
+    }
+
+    private fun barnReferanse(index: Int) = "Person_Søknadsbarn_$index"
+
+    private fun byggGrunnlag(referanse: String, type: Grunnlagstype, fødselsdato: LocalDate? = null): GrunnlagDto =
         beregningsgrunnlagBuilder.byggPersongrunnlag(referanse, type, fødselsdato)
 
     private fun beregnÅrligUtvidetBarnetrygd(
@@ -141,20 +157,25 @@ class BeregningsgrunnlagMapper(
             årlig
         }
     }
-
 }
 
 data class PersonBeregningsgrunnlag(
     val ident: Personident,
     val alder: Int,
     val bidragsType: BidragsType,
-    val grunnlag: BeregnGrunnlag
+    val grunnlag: BeregnGrunnlag,
 )
 
 data class PersonBeregningsgrunnlagAnonym(
     val alder: Int,
     val bidragsType: BidragsType,
-    val grunnlag: BeregnGrunnlag
+    val grunnlag: BeregnGrunnlag,
+)
+
+
+data class BmTilleggÅrlig(
+    val kontantstøtteÅrlig: BigDecimal,
+    val utvidetBarnetrygdÅrlig: BigDecimal,
 )
 
 data class BeregningKontekst(
@@ -164,6 +185,5 @@ data class BeregningKontekst(
     val bidragstype: BidragsType,
     val dittBoforhold: BoforholdDto?,
     val medforelderBoforhold: BoforholdDto?,
-    val kontantstøtte: BigDecimal,
-    val årligUtvidetBarnetrygd: BigDecimal
+    val bmTilleggÅrlig: BmTilleggÅrlig
 )
