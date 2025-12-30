@@ -5,6 +5,7 @@ import no.nav.bidrag.bidragskalkulator.config.CacheConfig
 import no.nav.bidrag.bidragskalkulator.dto.SamværsfradragPeriode
 import no.nav.bidrag.commons.service.sjablon.Samværsfradrag
 import no.nav.bidrag.commons.service.sjablon.SjablonProvider
+import no.nav.bidrag.commons.service.sjablon.Sjablontall
 import no.nav.bidrag.commons.util.secureLogger
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
@@ -16,6 +17,35 @@ private val logger = KotlinLogging.logger {}
 
 @Service
 class SjablonService {
+
+    /**
+     * Henter sjablontall fra sjablon, filtrerer på dato.
+     * Returnerer en liste av Sjablontall.
+     */
+    fun hentSjablontall(): List<Sjablontall> {
+        logger.info { "Henter sjablontall" }
+        val nåværendeDato = LocalDate.now()
+
+        val (filtrert, varighet) = runCatching {
+            measureTimedValue {
+                val alle = SjablonProvider.hentSjablontall()
+                val ugyldige = alle.count { it.datoFom == null || it.datoTom == null }
+                if (ugyldige > 0) {
+                    logger.warn { "Fant $ugyldige ugyldige elementer i sjablontall" }
+                }
+
+                alle.filter { it.datoFom != null && it.datoTom != null }
+                    .filter { nåværendeDato >= it.datoFom && nåværendeDato <= it.datoTom }
+            }
+        }.onFailure { e ->
+            logger.error{ "Kall til sjablon provider feilet" }
+            secureLogger.error(e) { "Kall til sjablon provider feilet: ${e.message}" }
+        }.getOrThrow()
+
+        logger.info { "Kall til sjablon provider OK (varighet_ms=${varighet.inWholeMilliseconds})" }
+
+        return filtrert
+    }
 
     /**
      * Henter samværsfradrag fra sjablon, filtrerer på dato og grupperer etter alderTom.
