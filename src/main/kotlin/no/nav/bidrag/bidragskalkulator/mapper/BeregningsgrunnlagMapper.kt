@@ -2,7 +2,9 @@ package no.nav.bidrag.bidragskalkulator.mapper
 
 import no.nav.bidrag.bidragskalkulator.dto.*
 import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningRequestDto
+import no.nav.bidrag.bidragskalkulator.service.SjablonService
 import no.nav.bidrag.bidragskalkulator.utils.kalkulerAlder
+import no.nav.bidrag.commons.service.sjablon.Sjablontall
 import no.nav.bidrag.domene.enums.grunnlag.Grunnlagstype
 import no.nav.bidrag.domene.ident.Personident
 import no.nav.bidrag.transport.behandling.beregning.felles.BeregnGrunnlag
@@ -11,9 +13,12 @@ import org.springframework.stereotype.Component
 import java.math.BigDecimal
 import java.time.LocalDate
 
+private const val TYPE_SJABLON_UTVIDET_BARNETRYGD_PER_MND = "0042"
+
 @Component
 class BeregningsgrunnlagMapper(
-    private val beregningsgrunnlagBuilder: BeregningsgrunnlagBuilder
+    private val beregningsgrunnlagBuilder: BeregningsgrunnlagBuilder,
+    private val sjablonService: SjablonService
 ) {
 
     companion object Referanser {
@@ -74,6 +79,11 @@ class BeregningsgrunnlagMapper(
         barnReferanse: String
     ): List<GrunnlagDto> {
 
+        val årligUtvidetBarnetrygd = beregnÅrligUtvidetBarnetrygd(
+            sjablontall = sjablonService.hentSjablontall(),
+            utvidetBarnetrygd = dto.utvidetBarnetrygd
+        )
+
         val kontekst = BeregningKontekst(
             barnReferanse = barnReferanse,
             bidragstype = søknadsbarn.bidragstype,
@@ -81,8 +91,10 @@ class BeregningsgrunnlagMapper(
             medforelderBoforhold = dto.medforelderBoforhold,
             inntektForelder1 = dto.inntektForelder1,
             inntektForelder2 = dto.inntektForelder2,
-            // kontantstøtte er en del av inntekten til bidragsmottaker, uansett hvilket barn det gjelder
-            kontantstøtte = kontantstøtteTilleggBm(dto.barn)
+            // kontantstøtte og årlig utvidet barnetrygd er en del av inntekten til bidragsmottaker,
+            // uansett hvilket barn det gjelder
+            kontantstøtte = kontantstøtteTilleggBm(dto.barn),
+            årligUtvidetBarnetrygd = årligUtvidetBarnetrygd
         )
 
         return buildList{
@@ -110,6 +122,26 @@ class BeregningsgrunnlagMapper(
     private fun byggGrunnlag(referanse: String, type: Grunnlagstype, fødselsdato: LocalDate? = null) =
         beregningsgrunnlagBuilder.byggPersongrunnlag(referanse, type, fødselsdato)
 
+    private fun beregnÅrligUtvidetBarnetrygd(
+        sjablontall: List<Sjablontall>,
+        utvidetBarnetrygd: UtvidetBarnetrygdDto?,
+    ): BigDecimal {
+        if (utvidetBarnetrygd?.harUtvidetBarnetrygd != true) return BigDecimal.ZERO
+
+        val perMåned = sjablontall
+            .firstOrNull { it.typeSjablon == TYPE_SJABLON_UTVIDET_BARNETRYGD_PER_MND }
+            ?.verdi
+            ?: BigDecimal.ZERO
+
+        val årlig = perMåned.multiply(BigDecimal.valueOf(12L))
+
+        return if (utvidetBarnetrygd.delerMedMedforelder) {
+            årlig.divide(BigDecimal.valueOf(2L))
+        } else {
+            årlig
+        }
+    }
+
 }
 
 data class PersonBeregningsgrunnlag(
@@ -132,5 +164,6 @@ data class BeregningKontekst(
     val bidragstype: BidragsType,
     val dittBoforhold: BoforholdDto?,
     val medforelderBoforhold: BoforholdDto?,
-    val kontantstøtte: BigDecimal?
+    val kontantstøtte: BigDecimal,
+    val årligUtvidetBarnetrygd: BigDecimal
 )
