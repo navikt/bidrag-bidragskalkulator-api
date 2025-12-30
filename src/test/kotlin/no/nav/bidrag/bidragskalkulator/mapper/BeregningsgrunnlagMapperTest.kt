@@ -245,7 +245,6 @@ class BeregningsgrunnlagMapperTest {
         assertThat(beløp).isEqualByComparingTo(forventet)
     }
 
-
     @Test
     fun `skal summere kontantstøtte og sjablonbaserte tillegg inn i BM inntekt`() {
         val base: BeregningRequestDto = JsonUtils.lesJsonFil("/barnebidrag/beregning_et_barn.json")
