@@ -5,6 +5,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import no.nav.bidrag.bidragskalkulator.dto.BeregningRequestDto
 import no.nav.bidrag.bidragskalkulator.service.PersonService
+import no.nav.bidrag.bidragskalkulator.service.SjablonService
 import no.nav.bidrag.bidragskalkulator.utils.JsonUtils
 import no.nav.bidrag.domene.enums.grunnlag.Grunnlagstype
 import no.nav.bidrag.domene.enums.vedtak.Stønadstype
@@ -30,6 +31,9 @@ class BeregningsgrunnlagMapperTest {
     // Bruk ekte builder
     private val mockBeregningsgrunnlagBuilder = BeregningsgrunnlagBuilder()
 
+    @MockK
+    lateinit var sjablonService: SjablonService
+
     private lateinit var beregningsgrunnlagMapper: BeregningsgrunnlagMapper
 
     @BeforeEach
@@ -43,7 +47,9 @@ class BeregningsgrunnlagMapperTest {
             visningsnavn = "Navn Navnesen",
         )
 
-        beregningsgrunnlagMapper = BeregningsgrunnlagMapper(mockBeregningsgrunnlagBuilder)
+        every { sjablonService.hentSjablontall() } returns emptyList()
+
+        beregningsgrunnlagMapper = BeregningsgrunnlagMapper(mockBeregningsgrunnlagBuilder, sjablonService)
     }
 
     @Test

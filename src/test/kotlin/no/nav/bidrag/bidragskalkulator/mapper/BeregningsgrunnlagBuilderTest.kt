@@ -105,7 +105,10 @@ class BeregningsgrunnlagBuilderTest {
                     bidragstype = barn.bidragstype,
                     dittBoforhold = request.dittBoforhold,
                     medforelderBoforhold = request.medforelderBoforhold,
-                    kontantstøtte = BigDecimal.ZERO
+                    bmTilleggÅrlig = BmTilleggÅrlig(
+                        kontantstøtteÅrlig = BigDecimal.ZERO,
+                        utvidetBarnetrygdÅrlig = BigDecimal.ZERO
+                    )
                 )
 
                 builder.byggBostatusgrunnlag(kontekst)
@@ -235,7 +238,12 @@ class BeregningsgrunnlagBuilderTest {
     }
 
 
-    private fun lagKontekst(dto: BeregningRequestDto, barnIndex: Int, bidragstype: BidragsType, kontantstøtte: BigDecimal): BeregningKontekst {
+    private fun lagKontekst(dto: BeregningRequestDto,
+                            barnIndex: Int,
+                            bidragstype: BidragsType,
+                            kontantstøtteÅrlig: BigDecimal = BigDecimal.ZERO,
+                            utvidetBarnetrygdÅrlig: BigDecimal = BigDecimal.ZERO
+    ): BeregningKontekst {
         return BeregningKontekst(
             barnReferanse = "Person_Søknadsbarn_$barnIndex",
             inntektForelder1 = dto.inntektForelder1,
@@ -243,7 +251,10 @@ class BeregningsgrunnlagBuilderTest {
             bidragstype = bidragstype,
             dittBoforhold = dto.dittBoforhold,
             medforelderBoforhold = dto.medforelderBoforhold,
-            kontantstøtte = kontantstøtte
+            bmTilleggÅrlig = BmTilleggÅrlig(
+                kontantstøtteÅrlig = kontantstøtteÅrlig,
+                utvidetBarnetrygdÅrlig = utvidetBarnetrygdÅrlig
+            )
         )
     }
 }

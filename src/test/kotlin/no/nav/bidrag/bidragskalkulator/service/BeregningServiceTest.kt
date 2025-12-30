@@ -10,6 +10,7 @@ import no.nav.bidrag.bidragskalkulator.mapper.tilFamilieRelasjon
 import no.nav.bidrag.bidragskalkulator.service.BeregningService
 import no.nav.bidrag.bidragskalkulator.service.BoOgForbruksutgiftService
 import no.nav.bidrag.bidragskalkulator.service.PersonService
+import no.nav.bidrag.bidragskalkulator.service.SjablonService
 import no.nav.bidrag.bidragskalkulator.utils.JsonUtils
 import no.nav.bidrag.bidragskalkulator.utils.kalkulerAlder
 import no.nav.bidrag.domene.tid.ÅrMånedsperiode
@@ -31,12 +32,27 @@ class BeregningServiceTest {
     private val beregnBarnebidragApi = mockk<BeregnBarnebidragApi>()
     private val personService = mockk<PersonService>()
     private val boOgForbruksutgiftServiceMock = mockk<BoOgForbruksutgiftService>()
+    private val sjablonService = mockk<SjablonService>()
 
-    // bruk ekte
-    private val mockBeregningsgrunnlagBuilder = BeregningsgrunnlagBuilder()
-    private val beregningsgrunnlagMapper = BeregningsgrunnlagMapper(mockBeregningsgrunnlagBuilder)
+    // Ekte builder + mapper
+    private val beregningsgrunnlagBuilder = BeregningsgrunnlagBuilder()
+    private lateinit var beregningsgrunnlagMapper: BeregningsgrunnlagMapper
 
-    private val beregningService = BeregningService(beregnBarnebidragApi, boOgForbruksutgiftServiceMock, beregningsgrunnlagMapper, personService)
+    private lateinit var beregningService: BeregningService
+
+    @BeforeEach
+    fun setup() {
+        // Vi tester ikke sjablon i denne testen – hold det stabilt
+        every { sjablonService.hentSjablontall() } returns emptyList()
+
+        beregningsgrunnlagMapper = BeregningsgrunnlagMapper(beregningsgrunnlagBuilder, sjablonService)
+        beregningService = BeregningService(
+            beregnBarnebidragApi,
+            boOgForbruksutgiftServiceMock,
+            beregningsgrunnlagMapper,
+            personService
+        )
+    }
 
     @Nested
     inner class BeregningBarnebidragForEttBarn {
@@ -47,7 +63,6 @@ class BeregningServiceTest {
         @BeforeEach
         fun oppsett() = runTest {
             beregningRequest = mockOppsett("/barnebidrag/beregning_et_barn.json")
-
             beregningResultat = beregningService.beregnBarnebidrag(beregningRequest)
         }
 
@@ -61,7 +76,7 @@ class BeregningServiceTest {
 
             val resultat = beregningService.beregnBarnebidrag(beregningRequest)
 
-            assertEquals(true,  resultat.resultater.isEmpty())
+            assertEquals(true, resultat.resultater.isEmpty())
         }
 
         @Test
@@ -69,7 +84,6 @@ class BeregningServiceTest {
             assertEquals(1, beregningResultat.resultater.size)
             assertEquals(beregningRequest.barn.first().ident, beregningResultat.resultater.first().ident)
         }
-
     }
 
     @Nested
@@ -81,14 +95,12 @@ class BeregningServiceTest {
         @BeforeEach
         fun oppsett() = runTest {
             beregningRequest = mockOppsett("/barnebidrag/beregning_to_barn.json")
-
             beregningResultat = beregningService.beregnBarnebidrag(beregningRequest)
         }
 
         @Test
         fun `skal returnere to beregningsresultater for to barn`() = runTest {
             val resultat = beregningService.beregnBarnebidrag(beregningRequest)
-
             assertEquals(2, resultat.resultater.size)
         }
     }
@@ -148,8 +160,10 @@ class BeregningServiceTest {
             val faktiskeAldre = relasjon.fellesBarn.map { it.alder }
 
             assertEquals(forventetSortertAldre, faktiskeAldre, "Barna skal være sortert etter alder synkende")
-        }
 
+            assertEquals(BigDecimal(8471), relasjon.fellesBarn[0].underholdskostnad)
+            assertEquals(BigDecimal(8471), relasjon.fellesBarn[1].underholdskostnad)
+        }
     }
 
     private fun lagResultatPeriode(): ResultatPeriode {
@@ -186,6 +200,4 @@ class BeregningServiceTest {
 
         return beregningRequest
     }
-
-
 }
