@@ -93,9 +93,9 @@ data class ÅpenBeregningRequestDto(
     override val utvidetBarnetrygd: UtvidetBarnetrygdDto? = null,
 
     @param:Schema(
-        description = "Angir om bidragsmottaker mottar småbarnstillegg (behandles tilsvarende utvidet barnetrygd).",
+        description = "Angir om bidragsmottaker mottar småbarnstillegg. Gjelder kun når minst ett barn er 0–3 år.",
         required = true,
-        example = "false"
+        example = "false",
     )
     override val småbarnstillegg: Boolean = false,
 ) : FellesBeregningRequestDto<BarnMedAlderDto>(
