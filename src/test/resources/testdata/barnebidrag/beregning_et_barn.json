@@ -1,6 +1,10 @@
 {
-  "inntektForelder1": 50000.0,
-  "inntektForelder2": 60000.0,
+  "bidragsmottakerInntekt": {
+    "inntekt": 50000
+  },
+  "bidragspliktigInntekt": {
+    "inntekt": 60000
+  },
   "barn": [
     {
       "ident": "{BARN1_FNR}",

@@ -79,17 +79,23 @@ class BeregningsgrunnlagBuilder(
     }
 
     fun byggInntektsgrunnlag(data: BeregningKontekst): List<GrunnlagDto> {
-        val erBidragspliktig = data.bidragstype == BidragsType.PLIKTIG
+        val bidragspliktigInntekt = data.bidragspliktigInntekt
+        val bidragsmottakerInntekt = data.bidragsmottakerInntekt
 
-        val inntektBidragsmottaker = if (erBidragspliktig) data.inntektForelder2 else data.inntektForelder1
+        val bidragsmottakerNettoPositivKapitalinntekt = (bidragsmottakerInntekt.nettoPositivKapitalinntekt - 10000.toBigDecimal())
+            .coerceAtLeast(BigDecimal.ZERO)
+
+        val inntektBidragsmottaker = bidragsmottakerInntekt.inntekt + bidragsmottakerNettoPositivKapitalinntekt
         val kontantstøtte = data.bmTilleggÅrlig.kontantstøtteÅrlig
         val utvidetBarnetrygd = data.bmTilleggÅrlig.utvidetBarnetrygdÅrlig
         val småbarnstillegg = data.bmTilleggÅrlig.småbarnstilleggÅrlig
 
-        val samletInntektBidragsmottaker = BigDecimal.valueOf(inntektBidragsmottaker).setScale(2) +
-                kontantstøtte + utvidetBarnetrygd + småbarnstillegg
+        val samletInntektBidragsmottaker = inntektBidragsmottaker + kontantstøtte + utvidetBarnetrygd + småbarnstillegg
 
-        val inntektBidragspliktig = if (erBidragspliktig) data.inntektForelder1 else data.inntektForelder2
+        val bidragspliktigNettoPositivKapitalinntekt = (bidragspliktigInntekt.nettoPositivKapitalinntekt - 10000.toBigDecimal())
+            .coerceAtLeast(BigDecimal.ZERO)
+
+        val inntektBidragspliktig = bidragspliktigInntekt.inntekt + bidragspliktigNettoPositivKapitalinntekt
 
         fun nyttInntektsgrunnlag(referanse: String, beløp: BigDecimal, eierReferanse: String) =
             GrunnlagDto(
@@ -108,7 +114,7 @@ class BeregningsgrunnlagBuilder(
             )
 
         return listOf(
-            nyttInntektsgrunnlag("Inntekt_Bidragspliktig", inntektBidragspliktig.toBigDecimal(), Referanser.BIDRAGSPLIKTIG),
+            nyttInntektsgrunnlag("Inntekt_Bidragspliktig", inntektBidragspliktig, Referanser.BIDRAGSPLIKTIG),
             nyttInntektsgrunnlag("Inntekt_Bidragsmottaker", samletInntektBidragsmottaker, Referanser.BIDRAGSMOTTAKER),
         )
     }

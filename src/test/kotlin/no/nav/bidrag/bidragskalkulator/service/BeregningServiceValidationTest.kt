@@ -12,7 +12,9 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import com.fasterxml.jackson.databind.JsonMappingException
+import no.nav.bidrag.bidragskalkulator.dto.ForelderInntektDto
 import no.nav.bidrag.generer.testdata.person.genererPersonident
+import java.math.BigDecimal
 
 class BeregningServiceValidationTest {
 
@@ -30,8 +32,8 @@ class BeregningServiceValidationTest {
     @Test
     fun `skal returnere valideringsfeil dersom bidragstype ikke er satt`() {
         val request = BeregningRequestDto(
-            inntektForelder1 = 500000.0,
-            inntektForelder2 = 600000.0,
+            bidragsmottakerInntekt = ForelderInntektDto(inntekt = BigDecimal("500000")),
+            bidragspliktigInntekt = ForelderInntektDto(inntekt = BigDecimal("600000")),
             barn = listOf(
                 BarnMedIdentDto(
                     ident = personIdent,
@@ -67,8 +69,8 @@ class BeregningServiceValidationTest {
     @Test
     fun `skal returnere valideringsfeil dersom barnelisten er tom`() {
         val request = BeregningRequestDto(
-            inntektForelder1 = 500000.0,
-            inntektForelder2 = 600000.0,
+            bidragsmottakerInntekt = ForelderInntektDto(inntekt = BigDecimal("500000")),
+            bidragspliktigInntekt = ForelderInntektDto(inntekt = BigDecimal("600000")),
             barn = emptyList()
         )
 
@@ -79,20 +81,27 @@ class BeregningServiceValidationTest {
     @Test
     fun `skal returnere valideringsfeil dersom inntekt er negativ`() {
         val request = BeregningRequestDto(
-            inntektForelder1 = -50000.0, // Ugyldig
-            inntektForelder2 = 600000.0,
+            bidragsmottakerInntekt = ForelderInntektDto(inntekt = BigDecimal("-500000")),
+            bidragspliktigInntekt = ForelderInntektDto(inntekt = BigDecimal("600000")),
             barn = listOf(BarnMedIdentDto(personIdent, Samværsklasse.SAMVÆRSKLASSE_1, BidragsType.PLIKTIG))
         )
 
         val violations = validator.validate(request)
-        assertTrue(violations.any { it.message.contains("Inntekt for forelder 1 kan ikke være negativ") })
+
+        assertTrue(
+            violations.any {
+                it.propertyPath.toString() == "bidragsmottakerInntekt.inntekt" &&
+                        it.message.contains("kan ikke være negativ")
+            },
+            "Forventet valideringsfeil på bidragsmottakerInntekt.inntekt"
+        )
     }
 
     @Test
     fun `skal håndtere ekstremt høye inntekter korrekt`() {
         val request = BeregningRequestDto(
-            inntektForelder1 = 1_000_000_000.0,  // 1 milliard
-            inntektForelder2 = 900_000_000.0,  // 900 millioner
+            bidragsmottakerInntekt = ForelderInntektDto(inntekt = BigDecimal("1000000000")), // 1 milliard
+            bidragspliktigInntekt = ForelderInntektDto(inntekt = BigDecimal("900000000")), // 900 millioner
             barn = listOf(BarnMedIdentDto(personIdent, Samværsklasse.SAMVÆRSKLASSE_1, BidragsType.MOTTAKER))
         )
 
