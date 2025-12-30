@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPat
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.math.BigDecimal
 import io.mockk.verify
+import no.nav.bidrag.bidragskalkulator.dto.UtvidetBarnetrygdDto
 import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningsresultatBarnDto
 import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningsresultatDto
 
@@ -172,6 +173,39 @@ class BeregningControllerTest : AbstractControllerTest() {
         verify(exactly = 1) { runBlocking { beregningService.beregnBarnebidragAnonym(any()) } }
     }
 
+    @Test
+    fun `skal returnere 400 nar utvidetBarnetrygd delerMedMedforelder er true men harUtvidetBarnetrygd er false`() {
+        val request = mockGyldigÅpenRequest.copy(
+            utvidetBarnetrygd = UtvidetBarnetrygdDto(
+                harUtvidetBarnetrygd = false,
+                delerMedMedforelder = true
+            )
+        )
+
+        postRequest("/api/v1/beregning/barnebidrag/åpen", request)
+            .andExpect(status().isBadRequest)
+            .andExpect(
+                jsonPath("$.detail").value(
+                    "utvidetBarnetrygd.delerMedMedforelder kan ikke være true når utvidetBarnetrygd.harUtvidetBarnetrygd = false"
+                )
+            )
+    }
+
+    @Test
+    fun `skal returnere 400 når småbarnstillegg er true uten barn 0-3 år`() {
+        val request = mockGyldigÅpenRequest.copy(
+            småbarnstillegg = true,
+            barn = mockGyldigÅpenRequest.barn.map { it.copy(alder = 4, kontantstøtte = null) },
+        )
+
+        postRequest("/api/v1/beregning/barnebidrag/åpen", request)
+            .andExpect(status().isBadRequest)
+            .andExpect(
+                jsonPath("$.detail").value(
+                    "småbarnstillegg kan kun settes til true når det finnes minst ett barn med alder 0-3 år"
+                )
+            )
+    }
 
     companion object TestData {
         private val personIdent = genererPersonident()
