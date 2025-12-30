@@ -84,6 +84,20 @@ data class ÅpenBeregningRequestDto(
 
     @param:Schema(description = "Boforhold for den andre forelderen. Må være satt hvis bidragstype for minst ett barn er MOTTAKER", required = false)
     override val medforelderBoforhold: BoforholdDto? = null,
+
+    @param:Schema(
+        description = "Opplysninger om utvidet barnetrygd. Kan utelates dersom det ikke foreligger utvidet barnetrygd.",
+        nullable = true,
+        implementation = UtvidetBarnetrygdDto::class
+    )
+    override val utvidetBarnetrygd: UtvidetBarnetrygdDto? = null,
+
+    @param:Schema(
+        description = "Angir om bidragsmottaker mottar småbarnstillegg. Gjelder kun når minst ett barn er 0–3 år.",
+        required = true,
+        example = "false",
+    )
+    override val småbarnstillegg: Boolean = false,
 ) : FellesBeregningRequestDto<BarnMedAlderDto>(
-    inntektForelder1, inntektForelder2, barn, dittBoforhold, medforelderBoforhold
+    inntektForelder1, inntektForelder2, barn, dittBoforhold, medforelderBoforhold, utvidetBarnetrygd, småbarnstillegg
 )

@@ -105,7 +105,11 @@ class BeregningsgrunnlagBuilderTest {
                     bidragstype = barn.bidragstype,
                     dittBoforhold = request.dittBoforhold,
                     medforelderBoforhold = request.medforelderBoforhold,
-                    kontantstøtte = BigDecimal.ZERO
+                    bmTilleggÅrlig = BmTilleggÅrlig(
+                        kontantstøtteÅrlig = BigDecimal.ZERO,
+                        utvidetBarnetrygdÅrlig = BigDecimal.ZERO,
+                        småbarnstilleggÅrlig = BigDecimal.ZERO
+                    )
                 )
 
                 builder.byggBostatusgrunnlag(kontekst)
@@ -199,6 +203,83 @@ class BeregningsgrunnlagBuilderTest {
             val forventet = BigDecimal.valueOf(request.inntektForelder1) + kontantstøtte
             assertThat(bmBeløp).isEqualByComparingTo(forventet)
         }
+
+        @Test
+        fun `skal legge utvidet barnetrygd til BM inntekt`() {
+            val request: BeregningRequestDto = JsonUtils.lesJsonFil("/barnebidrag/beregning_et_barn.json")
+
+            val utvidetBarnetrygdÅrlig = BigDecimal("24000")
+            val kontekst = lagKontekst(
+                dto = request,
+                barnIndex = 0,
+                bidragstype = request.barn.first().bidragstype,
+                kontantstøtteÅrlig = BigDecimal.ZERO,
+                utvidetBarnetrygdÅrlig = utvidetBarnetrygdÅrlig,
+                småbarnstilleggÅrlig = BigDecimal.ZERO
+            )
+
+            val result = builder.byggInntektsgrunnlag(kontekst)
+
+            val bmBeløp = result.first { it.referanse == "Inntekt_Bidragsmottaker" }
+                .innholdTilObjekt<InntektsrapporteringPeriode>()
+                .beløp
+
+            val forventet = BigDecimal.valueOf(request.inntektForelder2).setScale(2) + utvidetBarnetrygdÅrlig
+            assertThat(bmBeløp).isEqualByComparingTo(forventet)
+        }
+
+        @Test
+        fun `skal legge småbarnstillegg til BM inntekt`() {
+            val request: BeregningRequestDto = JsonUtils.lesJsonFil("/barnebidrag/beregning_et_barn.json")
+
+            val småbarnstilleggÅrlig = BigDecimal("18000")
+            val kontekst = lagKontekst(
+                dto = request,
+                barnIndex = 0,
+                bidragstype = request.barn.first().bidragstype,
+                kontantstøtteÅrlig = BigDecimal.ZERO,
+                utvidetBarnetrygdÅrlig = BigDecimal.ZERO,
+                småbarnstilleggÅrlig = småbarnstilleggÅrlig
+            )
+
+            val result = builder.byggInntektsgrunnlag(kontekst)
+
+            val bmBeløp = result.first { it.referanse == "Inntekt_Bidragsmottaker" }
+                .innholdTilObjekt<InntektsrapporteringPeriode>()
+                .beløp
+
+            val forventet = BigDecimal.valueOf(request.inntektForelder2).setScale(2) + småbarnstilleggÅrlig
+            assertThat(bmBeløp).isEqualByComparingTo(forventet)
+        }
+
+        @Test
+        fun `skal summere kontantstøtte, utvidet barnetrygd og småbarnstillegg i BM inntekt`() {
+            val request: BeregningRequestDto = JsonUtils.lesJsonFil("/barnebidrag/beregning_et_barn.json")
+
+            val kontantstøtteÅrlig = BigDecimal("1200")
+            val utvidetBarnetrygdÅrlig = BigDecimal("24000")
+            val småbarnstilleggÅrlig = BigDecimal("18000")
+
+            val kontekst = lagKontekst(
+                dto = request,
+                barnIndex = 0,
+                bidragstype = request.barn.first().bidragstype,
+                kontantstøtteÅrlig = kontantstøtteÅrlig,
+                utvidetBarnetrygdÅrlig = utvidetBarnetrygdÅrlig,
+                småbarnstilleggÅrlig = småbarnstilleggÅrlig
+            )
+
+            val result = builder.byggInntektsgrunnlag(kontekst)
+
+            val bmBeløp = result.first { it.referanse == "Inntekt_Bidragsmottaker" }
+                .innholdTilObjekt<InntektsrapporteringPeriode>()
+                .beløp
+
+            val forventet = BigDecimal.valueOf(request.inntektForelder2).setScale(2) +
+                    kontantstøtteÅrlig + utvidetBarnetrygdÅrlig + småbarnstilleggÅrlig
+
+            assertThat(bmBeløp).isEqualByComparingTo(forventet)
+        }
     }
 
     @Nested
@@ -235,7 +316,13 @@ class BeregningsgrunnlagBuilderTest {
     }
 
 
-    private fun lagKontekst(dto: BeregningRequestDto, barnIndex: Int, bidragstype: BidragsType, kontantstøtte: BigDecimal): BeregningKontekst {
+    private fun lagKontekst(dto: BeregningRequestDto,
+                            barnIndex: Int,
+                            bidragstype: BidragsType,
+                            kontantstøtteÅrlig: BigDecimal = BigDecimal.ZERO,
+                            utvidetBarnetrygdÅrlig: BigDecimal = BigDecimal.ZERO,
+                            småbarnstilleggÅrlig: BigDecimal = BigDecimal.ZERO
+    ): BeregningKontekst {
         return BeregningKontekst(
             barnReferanse = "Person_Søknadsbarn_$barnIndex",
             inntektForelder1 = dto.inntektForelder1,
@@ -243,7 +330,11 @@ class BeregningsgrunnlagBuilderTest {
             bidragstype = bidragstype,
             dittBoforhold = dto.dittBoforhold,
             medforelderBoforhold = dto.medforelderBoforhold,
-            kontantstøtte = kontantstøtte
+            bmTilleggÅrlig = BmTilleggÅrlig(
+                kontantstøtteÅrlig = kontantstøtteÅrlig,
+                utvidetBarnetrygdÅrlig = utvidetBarnetrygdÅrlig,
+                småbarnstilleggÅrlig = småbarnstilleggÅrlig
+            )
         )
     }
 }

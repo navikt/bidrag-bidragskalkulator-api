@@ -81,11 +81,15 @@ class BeregningsgrunnlagBuilder(
     fun byggInntektsgrunnlag(data: BeregningKontekst): List<GrunnlagDto> {
         val erBidragspliktig = data.bidragstype == BidragsType.PLIKTIG
 
-        val lønnBidragsmottaker = (if (erBidragspliktig) data.inntektForelder2 else data.inntektForelder1)
-        val lønnBidragsmottakerMedKontantstøtte =
-            BigDecimal.valueOf(lønnBidragsmottaker) +
-                    (data.kontantstøtte ?: BigDecimal.ZERO)
-        val lønnBidragspliktig = if (erBidragspliktig) data.inntektForelder1 else data.inntektForelder2
+        val inntektBidragsmottaker = if (erBidragspliktig) data.inntektForelder2 else data.inntektForelder1
+        val kontantstøtte = data.bmTilleggÅrlig.kontantstøtteÅrlig
+        val utvidetBarnetrygd = data.bmTilleggÅrlig.utvidetBarnetrygdÅrlig
+        val småbarnstillegg = data.bmTilleggÅrlig.småbarnstilleggÅrlig
+
+        val samletInntektBidragsmottaker = BigDecimal.valueOf(inntektBidragsmottaker).setScale(2) +
+                kontantstøtte + utvidetBarnetrygd + småbarnstillegg
+
+        val inntektBidragspliktig = if (erBidragspliktig) data.inntektForelder1 else data.inntektForelder2
 
         fun nyttInntektsgrunnlag(referanse: String, beløp: BigDecimal, eierReferanse: String) =
             GrunnlagDto(
@@ -104,15 +108,15 @@ class BeregningsgrunnlagBuilder(
             )
 
         return listOf(
-            nyttInntektsgrunnlag("Inntekt_Bidragspliktig", lønnBidragspliktig.toBigDecimal(), Referanser.BIDRAGSPLIKTIG),
-            nyttInntektsgrunnlag("Inntekt_Bidragsmottaker", lønnBidragsmottakerMedKontantstøtte, Referanser.BIDRAGSMOTTAKER),
+            nyttInntektsgrunnlag("Inntekt_Bidragspliktig", inntektBidragspliktig.toBigDecimal(), Referanser.BIDRAGSPLIKTIG),
+            nyttInntektsgrunnlag("Inntekt_Bidragsmottaker", samletInntektBidragsmottaker, Referanser.BIDRAGSMOTTAKER),
         )
     }
 
     fun byggBarnInntektsgrunnlag(barn: IFellesBarnDto, referanse: String): GrunnlagDto? {
         return barn.inntekt?.let { beløp ->
                 GrunnlagDto(
-                    referanse = "Inntekt_Person_Søknadsbarn_$referanse",
+                    referanse = "Inntekt_$referanse",
                     type = Grunnlagstype.INNTEKT_RAPPORTERING_PERIODE,
                     innhold = objectMapper.valueToTree(
                         InntektsrapporteringPeriode(
