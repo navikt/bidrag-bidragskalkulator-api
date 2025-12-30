@@ -14,6 +14,7 @@ import java.math.BigDecimal
 import java.time.LocalDate
 
 private const val TYPE_SJABLON_UTVIDET_BARNETRYGD_PER_MND = "0042"
+private const val TYPE_SJABLON_SMÅBARNSTILLEGG = "0032"
 
 @Component
 class BeregningsgrunnlagMapper(
@@ -125,12 +126,16 @@ class BeregningsgrunnlagMapper(
             dto.barn.sumOf { it.kontantstøtte ?: BigDecimal.ZERO }
                 .multiply(BigDecimal.valueOf(12L))
 
+        val sjablontall = sjablonService.hentSjablontall()
+
         val utvidetBarnetrygdÅrlig = beregnÅrligUtvidetBarnetrygd(
-            sjablontall = sjablonService.hentSjablontall(),
+            sjablontall = sjablontall,
             utvidetBarnetrygd = dto.utvidetBarnetrygd
         )
 
-        return BmTilleggÅrlig(kontantstøtteÅrlig, utvidetBarnetrygdÅrlig)
+        val småbarnstillegg = hentSmåbarnstilleggÅrlig(sjablontall)
+
+        return BmTilleggÅrlig(kontantstøtteÅrlig, utvidetBarnetrygdÅrlig, småbarnstillegg)
     }
 
     private fun barnReferanse(index: Int) = "Person_Søknadsbarn_$index"
@@ -157,6 +162,16 @@ class BeregningsgrunnlagMapper(
             årlig
         }
     }
+
+    private fun hentSmåbarnstilleggÅrlig(sjablontall: List<Sjablontall>): BigDecimal {
+        val månedlig = sjablontall
+            .firstOrNull { it.typeSjablon == TYPE_SJABLON_SMÅBARNSTILLEGG }
+            ?.verdi
+            ?: BigDecimal.ZERO
+
+        return månedlig.multiply(BigDecimal.valueOf(12L))
+    }
+
 }
 
 data class PersonBeregningsgrunnlag(
@@ -176,6 +191,7 @@ data class PersonBeregningsgrunnlagAnonym(
 data class BmTilleggÅrlig(
     val kontantstøtteÅrlig: BigDecimal,
     val utvidetBarnetrygdÅrlig: BigDecimal,
+    val småbarnstilleggÅrlig: BigDecimal,
 )
 
 data class BeregningKontekst(
