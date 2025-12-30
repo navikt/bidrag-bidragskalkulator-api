@@ -281,7 +281,7 @@ class BeregningsgrunnlagBuilderTest {
         }
 
         @Test
-        fun `skal ikke legge til kapitalinntekt når nettoPositivKapitalinntekt er under 10 000`() {
+        fun `skal ikke legge til kapitalinntekt i BM inntekt når nettoPositivKapitalinntekt er under 10 000`() {
             val request: BeregningRequestDto = JsonUtils.lesJsonFil("/barnebidrag/beregning_et_barn.json")
 
             val kontekst = BeregningKontekst(
@@ -306,7 +306,7 @@ class BeregningsgrunnlagBuilderTest {
         }
 
         @Test
-        fun `skal legge til kapitalinntekt over 10 000 minus terskel`() {
+        fun `skal legge til kapitalinntekt over 10 000 minus terskel i BM inntekt`() {
             val request: BeregningRequestDto = JsonUtils.lesJsonFil("/barnebidrag/beregning_et_barn.json")
 
             val kontekst = BeregningKontekst(

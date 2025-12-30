@@ -108,4 +108,76 @@ class BeregningServiceValidationTest {
         val violations = validator.validate(request)
         assertTrue(violations.isEmpty(), "Forventet ingen valideringsfeil for høye inntekter")
     }
+
+    @Test
+    fun `skal returnere valideringsfeil dersom nettoPositivKapitalinntekt er negativ`() {
+        val request = BeregningRequestDto(
+            bidragsmottakerInntekt = ForelderInntektDto(
+                inntekt = BigDecimal("500000"),
+                nettoPositivKapitalinntekt = BigDecimal("-1")
+            ),
+            bidragspliktigInntekt = ForelderInntektDto(inntekt = BigDecimal("600000")),
+            barn = listOf(BarnMedIdentDto(personIdent, Samværsklasse.SAMVÆRSKLASSE_1, BidragsType.PLIKTIG))
+        )
+
+        val violations = validator.validate(request)
+
+        assertTrue(
+            violations.any {
+                it.propertyPath.toString() == "bidragsmottakerInntekt.nettoPositivKapitalinntekt" &&
+                        it.message.contains("kan ikke være negativ")
+            },
+            "Forventet valideringsfeil på bidragsmottakerInntekt.nettoPositivKapitalinntekt"
+        )
+    }
+
+    @Test
+    fun `skal returnere valideringsfeil dersom nettoPositivKapitalinntekt har mer enn 2 desimaler`() {
+        val request = BeregningRequestDto(
+            bidragsmottakerInntekt = ForelderInntektDto(
+                inntekt = BigDecimal("500000"),
+                nettoPositivKapitalinntekt = BigDecimal("10000.123") // 3 desimaler
+            ),
+            bidragspliktigInntekt = ForelderInntektDto(inntekt = BigDecimal("600000")),
+            barn = listOf(BarnMedIdentDto(personIdent, Samværsklasse.SAMVÆRSKLASSE_1, BidragsType.PLIKTIG))
+        )
+
+        val violations = validator.validate(request)
+
+        assertTrue(
+            violations.any {
+                it.propertyPath.toString() == "bidragsmottakerInntekt.nettoPositivKapitalinntekt" &&
+                        it.message.contains("maks 2 desimaler")
+            },
+            "Forventet valideringsfeil på bidragsmottakerInntekt.nettoPositivKapitalinntekt (desimaler)"
+        )
+    }
+
+    @Test
+    fun `skal defaulte nettoPositivKapitalinntekt til 0 når feltet ikke er oppgitt i request`() {
+        val jsonRequest = """
+        {
+          "bidragsmottakerInntekt": { "inntekt": 500000.00 },
+          "bidragspliktigInntekt": { "inntekt": 600000.00 },
+          "barn": [
+            {
+              "ident": "${personIdent.verdi}",
+              "samværsklasse": "SAMVÆRSKLASSE_1",
+              "bidragstype": "PLIKTIG"
+            }
+          ]
+        }
+    """.trimIndent()
+
+        val dto = objectMapper.readValue<BeregningRequestDto>(jsonRequest)
+
+        assertEquals(
+            BigDecimal.ZERO,
+            dto.bidragsmottakerInntekt.nettoPositivKapitalinntekt,
+            "Forventet at nettoPositivKapitalinntekt defaultes til 0 når feltet ikke er oppgitt"
+        )
+
+        assertTrue(validator.validate(dto).isEmpty())
+    }
+
 }

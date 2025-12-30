@@ -20,6 +20,8 @@ import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.YearMonth
 
+private const val KAPITALINNTEKT_TERSKEL = 10_000
+
 @Component
 class BeregningsgrunnlagBuilder(
     private val objectMapper: ObjectMapper = ObjectMapper().registerKotlinModule().registerModule(JavaTimeModule())
@@ -82,7 +84,7 @@ class BeregningsgrunnlagBuilder(
         val bidragspliktigInntekt = data.bidragspliktigInntekt
         val bidragsmottakerInntekt = data.bidragsmottakerInntekt
 
-        val bidragsmottakerNettoPositivKapitalinntekt = (bidragsmottakerInntekt.nettoPositivKapitalinntekt - 10000.toBigDecimal())
+        val bidragsmottakerNettoPositivKapitalinntekt = (bidragsmottakerInntekt.nettoPositivKapitalinntekt - KAPITALINNTEKT_TERSKEL.toBigDecimal())
             .coerceAtLeast(BigDecimal.ZERO)
 
         val inntektBidragsmottaker = bidragsmottakerInntekt.inntekt + bidragsmottakerNettoPositivKapitalinntekt
@@ -92,7 +94,7 @@ class BeregningsgrunnlagBuilder(
 
         val samletInntektBidragsmottaker = inntektBidragsmottaker + kontantstøtte + utvidetBarnetrygd + småbarnstillegg
 
-        val bidragspliktigNettoPositivKapitalinntekt = (bidragspliktigInntekt.nettoPositivKapitalinntekt - 10000.toBigDecimal())
+        val bidragspliktigNettoPositivKapitalinntekt = (bidragspliktigInntekt.nettoPositivKapitalinntekt - KAPITALINNTEKT_TERSKEL.toBigDecimal())
             .coerceAtLeast(BigDecimal.ZERO)
 
         val inntektBidragspliktig = bidragspliktigInntekt.inntekt + bidragspliktigNettoPositivKapitalinntekt
