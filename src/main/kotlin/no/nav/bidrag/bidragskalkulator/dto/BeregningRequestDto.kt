@@ -89,8 +89,15 @@ data class BeregningRequestDto(
         implementation = UtvidetBarnetrygdDto::class
     )
     override val utvidetBarnetrygd: UtvidetBarnetrygdDto? = null,
+
+    @param:Schema(
+        description = "Angir om bidragsmottaker mottar småbarnstillegg (behandles tilsvarende utvidet barnetrygd).",
+        required = true,
+        example = "false"
+    )
+    override val småbarnstillegg: Boolean = false,
 ) : FellesBeregningRequestDto<BarnMedIdentDto>(
-    inntektForelder1, inntektForelder2, barn, dittBoforhold, medforelderBoforhold, utvidetBarnetrygd
+    inntektForelder1, inntektForelder2, barn, dittBoforhold, medforelderBoforhold, utvidetBarnetrygd, småbarnstillegg
 )
 
 @Schema(description = "Boforholdsinformasjon for en forelder")
@@ -134,4 +141,5 @@ abstract class FellesBeregningRequestDto<T : IFellesBarnDto>(
     open val dittBoforhold: BoforholdDto? = null,
     open val medforelderBoforhold: BoforholdDto? = null,
     open val utvidetBarnetrygd: UtvidetBarnetrygdDto? = null,
+    open val småbarnstillegg: Boolean = false,
     )
