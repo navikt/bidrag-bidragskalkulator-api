@@ -288,6 +288,38 @@ class BeregningsgrunnlagMapperTest {
         assertThat(beløp).isEqualByComparingTo(forventet)
     }
 
+    @Test
+    fun `skal ikke legge småbarnstillegg til BM inntekt når småbarnstillegg er false`() {
+        val base: BeregningRequestDto = JsonUtils.lesJsonFil("/barnebidrag/beregning_et_barn.json")
+
+        val request = base.copy(
+            småbarnstillegg = false,
+            utvidetBarnetrygd = null,
+            barn = base.barn.map { it.copy(kontantstøtte = null) }
+        )
+
+        // Sjablon finnes, men skal IKKE brukes når flagget er false
+        every { sjablonService.hentSjablontall() } returns listOf(
+            no.nav.bidrag.commons.service.sjablon.Sjablontall(
+                typeSjablon = "0032",
+                verdi = BigDecimal("1500"),
+                datoFom = null,
+                datoTom = null
+            )
+        )
+
+        val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(request)
+
+        val beløp = result.first().grunnlag.grunnlagListe
+            .first { it.referanse == "Inntekt_Bidragsmottaker" }
+            .innholdTilObjekt<InntektsrapporteringPeriode>()
+            .beløp
+
+        val forventet = BigDecimal.valueOf(request.inntektForelder2).setScale(2)
+
+        assertThat(beløp).isEqualByComparingTo(forventet)
+    }
+
     private fun assertBarnetsAlderOgReferanse(
         grunnlagOgBarnInformasjon: PersonBeregningsgrunnlag,
         beregningRequest: BeregningRequestDto,
