@@ -118,8 +118,8 @@ class BeregningsgrunnlagMapper(
         }
     }
 
-    /** Beregner årlig tillegg for bidragsmottaker basert på kontantstøtte og utvidet barnetrygd for alle barn i beregningsgrunnlaget.
-     * Kontantstøtte og årlig utvidet barnetrygd er en del av inntekten til bidragsmottaker, uansett hvilket barn det gjelder
+    /** Beregner årlig tillegg for bidragsmottaker basert på kontantstøtte, utvidet barnetrygd og småbarnstillegg for alle barn i beregningsgrunnlaget.
+     * Kontantstøtte, årlig utvidet barnetrygd og småbarnstillegg er en del av inntekten til bidragsmottaker, uansett hvilket barn det gjelder
      */
     private fun beregnBmTilleggÅrlig(dto: FellesBeregningRequestDto<*>): BmTilleggÅrlig {
         val kontantstøtteÅrlig =
