@@ -49,7 +49,7 @@ class BeregningControllerTest : AbstractControllerTest() {
 
         postRequest("/api/v1/beregning/barnebidrag/åpen", request)
             .andExpect(status().isBadRequest)
-            .andExpect(jsonPath("$.detail").value("inntektForelder1: Inntekt for forelder 1 kan ikke være negativ"))
+            .andExpect(jsonPath("$.detail").value("bidragsmottakerInntekt.inntekt: Inntekt kan ikke være negativ"))
     }
 
     @Test
