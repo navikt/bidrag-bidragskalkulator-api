@@ -270,6 +270,52 @@ class BeregningControllerTest : AbstractControllerTest() {
             )
     }
 
+    @Test
+    fun `skal gi 400 når barnetilsyn er satt men verken månedligUtgift eller plassType er gitt`() {
+        val request = mockGyldigÅpenRequest.copy(
+            barn = mockGyldigÅpenRequest.barn.mapIndexed { idx, barn ->
+                if (idx == 0) {
+                    barn.copy(
+                        barnetilsyn = BarnetilsynDto(
+                            månedligUtgift = null,
+                            plassType = null
+                        )
+                    )
+                } else barn
+            }
+        )
+
+        postRequest("/api/v1/beregning/barnebidrag/åpen", request)
+            .andExpect(status().isBadRequest)
+            .andExpect(
+                jsonPath("$.detail").value(
+                    "Ugyldig barnetilsyn: må oppgi enten månedligUtgift eller plassType når barnetilsyn er satt."
+                )
+            )
+
+        verify(exactly = 0) { runBlocking { beregningService.beregnBarnebidragAnonym(any()) } }
+    }
+
+    @Test
+    fun `skal gi 200 når barnetilsyn har kun plassType=DELTID`() {
+        val request = mockGyldigÅpenRequest.copy(
+            barn = mockGyldigÅpenRequest.barn.mapIndexed { idx, barn ->
+                if (idx == 0) {
+                    barn.copy(
+                        barnetilsyn = BarnetilsynDto(
+                            månedligUtgift = null,
+                            plassType = Tilsynstype.DELTID
+                        )
+                    )
+                } else barn
+            }
+        )
+
+        postRequest("/api/v1/beregning/barnebidrag/åpen", request)
+            .andExpect(status().isOk)
+
+        verify(exactly = 1) { runBlocking { beregningService.beregnBarnebidragAnonym(any()) } }
+    }
 
     companion object TestData {
         private val personIdent = genererPersonident()
