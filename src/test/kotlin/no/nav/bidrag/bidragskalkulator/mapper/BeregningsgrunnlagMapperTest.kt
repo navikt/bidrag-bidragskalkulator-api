@@ -3,11 +3,13 @@ package no.nav.bidrag.bidragskalkulator.mapper
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import no.nav.bidrag.bidragskalkulator.dto.BarnetilsynDto
 import no.nav.bidrag.bidragskalkulator.dto.BeregningRequestDto
 import no.nav.bidrag.bidragskalkulator.dto.UtvidetBarnetrygdDto
 import no.nav.bidrag.bidragskalkulator.service.PersonService
 import no.nav.bidrag.bidragskalkulator.service.SjablonService
 import no.nav.bidrag.bidragskalkulator.utils.JsonUtils
+import no.nav.bidrag.domene.enums.barnetilsyn.Tilsynstype
 import no.nav.bidrag.domene.enums.grunnlag.Grunnlagstype
 import no.nav.bidrag.domene.enums.vedtak.Stønadstype
 import no.nav.bidrag.generer.testdata.person.genererFødselsnummer
@@ -319,7 +321,51 @@ class BeregningsgrunnlagMapperTest {
         assertThat(beløp).isEqualByComparingTo(forventet)
     }
 
-    private fun assertBarnetsAlderOgReferanse(
+    @Test
+    fun `skal legge til grunnlag for mottatt barnepassplass når barnetilsyn plassType er satt`() {
+        val base: BeregningRequestDto = JsonUtils.lesJsonFil("/barnebidrag/beregning_et_barn.json")
+
+        val request = base.copy(
+            barn = base.barn.map { it.copy(barnetilsyn = BarnetilsynDto(
+                månedligUtgift = null,
+                plassType = Tilsynstype.DELTID,
+            ))
+            }
+        )
+        val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(request)
+
+        val barnetilsylMedStønadGrunnlag = result.first().grunnlag.grunnlagListe
+            .find { it.type == Grunnlagstype.BARNETILSYN_MED_STØNAD_PERIODE }
+
+        val faktiskUtgiftGrunnlag = result.first().grunnlag.grunnlagListe
+            .find { it.type == Grunnlagstype.FAKTISK_UTGIFT_PERIODE }
+
+        assertNotNull(barnetilsylMedStønadGrunnlag)
+        assertNull(faktiskUtgiftGrunnlag)
+    }
+
+    @Test
+    fun `skal ikke legge til barnetilsyn-grunnlag når barnetilsyn er null`() {
+        val base: BeregningRequestDto = JsonUtils.lesJsonFil("/barnebidrag/beregning_et_barn.json")
+
+        val request = base.copy(
+            barn = base.barn.map { it.copy(barnetilsyn = null)
+            }
+        )
+        val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(request)
+
+        val barnetilsylMedStønadGrunnlag = result.first().grunnlag.grunnlagListe
+            .find { it.type == Grunnlagstype.BARNETILSYN_MED_STØNAD_PERIODE }
+
+        val faktiskUtgiftGrunnlag = result.first().grunnlag.grunnlagListe
+            .find { it.type == Grunnlagstype.FAKTISK_UTGIFT_PERIODE }
+
+        assertNull(barnetilsylMedStønadGrunnlag)
+        assertNull(faktiskUtgiftGrunnlag)
+    }
+
+
+        private fun assertBarnetsAlderOgReferanse(
         grunnlagOgBarnInformasjon: PersonBeregningsgrunnlag,
         beregningRequest: BeregningRequestDto,
         index: Int
