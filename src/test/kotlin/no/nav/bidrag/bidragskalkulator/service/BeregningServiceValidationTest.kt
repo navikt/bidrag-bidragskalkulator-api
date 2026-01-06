@@ -13,6 +13,9 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import com.fasterxml.jackson.databind.JsonMappingException
 import no.nav.bidrag.bidragskalkulator.dto.ForelderInntektDto
+import no.nav.bidrag.bidragskalkulator.dto.KontantstøtteDto
+import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.BarnMedAlderDto
+import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningRequestDto
 import no.nav.bidrag.generer.testdata.person.genererPersonident
 import java.math.BigDecimal
 

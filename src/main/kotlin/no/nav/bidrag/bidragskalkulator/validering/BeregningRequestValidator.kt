@@ -45,8 +45,9 @@ object BeregningRequestValidator {
         // Kontantstøtte
         barneliste.forEachIndexed { index, barn ->
             val barnKontantstøtte = barn.kontantstøtte
+            val belop = barnKontantstøtte?.beløp
 
-            if (barnKontantstøtte != null) {
+            if (belop != null) {
                 val alder = (barn as? BarnMedAlderDto)?.alder
                 if (alder != null && alder != 1) {
                     feil("Kontantstøtte kan kun settes for barn som er 1 år (barn[$index] har alder=$alder)")

@@ -1,6 +1,7 @@
 package no.nav.bidrag.bidragskalkulator.dto
 
 import io.swagger.v3.oas.annotations.media.Schema
+import jakarta.annotation.Nullable
 import jakarta.validation.Valid
 import jakarta.validation.constraints.DecimalMin
 import jakarta.validation.constraints.Digits
@@ -40,12 +41,31 @@ data class BarnetilsynDto(
     val plassType: Tilsynstype? = null,
 )
 
+@Schema(description = "Opplysninger om kontantstøtte knyttet til barnet.")
+data class KontantstøtteDto(
+    @field:Min(0)
+    @field:DecimalMin(value = "0.00", inclusive = true, message = "Kontantstøtte kan ikke være negativ")
+    @param:Schema(
+        description = "Kontantstøtte per måned knyttet til barnet (relevant kun når alder = 1). " +
+            "Beløpet legges til inntekt for bidragsmottaker (BM).",
+        example = "7500",
+        required = false)
+    val beløp: BigDecimal? = null,
+
+    @param:Schema(
+        description = "Angir om kontantstøtte skal deles mellom foreldrene.",
+        example = "false",
+        required = false
+    )
+    val deles: Boolean? = null
+)
+
 interface IFellesBarnDto {
     val bidragstype: BidragsType
     val samværsklasse: Samværsklasse
     val barnetilsyn: BarnetilsynDto?
     val inntekt: BigDecimal?
-    val kontantstøtte: BigDecimal?
+    val kontantstøtte: KontantstøtteDto?
 }
 
 @Schema(description = "Informasjon om et barn i beregningen")
@@ -78,13 +98,12 @@ data class BarnMedIdentDto(
     override val inntekt: BigDecimal? = null,
 
     @param:Schema(
-        description = "Kontantstøtte per måned knyttet til barnet (relevant kun når alder = 1). " +
-                "Beløpet legges til inntekt for bidragsmottaker (BM).",
-        example = "7500"
+        description ="Kontantstøtte knyttet til dette barnet.",
+        required = false,
+        nullable = true,
+        implementation = KontantstøtteDto::class
     )
-    @field:Min(value = 0)
-    @field:DecimalMin(value = "0.00", inclusive = true, message = "Kontantstøtte kan ikke være negativ")
-    override val kontantstøtte: BigDecimal? = null,
+    override val kontantstøtte: KontantstøtteDto? = null,
 ) : IFellesBarnDto
 
 @Schema(description = "Modellen brukes til å beregne barnebidragbasert på barnets id")

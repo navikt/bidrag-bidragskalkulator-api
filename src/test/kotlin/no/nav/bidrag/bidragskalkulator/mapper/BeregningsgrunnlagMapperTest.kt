@@ -5,6 +5,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import no.nav.bidrag.bidragskalkulator.dto.BarnetilsynDto
 import no.nav.bidrag.bidragskalkulator.dto.BeregningRequestDto
+import no.nav.bidrag.bidragskalkulator.dto.KontantstøtteDto
 import no.nav.bidrag.bidragskalkulator.dto.UtvidetBarnetrygdDto
 import no.nav.bidrag.bidragskalkulator.service.PersonService
 import no.nav.bidrag.bidragskalkulator.service.SjablonService
@@ -132,7 +133,7 @@ class BeregningsgrunnlagMapperTest {
         // Legg kontantstøtte på alle barn (måned)
         val oppdatertRequest = beregningRequest.copy(
             barn = beregningRequest.barn.map { b ->
-                b.copy(kontantstøtte = BigDecimal("100"))
+                b.copy(kontantstøtte = KontantstøtteDto(beløp = BigDecimal("100")))
             }
         )
 
@@ -252,7 +253,7 @@ class BeregningsgrunnlagMapperTest {
 
         // kontantstøtte pr måned på barnet
         val request = base.copy(
-            barn = base.barn.map { it.copy(kontantstøtte = BigDecimal("100")) },
+            barn = base.barn.map { it.copy(kontantstøtte = KontantstøtteDto(beløp = BigDecimal("100"))) },
             utvidetBarnetrygd = UtvidetBarnetrygdDto(true, false),
             småbarnstillegg = true
         )

@@ -20,10 +20,9 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPat
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.math.BigDecimal
 import io.mockk.verify
-import no.nav.bidrag.bidragskalkulator.controller.BeregningControllerTest.TestData.mockGyldigÅpenRequest
-import no.nav.bidrag.bidragskalkulator.dto.BarneRelasjonDto
 import no.nav.bidrag.bidragskalkulator.dto.BarnetilsynDto
 import no.nav.bidrag.bidragskalkulator.dto.ForelderInntektDto
+import no.nav.bidrag.bidragskalkulator.dto.KontantstøtteDto
 import no.nav.bidrag.bidragskalkulator.dto.UtvidetBarnetrygdDto
 import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningsresultatBarnDto
 import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningsresultatDto
@@ -147,7 +146,7 @@ class BeregningControllerTest : AbstractControllerTest() {
                     alder = 2,
                     samværsklasse = Samværsklasse.SAMVÆRSKLASSE_2,
                     bidragstype = BidragsType.MOTTAKER,
-                    kontantstøtte = BigDecimal("500")
+                    kontantstøtte = KontantstøtteDto(beløp = BigDecimal("500"))
                 ),
             )
         )
@@ -167,7 +166,7 @@ class BeregningControllerTest : AbstractControllerTest() {
                     alder = 1,
                     samværsklasse = Samværsklasse.SAMVÆRSKLASSE_2,
                     bidragstype = BidragsType.MOTTAKER,
-                    kontantstøtte = BigDecimal("500")
+                    kontantstøtte = KontantstøtteDto(beløp = BigDecimal("500"))
                 ),
             )
         )
@@ -317,7 +316,7 @@ class BeregningControllerTest : AbstractControllerTest() {
                     bidragstype = BidragsType.PLIKTIG,
                     barnetilsyn = BarnetilsynDto(månedligUtgift = BigDecimal("1200")),
                     inntekt = BigDecimal.ZERO,
-                    kontantstøtte = BigDecimal.ZERO
+                    kontantstøtte = KontantstøtteDto(beløp = BigDecimal.ZERO)
                 )
             ),
             dittBoforhold = BoforholdDto(antallBarnBorFast = 0, antallBarnDeltBosted = 0, borMedAnnenVoksen = false),
