@@ -23,6 +23,7 @@ object BeregningRequestValidator {
         val barneliste = dto.barn
 
         // Barnetilsyn-regler:
+
         barneliste
             .filterIsInstance<BarnMedAlderDto>()
             .forEach { barn ->
@@ -34,10 +35,14 @@ object BeregningRequestValidator {
                 }
 
                 // 2) Enten/eller: kan ikke sende både månedligUtgift og plassType
-                val harmånedligUtgift = barnetilsyn.månedligUtgift != null
+                val harMånedligUtgift = barnetilsyn.månedligUtgift != null
                 val harPlassType = barnetilsyn.plassType != null
-                if (harmånedligUtgift && harPlassType) {
-                    feil("Ugyldig barnetilsyn: kan ikke oppgi både månedligUtgift og plassType samtidig.")
+
+                when {
+                    harMånedligUtgift && harPlassType ->
+                        feil("Ugyldig barnetilsyn: kan ikke oppgi både månedligUtgift og plassType samtidig.")
+                    !harMånedligUtgift && !harPlassType ->
+                        feil("Ugyldig barnetilsyn: må oppgi enten månedligUtgift eller plassType når barnetilsyn er satt.")
                 }
             }
 

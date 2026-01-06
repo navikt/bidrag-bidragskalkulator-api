@@ -334,13 +334,13 @@ class BeregningsgrunnlagMapperTest {
         )
         val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(request)
 
-        val barnetilsylMedStønadGrunnlag = result.first().grunnlag.grunnlagListe
+        val barnetilsynMedStønadGrunnlag = result.first().grunnlag.grunnlagListe
             .find { it.type == Grunnlagstype.BARNETILSYN_MED_STØNAD_PERIODE }
 
         val faktiskUtgiftGrunnlag = result.first().grunnlag.grunnlagListe
             .find { it.type == Grunnlagstype.FAKTISK_UTGIFT_PERIODE }
 
-        assertNotNull(barnetilsylMedStønadGrunnlag)
+        assertNotNull(barnetilsynMedStønadGrunnlag)
         assertNull(faktiskUtgiftGrunnlag)
     }
 
@@ -354,13 +354,13 @@ class BeregningsgrunnlagMapperTest {
         )
         val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(request)
 
-        val barnetilsylMedStønadGrunnlag = result.first().grunnlag.grunnlagListe
+        val barnetilsynMedStønadGrunnlag = result.first().grunnlag.grunnlagListe
             .find { it.type == Grunnlagstype.BARNETILSYN_MED_STØNAD_PERIODE }
 
         val faktiskUtgiftGrunnlag = result.first().grunnlag.grunnlagListe
             .find { it.type == Grunnlagstype.FAKTISK_UTGIFT_PERIODE }
 
-        assertNull(barnetilsylMedStønadGrunnlag)
+        assertNull(barnetilsynMedStønadGrunnlag)
         assertNull(faktiskUtgiftGrunnlag)
     }
 

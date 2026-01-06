@@ -372,7 +372,7 @@ class BeregningsgrunnlagBuilderTest {
 
         @Test
         fun `skal bygge barnetilsyn med stønad med riktig grunnlagstype og referanser`() {
-            val resultat = builder.byggMotattBarntilsyn(
+            val resultat = builder.byggMottattBarnetilsyn(
                 "Person_Søknadsbarn_0", Tilsynstype.DELTID
             )
 

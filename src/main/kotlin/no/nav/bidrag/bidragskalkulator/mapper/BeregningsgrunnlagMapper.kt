@@ -112,7 +112,7 @@ class BeregningsgrunnlagMapper(
 
             barn.barnetilsyn?.let {
                 it.månedligUtgift?.let { barnetilsynsutgift -> add(beregningsgrunnlagBuilder.byggMottattFaktiskUtgift(fødselsdato, barnReferanse, barnetilsynsutgift)) }
-                it.plassType?.let { tilsynstype -> add(beregningsgrunnlagBuilder.byggMotattBarntilsyn(barnReferanse, tilsynstype)) }
+                it.plassType?.let { tilsynstype -> add(beregningsgrunnlagBuilder.byggMottattBarnetilsyn(barnReferanse, tilsynstype)) }
             }
 
             add(beregningsgrunnlagBuilder.byggSamværsgrunnlag(barn.samværsklasse, barnReferanse))

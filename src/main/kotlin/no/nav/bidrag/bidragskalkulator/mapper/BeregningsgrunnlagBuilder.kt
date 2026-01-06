@@ -192,7 +192,7 @@ class BeregningsgrunnlagBuilder(
         gjelderReferanse = Referanser.BIDRAGSMOTTAKER
     )
 
-    fun byggMotattBarntilsyn(barnReferanse: String, plassType: Tilsynstype): GrunnlagDto = GrunnlagDto(
+    fun byggMottattBarnetilsyn(barnReferanse: String, plassType: Tilsynstype): GrunnlagDto = GrunnlagDto(
         referanse = "Mottatt_Barnetilsyn_$barnReferanse",
         type = Grunnlagstype.BARNETILSYN_MED_STØNAD_PERIODE,
         innhold = objectMapper.valueToTree(
