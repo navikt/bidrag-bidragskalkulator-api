@@ -358,7 +358,7 @@ class BeregningsgrunnlagBuilderTest {
             val barn = beregningRequest.barn.first()
 
             val resultat = builder.byggMottattFaktiskUtgift(
-                barn.ident.fødselsdato(), "Person_Søknadsbarn_0", barn.barnetilsynsutgift!!
+                barn.ident.fødselsdato(), "Person_Søknadsbarn_0", barn.barnetilsyn?.månedligUtgift ?: BigDecimal.ZERO
             )
 
             assertThat(resultat.type).isEqualTo(Grunnlagstype.FAKTISK_UTGIFT_PERIODE)

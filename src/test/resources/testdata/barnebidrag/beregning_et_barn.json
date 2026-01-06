@@ -10,7 +10,9 @@
       "ident": "{BARN1_FNR}",
       "samværsklasse": "SAMVÆRSKLASSE_1",
       "bidragstype": "PLIKTIG",
-      "barnetilsynsutgift": 2000
+      "barnetilsyn": {
+        "månedligUtgift": 2000
+      }
     }
   ],
   "dittBoforhold": {
