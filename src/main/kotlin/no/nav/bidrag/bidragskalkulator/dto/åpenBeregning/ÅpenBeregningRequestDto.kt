@@ -30,9 +30,11 @@ data class BarnMedAlderDto(
     @param:Schema(description = "Angir om den påloggede personen er pliktig eller mottaker for dette barnet", required = true)
     override val bidragstype: BidragsType,
 
-    @field:Nullable
-    @param:Schema(description = "Utgifter i kroner per måned som den bidragsmottaker har til barnetilsyn for dette barnet", required = false)
-    override val barnetilsynsutgift: BigDecimal? = null,
+    @param:Schema(description = "Opplysninger om barnetilsyn for dette barnet.",
+        required = false,
+        nullable = true,
+        implementation = BarnetilsynDto::class)
+    override val barnetilsyn: BarnetilsynDto? = null,
 
     @field:Nullable
     @param:Schema(
