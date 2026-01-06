@@ -178,6 +178,26 @@ class BeregningControllerTest : AbstractControllerTest() {
     }
 
     @Test
+    fun `skal returnere 400 hvis kontantstøtte deles er satt uten beløp`() {
+        val request = mockGyldigÅpenRequest.copy(
+            barn = listOf(
+                BarnMedAlderDto(
+                    alder = 1,
+                    samværsklasse = Samværsklasse.SAMVÆRSKLASSE_2,
+                    bidragstype = BidragsType.MOTTAKER,
+                    kontantstøtte = KontantstøtteDto(beløp = null, deles = true)
+                )
+            )
+        )
+
+        postRequest("/api/v1/beregning/barnebidrag/åpen", request)
+            .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.detail")
+                .value("kontantstøtte.deles kan ikke settes uten at beløp også er satt (barn[0])"))
+    }
+
+
+    @Test
     fun `skal returnere 400 nar utvidetBarnetrygd delerMedMedforelder er true men harUtvidetBarnetrygd er false`() {
         val request = mockGyldigÅpenRequest.copy(
             utvidetBarnetrygd = UtvidetBarnetrygdDto(
@@ -289,6 +309,7 @@ class BeregningControllerTest : AbstractControllerTest() {
 
         verify(exactly = 1) { runBlocking { beregningService.beregnBarnebidragAnonym(any()) } }
     }
+
 
     companion object TestData {
         private val personIdent = genererPersonident()

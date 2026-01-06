@@ -46,6 +46,11 @@ object BeregningRequestValidator {
         barneliste.forEachIndexed { index, barn ->
             val barnKontantstøtte = barn.kontantstøtte
             val belop = barnKontantstøtte?.beløp
+            val deles = barnKontantstøtte?.deles
+
+            if (deles != null && belop == null) {
+                feil("kontantstøtte.deles kan ikke settes uten at beløp også er satt (barn[$index])")
+            }
 
             if (belop != null) {
                 val alder = (barn as? BarnMedAlderDto)?.alder
