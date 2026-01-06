@@ -2,6 +2,7 @@ package no.nav.bidrag.bidragskalkulator.mapper
 
 import no.nav.bidrag.bidragskalkulator.dto.*
 import no.nav.bidrag.bidragskalkulator.utils.JsonUtils
+import no.nav.bidrag.domene.enums.barnetilsyn.Tilsynstype
 import no.nav.bidrag.domene.enums.grunnlag.Grunnlagstype
 import no.nav.bidrag.domene.enums.person.Bostatuskode
 import no.nav.bidrag.transport.behandling.felles.grunnlag.BostatusPeriode
@@ -337,7 +338,7 @@ class BeregningsgrunnlagBuilderTest {
     inner class SamvaersgrunnlagTest {
 
         @Test
-        fun `skal bygge samværsgrunnlag med korrekt klasse og referanser`() {
+        fun `skal bygge samværsgrunnlag med korrekt klasse`() {
             val beregningRequest: BeregningRequestDto = JsonUtils.lesJsonFil("/barnebidrag/beregning_et_barn.json")
 
             val result = builder.byggSamværsgrunnlag(beregningRequest.barn.first().samværsklasse, "Person_Søknadsbarn_0")
@@ -353,7 +354,7 @@ class BeregningsgrunnlagBuilderTest {
     inner class MottattFaktiskUtgiftgrunnlagTest {
 
         @Test
-        fun `skal bygge mottatt faktisk utgift med riktig grunnlagstype og referanser`() {
+        fun `skal bygge mottatt faktisk utgift med riktig grunnlagstype`() {
             val beregningRequest: BeregningRequestDto = JsonUtils.lesJsonFil("/barnebidrag/beregning_et_barn.json")
             val barn = beregningRequest.barn.first()
 
@@ -362,6 +363,20 @@ class BeregningsgrunnlagBuilderTest {
             )
 
             assertThat(resultat.type).isEqualTo(Grunnlagstype.FAKTISK_UTGIFT_PERIODE)
+            assertThat(resultat.gjelderReferanse).isEqualTo(BeregningsgrunnlagMapper.BIDRAGSMOTTAKER)
+        }
+    }
+
+    @Nested
+    inner class BarnetilsynMedStønadgrunnlagTest {
+
+        @Test
+        fun `skal bygge barnetilsyn med stønad med riktig grunnlagstype og referanser`() {
+            val resultat = builder.byggMotattBarntilsyn(
+                "Person_Søknadsbarn_0", Tilsynstype.DELTID
+            )
+
+            assertThat(resultat.type).isEqualTo(Grunnlagstype.BARNETILSYN_MED_STØNAD_PERIODE)
             assertThat(resultat.gjelderReferanse).isEqualTo(BeregningsgrunnlagMapper.BIDRAGSMOTTAKER)
         }
     }
