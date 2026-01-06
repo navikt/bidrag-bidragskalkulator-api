@@ -37,12 +37,8 @@ object BeregningRequestValidator {
                 // 2) Enten/eller: kan ikke sende både månedligUtgift og plassType
                 val harMånedligUtgift = barnetilsyn.månedligUtgift != null
                 val harPlassType = barnetilsyn.plassType != null
-
-                when {
-                    harMånedligUtgift && harPlassType ->
-                        feil("Ugyldig barnetilsyn: kan ikke oppgi både månedligUtgift og plassType samtidig.")
-                    !harMånedligUtgift && !harPlassType ->
-                        feil("Ugyldig barnetilsyn: må oppgi enten månedligUtgift eller plassType når barnetilsyn er satt.")
+                if (harMånedligUtgift && harPlassType) {
+                    feil("Ugyldig barnetilsyn: kan ikke oppgi både månedligUtgift og plassType samtidig.")
                 }
             }
 
