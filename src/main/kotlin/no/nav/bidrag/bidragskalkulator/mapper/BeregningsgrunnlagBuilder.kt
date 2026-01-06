@@ -3,10 +3,15 @@ package no.nav.bidrag.bidragskalkulator.mapper
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import no.nav.bidrag.beregn.barnebidrag.bo.BarnetilsynMedStønad
+import no.nav.bidrag.bidragskalkulator.dto.BarnetilsynDto
 import no.nav.bidrag.bidragskalkulator.dto.BidragsType
 import no.nav.bidrag.bidragskalkulator.dto.IFellesBarnDto
 import no.nav.bidrag.bidragskalkulator.mapper.BeregningsgrunnlagMapper.Referanser
 import no.nav.bidrag.bidragskalkulator.utils.kalkulerAlder
+import no.nav.bidrag.commons.service.sjablon.Barnetilsyn
+import no.nav.bidrag.domene.enums.barnetilsyn.Skolealder
+import no.nav.bidrag.domene.enums.barnetilsyn.Tilsynstype
 import no.nav.bidrag.domene.enums.beregning.Samværsklasse
 import no.nav.bidrag.domene.enums.grunnlag.Grunnlagstype
 import no.nav.bidrag.domene.enums.inntekt.Inntektsrapportering
@@ -180,6 +185,22 @@ class BeregningsgrunnlagBuilder(
                 fødselsdatoBarn = barnFødselsdato,
                 faktiskUtgiftBeløp = barnetilsynsutgift,
                 kostpengerBeløp = BigDecimal.ZERO,
+                manueltRegistrert = true,
+            )
+        ),
+        gjelderBarnReferanse = barnReferanse,
+        gjelderReferanse = Referanser.BIDRAGSMOTTAKER
+    )
+
+    fun byggMottattBarnetilsyn(barnReferanse: String, plassType: Tilsynstype): GrunnlagDto = GrunnlagDto(
+        referanse = "Mottatt_Barnetilsyn_$barnReferanse",
+        type = Grunnlagstype.BARNETILSYN_MED_STØNAD_PERIODE,
+        innhold = objectMapper.valueToTree(
+            BarnetilsynMedStønadPeriode(
+                periode =
+                    ÅrMånedsperiode(YearMonth.now(), null),
+                tilsynstype = plassType,
+                skolealder = Skolealder.UNDER,
                 manueltRegistrert = true,
             )
         ),

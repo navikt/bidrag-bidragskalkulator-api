@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Digits
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Min
+import no.nav.bidrag.domene.enums.barnetilsyn.Tilsynstype
 import no.nav.bidrag.domene.enums.beregning.Samværsklasse
 import no.nav.bidrag.domene.ident.Personident
 import java.math.BigDecimal
@@ -17,12 +18,53 @@ enum class BidragsType {
     MOTTAKER // Pålogget person er bidragsmottaker
 }
 
+@Schema(
+    description = "Opplysninger om barnepass/barnetilsyn for barnet. " +
+            "Enten oppgis faktisk månedlig utgift (beløp), eller så oppgis at det mottas stønad til barnetilsyn med plass-type."
+)
+data class BarnetilsynDto(
+    @param:Schema(
+        description = "Månedlig utgift i kroner. Brukes når det ikke mottas stønad til barnetilsyn.",
+        example = "2000",
+        required = false
+    )
+    @field:Min(0)
+    @field:DecimalMin(value = "0.00", inclusive = true, message = "Barnetilsynutgift kan ikke være negativ")
+    val månedligUtgift: BigDecimal? = null,
+
+    @param:Schema(
+        description = "Plass-type (heltid/deltid) når det mottas stønad til barnetilsyn.",
+        required = false,
+        ref = "#/components/schemas/Tilsynstype"
+    )
+    val plassType: Tilsynstype? = null,
+)
+
+@Schema(description = "Opplysninger om kontantstøtte knyttet til barnet.")
+data class KontantstøtteDto(
+    @field:Min(0)
+    @field:DecimalMin(value = "0.00", inclusive = true, message = "Kontantstøtte kan ikke være negativ")
+    @param:Schema(
+        description = "Kontantstøtte per måned knyttet til barnet (relevant kun når alder = 1). " +
+            "Beløpet legges til inntekt for bidragsmottaker (BM).",
+        example = "7500",
+        required = false)
+    val beløp: BigDecimal? = null,
+
+    @param:Schema(
+        description = "Angir om kontantstøtte skal deles mellom foreldrene.",
+        example = "false",
+        required = false
+    )
+    val deles: Boolean? = null
+)
+
 interface IFellesBarnDto {
     val bidragstype: BidragsType
     val samværsklasse: Samværsklasse
-    val barnetilsynsutgift: BigDecimal?
+    val barnetilsyn: BarnetilsynDto?
     val inntekt: BigDecimal?
-    val kontantstøtte: BigDecimal?
+    val kontantstøtte: KontantstøtteDto?
 }
 
 @Schema(description = "Informasjon om et barn i beregningen")
@@ -39,10 +81,11 @@ data class BarnMedIdentDto(
     @param:Schema(description = "Angir om den påloggede personen er pliktig eller mottaker for dette barnet", required = true)
     override val bidragstype: BidragsType,
 
-    @param:Schema(description = "Utgifter i kroner per måned som den bidragsmottaker har til barnetilsyn for dette barnet", required = false, example = "2000")
-    @field:Min(value = 0)
-    @field:DecimalMin(value = "0.00", inclusive = true, message = "Barnetilsynutgift kan ikke være negativ")
-    override val barnetilsynsutgift: BigDecimal? = null,
+    @param:Schema(description = "Opplysninger om barnetilsyn for dette barnet.",
+        required = false,
+        nullable = true,
+        implementation = BarnetilsynDto::class)
+    override val barnetilsyn: BarnetilsynDto? = null,
 
     @param:Schema(
         description = "Inntekt i kroner per måned for dette barnet. Oppgis kun hvis barnet har egen inntekt.",
@@ -54,13 +97,12 @@ data class BarnMedIdentDto(
     override val inntekt: BigDecimal? = null,
 
     @param:Schema(
-        description = "Kontantstøtte per måned knyttet til barnet (relevant kun når alder = 1). " +
-                "Beløpet legges til inntekt for bidragsmottaker (BM).",
-        example = "7500"
+        description ="Kontantstøtte knyttet til dette barnet.",
+        required = false,
+        nullable = true,
+        implementation = KontantstøtteDto::class
     )
-    @field:Min(value = 0)
-    @field:DecimalMin(value = "0.00", inclusive = true, message = "Kontantstøtte kan ikke være negativ")
-    override val kontantstøtte: BigDecimal? = null,
+    override val kontantstøtte: KontantstøtteDto? = null,
 ) : IFellesBarnDto
 
 @Schema(description = "Modellen brukes til å beregne barnebidragbasert på barnets id")

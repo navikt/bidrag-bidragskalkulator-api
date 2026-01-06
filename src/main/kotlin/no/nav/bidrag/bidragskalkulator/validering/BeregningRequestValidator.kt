@@ -7,6 +7,7 @@ import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.BarnMedAlderDto
 import no.nav.bidrag.bidragskalkulator.exception.UgyldigBeregningRequestException
 
 object BeregningRequestValidator {
+    private const val MAKS_ALDER_FOR_BARNETILSYN = 10
 
     fun <T : IFellesBarnDto, R : FellesBeregningRequestDto<T>> valider(dto: R) {
         // Utvidet barnetrygd
@@ -19,11 +20,39 @@ object BeregningRequestValidator {
             }
         }
 
-        // Kontantstøtte
-        dto.barn.forEachIndexed { index, barn ->
-            val barnKontantstøtte = barn.kontantstøtte
+        val barneliste = dto.barn
 
-            if (barnKontantstøtte != null) {
+        // Barnetilsyn-regler:
+
+        barneliste
+            .filterIsInstance<BarnMedAlderDto>()
+            .forEach { barn ->
+                val barnetilsyn = barn.barnetilsyn ?: return@forEach
+
+                // 1) Alder: barnetilsyn er ikke tillatt over 10 år
+                if (barn.alder > MAKS_ALDER_FOR_BARNETILSYN) {
+                    feil("Barnetilsyn kan ikke oppgis for barn over $MAKS_ALDER_FOR_BARNETILSYN år (barnets alder=${barn.alder}).")
+                }
+
+                // 2) Enten/eller: kan ikke sende både månedligUtgift og plassType
+                val harMånedligUtgift = barnetilsyn.månedligUtgift != null
+                val harPlassType = barnetilsyn.plassType != null
+                if (harMånedligUtgift && harPlassType) {
+                    feil("Ugyldig barnetilsyn: kan ikke oppgi både månedligUtgift og plassType samtidig.")
+                }
+            }
+
+        // Kontantstøtte
+        barneliste.forEachIndexed { index, barn ->
+            val barnKontantstøtte = barn.kontantstøtte
+            val beløp = barnKontantstøtte?.beløp
+            val deles = barnKontantstøtte?.deles
+
+            if (deles != null && beløp == null) {
+                feil("kontantstøtte.deles kan ikke settes uten at beløp også er satt (barn[$index])")
+            }
+
+            if (beløp != null) {
                 val alder = (barn as? BarnMedAlderDto)?.alder
                 if (alder != null && alder != 1) {
                     feil("Kontantstøtte kan kun settes for barn som er 1 år (barn[$index] har alder=$alder)")
@@ -33,7 +62,7 @@ object BeregningRequestValidator {
 
         // Småbarnstillegg
         if (dto.småbarnstillegg) {
-            val harBarn0Til3År = dto.barn
+            val harBarn0Til3År = barneliste
                 .mapNotNull { (it as? BarnMedAlderDto)?.alder }
                 .any { it in 0..3 }
 
@@ -43,8 +72,8 @@ object BeregningRequestValidator {
         }
 
         // Boforhold
-        val harPliktigeBarn = dto.barn.any { it.bidragstype == PLIKTIG }
-        val harMottakerBarn = dto.barn.any { it.bidragstype == MOTTAKER }
+        val harPliktigeBarn = barneliste.any { it.bidragstype == PLIKTIG }
+        val harMottakerBarn = barneliste.any { it.bidragstype == MOTTAKER }
 
         val manglerDittBoforhold = harPliktigeBarn && dto.dittBoforhold == null
         val manglerMedforelderBoforhold = harMottakerBarn && dto.medforelderBoforhold == null

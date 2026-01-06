@@ -20,10 +20,13 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPat
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.math.BigDecimal
 import io.mockk.verify
+import no.nav.bidrag.bidragskalkulator.dto.BarnetilsynDto
 import no.nav.bidrag.bidragskalkulator.dto.ForelderInntektDto
+import no.nav.bidrag.bidragskalkulator.dto.KontantstøtteDto
 import no.nav.bidrag.bidragskalkulator.dto.UtvidetBarnetrygdDto
 import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningsresultatBarnDto
 import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningsresultatDto
+import no.nav.bidrag.domene.enums.barnetilsyn.Tilsynstype
 
 class BeregningControllerTest : AbstractControllerTest() {
     @MockkBean(relaxUnitFun = true)
@@ -143,7 +146,7 @@ class BeregningControllerTest : AbstractControllerTest() {
                     alder = 2,
                     samværsklasse = Samværsklasse.SAMVÆRSKLASSE_2,
                     bidragstype = BidragsType.MOTTAKER,
-                    kontantstøtte = BigDecimal("500")
+                    kontantstøtte = KontantstøtteDto(beløp = BigDecimal("500"))
                 ),
             )
         )
@@ -163,7 +166,7 @@ class BeregningControllerTest : AbstractControllerTest() {
                     alder = 1,
                     samværsklasse = Samværsklasse.SAMVÆRSKLASSE_2,
                     bidragstype = BidragsType.MOTTAKER,
-                    kontantstøtte = BigDecimal("500")
+                    kontantstøtte = KontantstøtteDto(beløp = BigDecimal("500"))
                 ),
             )
         )
@@ -173,6 +176,26 @@ class BeregningControllerTest : AbstractControllerTest() {
 
         verify(exactly = 1) { runBlocking { beregningService.beregnBarnebidragAnonym(any()) } }
     }
+
+    @Test
+    fun `skal returnere 400 hvis kontantstøtte deles er satt uten beløp`() {
+        val request = mockGyldigÅpenRequest.copy(
+            barn = listOf(
+                BarnMedAlderDto(
+                    alder = 1,
+                    samværsklasse = Samværsklasse.SAMVÆRSKLASSE_2,
+                    bidragstype = BidragsType.MOTTAKER,
+                    kontantstøtte = KontantstøtteDto(beløp = null, deles = true)
+                )
+            )
+        )
+
+        postRequest("/api/v1/beregning/barnebidrag/åpen", request)
+            .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.detail")
+                .value("kontantstøtte.deles kan ikke settes uten at beløp også er satt (barn[0])"))
+    }
+
 
     @Test
     fun `skal returnere 400 nar utvidetBarnetrygd delerMedMedforelder er true men harUtvidetBarnetrygd er false`() {
@@ -208,6 +231,86 @@ class BeregningControllerTest : AbstractControllerTest() {
             )
     }
 
+    @Test
+    fun `skal gi 200 ved gyldig barnetilsyn i beregning request`() {
+        val request = mockGyldigÅpenRequest.copy(
+            barn = mockGyldigÅpenRequest.barn.map { it.copy(alder = 1, barnetilsyn = BarnetilsynDto(månedligUtgift = BigDecimal("1200"))) },
+        )
+
+        postRequest("/api/v1/beregning/barnebidrag/åpen", request)
+            .andExpect(status().isOk)
+
+        verify(exactly = 1) { runBlocking { beregningService.beregnBarnebidragAnonym(any()) } }
+    }
+
+    @Test
+    fun `skal gi 400 når barnetilsyn har både månedligUtgift=1200 og plassType=DELTID`() {
+        val request = mockGyldigÅpenRequest.copy(
+            barn = mockGyldigÅpenRequest.barn.mapIndexed { idx, barn ->
+                if (idx == 0) {
+                    barn.copy(
+                        barnetilsyn = barn.barnetilsyn?.copy(
+                            månedligUtgift = BigDecimal("1200"),
+                            plassType = Tilsynstype.DELTID,
+                        )
+                    )
+                } else barn }
+        )
+
+        postRequest("/api/v1/beregning/barnebidrag/åpen", request)
+            .andExpect(status().isBadRequest)
+            .andExpect(
+                jsonPath("$.detail").value(
+                    "Ugyldig barnetilsyn: kan ikke oppgi både månedligUtgift og plassType samtidig."
+                )
+            )
+    }
+
+    @Test
+    fun `skal gi 400 når barn er over 10 år og barnetilsyn månedligUtgift er gitt`() {
+        val request = mockGyldigÅpenRequest.copy(
+            barn = mockGyldigÅpenRequest.barn.mapIndexed { idx, barn ->
+                if (idx == 0) {
+                    barn.copy(
+                        alder = 11,
+                        barnetilsyn = barn.barnetilsyn?.copy(
+                            månedligUtgift = BigDecimal("1200")
+                        )
+                    )
+                } else barn }
+        )
+
+        postRequest("/api/v1/beregning/barnebidrag/åpen", request)
+            .andExpect(status().isBadRequest)
+            .andExpect(
+                jsonPath("$.detail").value(
+                    "Barnetilsyn kan ikke oppgis for barn over 10 år (barnets alder=11)."
+                )
+            )
+    }
+
+    @Test
+    fun `skal gi 200 når barnetilsyn har kun plassType=DELTID`() {
+        val request = mockGyldigÅpenRequest.copy(
+            barn = mockGyldigÅpenRequest.barn.mapIndexed { idx, barn ->
+                if (idx == 0) {
+                    barn.copy(
+                        barnetilsyn = BarnetilsynDto(
+                            månedligUtgift = null,
+                            plassType = Tilsynstype.DELTID
+                        )
+                    )
+                } else barn
+            }
+        )
+
+        postRequest("/api/v1/beregning/barnebidrag/åpen", request)
+            .andExpect(status().isOk)
+
+        verify(exactly = 1) { runBlocking { beregningService.beregnBarnebidragAnonym(any()) } }
+    }
+
+
     companion object TestData {
         private val personIdent = genererPersonident()
 
@@ -232,9 +335,9 @@ class BeregningControllerTest : AbstractControllerTest() {
                     alder = 1,
                     samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0,
                     bidragstype = BidragsType.PLIKTIG,
-                    barnetilsynsutgift = BigDecimal.ZERO,
+                    barnetilsyn = BarnetilsynDto(månedligUtgift = BigDecimal("1200")),
                     inntekt = BigDecimal.ZERO,
-                    kontantstøtte = BigDecimal.ZERO
+                    kontantstøtte = KontantstøtteDto(beløp = BigDecimal.ZERO)
                 )
             ),
             dittBoforhold = BoforholdDto(antallBarnBorFast = 0, antallBarnDeltBosted = 0, borMedAnnenVoksen = false),

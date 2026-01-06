@@ -30,9 +30,11 @@ data class BarnMedAlderDto(
     @param:Schema(description = "Angir om den påloggede personen er pliktig eller mottaker for dette barnet", required = true)
     override val bidragstype: BidragsType,
 
-    @field:Nullable
-    @param:Schema(description = "Utgifter i kroner per måned som den bidragsmottaker har til barnetilsyn for dette barnet", required = false)
-    override val barnetilsynsutgift: BigDecimal? = null,
+    @param:Schema(description = "Opplysninger om barnetilsyn for dette barnet.",
+        required = false,
+        nullable = true,
+        implementation = BarnetilsynDto::class)
+    override val barnetilsyn: BarnetilsynDto? = null,
 
     @field:Nullable
     @param:Schema(
@@ -42,16 +44,13 @@ data class BarnMedAlderDto(
     )
     override val inntekt: BigDecimal? = null,
 
-    @field:Nullable
     @param:Schema(
-        description = "Kontantstøtte per måned knyttet til barnet (relevant kun når alder = 1). " +
-                "Beløpet legges til inntekt for bidragsmottaker (BM).",
-        example = "7500"
+        description ="Kontantstøtte knyttet til dette barnet.",
+        required = false,
+        nullable = true,
+        implementation = KontantstøtteDto::class
     )
-    @field:Min(value = 0)
-    @field:DecimalMin(value = "0.00", inclusive = true, message = "Kontantstøtte kan ikke være negativ")
-    override val kontantstøtte
-    : BigDecimal? = null,
+    override val kontantstøtte: KontantstøtteDto? = null,
 ): IFellesBarnDto {
     @JsonIgnore
     @Schema(hidden = true) // Hides from Swagger

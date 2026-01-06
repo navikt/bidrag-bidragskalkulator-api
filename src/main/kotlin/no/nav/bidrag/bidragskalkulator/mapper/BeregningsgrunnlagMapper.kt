@@ -110,8 +110,9 @@ class BeregningsgrunnlagMapper(
 
             addAll(beregningsgrunnlagBuilder.byggBostatusgrunnlag(kontekst))
 
-            barn.barnetilsynsutgift?.let {
-                add(beregningsgrunnlagBuilder.byggMottattFaktiskUtgift(fødselsdato, barnReferanse, it))
+            barn.barnetilsyn?.let {
+                it.månedligUtgift?.let { barnetilsynsutgift -> add(beregningsgrunnlagBuilder.byggMottattFaktiskUtgift(fødselsdato, barnReferanse, barnetilsynsutgift)) }
+                it.plassType?.let { tilsynstype -> add(beregningsgrunnlagBuilder.byggMottattBarnetilsyn(barnReferanse, tilsynstype)) }
             }
 
             add(beregningsgrunnlagBuilder.byggSamværsgrunnlag(barn.samværsklasse, barnReferanse))
@@ -122,9 +123,17 @@ class BeregningsgrunnlagMapper(
      * Kontantstøtte, årlig utvidet barnetrygd og småbarnstillegg er en del av inntekten til bidragsmottaker, uansett hvilket barn det gjelder
      */
     private fun beregnBmTilleggÅrlig(dto: FellesBeregningRequestDto<*>): BmTilleggÅrlig {
-        val kontantstøtteÅrlig =
-            dto.barn.sumOf { it.kontantstøtte ?: BigDecimal.ZERO }
-                .multiply(BigDecimal.valueOf(12L))
+        val kontantstøtteÅrlig = dto.barn.sumOf { barn ->
+            val beløp = barn.kontantstøtte?.beløp ?: BigDecimal.ZERO
+            val deles = barn.kontantstøtte?.deles == true
+            val årlig = beløp.multiply(BigDecimal.valueOf(12L))
+
+            if (deles) {
+                årlig.divide(BigDecimal.valueOf(2L))
+            } else {
+                årlig
+            }
+        }
 
         val sjablontall = sjablonService.hentSjablontall()
 
