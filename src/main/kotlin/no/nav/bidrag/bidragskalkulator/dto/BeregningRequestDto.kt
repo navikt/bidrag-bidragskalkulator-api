@@ -1,7 +1,6 @@
 package no.nav.bidrag.bidragskalkulator.dto
 
 import io.swagger.v3.oas.annotations.media.Schema
-import jakarta.annotation.Nullable
 import jakarta.validation.Valid
 import jakarta.validation.constraints.DecimalMin
 import jakarta.validation.constraints.Digits
