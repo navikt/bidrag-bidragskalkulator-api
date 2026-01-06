@@ -2,7 +2,9 @@ package no.nav.bidrag.bidragskalkulator.dto.åpenBeregning
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import io.swagger.v3.oas.annotations.media.Schema
+import jakarta.annotation.Nullable
 import jakarta.validation.Valid
+import jakarta.validation.constraints.DecimalMin
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotEmpty
@@ -17,19 +19,38 @@ data class BarnMedAlderDto(
     @field:NotNull(message = "Alder må være satt")
     @field:Min(value = 0, message = "Alder kan ikke være negativ")
     @field:Max(value = 25, message = "Alder kan ikke være høyere enn 25")
-    @Schema(description = "Alder til barnet", required = true, example = "10")
+    @param:Schema(description = "Alder til barnet", required = true, example = "10")
     val alder: Int,
 
     @field:NotNull(message = "Samværsklasse må være satt")
-    @Schema(ref = "#/components/schemas/Samværsklasse") // Reference dynamically registered schema. See BeregnBarnebidragConfig
+    @param:Schema(ref = "#/components/schemas/Samværsklasse") // Reference dynamically registered schema. See BeregnBarnebidragConfig
     override val samværsklasse: Samværsklasse,
 
     @field:NotNull(message = "Bidragstype må være satt")
-    @Schema(description = "Angir om den påloggede personen er pliktig eller mottaker for dette barnet", required = true)
+    @param:Schema(description = "Angir om den påloggede personen er pliktig eller mottaker for dette barnet", required = true)
     override val bidragstype: BidragsType,
 
-    @Schema(description = "Utgifter i kroner per måned som den bidragsmottaker har til barnetilsyn for dette barnet", required = false)
-    override val barnetilsynsutgift: BigDecimal?
+    @param:Schema(description = "Opplysninger om barnetilsyn for dette barnet.",
+        required = false,
+        nullable = true,
+        implementation = BarnetilsynDto::class)
+    override val barnetilsyn: BarnetilsynDto? = null,
+
+    @field:Nullable
+    @param:Schema(
+        description = "Inntekt i kroner per måned for dette barnet. Oppgis kun hvis barnet har egen inntekt.",
+        required = false,
+        example = "5000"
+    )
+    override val inntekt: BigDecimal? = null,
+
+    @param:Schema(
+        description ="Kontantstøtte knyttet til dette barnet.",
+        required = false,
+        nullable = true,
+        implementation = KontantstøtteDto::class
+    )
+    override val kontantstøtte: KontantstøtteDto? = null,
 ): IFellesBarnDto {
     @JsonIgnore
     @Schema(hidden = true) // Hides from Swagger
@@ -41,26 +62,48 @@ data class BarnMedAlderDto(
 
 @Schema(description = "Modellen brukes til å beregne barnebidrag basert på barnets alder")
 data class ÅpenBeregningRequestDto(
-    @field:NotNull(message = "Inntekt for forelder 1 må være satt")
-    @field:Min(value = 0, message = "Inntekt for forelder 1 kan ikke være negativ")
-    @Schema(description = "Inntekt for forelder 1 i norske kroner", required = true, example = "500000.0")
-    override val inntektForelder1: Double,
-
-    @field:NotNull(message = "Inntekt for forelder 2 må være satt")
-    @field:Min(value = 0, message = "Inntekt for forelder 2 kan ikke være negativ")
-    @Schema(description = "Inntekt for forelder 2 i norske kroner", required = true, example = "450000.0")
-    override val inntektForelder2: Double,
-
     @field:NotEmpty(message = "Liste over barn kan ikke være tom")
     @field:Valid
-    @Schema(description = "Liste over barn som inngår i beregningen", required = true)
+    @param:Schema(description = "Liste over barn som inngår i beregningen", required = true)
     override val barn: List<BarnMedAlderDto>,
 
-    @Schema(description = "Boforhold for den påloggede personen. Må være satt hvis bidragstype for minst ett barn er PLIKTIG", required = false)
+    @param:Schema(description = "Boforhold for den påloggede personen. Må være satt hvis bidragstype for minst ett barn er PLIKTIG", required = false)
     override val dittBoforhold: BoforholdDto? = null,
 
-    @Schema(description = "Boforhold for den andre forelderen. Må være satt hvis bidragstype for minst ett barn er MOTTAKER", required = false)
+    @param:Schema(description = "Boforhold for den andre forelderen. Må være satt hvis bidragstype for minst ett barn er MOTTAKER", required = false)
     override val medforelderBoforhold: BoforholdDto? = null,
+
+    @param:Schema(
+        description = "Opplysninger om utvidet barnetrygd. Kan utelates dersom det ikke foreligger utvidet barnetrygd.",
+        nullable = true,
+        implementation = UtvidetBarnetrygdDto::class
+    )
+    override val utvidetBarnetrygd: UtvidetBarnetrygdDto? = null,
+
+    @param:Schema(
+        description = "Angir om bidragsmottaker mottar småbarnstillegg. Gjelder kun når minst ett barn er 0–3 år.",
+        required = true,
+        example = "false",
+    )
+    override val småbarnstillegg: Boolean = false,
+
+    @field:NotNull(message = "Bidragsmottaker sin inntekt må være satt")
+    @field:Valid
+    @param:Schema(
+        description = "Inntektsopplysninger for bidragsmottaker (BM).",
+        required = true,
+        implementation = ForelderInntektDto::class
+    )
+    override val bidragsmottakerInntekt: ForelderInntektDto,
+
+    @field:NotNull(message = "Bidragspliktig sin inntekt må være satt")
+    @field:Valid
+    @param:Schema(
+        description = "Inntektsopplysninger for bidragspliktig (BP).",
+        required = true,
+        implementation = ForelderInntektDto::class
+    )
+    override val bidragspliktigInntekt: ForelderInntektDto,
 ) : FellesBeregningRequestDto<BarnMedAlderDto>(
-    inntektForelder1, inntektForelder2, barn, dittBoforhold, medforelderBoforhold
+    bidragsmottakerInntekt, bidragspliktigInntekt, barn, dittBoforhold, medforelderBoforhold, utvidetBarnetrygd, småbarnstillegg
 )

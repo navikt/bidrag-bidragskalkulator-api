@@ -3,18 +3,27 @@ package no.nav.bidrag.bidragskalkulator.mapper
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import no.nav.bidrag.bidragskalkulator.dto.BarnetilsynDto
 import no.nav.bidrag.bidragskalkulator.dto.BeregningRequestDto
+import no.nav.bidrag.bidragskalkulator.dto.KontantstøtteDto
+import no.nav.bidrag.bidragskalkulator.dto.UtvidetBarnetrygdDto
 import no.nav.bidrag.bidragskalkulator.service.PersonService
+import no.nav.bidrag.bidragskalkulator.service.SjablonService
 import no.nav.bidrag.bidragskalkulator.utils.JsonUtils
+import no.nav.bidrag.domene.enums.barnetilsyn.Tilsynstype
 import no.nav.bidrag.domene.enums.grunnlag.Grunnlagstype
 import no.nav.bidrag.domene.enums.vedtak.Stønadstype
 import no.nav.bidrag.generer.testdata.person.genererFødselsnummer
 import no.nav.bidrag.generer.testdata.person.genererPersonident
+import no.nav.bidrag.transport.behandling.felles.grunnlag.InntektsrapporteringPeriode
+import no.nav.bidrag.transport.behandling.felles.grunnlag.innholdTilObjekt
 import no.nav.bidrag.transport.person.PersonDto
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import java.math.BigDecimal
 import java.time.LocalDate
 
 @ExtendWith(MockKExtension::class)
@@ -25,6 +34,9 @@ class BeregningsgrunnlagMapperTest {
 
     // Bruk ekte builder
     private val mockBeregningsgrunnlagBuilder = BeregningsgrunnlagBuilder()
+
+    @MockK
+    lateinit var sjablonService: SjablonService
 
     private lateinit var beregningsgrunnlagMapper: BeregningsgrunnlagMapper
 
@@ -39,7 +51,9 @@ class BeregningsgrunnlagMapperTest {
             visningsnavn = "Navn Navnesen",
         )
 
-        beregningsgrunnlagMapper = BeregningsgrunnlagMapper(mockBeregningsgrunnlagBuilder)
+        every { sjablonService.hentSjablontall() } returns emptyList()
+
+        beregningsgrunnlagMapper = BeregningsgrunnlagMapper(mockBeregningsgrunnlagBuilder, sjablonService)
     }
 
     @Test
@@ -69,10 +83,9 @@ class BeregningsgrunnlagMapperTest {
         val beregningRequest: BeregningRequestDto = JsonUtils.lesJsonFil("/barnebidrag/beregning_to_barn.json")
 
         val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(beregningRequest)
-
         // barnsreferanse, bidragspliktigsreferanse, bidragsmottakersreferanse, bidragspliktig inntekt,
-        // bidragsmottaker inntekt, barn inntekt, samværsklasse, bidragspliktig bostatus, barn bostatus
-        assertEquals(9, result.first().grunnlag.grunnlagListe.size, "Forventet 9 grunnlagselementer")
+        // bidragsmottaker inntekt, samværsklasse, bidragspliktig bostatus, barn bostatus
+        assertEquals(8, result.first().grunnlag.grunnlagListe.size, "Forventet 8 grunnlagselementer")
     }
 
     @Test
@@ -113,7 +126,234 @@ class BeregningsgrunnlagMapperTest {
         assertNull(faktiskUtgiftGrunnlag, "Forventet ikke grunnlag for faktisk utgift til barnetilsyn når barnetilsynsutgift ikke er satt")
     }
 
-    private fun assertBarnetsAlderOgReferanse(
+    @Test
+    fun `skal legge kontantstøtte til BM inntekt`() {
+        val beregningRequest: BeregningRequestDto = JsonUtils.lesJsonFil("/barnebidrag/beregning_et_barn.json")
+
+        // Legg kontantstøtte på alle barn (måned)
+        val oppdatertRequest = beregningRequest.copy(
+            barn = beregningRequest.barn.map { b ->
+                b.copy(kontantstøtte = KontantstøtteDto(beløp = BigDecimal("100")))
+            }
+        )
+
+        val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(oppdatertRequest)
+
+        // kontantstøtteTilleggBm = 100 * 12
+        val forventetTilleggÅr = BigDecimal("100").multiply(BigDecimal("12"))
+
+        val forventetBmInntekt = beregningRequest.bidragsmottakerInntekt.inntekt + forventetTilleggÅr
+
+        val inntektBmGrunnlag = result.first().grunnlag.grunnlagListe
+            .first { it.referanse == "Inntekt_Bidragsmottaker" }
+
+        val beløp = inntektBmGrunnlag.innholdTilObjekt<InntektsrapporteringPeriode>().beløp
+        assertThat(beløp).isEqualByComparingTo(forventetBmInntekt)
+    }
+
+    @Test
+    fun `skal legge utvidet barnetrygd til BM inntekt basert på sjablon`() {
+        val json: BeregningRequestDto = JsonUtils.lesJsonFil("/barnebidrag/beregning_et_barn.json")
+        val request: BeregningRequestDto = json.copy(
+            utvidetBarnetrygd = UtvidetBarnetrygdDto(
+                harUtvidetBarnetrygd = true,
+                delerMedMedforelder = false
+            )
+        )
+
+        // 0042 = per måned
+        every { sjablonService.hentSjablontall() } returns listOf(
+            no.nav.bidrag.commons.service.sjablon.Sjablontall(
+                typeSjablon = "0042",
+                verdi = BigDecimal("2000"),
+                datoFom = null,
+                datoTom = null
+            )
+        )
+
+        val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(request)
+
+        val inntektBmGrunnlag = result.first().grunnlag.grunnlagListe
+            .first { it.referanse == "Inntekt_Bidragsmottaker" }
+
+        val beløp = inntektBmGrunnlag.innholdTilObjekt<InntektsrapporteringPeriode>().beløp
+
+        val forventetUtvidetÅrlig = BigDecimal("2000").multiply(BigDecimal("12"))
+        val forventet = request.bidragsmottakerInntekt.inntekt + forventetUtvidetÅrlig
+
+        assertThat(beløp).isEqualByComparingTo(forventet)
+    }
+
+    @Test
+    fun `skal halvere utvidet barnetrygd når den deles med medforelder`() {
+        val json: BeregningRequestDto = JsonUtils.lesJsonFil("/barnebidrag/beregning_et_barn.json")
+        val request: BeregningRequestDto = json.copy(
+            utvidetBarnetrygd = UtvidetBarnetrygdDto(
+                harUtvidetBarnetrygd = true,
+                delerMedMedforelder = true
+            )
+        )
+
+        every { sjablonService.hentSjablontall() } returns listOf(
+            no.nav.bidrag.commons.service.sjablon.Sjablontall(
+                typeSjablon = "0042",
+                verdi = BigDecimal("2000"),
+                datoFom = null,
+                datoTom = null
+            )
+        )
+
+        val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(request)
+
+        val beløp = result.first().grunnlag.grunnlagListe
+            .first { it.referanse == "Inntekt_Bidragsmottaker" }
+            .innholdTilObjekt<InntektsrapporteringPeriode>()
+            .beløp
+
+        val forventetUtvidetÅrligHalv = BigDecimal("2000").multiply(BigDecimal("12"))
+            .divide(BigDecimal("2"))
+
+        val forventet = request.bidragsmottakerInntekt.inntekt + forventetUtvidetÅrligHalv
+        assertThat(beløp).isEqualByComparingTo(forventet)
+    }
+
+    @Test
+    fun `skal legge småbarnstillegg til BM inntekt basert på sjablon`() {
+        val json: BeregningRequestDto = JsonUtils.lesJsonFil("/barnebidrag/beregning_et_barn.json")
+        val request: BeregningRequestDto = json.copy(
+            småbarnstillegg = true
+        )
+
+        // 0032 = småbarnstillegg per måned
+        every { sjablonService.hentSjablontall() } returns listOf(
+            no.nav.bidrag.commons.service.sjablon.Sjablontall(
+                typeSjablon = "0032",
+                verdi = BigDecimal("1500"),
+                datoFom = null,
+                datoTom = null
+            )
+        )
+
+        val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(request)
+
+        val beløp = result.first().grunnlag.grunnlagListe
+            .first { it.referanse == "Inntekt_Bidragsmottaker" }
+            .innholdTilObjekt<InntektsrapporteringPeriode>()
+            .beløp
+
+        val forventetSmåbarnÅrlig = BigDecimal("1500").multiply(BigDecimal("12"))
+        val forventet = request.bidragsmottakerInntekt.inntekt + forventetSmåbarnÅrlig
+
+        assertThat(beløp).isEqualByComparingTo(forventet)
+    }
+
+    @Test
+    fun `skal halvere kontantstøtte når deles er true og bruke full beløp når deles er false`() {
+        val beregningRequest: BeregningRequestDto = JsonUtils.lesJsonFil("/barnebidrag/beregning_et_barn.json")
+        val beløp = BigDecimal("1200")
+
+        // deles = true
+        val requestDelt = beregningRequest.copy(
+            barn = beregningRequest.barn.map { it.copy(kontantstøtte = KontantstøtteDto(beløp = beløp, deles = true)) }
+        )
+        val resultDelt = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(requestDelt)
+        val bmInntektDelt = resultDelt.first().grunnlag.grunnlagListe
+            .first { it.referanse == "Inntekt_Bidragsmottaker" }
+            .innholdTilObjekt<InntektsrapporteringPeriode>().beløp
+
+        val forventetDelt = beregningRequest.bidragsmottakerInntekt.inntekt + beløp.multiply(BigDecimal("12")).divide(BigDecimal("2"))
+        assertThat(bmInntektDelt).isEqualByComparingTo(forventetDelt)
+
+        // deles = false
+        val requestFull = beregningRequest.copy(
+            barn = beregningRequest.barn.map { it.copy(kontantstøtte = KontantstøtteDto(beløp = beløp, deles = false)) }
+        )
+        val resultFull = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(requestFull)
+        val bmInntektFull = resultFull.first().grunnlag.grunnlagListe
+            .first { it.referanse == "Inntekt_Bidragsmottaker" }
+            .innholdTilObjekt<InntektsrapporteringPeriode>().beløp
+
+        val forventetFull = beregningRequest.bidragsmottakerInntekt.inntekt + beløp.multiply(BigDecimal("12"))
+        assertThat(bmInntektFull).isEqualByComparingTo(forventetFull)
+    }
+
+    @Test
+    fun `skal ikke legge småbarnstillegg til BM inntekt når småbarnstillegg er false`() {
+        val base: BeregningRequestDto = JsonUtils.lesJsonFil("/barnebidrag/beregning_et_barn.json")
+
+        val request = base.copy(
+            småbarnstillegg = false,
+            utvidetBarnetrygd = null,
+            barn = base.barn.map { it.copy(kontantstøtte = null) }
+        )
+
+        // Sjablon finnes, men skal IKKE brukes når flagget er false
+        every { sjablonService.hentSjablontall() } returns listOf(
+            no.nav.bidrag.commons.service.sjablon.Sjablontall(
+                typeSjablon = "0032",
+                verdi = BigDecimal("1500"),
+                datoFom = null,
+                datoTom = null
+            )
+        )
+
+        val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(request)
+
+        val beløp = result.first().grunnlag.grunnlagListe
+            .first { it.referanse == "Inntekt_Bidragsmottaker" }
+            .innholdTilObjekt<InntektsrapporteringPeriode>()
+            .beløp
+
+        val forventet = request.bidragsmottakerInntekt.inntekt
+
+        assertThat(beløp).isEqualByComparingTo(forventet)
+    }
+
+    @Test
+    fun `skal legge til grunnlag for mottatt barnepassplass når barnetilsyn plassType er satt`() {
+        val base: BeregningRequestDto = JsonUtils.lesJsonFil("/barnebidrag/beregning_et_barn.json")
+
+        val request = base.copy(
+            barn = base.barn.map { it.copy(barnetilsyn = BarnetilsynDto(
+                månedligUtgift = null,
+                plassType = Tilsynstype.DELTID,
+            ))
+            }
+        )
+        val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(request)
+
+        val barnetilsynMedStønadGrunnlag = result.first().grunnlag.grunnlagListe
+            .find { it.type == Grunnlagstype.BARNETILSYN_MED_STØNAD_PERIODE }
+
+        val faktiskUtgiftGrunnlag = result.first().grunnlag.grunnlagListe
+            .find { it.type == Grunnlagstype.FAKTISK_UTGIFT_PERIODE }
+
+        assertNotNull(barnetilsynMedStønadGrunnlag)
+        assertNull(faktiskUtgiftGrunnlag)
+    }
+
+    @Test
+    fun `skal ikke legge til barnetilsyn-grunnlag når barnetilsyn er null`() {
+        val base: BeregningRequestDto = JsonUtils.lesJsonFil("/barnebidrag/beregning_et_barn.json")
+
+        val request = base.copy(
+            barn = base.barn.map { it.copy(barnetilsyn = null)
+            }
+        )
+        val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(request)
+
+        val barnetilsynMedStønadGrunnlag = result.first().grunnlag.grunnlagListe
+            .find { it.type == Grunnlagstype.BARNETILSYN_MED_STØNAD_PERIODE }
+
+        val faktiskUtgiftGrunnlag = result.first().grunnlag.grunnlagListe
+            .find { it.type == Grunnlagstype.FAKTISK_UTGIFT_PERIODE }
+
+        assertNull(barnetilsynMedStønadGrunnlag)
+        assertNull(faktiskUtgiftGrunnlag)
+    }
+
+
+        private fun assertBarnetsAlderOgReferanse(
         grunnlagOgBarnInformasjon: PersonBeregningsgrunnlag,
         beregningRequest: BeregningRequestDto,
         index: Int

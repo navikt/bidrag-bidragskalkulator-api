@@ -3,9 +3,15 @@ package no.nav.bidrag.bidragskalkulator.mapper
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import no.nav.bidrag.beregn.barnebidrag.bo.BarnetilsynMedStønad
+import no.nav.bidrag.bidragskalkulator.dto.BarnetilsynDto
 import no.nav.bidrag.bidragskalkulator.dto.BidragsType
+import no.nav.bidrag.bidragskalkulator.dto.IFellesBarnDto
 import no.nav.bidrag.bidragskalkulator.mapper.BeregningsgrunnlagMapper.Referanser
 import no.nav.bidrag.bidragskalkulator.utils.kalkulerAlder
+import no.nav.bidrag.commons.service.sjablon.Barnetilsyn
+import no.nav.bidrag.domene.enums.barnetilsyn.Skolealder
+import no.nav.bidrag.domene.enums.barnetilsyn.Tilsynstype
 import no.nav.bidrag.domene.enums.beregning.Samværsklasse
 import no.nav.bidrag.domene.enums.grunnlag.Grunnlagstype
 import no.nav.bidrag.domene.enums.inntekt.Inntektsrapportering
@@ -19,11 +25,12 @@ import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.YearMonth
 
+private const val KAPITALINNTEKT_TERSKEL = 10_000
+
 @Component
 class BeregningsgrunnlagBuilder(
     private val objectMapper: ObjectMapper = ObjectMapper().registerKotlinModule().registerModule(JavaTimeModule())
 ) {
-
     fun byggPersongrunnlag(referanse: String, type: Grunnlagstype, fødselsdato: LocalDate? = null) = GrunnlagDto(
         referanse = referanse,
         type = type,
@@ -79,9 +86,23 @@ class BeregningsgrunnlagBuilder(
     }
 
     fun byggInntektsgrunnlag(data: BeregningKontekst): List<GrunnlagDto> {
-        val erBidragspliktig = data.bidragstype == BidragsType.PLIKTIG
-        val lønnBidragsmottaker = if (erBidragspliktig) data.inntektForelder2 else data.inntektForelder1
-        val lønnBidragspliktig = if (erBidragspliktig) data.inntektForelder1 else data.inntektForelder2
+        val bidragspliktigInntekt = data.bidragspliktigInntekt
+        val bidragsmottakerInntekt = data.bidragsmottakerInntekt
+
+        val bidragsmottakerNettoPositivKapitalinntekt = (bidragsmottakerInntekt.nettoPositivKapitalinntekt - KAPITALINNTEKT_TERSKEL.toBigDecimal())
+            .coerceAtLeast(BigDecimal.ZERO)
+
+        val inntektBidragsmottaker = bidragsmottakerInntekt.inntekt + bidragsmottakerNettoPositivKapitalinntekt
+        val kontantstøtte = data.bmTilleggÅrlig.kontantstøtteÅrlig
+        val utvidetBarnetrygd = data.bmTilleggÅrlig.utvidetBarnetrygdÅrlig
+        val småbarnstillegg = data.bmTilleggÅrlig.småbarnstilleggÅrlig
+
+        val samletInntektBidragsmottaker = inntektBidragsmottaker + kontantstøtte + utvidetBarnetrygd + småbarnstillegg
+
+        val bidragspliktigNettoPositivKapitalinntekt = (bidragspliktigInntekt.nettoPositivKapitalinntekt - KAPITALINNTEKT_TERSKEL.toBigDecimal())
+            .coerceAtLeast(BigDecimal.ZERO)
+
+        val inntektBidragspliktig = bidragspliktigInntekt.inntekt + bidragspliktigNettoPositivKapitalinntekt
 
         fun nyttInntektsgrunnlag(referanse: String, beløp: BigDecimal, eierReferanse: String) =
             GrunnlagDto(
@@ -100,10 +121,29 @@ class BeregningsgrunnlagBuilder(
             )
 
         return listOf(
-            nyttInntektsgrunnlag("Inntekt_Bidragspliktig", lønnBidragspliktig.toBigDecimal(), Referanser.BIDRAGSPLIKTIG),
-            nyttInntektsgrunnlag("Inntekt_Bidragsmottaker", lønnBidragsmottaker.toBigDecimal(), Referanser.BIDRAGSMOTTAKER),
-            nyttInntektsgrunnlag("Inntekt_${data.barnReferanse}", BigDecimal.ZERO, data.barnReferanse)
+            nyttInntektsgrunnlag("Inntekt_Bidragspliktig", inntektBidragspliktig, Referanser.BIDRAGSPLIKTIG),
+            nyttInntektsgrunnlag("Inntekt_Bidragsmottaker", samletInntektBidragsmottaker, Referanser.BIDRAGSMOTTAKER),
         )
+    }
+
+    fun byggBarnInntektsgrunnlag(barn: IFellesBarnDto, referanse: String): GrunnlagDto? {
+        return barn.inntekt?.let { beløp ->
+                GrunnlagDto(
+                    referanse = "Inntekt_$referanse",
+                    type = Grunnlagstype.INNTEKT_RAPPORTERING_PERIODE,
+                    innhold = objectMapper.valueToTree(
+                        InntektsrapporteringPeriode(
+                            periode = ÅrMånedsperiode(YearMonth.now(), null),
+                            inntektsrapportering = Inntektsrapportering.SAKSBEHANDLER_BEREGNET_INNTEKT,
+                            beløp = beløp,
+                            manueltRegistrert = true,
+                            valgt = true
+                        )
+                    ),
+                    gjelderReferanse = referanse
+                )
+            }
+
     }
 
     fun byggSamværsgrunnlag(samværsklasse: Samværsklasse, gjelderBarnReferanse: String): GrunnlagDto =
@@ -145,6 +185,22 @@ class BeregningsgrunnlagBuilder(
                 fødselsdatoBarn = barnFødselsdato,
                 faktiskUtgiftBeløp = barnetilsynsutgift,
                 kostpengerBeløp = BigDecimal.ZERO,
+                manueltRegistrert = true,
+            )
+        ),
+        gjelderBarnReferanse = barnReferanse,
+        gjelderReferanse = Referanser.BIDRAGSMOTTAKER
+    )
+
+    fun byggMottattBarnetilsyn(barnReferanse: String, plassType: Tilsynstype): GrunnlagDto = GrunnlagDto(
+        referanse = "Mottatt_Barnetilsyn_$barnReferanse",
+        type = Grunnlagstype.BARNETILSYN_MED_STØNAD_PERIODE,
+        innhold = objectMapper.valueToTree(
+            BarnetilsynMedStønadPeriode(
+                periode =
+                    ÅrMånedsperiode(YearMonth.now(), null),
+                tilsynstype = plassType,
+                skolealder = Skolealder.UNDER,
                 manueltRegistrert = true,
             )
         ),

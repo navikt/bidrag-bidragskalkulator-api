@@ -9,6 +9,8 @@ import no.nav.bidrag.bidragskalkulator.dto.BeregningsresultatBarnDto
 import no.nav.bidrag.bidragskalkulator.dto.BeregningsresultatDto
 import no.nav.bidrag.bidragskalkulator.dto.BidragsType
 import no.nav.bidrag.bidragskalkulator.dto.BoforholdDto
+import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.BarnMedAlderDto
+import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningRequestDto
 import no.nav.bidrag.bidragskalkulator.service.BeregningService
 import no.nav.bidrag.domene.enums.beregning.Samværsklasse
 import no.nav.bidrag.generer.testdata.person.genererPersonident
@@ -17,6 +19,14 @@ import org.junit.jupiter.api.Test
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.math.BigDecimal
+import io.mockk.verify
+import no.nav.bidrag.bidragskalkulator.dto.BarnetilsynDto
+import no.nav.bidrag.bidragskalkulator.dto.ForelderInntektDto
+import no.nav.bidrag.bidragskalkulator.dto.KontantstøtteDto
+import no.nav.bidrag.bidragskalkulator.dto.UtvidetBarnetrygdDto
+import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningsresultatBarnDto
+import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningsresultatDto
+import no.nav.bidrag.domene.enums.barnetilsyn.Tilsynstype
 
 class BeregningControllerTest : AbstractControllerTest() {
     @MockkBean(relaxUnitFun = true)
@@ -32,63 +42,66 @@ class BeregningControllerTest : AbstractControllerTest() {
     @BeforeEach
     fun setupMocks() {
         every { runBlocking { beregningService.beregnBarnebidrag(mockGyldigRequest) } } returns mockRespons
+        every { runBlocking { beregningService.beregnBarnebidragAnonym(any()) } } returns
+                mockÅpenRespons
     }
 
     @Test
     fun `skal returnere 400 for negativ inntekt`() {
-        val request = mockGyldigRequest.copy(inntektForelder1 = -500000.0)
+        val request = mockGyldigÅpenRequest.copy(bidragsmottakerInntekt = ForelderInntektDto(inntekt = BigDecimal("-100000")))
 
-        postRequest("/api/v1/beregning/barnebidrag/åpen", request, gyldigOAuth2Token)
+        postRequest("/api/v1/beregning/barnebidrag/åpen", request)
             .andExpect(status().isBadRequest)
-            .andExpect(jsonPath("$.detail").value("inntektForelder1: Inntekt for forelder 1 kan ikke være negativ"))
+            .andExpect(jsonPath("$.detail").value("bidragsmottakerInntekt.inntekt: Inntekt kan ikke være negativ"))
     }
 
     @Test
     fun `skal returnere 400 for et tom barn liste`() {
-        val request = mockGyldigRequest.copy(barn = emptyList())
+        val request = mockGyldigÅpenRequest.copy(barn = emptyList())
 
-        postRequest("/api/v1/beregning/barnebidrag/åpen", request, gyldigOAuth2Token)
+        postRequest("/api/v1/beregning/barnebidrag/åpen", request)
             .andExpect(status().isBadRequest)
             .andExpect(jsonPath("$.detail").value("barn: Liste over barn kan ikke være tom"))
     }
 
     @Test
     fun `skal returnere 400 hvis dittBoforhold mangler for PLIKTIG`() {
-        val ugyldigRequest = mockGyldigRequest.copy(dittBoforhold = null)
+        val ugyldigRequest = mockGyldigÅpenRequest.copy(dittBoforhold = null)
 
-        postRequest("/api/v1/beregning/barnebidrag/åpen", ugyldigRequest, gyldigOAuth2Token)
+        postRequest("/api/v1/beregning/barnebidrag/åpen", ugyldigRequest)
             .andExpect(status().isBadRequest)
             .andExpect(jsonPath("$.detail").value("'dittBoforhold' må være satt fordi forespørselen inneholder minst ett barn der du er bidragspliktig."))
     }
 
     @Test
     fun `skal returnere 400 hvis medforelderBoforhold mangler for MOTTAKER`() {
-        val ugyldigRequest = mockGyldigRequest.copy(
+        val ugyldigRequest = mockGyldigÅpenRequest.copy(
             barn = listOf(
-                BarnMedIdentDto(
-                    ident = personIdent,
+                BarnMedAlderDto(
+                    alder = 2,
                     samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0,
                     bidragstype = BidragsType.MOTTAKER
                 )
-            )
+            ),
+            medforelderBoforhold = null
         )
 
-        postRequest("/api/v1/beregning/barnebidrag/åpen", ugyldigRequest, gyldigOAuth2Token)
+        postRequest("/api/v1/beregning/barnebidrag/åpen", ugyldigRequest)
             .andExpect(status().isBadRequest)
             .andExpect(jsonPath("$.detail").value("'medforelderBoforhold' må være satt fordi forespørselen inneholder minst ett barn der du er bidragsmottaker."))
     }
 
     @Test
     fun `skal returnere 400 hvis bruker er både bidragsmottaker og bidragspliktig, og begge boforhold mangler`() {
-        val ugyldigRequest = mockGyldigRequest.copy(
+        val ugyldigRequest = mockGyldigÅpenRequest.copy(
             barn = listOf(
-                BarnMedIdentDto(
-                    ident = personIdent,
+                BarnMedAlderDto(
+                    alder = 2,
                     samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0,
                     bidragstype = BidragsType.MOTTAKER
                 ),
-                BarnMedIdentDto(
-                    ident = personIdent,
+                BarnMedAlderDto(
+                    alder = 3,
                     samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0,
                     bidragstype = BidragsType.PLIKTIG
                 )
@@ -97,22 +110,22 @@ class BeregningControllerTest : AbstractControllerTest() {
             medforelderBoforhold = null
         )
 
-        postRequest("/api/v1/beregning/barnebidrag/åpen", ugyldigRequest, gyldigOAuth2Token)
+        postRequest("/api/v1/beregning/barnebidrag/åpen", ugyldigRequest)
             .andExpect(status().isBadRequest)
             .andExpect(jsonPath("$.detail").value("Både 'dittBoforhold' og 'medforelderBoforhold' mangler, men må være satt når forespørselen inneholder barn der du er bidragspliktig og/eller bidragsmottaker."))
     }
 
     @Test
     fun `skal returnere 400 hvis bruker er både bidragsmottaker og bidragspliktig, og medforelderBoforhold mangler i forespørselen`() {
-        val ugyldigRequest = mockGyldigRequest.copy(
+        val ugyldigRequest = mockGyldigÅpenRequest.copy(
             barn = listOf(
-                BarnMedIdentDto(
-                    ident = personIdent,
+                BarnMedAlderDto(
+                    alder = 2,
                     samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0,
                     bidragstype = BidragsType.MOTTAKER
                 ),
-                BarnMedIdentDto(
-                    ident = personIdent,
+                BarnMedAlderDto(
+                    alder = 3,
                     samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0,
                     bidragstype = BidragsType.PLIKTIG
                 )
@@ -120,9 +133,181 @@ class BeregningControllerTest : AbstractControllerTest() {
             medforelderBoforhold = null
         )
 
-        postRequest("/api/v1/beregning/barnebidrag/åpen", ugyldigRequest, gyldigOAuth2Token)
+        postRequest("/api/v1/beregning/barnebidrag/åpen", ugyldigRequest)
             .andExpect(status().isBadRequest)
             .andExpect(jsonPath("$.detail").value("'medforelderBoforhold' må være satt fordi forespørselen inneholder minst ett barn der du er bidragsmottaker."))
+    }
+
+    @Test
+    fun `skal returnere 400 hvis kontantstøtte er satt og alder ikke er 1`() {
+        val request = mockGyldigÅpenRequest.copy(
+            barn = listOf(
+                BarnMedAlderDto(
+                    alder = 2,
+                    samværsklasse = Samværsklasse.SAMVÆRSKLASSE_2,
+                    bidragstype = BidragsType.MOTTAKER,
+                    kontantstøtte = KontantstøtteDto(beløp = BigDecimal("500"))
+                ),
+            )
+        )
+
+        postRequest("/api/v1/beregning/barnebidrag/åpen", request)
+            .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.detail").value("Kontantstøtte kan kun settes for barn som er 1 år (barn[0] har alder=2)"))
+
+        verify(exactly = 0) { runBlocking { beregningService.beregnBarnebidragAnonym(any()) } }
+    }
+
+    @Test
+    fun `skal returnere 200 OK når kontantstøtte er satt for barn som er 1 år`() {
+        val request = mockGyldigÅpenRequest.copy(
+            barn = listOf(
+                BarnMedAlderDto(
+                    alder = 1,
+                    samværsklasse = Samværsklasse.SAMVÆRSKLASSE_2,
+                    bidragstype = BidragsType.MOTTAKER,
+                    kontantstøtte = KontantstøtteDto(beløp = BigDecimal("500"))
+                ),
+            )
+        )
+
+        postRequest("/api/v1/beregning/barnebidrag/åpen", request)
+            .andExpect(status().isOk)
+
+        verify(exactly = 1) { runBlocking { beregningService.beregnBarnebidragAnonym(any()) } }
+    }
+
+    @Test
+    fun `skal returnere 400 hvis kontantstøtte deles er satt uten beløp`() {
+        val request = mockGyldigÅpenRequest.copy(
+            barn = listOf(
+                BarnMedAlderDto(
+                    alder = 1,
+                    samværsklasse = Samværsklasse.SAMVÆRSKLASSE_2,
+                    bidragstype = BidragsType.MOTTAKER,
+                    kontantstøtte = KontantstøtteDto(beløp = null, deles = true)
+                )
+            )
+        )
+
+        postRequest("/api/v1/beregning/barnebidrag/åpen", request)
+            .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.detail")
+                .value("kontantstøtte.deles kan ikke settes uten at beløp også er satt (barn[0])"))
+    }
+
+
+    @Test
+    fun `skal returnere 400 nar utvidetBarnetrygd delerMedMedforelder er true men harUtvidetBarnetrygd er false`() {
+        val request = mockGyldigÅpenRequest.copy(
+            utvidetBarnetrygd = UtvidetBarnetrygdDto(
+                harUtvidetBarnetrygd = false,
+                delerMedMedforelder = true
+            )
+        )
+
+        postRequest("/api/v1/beregning/barnebidrag/åpen", request)
+            .andExpect(status().isBadRequest)
+            .andExpect(
+                jsonPath("$.detail").value(
+                    "utvidetBarnetrygd.delerMedMedforelder kan ikke være true når utvidetBarnetrygd.harUtvidetBarnetrygd = false"
+                )
+            )
+    }
+
+    @Test
+    fun `skal returnere 400 når småbarnstillegg er true uten barn 0-3 år`() {
+        val request = mockGyldigÅpenRequest.copy(
+            småbarnstillegg = true,
+            barn = mockGyldigÅpenRequest.barn.map { it.copy(alder = 4, kontantstøtte = null) },
+        )
+
+        postRequest("/api/v1/beregning/barnebidrag/åpen", request)
+            .andExpect(status().isBadRequest)
+            .andExpect(
+                jsonPath("$.detail").value(
+                    "småbarnstillegg kan kun settes til true når det finnes minst ett barn med alder 0-3 år"
+                )
+            )
+    }
+
+    @Test
+    fun `skal gi 200 ved gyldig barnetilsyn i beregning request`() {
+        val request = mockGyldigÅpenRequest.copy(
+            barn = mockGyldigÅpenRequest.barn.map { it.copy(alder = 1, barnetilsyn = BarnetilsynDto(månedligUtgift = BigDecimal("1200"))) },
+        )
+
+        postRequest("/api/v1/beregning/barnebidrag/åpen", request)
+            .andExpect(status().isOk)
+
+        verify(exactly = 1) { runBlocking { beregningService.beregnBarnebidragAnonym(any()) } }
+    }
+
+    @Test
+    fun `skal gi 400 når barnetilsyn har både månedligUtgift=1200 og plassType=DELTID`() {
+        val request = mockGyldigÅpenRequest.copy(
+            barn = mockGyldigÅpenRequest.barn.mapIndexed { idx, barn ->
+                if (idx == 0) {
+                    barn.copy(
+                        barnetilsyn = barn.barnetilsyn?.copy(
+                            månedligUtgift = BigDecimal("1200"),
+                            plassType = Tilsynstype.DELTID,
+                        )
+                    )
+                } else barn }
+        )
+
+        postRequest("/api/v1/beregning/barnebidrag/åpen", request)
+            .andExpect(status().isBadRequest)
+            .andExpect(
+                jsonPath("$.detail").value(
+                    "Ugyldig barnetilsyn: kan ikke oppgi både månedligUtgift og plassType samtidig."
+                )
+            )
+    }
+
+    @Test
+    fun `skal gi 400 når barn er over 10 år og barnetilsyn månedligUtgift er gitt`() {
+        val request = mockGyldigÅpenRequest.copy(
+            barn = mockGyldigÅpenRequest.barn.mapIndexed { idx, barn ->
+                if (idx == 0) {
+                    barn.copy(
+                        alder = 11,
+                        barnetilsyn = barn.barnetilsyn?.copy(
+                            månedligUtgift = BigDecimal("1200")
+                        )
+                    )
+                } else barn }
+        )
+
+        postRequest("/api/v1/beregning/barnebidrag/åpen", request)
+            .andExpect(status().isBadRequest)
+            .andExpect(
+                jsonPath("$.detail").value(
+                    "Barnetilsyn kan ikke oppgis for barn over 10 år (barnets alder=11)."
+                )
+            )
+    }
+
+    @Test
+    fun `skal gi 200 når barnetilsyn har kun plassType=DELTID`() {
+        val request = mockGyldigÅpenRequest.copy(
+            barn = mockGyldigÅpenRequest.barn.mapIndexed { idx, barn ->
+                if (idx == 0) {
+                    barn.copy(
+                        barnetilsyn = BarnetilsynDto(
+                            månedligUtgift = null,
+                            plassType = Tilsynstype.DELTID
+                        )
+                    )
+                } else barn
+            }
+        )
+
+        postRequest("/api/v1/beregning/barnebidrag/åpen", request)
+            .andExpect(status().isOk)
+
+        verify(exactly = 1) { runBlocking { beregningService.beregnBarnebidragAnonym(any()) } }
     }
 
 
@@ -130,8 +315,8 @@ class BeregningControllerTest : AbstractControllerTest() {
         private val personIdent = genererPersonident()
 
         val mockGyldigRequest = BeregningRequestDto(
-            inntektForelder1 = 500000.0,
-            inntektForelder2 = 400000.0,
+            bidragsmottakerInntekt = ForelderInntektDto(inntekt = BigDecimal("500000")),
+            bidragspliktigInntekt = ForelderInntektDto(inntekt = BigDecimal("400000")),
             barn = listOf(
                 BarnMedIdentDto(
                     ident = personIdent,
@@ -140,6 +325,23 @@ class BeregningControllerTest : AbstractControllerTest() {
                 )
             ),
             dittBoforhold = BoforholdDto(antallBarnBorFast = 0, antallBarnDeltBosted = 0, borMedAnnenVoksen = false)
+        )
+
+        val mockGyldigÅpenRequest = ÅpenBeregningRequestDto(
+            bidragsmottakerInntekt = ForelderInntektDto(inntekt = BigDecimal("500000")),
+            bidragspliktigInntekt = ForelderInntektDto(inntekt = BigDecimal("400000")),
+            barn = listOf(
+                BarnMedAlderDto(
+                    alder = 1,
+                    samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0,
+                    bidragstype = BidragsType.PLIKTIG,
+                    barnetilsyn = BarnetilsynDto(månedligUtgift = BigDecimal("1200")),
+                    inntekt = BigDecimal.ZERO,
+                    kontantstøtte = KontantstøtteDto(beløp = BigDecimal.ZERO)
+                )
+            ),
+            dittBoforhold = BoforholdDto(antallBarnBorFast = 0, antallBarnDeltBosted = 0, borMedAnnenVoksen = false),
+            medforelderBoforhold = BoforholdDto(antallBarnBorFast = 0, antallBarnDeltBosted = 0, borMedAnnenVoksen = false)
         )
 
         val mockRespons = BeregningsresultatDto(
@@ -151,6 +353,16 @@ class BeregningControllerTest : AbstractControllerTest() {
                     fornavn = "Navn",
                     alder = 10,
                     bidragstype = mockGyldigRequest.barn.first().bidragstype
+                )
+            )
+        )
+
+        val mockÅpenRespons = ÅpenBeregningsresultatDto(
+            resultater = listOf(
+                ÅpenBeregningsresultatBarnDto(
+                    sum = BigDecimal(100),
+                    alder = 10,
+                    bidragstype = mockGyldigÅpenRequest.barn.first().bidragstype
                 )
             )
         )

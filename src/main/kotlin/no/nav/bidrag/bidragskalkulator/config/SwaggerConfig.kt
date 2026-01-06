@@ -11,6 +11,7 @@ import no.nav.bidrag.bidragskalkulator.dto.Oppgjørsform
 import no.nav.bidrag.bidragskalkulator.dto.Vedleggskrav
 import no.nav.bidrag.bidragskalkulator.dto.førstesidegenerator.NavSkjemaId
 import no.nav.bidrag.bidragskalkulator.dto.førstesidegenerator.Språkkode
+import no.nav.bidrag.domene.enums.barnetilsyn.Tilsynstype
 import no.nav.bidrag.domene.enums.beregning.Samværsklasse
 import org.springdoc.core.customizers.OpenApiCustomizer
 import org.springframework.context.annotation.Bean
@@ -37,6 +38,13 @@ class SwaggerConfig {
                 .example(Samværsklasse.SAMVÆRSKLASSE_1.name)
                 .apply {
                     enum = Samværsklasse.entries.map { it.name }
+                }
+
+            val tilsynstypeSchema = Schema<String>()
+                .description("Plass-type (heltid/deltid) når det mottas stønad til barnetilsyn.")
+                .example(Tilsynstype.HELTID.name)
+                .apply {
+                    enum = Tilsynstype.entries.map { it.name }
                 }
 
             val oppgjørsformSchema = Schema<String>()
@@ -78,6 +86,7 @@ class SwaggerConfig {
 
             openApi.components = (openApi.components ?: Components())
                 .addSchemas("Samværsklasse", samværsklasseSchema)
+                .addSchemas("Tilsynstype", tilsynstypeSchema)
                 .addSchemas("Oppgjørsform", oppgjørsformSchema)
                 .addSchemas("Vedleggskrav", vedleggskravSchema)
                 .addSchemas("Språkkode", språkkodeSchema)
