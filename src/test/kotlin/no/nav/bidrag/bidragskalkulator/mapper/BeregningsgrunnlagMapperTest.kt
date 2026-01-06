@@ -248,46 +248,33 @@ class BeregningsgrunnlagMapperTest {
     }
 
     @Test
-    fun `skal summere kontantstøtte og sjablonbaserte tillegg inn i BM inntekt`() {
-        val base: BeregningRequestDto = JsonUtils.lesJsonFil("/barnebidrag/beregning_et_barn.json")
+    fun `skal halvere kontantstøtte når deles er true og bruke full beløp når deles er false`() {
+        val beregningRequest: BeregningRequestDto = JsonUtils.lesJsonFil("/barnebidrag/beregning_et_barn.json")
+        val beløp = BigDecimal("1200")
 
-        // kontantstøtte pr måned på barnet
-        val request = base.copy(
-            barn = base.barn.map { it.copy(kontantstøtte = KontantstøtteDto(beløp = BigDecimal("100"))) },
-            utvidetBarnetrygd = UtvidetBarnetrygdDto(true, false),
-            småbarnstillegg = true
+        // deles = true
+        val requestDelt = beregningRequest.copy(
+            barn = beregningRequest.barn.map { it.copy(kontantstøtte = KontantstøtteDto(beløp = beløp, deles = true)) }
         )
-
-        every { sjablonService.hentSjablontall() } returns listOf(
-            no.nav.bidrag.commons.service.sjablon.Sjablontall(
-                typeSjablon = "0042",
-                verdi = BigDecimal("2000"),
-                datoFom = null,
-                datoTom = null
-            ),
-            no.nav.bidrag.commons.service.sjablon.Sjablontall(
-                typeSjablon = "0032",
-                verdi = BigDecimal("1500"),
-                datoFom = null,
-                datoTom = null
-            )
-        )
-
-        val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(request)
-
-        val beløp = result.first().grunnlag.grunnlagListe
+        val resultDelt = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(requestDelt)
+        val bmInntektDelt = resultDelt.first().grunnlag.grunnlagListe
             .first { it.referanse == "Inntekt_Bidragsmottaker" }
-            .innholdTilObjekt<InntektsrapporteringPeriode>()
-            .beløp
+            .innholdTilObjekt<InntektsrapporteringPeriode>().beløp
 
-        val kontantstøtteÅrlig = BigDecimal("100").multiply(BigDecimal("12"))
-        val utvidetÅrlig = BigDecimal("2000").multiply(BigDecimal("12"))
-        val småbarnÅrlig = BigDecimal("1500").multiply(BigDecimal("12"))
+        val forventetDelt = beregningRequest.bidragsmottakerInntekt.inntekt + beløp.multiply(BigDecimal("12")).divide(BigDecimal("2"))
+        assertThat(bmInntektDelt).isEqualByComparingTo(forventetDelt)
 
-        val forventet = request.bidragsmottakerInntekt.inntekt +
-                kontantstøtteÅrlig + utvidetÅrlig + småbarnÅrlig
+        // deles = false
+        val requestFull = beregningRequest.copy(
+            barn = beregningRequest.barn.map { it.copy(kontantstøtte = KontantstøtteDto(beløp = beløp, deles = false)) }
+        )
+        val resultFull = beregningsgrunnlagMapper.mapTilBeregningsgrunnlag(requestFull)
+        val bmInntektFull = resultFull.first().grunnlag.grunnlagListe
+            .first { it.referanse == "Inntekt_Bidragsmottaker" }
+            .innholdTilObjekt<InntektsrapporteringPeriode>().beløp
 
-        assertThat(beløp).isEqualByComparingTo(forventet)
+        val forventetFull = beregningRequest.bidragsmottakerInntekt.inntekt + beløp.multiply(BigDecimal("12"))
+        assertThat(bmInntektFull).isEqualByComparingTo(forventetFull)
     }
 
     @Test
