@@ -3,13 +3,11 @@ package no.nav.bidrag.bidragskalkulator.mapper
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import no.nav.bidrag.beregn.barnebidrag.bo.BarnetilsynMedStønad
-import no.nav.bidrag.bidragskalkulator.dto.BarnetilsynDto
 import no.nav.bidrag.bidragskalkulator.dto.BidragsType
 import no.nav.bidrag.bidragskalkulator.dto.IFellesBarnDto
+import no.nav.bidrag.bidragskalkulator.dto.VoksneOver18Type
 import no.nav.bidrag.bidragskalkulator.mapper.BeregningsgrunnlagMapper.Referanser
 import no.nav.bidrag.bidragskalkulator.utils.kalkulerAlder
-import no.nav.bidrag.commons.service.sjablon.Barnetilsyn
 import no.nav.bidrag.domene.enums.barnetilsyn.Skolealder
 import no.nav.bidrag.domene.enums.barnetilsyn.Tilsynstype
 import no.nav.bidrag.domene.enums.beregning.Samværsklasse
@@ -27,10 +25,24 @@ import java.time.YearMonth
 
 private const val KAPITALINNTEKT_TERSKEL = 10_000
 
+internal object BeregningsgrunnlagKonstant {
+    const val BOSTATUS_BIDRAGSPLIKTIG = "Bostatus_Bidragspliktig"
+    const val BOSTATUS_BARN_PREFIX = "Bostatus_"
+    const val BOSTATUS_EGNE_BARN_UNDER18_BOR_FAST = "egne_barn_under18_bor_fast"
+    const val BOSTATUS_EGNE_BARN_OVER18_VGS = "egne_barn_over18_vgs"
+    const val INNTEKT_BIDRAGSPLIKTIG = "Inntekt_Bidragspliktig"
+    const val INNTEKT_BIDRAGSMOTTAKER = "Inntekt_Bidragsmottaker"
+    const val INNTEKT_PREFIX = "Inntekt_"
+    const val SAMVAERSPERIODE = "Mottatt_Samværsperiode"
+    const val FAKTISK_UTGIFT = "Mottatt_FaktiskUtgift"
+    const val BARNETILSYN_PREFIX = "Mottatt_Barnetilsyn_"
+}
+
 @Component
 class BeregningsgrunnlagBuilder(
     private val objectMapper: ObjectMapper = ObjectMapper().registerKotlinModule().registerModule(JavaTimeModule())
 ) {
+
     fun byggPersongrunnlag(referanse: String, type: Grunnlagstype, fødselsdato: LocalDate? = null) = GrunnlagDto(
         referanse = referanse,
         type = type,
@@ -59,7 +71,7 @@ class BeregningsgrunnlagBuilder(
 
         fun barnGrunnlag(antall: Int, prefix: String, kode: Bostatuskode) = List(antall) { index ->
             nyttBostatusgrunnlag(
-                referanse = "Bostatus_${prefix}_$index",
+                referanse = "${BeregningsgrunnlagKonstant.BOSTATUS_BARN_PREFIX}${prefix}_$index",
                 bostatus = kode,
                 gjelderBarnReferanse = "Barn_${prefix}_$index",
                 gjelderReferanse = Referanser.BIDRAGSPLIKTIG
@@ -67,21 +79,40 @@ class BeregningsgrunnlagBuilder(
         }
 
         val boforhold = if (data.bidragstype == BidragsType.PLIKTIG) data.dittBoforhold else data.medforelderBoforhold
-        val bostatusBidragspliktig = if(boforhold?.borMedAnnenVoksen == true) Bostatuskode.BOR_MED_ANDRE_VOKSNE else Bostatuskode.BOR_IKKE_MED_ANDRE_VOKSNE
+        val borMedSamboerEllerEktefelle = boforhold?.voksneOver18Type?.contains(VoksneOver18Type.SAMBOER_ELLER_EKTEFELLE) == true
+        val bostatusBidragspliktig = if(borMedSamboerEllerEktefelle) Bostatuskode.BOR_MED_ANDRE_VOKSNE else Bostatuskode.BOR_IKKE_MED_ANDRE_VOKSNE
 
-        val bostatusBarn = buildList {
-            boforhold?.antallBarnBorFast?.takeIf { it > 0 }?.let {
-                addAll(barnGrunnlag(it, "med_forelder", Bostatuskode.MED_FORELDER))
-            }
-            boforhold?.antallBarnDeltBosted?.takeIf { it > 0 }?.let {
-                addAll(barnGrunnlag(it, "delt_bosted", Bostatuskode.DELT_BOSTED))
+        val bostatusBarnUnder18 = buildList {
+            boforhold?.antallBarnUnder18BorFast?.takeIf { it > 0 }?.let {
+                addAll(barnGrunnlag(it, BeregningsgrunnlagKonstant.BOSTATUS_EGNE_BARN_UNDER18_BOR_FAST, Bostatuskode.MED_FORELDER))
             }
         }
 
+        val bostatusBarnOver18Vgs = buildList {
+            boforhold
+                ?.takeIf { it.voksneOver18Type?.contains(VoksneOver18Type.EGNE_BARN_OVER_18) == true }
+                ?.antallBarnOver18Vgs
+                ?.takeIf { it > 0 }
+                ?.let {
+                    addAll(barnGrunnlag(it, BeregningsgrunnlagKonstant.BOSTATUS_EGNE_BARN_OVER18_VGS, Bostatuskode.DOKUMENTERT_SKOLEGANG))
+                }
+        }
+
         return buildList {
-            add(nyttBostatusgrunnlag("Bostatus_Bidragspliktig", bostatusBidragspliktig, null, Referanser.BIDRAGSPLIKTIG))
-            add(nyttBostatusgrunnlag("Bostatus_${data.barnReferanse}", Bostatuskode.IKKE_MED_FORELDER, data.barnReferanse, Referanser.BIDRAGSPLIKTIG))
-            addAll(bostatusBarn)
+            add(nyttBostatusgrunnlag(
+                BeregningsgrunnlagKonstant.BOSTATUS_BIDRAGSPLIKTIG,
+                bostatusBidragspliktig,
+                null,
+                Referanser.BIDRAGSPLIKTIG
+            ))
+            add(nyttBostatusgrunnlag(
+                "${BeregningsgrunnlagKonstant.BOSTATUS_BARN_PREFIX}${data.barnReferanse}",
+                Bostatuskode.IKKE_MED_FORELDER,
+                data.barnReferanse,
+                Referanser.BIDRAGSPLIKTIG
+            ))
+            addAll(bostatusBarnUnder18)
+            addAll(bostatusBarnOver18Vgs)
         }
     }
 
@@ -121,15 +152,15 @@ class BeregningsgrunnlagBuilder(
             )
 
         return listOf(
-            nyttInntektsgrunnlag("Inntekt_Bidragspliktig", inntektBidragspliktig, Referanser.BIDRAGSPLIKTIG),
-            nyttInntektsgrunnlag("Inntekt_Bidragsmottaker", samletInntektBidragsmottaker, Referanser.BIDRAGSMOTTAKER),
+            nyttInntektsgrunnlag(BeregningsgrunnlagKonstant.INNTEKT_BIDRAGSPLIKTIG, inntektBidragspliktig, Referanser.BIDRAGSPLIKTIG),
+            nyttInntektsgrunnlag(BeregningsgrunnlagKonstant.INNTEKT_BIDRAGSMOTTAKER, samletInntektBidragsmottaker, Referanser.BIDRAGSMOTTAKER),
         )
     }
 
     fun byggBarnInntektsgrunnlag(barn: IFellesBarnDto, referanse: String): GrunnlagDto? {
         return barn.inntekt?.let { beløp ->
                 GrunnlagDto(
-                    referanse = "Inntekt_$referanse",
+                    referanse = "${BeregningsgrunnlagKonstant.INNTEKT_PREFIX}$referanse",
                     type = Grunnlagstype.INNTEKT_RAPPORTERING_PERIODE,
                     innhold = objectMapper.valueToTree(
                         InntektsrapporteringPeriode(
@@ -148,7 +179,7 @@ class BeregningsgrunnlagBuilder(
 
     fun byggSamværsgrunnlag(samværsklasse: Samværsklasse, gjelderBarnReferanse: String): GrunnlagDto =
         GrunnlagDto(
-            referanse = "Mottatt_Samværsperiode",
+            referanse = BeregningsgrunnlagKonstant.SAMVAERSPERIODE,
             type = Grunnlagstype.SAMVÆRSPERIODE,
             innhold = objectMapper.valueToTree(
                 SamværsperiodeGrunnlag(
@@ -176,7 +207,7 @@ class BeregningsgrunnlagBuilder(
     }
 
     fun byggMottattFaktiskUtgift(barnFødselsdato: LocalDate, barnReferanse: String, barnetilsynsutgift: BigDecimal): GrunnlagDto = GrunnlagDto(
-        referanse = "Mottatt_FaktiskUtgift",
+        referanse = BeregningsgrunnlagKonstant.FAKTISK_UTGIFT,
         type = Grunnlagstype.FAKTISK_UTGIFT_PERIODE,
         innhold = objectMapper.valueToTree(
             FaktiskUtgiftPeriode(
@@ -193,7 +224,7 @@ class BeregningsgrunnlagBuilder(
     )
 
     fun byggMottattBarnetilsyn(barnReferanse: String, plassType: Tilsynstype): GrunnlagDto = GrunnlagDto(
-        referanse = "Mottatt_Barnetilsyn_$barnReferanse",
+        referanse = "${BeregningsgrunnlagKonstant.BARNETILSYN_PREFIX}$barnReferanse",
         type = Grunnlagstype.BARNETILSYN_MED_STØNAD_PERIODE,
         innhold = objectMapper.valueToTree(
             BarnetilsynMedStønadPeriode(

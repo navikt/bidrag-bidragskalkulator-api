@@ -1,5 +1,6 @@
 package no.nav.bidrag.bidragskalkulator.service
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -32,6 +33,7 @@ class BeregningService(
     private val beregningsgrunnlagMapper: BeregningsgrunnlagMapper,
     private val personService: PersonService,
 ) {
+
     suspend fun beregnBarnebidrag(beregningRequest: BeregningRequestDto): BeregningsresultatDto {
         logger.info { "Starter beregning av barnebidrag." }
         val (resultatListe, varighet) = runCatching {
@@ -54,7 +56,6 @@ class BeregningService(
             measureTimedValue {
                 val grunnlag = beregningsgrunnlagMapper.mapTilBeregningsgrunnlagAnonym(beregningRequest)
                 utførBarnebidragBeregningAnonym(grunnlag)
-
             }
         }.onFailure { e ->
             logger.error{ "Anonym beregning av barnebidrag feilet." }
@@ -79,7 +80,6 @@ class BeregningService(
                             ident = data.ident,
                             fulltNavn = barn.visningsnavn,
                             fornavn = barn.fornavn ?: barn.visningsnavn,
-                            bidragstype = data.bidragsType,
                             alder = data.alder
                         )
                 }
@@ -94,7 +94,6 @@ class BeregningService(
 
                     ÅpenBeregningsresultatBarnDto(
                         sum = sum,
-                        bidragstype = data.bidragsType,
                         alder = data.alder
                     )
                 }
