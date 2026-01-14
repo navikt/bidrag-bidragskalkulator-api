@@ -5,19 +5,17 @@
   "bidragspliktigInntekt": {
     "inntekt": 60000
   },
+  "bidragstype": "MOTTAKER",
   "barn": [
     {
-      "ident": "{BARN1_FNR}",
-      "samværsklasse": "SAMVÆRSKLASSE_1",
-      "bidragstype": "PLIKTIG",
+      "alder":  1,
+      "samværsklasse": "SAMVÆRSKLASSE_2",
       "barnetilsyn": {
         "månedligUtgift": 2000
       }
     }
   ],
   "dittBoforhold": {
-    "antallBarnBorFast": 2,
-    "antallBarnDeltBosted": 1,
-    "borMedAnnenVoksen": true
+    "antallBarnUnder18BorFast": 2
   }
 }
