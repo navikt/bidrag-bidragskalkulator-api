@@ -54,7 +54,6 @@ class BeregningService(
             measureTimedValue {
                 val grunnlag = beregningsgrunnlagMapper.mapTilBeregningsgrunnlagAnonym(beregningRequest)
                 utførBarnebidragBeregningAnonym(grunnlag)
-
             }
         }.onFailure { e ->
             logger.error{ "Anonym beregning av barnebidrag feilet." }
@@ -79,7 +78,6 @@ class BeregningService(
                             ident = data.ident,
                             fulltNavn = barn.visningsnavn,
                             fornavn = barn.fornavn ?: barn.visningsnavn,
-                            bidragstype = data.bidragsType,
                             alder = data.alder
                         )
                 }
@@ -94,7 +92,6 @@ class BeregningService(
 
                     ÅpenBeregningsresultatBarnDto(
                         sum = sum,
-                        bidragstype = data.bidragsType,
                         alder = data.alder
                     )
                 }

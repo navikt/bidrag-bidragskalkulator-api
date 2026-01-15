@@ -2,9 +2,11 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import no.nav.bidrag.beregn.barnebidrag.BeregnBarnebidragApi
-import no.nav.bidrag.bidragskalkulator.dto.BeregningRequestDto
-import no.nav.bidrag.bidragskalkulator.dto.BeregningsresultatDto
+import no.nav.bidrag.bidragskalkulator.dto.BidragsType
 import no.nav.bidrag.bidragskalkulator.dto.ForelderInntektDto
+import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.BarnMedAlderDto
+import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningRequestDto
+import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningsresultatDto
 import no.nav.bidrag.bidragskalkulator.mapper.BeregningsgrunnlagBuilder
 import no.nav.bidrag.bidragskalkulator.mapper.BeregningsgrunnlagMapper
 import no.nav.bidrag.bidragskalkulator.mapper.tilFamilieRelasjon
@@ -14,13 +16,13 @@ import no.nav.bidrag.bidragskalkulator.service.PersonService
 import no.nav.bidrag.bidragskalkulator.service.SjablonService
 import no.nav.bidrag.bidragskalkulator.utils.JsonUtils
 import no.nav.bidrag.bidragskalkulator.utils.kalkulerAlder
+import no.nav.bidrag.domene.enums.beregning.Samværsklasse
 import no.nav.bidrag.domene.tid.ÅrMånedsperiode
 import no.nav.bidrag.generer.testdata.person.genererPersonident
 import no.nav.bidrag.transport.behandling.beregning.barnebidrag.BeregnetBarnebidragResultat
 import no.nav.bidrag.transport.behandling.beregning.barnebidrag.ResultatBeregning
 import no.nav.bidrag.transport.behandling.beregning.barnebidrag.ResultatPeriode
 import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
-import no.nav.bidrag.transport.person.PersonDto
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -58,24 +60,26 @@ class BeregningServiceTest {
     @Nested
     inner class BeregningBarnebidragForEttBarn {
 
-        private lateinit var beregningRequest: BeregningRequestDto
-        private lateinit var beregningResultat: BeregningsresultatDto
+        private lateinit var beregningRequest: ÅpenBeregningRequestDto
+        private lateinit var beregningResultat: ÅpenBeregningsresultatDto
 
         @BeforeEach
         fun oppsett() = runTest {
-            beregningRequest = mockOppsett("/barnebidrag/beregning_et_barn.json")
-            beregningResultat = beregningService.beregnBarnebidrag(beregningRequest)
+            // beregne for et barn
+            beregningRequest = mockOppsett(listOf(BarnMedAlderDto(alder = 1, samværsklasse = Samværsklasse.SAMVÆRSKLASSE_2)))
+            beregningResultat = beregningService.beregnBarnebidragAnonym(beregningRequest)
         }
 
         @Test
         fun `skal returnere tomt resultat dersom ingen barn er oppgitt`() = runTest {
-            val beregningRequest = BeregningRequestDto(
+            val beregningRequest = ÅpenBeregningRequestDto(
                 bidragsmottakerInntekt = ForelderInntektDto(inntekt = BigDecimal("500000")),
                 bidragspliktigInntekt = ForelderInntektDto(inntekt = BigDecimal("600000")),
+                bidragstype = BidragsType.PLIKTIG,
                 barn = emptyList()
             )
 
-            val resultat = beregningService.beregnBarnebidrag(beregningRequest)
+            val resultat = beregningService.beregnBarnebidragAnonym(beregningRequest)
 
             assertEquals(true, resultat.resultater.isEmpty())
         }
@@ -83,25 +87,27 @@ class BeregningServiceTest {
         @Test
         fun `skal returnere ett beregningsresultat for ett barn`() {
             assertEquals(1, beregningResultat.resultater.size)
-            assertEquals(beregningRequest.barn.first().ident, beregningResultat.resultater.first().ident)
         }
     }
 
     @Nested
     inner class BeregningBarnebidragForToBarn {
 
-        private lateinit var beregningRequest: BeregningRequestDto
-        private lateinit var beregningResultat: BeregningsresultatDto
+        private lateinit var beregningRequest: ÅpenBeregningRequestDto
+        private lateinit var beregningResultat: ÅpenBeregningsresultatDto
 
         @BeforeEach
         fun oppsett() = runTest {
-            beregningRequest = mockOppsett("/barnebidrag/beregning_to_barn.json")
-            beregningResultat = beregningService.beregnBarnebidrag(beregningRequest)
+            beregningRequest = mockOppsett(listOf(
+                BarnMedAlderDto(alder = 4, samværsklasse = Samværsklasse.SAMVÆRSKLASSE_2),
+                BarnMedAlderDto(alder = 7, samværsklasse = Samværsklasse.SAMVÆRSKLASSE_3)
+            ))
+            beregningResultat = beregningService.beregnBarnebidragAnonym(beregningRequest)
         }
 
         @Test
         fun `skal returnere to beregningsresultater for to barn`() = runTest {
-            val resultat = beregningService.beregnBarnebidrag(beregningRequest)
+            val resultat = beregningService.beregnBarnebidragAnonym(beregningRequest)
             assertEquals(2, resultat.resultater.size)
         }
     }
@@ -175,28 +181,24 @@ class BeregningServiceTest {
         )
     }
 
-    private fun mockOppsett(filNavn: String): BeregningRequestDto {
-        val beregningRequest: BeregningRequestDto = JsonUtils.lesJsonFil(filNavn)
-
-        val result: List<PersonDto> = beregningRequest.barn.mapIndexed  { _, barn ->
-            PersonDto(
-                ident = barn.ident,
-                navn = "Navn Navnesen",
-                fornavn = "Navn",
-                etternavn = "Navnesen",
-                dødsdato = null,
-                fødselsdato = barn.ident.fødselsdato(),
-                visningsnavn = "Navn Navnesen"
-            )
-        }
+    private fun mockOppsett(barn: List<BarnMedAlderDto>): ÅpenBeregningRequestDto {
+        val beregningRequest = ÅpenBeregningRequestDto(
+            bidragsmottakerInntekt = ForelderInntektDto(inntekt = BigDecimal("500000")),
+            bidragspliktigInntekt = ForelderInntektDto(inntekt = BigDecimal("800000")),
+            bidragstype = BidragsType.PLIKTIG,
+            barn = barn,
+            dittBoforhold = null,
+            medforelderBoforhold = null,
+            utvidetBarnetrygd = null,
+            småbarnstillegg = false
+        )
 
         val beregnetResultat = BeregnetBarnebidragResultat(
             beregnetBarnebidragPeriodeListe = listOf(lagResultatPeriode())
         )
 
-        result.forEach {
+        beregningRequest.barn.forEach { _ ->
             every { beregnBarnebidragApi.beregn(any()) } returns beregnetResultat
-            every { personService.hentPersoninformasjon(any()) } returns it
         }
 
         return beregningRequest

@@ -11,21 +11,18 @@ data class BeregningsresultatDto(
 
 @Schema(description = "Beregnet barnebidrag for et enkelt barn")
 data class BeregningsresultatBarnDto(
-    @Schema(description = "Unik identifikator for barnet (fødselsnummer eller D-nummer)", example = "12345678901")
+    @field:Schema(description = "Unik identifikator for barnet (fødselsnummer eller D-nummer)", example = "12345678901")
     val ident: Personident,
 
-    @Schema(description = "Fullt navn til barnet", example = "Ola Nordmann")
+    @field:Schema(description = "Fullt navn til barnet", example = "Ola Nordmann")
     val fulltNavn: String,
 
-    @Schema(description = "Fornavn til barnet", example = "Ola")
+    @field:Schema(description = "Fornavn til barnet", example = "Ola")
     val fornavn: String,
 
-    @Schema(description = "Alder til barnet", required = true, example = "10")
+    @field:Schema(description = "Alder til barnet", required = true, example = "10")
     val alder: Int,
 
-    @Schema(description = "Beregnet barnebidrag", example = "3200")
-    val sum: BigDecimal,
-
-    @Schema(description = "Typen bidrag – man skal betale eller motta bidrag", example = "PLIKTIG")
-    val bidragstype: BidragsType,
+    @field:Schema(description = "Beregnet barnebidrag", example = "3200")
+    val sum: BigDecimal
 )

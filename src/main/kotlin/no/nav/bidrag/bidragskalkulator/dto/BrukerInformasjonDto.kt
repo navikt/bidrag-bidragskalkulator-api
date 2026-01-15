@@ -70,12 +70,12 @@ data class BrukerInformasjonDto(
 @Schema(description = "Samværsfradrag for et gitt aldersintervall")
 data class SamværsfradragPeriode(
 
-    @param:Schema(description = "Start på aldersintervall")
+    @field:Schema(description = "Start på aldersintervall")
     val alderFra: Int,
 
-    @param:Schema(description = "Slutt på aldersintervall")
+    @field:Schema(description = "Slutt på aldersintervall")
     val alderTil: Int,
 
-    @param:Schema(description = "Beløp per samværsfradragsklasse for dette aldersintervallet. For eksempel SAMVÆRSKLASSE_1, SAMVÆRSKLASSE_2 osv.")
+    @field:Schema(description = "Beløp per samværsfradragsklasse for dette aldersintervallet. For eksempel SAMVÆRSKLASSE_1, SAMVÆRSKLASSE_2 osv.")
     val beløpFradrag: Map<String, BigDecimal>
 )

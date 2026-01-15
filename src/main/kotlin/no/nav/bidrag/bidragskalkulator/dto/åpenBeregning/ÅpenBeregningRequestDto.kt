@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.annotation.Nullable
 import jakarta.validation.Valid
-import jakarta.validation.constraints.DecimalMin
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotEmpty
@@ -25,10 +24,6 @@ data class BarnMedAlderDto(
     @field:NotNull(message = "Samværsklasse må være satt")
     @param:Schema(ref = "#/components/schemas/Samværsklasse") // Reference dynamically registered schema. See BeregnBarnebidragConfig
     override val samværsklasse: Samværsklasse,
-
-    @field:NotNull(message = "Bidragstype må være satt")
-    @param:Schema(description = "Angir om den påloggede personen er pliktig eller mottaker for dette barnet", required = true)
-    override val bidragstype: BidragsType,
 
     @param:Schema(description = "Opplysninger om barnetilsyn for dette barnet.",
         required = false,
@@ -104,6 +99,10 @@ data class ÅpenBeregningRequestDto(
         implementation = ForelderInntektDto::class
     )
     override val bidragspliktigInntekt: ForelderInntektDto,
+
+    @field:NotNull(message = "Bidragstype må være satt")
+    @param:Schema(description = "Angir om den personen er pliktig eller mottaker", required = true)
+    override val bidragstype: BidragsType,
 ) : FellesBeregningRequestDto<BarnMedAlderDto>(
-    bidragsmottakerInntekt, bidragspliktigInntekt, barn, dittBoforhold, medforelderBoforhold, utvidetBarnetrygd, småbarnstillegg
+    bidragsmottakerInntekt, bidragspliktigInntekt, bidragstype, barn, dittBoforhold, medforelderBoforhold, utvidetBarnetrygd, småbarnstillegg
 )

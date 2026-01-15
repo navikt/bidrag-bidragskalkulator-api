@@ -18,6 +18,12 @@ enum class BidragsType {
     MOTTAKER // Pålogget person er bidragsmottaker
 }
 
+@Schema(description = "Type voksne over 18 år i husholdningen")
+enum class VoksneOver18Type {
+    SAMBOER_ELLER_EKTEFELLE,
+    EGNE_BARN_OVER_18,
+}
+
 @Schema(
     description = "Opplysninger om barnepass/barnetilsyn for barnet. " +
             "Enten oppgis faktisk månedlig utgift (beløp), eller så oppgis at det mottas stønad til barnetilsyn med plass-type."
@@ -60,7 +66,6 @@ data class KontantstøtteDto(
 )
 
 interface IFellesBarnDto {
-    val bidragstype: BidragsType
     val samværsklasse: Samværsklasse
     val barnetilsyn: BarnetilsynDto?
     val inntekt: BigDecimal?
@@ -76,10 +81,6 @@ data class BarnMedIdentDto(
     @field:NotNull(message = "Samværsklasse må være satt")
     @param:Schema(ref = "#/components/schemas/Samværsklasse") // Reference dynamically registered schema. See BeregnBarnebidragConfig
     override val samværsklasse: Samværsklasse,
-
-    @field:NotNull(message = "Bidragstype må være satt")
-    @param:Schema(description = "Angir om den påloggede personen er pliktig eller mottaker for dette barnet", required = true)
-    override val bidragstype: BidragsType,
 
     @param:Schema(description = "Opplysninger om barnetilsyn for dette barnet.",
         required = false,
@@ -148,23 +149,33 @@ data class BeregningRequestDto(
         implementation = ForelderInntektDto::class
     )
     override val bidragspliktigInntekt: ForelderInntektDto,
+
+    @field:NotNull(message = "Bidragstype må være satt")
+    @param:Schema(description = "Angir om den personen er pliktig eller mottaker", required = true)
+    override val bidragstype: BidragsType,
 ) : FellesBeregningRequestDto<BarnMedIdentDto>(
-    bidragsmottakerInntekt, bidragspliktigInntekt, barn, dittBoforhold, medforelderBoforhold, utvidetBarnetrygd, småbarnstillegg
+    bidragsmottakerInntekt, bidragspliktigInntekt, bidragstype, barn, dittBoforhold, medforelderBoforhold, utvidetBarnetrygd, småbarnstillegg
 )
 
 @Schema(description = "Boforholdsinformasjon for en forelder")
 data class BoforholdDto(
     @field:NotNull(message = "Antall barn som bor fast hos forelderen må være satt")
     @param:Schema(description = "Antall barn under 18 år som bor fast hos forelderen", required = true, example = "3")
-    val antallBarnBorFast: Int,
+    val antallBarnUnder18BorFast: Int,
 
-    @field:NotNull(message = "Antall barn som har avtalt delt bosted hos forelderen må være satt")
-    @param:Schema(description = "Antall barn under 18 år med delt bosted hos forelderen", required = true, example = "3")
-    val antallBarnDeltBosted: Int,
+    @param:Schema(
+        description = "Typer voksne over 18 år i husholdningen (kan være null).",
+        required = false
+    )
+    val voksneOver18Type: Set<VoksneOver18Type>? = null,
 
-    @field:NotNull(message = "Indikator om forelderen deler bolig med en annen voksen må være satt")
-    @param:Schema(description = "Indikerer om forelderen deler bolig med en annen voksen", required = true, example = "false")
-    val borMedAnnenVoksen: Boolean,
+    @field:Min(0)
+    @param:Schema(
+        description = "Antall egne barn over 18 år som går på videregående skole. Må settes hvis voksneOver18Type inneholder EGNE_BARN_OVER_18.",
+        required = false,
+        example = "1"
+    )
+    val antallBarnOver18Vgs: Int? = null,
 )
 
 @Schema(
@@ -213,6 +224,7 @@ data class ForelderInntektDto(
 abstract class FellesBeregningRequestDto<T : IFellesBarnDto>(
     open val bidragsmottakerInntekt: ForelderInntektDto,
     open val bidragspliktigInntekt: ForelderInntektDto,
+    open val bidragstype: BidragsType,
     open val barn: List<T>,
     open val dittBoforhold: BoforholdDto? = null,
     open val medforelderBoforhold: BoforholdDto? = null,

@@ -44,7 +44,7 @@ class BeregningsgrunnlagMapper(
 
             PersonBeregningsgrunnlag(
                 ident = barn.ident,
-                bidragsType = barn.bidragstype,
+                bidragsType = dto.bidragstype,
                 alder = kalkulerAlder(fødselsdato),
                 grunnlag = beregningsgrunnlagBuilder.byggFellesBeregnGrunnlag(barnReferanse, fødselsdato, grunnlagListe)
             )
@@ -54,7 +54,7 @@ class BeregningsgrunnlagMapper(
     fun mapTilBeregningsgrunnlagAnonym(dto: ÅpenBeregningRequestDto): List<PersonBeregningsgrunnlagAnonym> {
         val bmTilleggÅrlig = beregnBmTilleggÅrlig(dto)
 
-        return dto.barn.mapIndexed { index, barn ->
+        val grunnlag = dto.barn.mapIndexed { index, barn ->
             val barnReferanse = barnReferanse(index)
             val fødselsdato = barn.getEstimertFødselsdato()
 
@@ -68,10 +68,12 @@ class BeregningsgrunnlagMapper(
 
             PersonBeregningsgrunnlagAnonym(
                 alder = barn.alder,
-                bidragsType = barn.bidragstype,
+                bidragsType = dto.bidragstype,
                 grunnlag = beregningsgrunnlagBuilder.byggFellesBeregnGrunnlag(barnReferanse, fødselsdato, grunnlagListe)
             )
         }
+
+        return grunnlag
     }
 
     fun mapTilBoOgForbruksutgiftsgrunnlag(fødselsdato: LocalDate, barnReferanse: String): BeregnGrunnlag {
@@ -92,7 +94,7 @@ class BeregningsgrunnlagMapper(
     ): List<GrunnlagDto> {
         val kontekst = BeregningKontekst(
             barnReferanse = barnReferanse,
-            bidragstype = barn.bidragstype,
+            bidragstype = dto.bidragstype,
             dittBoforhold = dto.dittBoforhold,
             medforelderBoforhold = dto.medforelderBoforhold,
             bidragsmottakerInntekt = dto.bidragsmottakerInntekt,

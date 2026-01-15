@@ -13,6 +13,8 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import com.fasterxml.jackson.databind.JsonMappingException
 import no.nav.bidrag.bidragskalkulator.dto.ForelderInntektDto
+import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.BarnMedAlderDto
+import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningRequestDto
 import no.nav.bidrag.generer.testdata.person.genererPersonident
 import java.math.BigDecimal
 
@@ -31,14 +33,14 @@ class BeregningServiceValidationTest {
 
     @Test
     fun `skal returnere valideringsfeil dersom bidragstype ikke er satt`() {
-        val request = BeregningRequestDto(
+        val request = ÅpenBeregningRequestDto(
             bidragsmottakerInntekt = ForelderInntektDto(inntekt = BigDecimal("500000")),
             bidragspliktigInntekt = ForelderInntektDto(inntekt = BigDecimal("600000")),
+            bidragstype = BidragsType.PLIKTIG,
             barn = listOf(
-                BarnMedIdentDto(
-                    ident = personIdent,
+                BarnMedAlderDto(
+                    alder = 1,
                     samværsklasse = Samværsklasse.SAMVÆRSKLASSE_1,
-                    bidragstype = BidragsType.PLIKTIG
                 )
             )
         )
@@ -49,11 +51,15 @@ class BeregningServiceValidationTest {
         // Now create an invalid JSON request missing bidragstype
         val jsonRequest = """
             {
-                "inntektForelder1": 500000.0,
-                "inntektForelder2": 600000.0,
+                "bidragsmottakerInntekt": {
+                    "inntekt": 500000.0
+                },
+                "bidragspliktigInntekt": {
+                    "inntekt": 600000.0
+                },
                 "barn": [
                     {
-                        "ident": "${personIdent.verdi}",
+                        "alder": 1,
                         "samværsklasse": "SAMVÆRSKLASSE_1"
                     }
                 ]
@@ -61,7 +67,7 @@ class BeregningServiceValidationTest {
         """.trimIndent()
 
         val exception = assertThrows<JsonMappingException> {
-            objectMapper.readValue<BeregningRequestDto>(jsonRequest)
+            objectMapper.readValue<ÅpenBeregningRequestDto>(jsonRequest)
         }
         assertTrue(exception.message?.contains("bidragstype") == true, "Expected error message to mention 'bidragstype' but was: ${exception.message}")
     }
@@ -71,6 +77,7 @@ class BeregningServiceValidationTest {
         val request = BeregningRequestDto(
             bidragsmottakerInntekt = ForelderInntektDto(inntekt = BigDecimal("500000")),
             bidragspliktigInntekt = ForelderInntektDto(inntekt = BigDecimal("600000")),
+            bidragstype = BidragsType.PLIKTIG,
             barn = emptyList()
         )
 
@@ -83,7 +90,8 @@ class BeregningServiceValidationTest {
         val request = BeregningRequestDto(
             bidragsmottakerInntekt = ForelderInntektDto(inntekt = BigDecimal("-500000")),
             bidragspliktigInntekt = ForelderInntektDto(inntekt = BigDecimal("600000")),
-            barn = listOf(BarnMedIdentDto(personIdent, Samværsklasse.SAMVÆRSKLASSE_1, BidragsType.PLIKTIG))
+            bidragstype = BidragsType.PLIKTIG,
+            barn = listOf(BarnMedIdentDto(personIdent, Samværsklasse.SAMVÆRSKLASSE_1))
         )
 
         val violations = validator.validate(request)
@@ -102,7 +110,8 @@ class BeregningServiceValidationTest {
         val request = BeregningRequestDto(
             bidragsmottakerInntekt = ForelderInntektDto(inntekt = BigDecimal("1000000000")), // 1 milliard
             bidragspliktigInntekt = ForelderInntektDto(inntekt = BigDecimal("900000000")), // 900 millioner
-            barn = listOf(BarnMedIdentDto(personIdent, Samværsklasse.SAMVÆRSKLASSE_1, BidragsType.MOTTAKER))
+            bidragstype = BidragsType.PLIKTIG,
+            barn = listOf(BarnMedIdentDto(personIdent, Samværsklasse.SAMVÆRSKLASSE_1))
         )
 
         val violations = validator.validate(request)
@@ -117,7 +126,8 @@ class BeregningServiceValidationTest {
                 nettoPositivKapitalinntekt = BigDecimal("-1")
             ),
             bidragspliktigInntekt = ForelderInntektDto(inntekt = BigDecimal("600000")),
-            barn = listOf(BarnMedIdentDto(personIdent, Samværsklasse.SAMVÆRSKLASSE_1, BidragsType.PLIKTIG))
+            bidragstype = BidragsType.PLIKTIG,
+            barn = listOf(BarnMedIdentDto(personIdent, Samværsklasse.SAMVÆRSKLASSE_1))
         )
 
         val violations = validator.validate(request)
@@ -139,7 +149,8 @@ class BeregningServiceValidationTest {
                 nettoPositivKapitalinntekt = BigDecimal("10000.123") // 3 desimaler
             ),
             bidragspliktigInntekt = ForelderInntektDto(inntekt = BigDecimal("600000")),
-            barn = listOf(BarnMedIdentDto(personIdent, Samværsklasse.SAMVÆRSKLASSE_1, BidragsType.PLIKTIG))
+            bidragstype = BidragsType.PLIKTIG,
+            barn = listOf(BarnMedIdentDto(personIdent, Samværsklasse.SAMVÆRSKLASSE_1))
         )
 
         val violations = validator.validate(request)
@@ -159,17 +170,17 @@ class BeregningServiceValidationTest {
         {
           "bidragsmottakerInntekt": { "inntekt": 500000.00 },
           "bidragspliktigInntekt": { "inntekt": 600000.00 },
+          "bidragstype": "MOTTAKER",
           "barn": [
             {
-              "ident": "${personIdent.verdi}",
-              "samværsklasse": "SAMVÆRSKLASSE_1",
-              "bidragstype": "PLIKTIG"
+              "alder": 1,
+              "samværsklasse": "SAMVÆRSKLASSE_1"
             }
           ]
         }
     """.trimIndent()
 
-        val dto = objectMapper.readValue<BeregningRequestDto>(jsonRequest)
+        val dto = objectMapper.readValue<ÅpenBeregningRequestDto>(jsonRequest)
 
         assertEquals(
             BigDecimal.ZERO,
