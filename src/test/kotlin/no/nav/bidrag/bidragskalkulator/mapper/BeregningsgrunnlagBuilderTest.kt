@@ -20,6 +20,7 @@ import no.nav.bidrag.transport.behandling.felles.grunnlag.innholdTilObjekt
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import java.math.BigDecimal
+import java.time.LocalDate
 import kotlin.test.Test
 
 class BeregningsgrunnlagBuilderTest {
@@ -371,6 +372,36 @@ class BeregningsgrunnlagBuilderTest {
             val forventet = beregningRequest.bidragsmottakerInntekt.inntekt + forventetTillegg
             assertThat(bmBeløp).isEqualByComparingTo(forventet)
         }
+
+        @Nested
+        inner class BarnInntektsgrunnlagTest {
+
+            @Test
+            fun `byggBarnInntektsgrunnlag skal returnere null når barn inntekt er null`() {
+                val barn = lagBarnDto(inntekt = null)
+
+                val result = builder.byggBarnInntektsgrunnlag(barn, "Person_Søknadsbarn_0")
+
+                assertThat(result).isNull()
+            }
+
+            @Test
+            fun `byggBarnInntektsgrunnlag skal bygge inntekt grunnlag med riktig gjelderReferanse og beløp`() {
+                val barn = lagBarnDto(inntekt = BigDecimal("5000"))
+                val barnRef = "Person_Søknadsbarn_0"
+
+                val result = builder.byggBarnInntektsgrunnlag(barn, barnRef)!!
+
+                assertThat(result.referanse).isEqualTo("${BeregningsgrunnlagKonstant.INNTEKT_PREFIX}$barnRef")
+                assertThat(result.type).isEqualTo(Grunnlagstype.INNTEKT_RAPPORTERING_PERIODE)
+                assertThat(result.gjelderReferanse).isEqualTo(barnRef)
+
+                val periode = result.innholdTilObjekt<InntektsrapporteringPeriode>()
+                assertThat(periode.beløp).isEqualByComparingTo(BigDecimal("5000"))
+                assertThat(periode.manueltRegistrert).isTrue()
+                assertThat(periode.valgt).isTrue()
+            }
+        }
     }
 
     @Nested
@@ -423,6 +454,35 @@ class BeregningsgrunnlagBuilderTest {
 
             assertThat(resultat.type).isEqualTo(Grunnlagstype.BARNETILSYN_MED_STØNAD_PERIODE)
             assertThat(resultat.gjelderReferanse).isEqualTo(BeregningsgrunnlagMapper.BIDRAGSMOTTAKER)
+        }
+    }
+
+    @Nested
+    inner class PersongrunnlagTest {
+
+        @Test
+        fun `byggPersongrunnlag skal sette fødselsdato i innhold når fødselsdato er gitt`() {
+            val fødselsdato = LocalDate.of(2015, 6, 1)
+
+            val result = builder.byggPersongrunnlag(
+                referanse = "Person_Søknadsbarn_0",
+                type = Grunnlagstype.PERSON_SØKNADSBARN,
+                fødselsdato = fødselsdato
+            )
+
+            assertThat(result.innhold["fødselsdato"].toString()).isEqualTo("[2015,6,1]")
+        }
+
+        @Test
+        fun `byggPersongrunnlag skal ha tomt objekt når fødselsdato ikke er gitt`() {
+            val result = builder.byggPersongrunnlag(
+                referanse = "Person_Bidragsmottaker",
+                type = Grunnlagstype.PERSON_BIDRAGSMOTTAKER,
+                fødselsdato = null
+            )
+
+            assertThat(result.innhold.isObject).isTrue()
+            assertThat(result.innhold.size()).isEqualTo(0)
         }
     }
 
