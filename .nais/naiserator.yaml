@@ -38,9 +38,6 @@ spec:
       value: "{{this}}"
     {{/each}}
 
-  secureLogs:
-    enabled: true
-
   prometheus:
     enabled: true
     path: /actuator/prometheus
@@ -53,7 +50,6 @@ spec:
       destinations:
         - id: loki
         - id: elastic
-        - id: secure_logs
 
   accessPolicy:
     inbound:
