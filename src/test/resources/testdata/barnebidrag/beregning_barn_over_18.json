@@ -5,16 +5,14 @@
   "bidragspliktigInntekt": {
     "inntekt": 60000
   },
+  "bidragstype": "PLIKTIG",
   "barn": [
     {
-      "ident": "{BARN1_FNR}",
-      "samværsklasse": "SAMVÆRSKLASSE_4",
-      "bidragstype": "PLIKTIG"
+      "alder": 18,
+      "samværsklasse": "SAMVÆRSKLASSE_4"
     }
   ],
   "dittBoforhold": {
-    "antallBarnBorFast": 0,
-    "antallBarnDeltBosted": 0,
-    "borMedAnnenVoksen": false
+    "antallBarnUnder18BorFast": 0
   }
 }
