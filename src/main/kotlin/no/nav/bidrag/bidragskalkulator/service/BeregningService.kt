@@ -32,7 +32,6 @@ class BeregningService(
     private val beregningsgrunnlagMapper: BeregningsgrunnlagMapper,
     private val personService: PersonService,
 ) {
-
     suspend fun beregnBarnebidrag(beregningRequest: BeregningRequestDto): BeregningsresultatDto {
         logger.info { "Starter beregning av barnebidrag." }
         val (resultatListe, varighet) = runCatching {
