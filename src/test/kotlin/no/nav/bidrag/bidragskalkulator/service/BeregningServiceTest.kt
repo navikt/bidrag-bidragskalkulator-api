@@ -190,7 +190,7 @@ class BeregningServiceTest {
             dittBoforhold = null,
             medforelderBoforhold = null,
             utvidetBarnetrygd = null,
-            småbarnstillegg =false
+            småbarnstillegg = false
         )
 
         val beregnetResultat = BeregnetBarnebidragResultat(

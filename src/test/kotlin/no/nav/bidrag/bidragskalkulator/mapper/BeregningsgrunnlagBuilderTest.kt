@@ -8,7 +8,7 @@ import no.nav.bidrag.bidragskalkulator.mapper.BeregningsgrunnlagKonstant.BOSTATU
 import no.nav.bidrag.bidragskalkulator.mapper.BeregningsgrunnlagKonstant.INNTEKT_BIDRAGSMOTTAKER
 import no.nav.bidrag.bidragskalkulator.mapper.BeregningsgrunnlagKonstant.INNTEKT_BIDRAGSPLIKTIG
 import no.nav.bidrag.bidragskalkulator.utils.lagBarnDto
-import no.nav.bidrag.bidragskalkulator.utils.lagBereningRequestDto
+import no.nav.bidrag.bidragskalkulator.utils.lagBeregningRequestDto
 import no.nav.bidrag.bidragskalkulator.utils.lagBoforhold
 import no.nav.bidrag.domene.enums.barnetilsyn.Tilsynstype
 import no.nav.bidrag.domene.enums.beregning.Samværsklasse
@@ -34,7 +34,7 @@ class BeregningsgrunnlagBuilderTest {
         fun `skal bygge bostatusgrunnlag for bidragspliktig med barn under 18 som bor fast`() {
             // 2 barn under 18 som bor fast
             val medforelderBoforhold = lagBoforhold(antallBarnUnder18BorFast = 2)
-            val beregningRequestMedBarnBorFast = lagBereningRequestDto(
+            val beregningRequestMedBarnBorFast = lagBeregningRequestDto(
                 bmInntekt = ForelderInntektDto(BigDecimal("300000")),
                 bpInntekt = ForelderInntektDto(BigDecimal("700000")),
                 bidragstype = BidragsType.MOTTAKER,
@@ -62,7 +62,7 @@ class BeregningsgrunnlagBuilderTest {
         @Test
         fun `skal bygge bostatusgrunnlag for bidragspliktig som ikke bor med andre voksne`() {
             val medforelderBoforhold = lagBoforhold()
-            val beregningRequestBorIkkeMedAndreVoksne = lagBereningRequestDto(
+            val beregningRequestBorIkkeMedAndreVoksne = lagBeregningRequestDto(
                 bmInntekt = ForelderInntektDto(BigDecimal("300000")),
                 bpInntekt = ForelderInntektDto(BigDecimal("700000")),
                 bidragstype = BidragsType.MOTTAKER,
@@ -83,7 +83,7 @@ class BeregningsgrunnlagBuilderTest {
             val medforelderBoforhold = lagBoforhold(
                 voksneOver18Type = setOf(VoksneOver18Type.SAMBOER_ELLER_EKTEFELLE)
             )
-            val beregningRequest = lagBereningRequestDto(
+            val beregningRequest = lagBeregningRequestDto(
                 bmInntekt = ForelderInntektDto(BigDecimal("300000")),
                 bpInntekt = ForelderInntektDto(BigDecimal("700000")),
                 bidragstype = BidragsType.MOTTAKER,
@@ -105,7 +105,7 @@ class BeregningsgrunnlagBuilderTest {
                 voksneOver18Type = setOf(VoksneOver18Type.EGNE_BARN_OVER_18),
                 antallBarnOver18Vgs = 3
             )
-            val beregningRequest = lagBereningRequestDto(
+            val beregningRequest = lagBeregningRequestDto(
                 bmInntekt = ForelderInntektDto(BigDecimal("300000")),
                 bpInntekt = ForelderInntektDto(BigDecimal("700000")),
                 bidragstype = BidragsType.MOTTAKER,
@@ -131,7 +131,7 @@ class BeregningsgrunnlagBuilderTest {
                 voksneOver18Type = setOf(VoksneOver18Type.EGNE_BARN_OVER_18, VoksneOver18Type.SAMBOER_ELLER_EKTEFELLE),
                 antallBarnOver18Vgs = 1
             )
-            val beregningRequest = lagBereningRequestDto(
+            val beregningRequest = lagBeregningRequestDto(
                 bmInntekt = ForelderInntektDto(BigDecimal("300000")),
                 bpInntekt = ForelderInntektDto(BigDecimal("700000")),
                 bidragstype = BidragsType.MOTTAKER,
@@ -170,7 +170,7 @@ class BeregningsgrunnlagBuilderTest {
     inner class InntektsgrunnlagTest {
         @Test
         fun `skal bygge inntektsgrunnlag med riktige beløp og referanser`() {
-            val beregningRequest = lagBereningRequestDto(
+            val beregningRequest = lagBeregningRequestDto(
                 bmInntekt = ForelderInntektDto(BigDecimal("300000")),
                 bpInntekt = ForelderInntektDto(BigDecimal("700000")),
                 bidragstype = BidragsType.MOTTAKER,
@@ -192,7 +192,7 @@ class BeregningsgrunnlagBuilderTest {
             val kontantstøtte = BigDecimal("12000")
 
             val barn = lagBarnDto(kontantstøtte = KontantstøtteDto(kontantstøtte, deles = false))
-            val beregningRequest = lagBereningRequestDto(
+            val beregningRequest = lagBeregningRequestDto(
                 bmInntekt = ForelderInntektDto(BigDecimal("300000")),
                 bpInntekt = ForelderInntektDto(BigDecimal("700000")),
                 bidragstype = BidragsType.MOTTAKER,
@@ -215,7 +215,7 @@ class BeregningsgrunnlagBuilderTest {
         fun `skal legge utvidet barnetrygd til BM inntekt`() {
             val utvidetBarnetrygdÅrlig = BigDecimal("24000")
 
-            val beregningRequest = lagBereningRequestDto(
+            val beregningRequest = lagBeregningRequestDto(
                 bmInntekt = ForelderInntektDto(BigDecimal("300000")),
                 bpInntekt = ForelderInntektDto(BigDecimal("700000")),
                 bidragstype = BidragsType.MOTTAKER,
@@ -246,7 +246,7 @@ class BeregningsgrunnlagBuilderTest {
         fun `skal legge småbarnstillegg til BM inntekt`() {
             val småbarnstilleggÅrlig = BigDecimal("18000")
 
-            val beregningRequest = lagBereningRequestDto(
+            val beregningRequest = lagBeregningRequestDto(
                 bmInntekt = ForelderInntektDto(BigDecimal("300000")),
                 bpInntekt = ForelderInntektDto(BigDecimal("700000")),
                 bidragstype = BidragsType.MOTTAKER,
@@ -275,7 +275,7 @@ class BeregningsgrunnlagBuilderTest {
             val kontantstøtte = BigDecimal("100")
 
             val barn = lagBarnDto(kontantstøtte = KontantstøtteDto(kontantstøtte, deles = false))
-            val beregningRequest = lagBereningRequestDto(
+            val beregningRequest = lagBeregningRequestDto(
                 bmInntekt = ForelderInntektDto(BigDecimal("300000")),
                 bpInntekt = ForelderInntektDto(BigDecimal("700000")),
                 bidragstype = BidragsType.MOTTAKER,
@@ -315,7 +315,7 @@ class BeregningsgrunnlagBuilderTest {
         fun `skal ikke legge til kapitalinntekt i BM inntekt når nettoPositivKapitalinntekt er under 10 000`() {
             val nettoPositivKapitalinntekt = BigDecimal("9000")
 
-            val beregningRequest = lagBereningRequestDto(
+            val beregningRequest = lagBeregningRequestDto(
                 bmInntekt = ForelderInntektDto(BigDecimal("300000"), nettoPositivKapitalinntekt),
                 bpInntekt = ForelderInntektDto(BigDecimal("700000")),
                 bidragstype = BidragsType.MOTTAKER,
@@ -345,7 +345,7 @@ class BeregningsgrunnlagBuilderTest {
         fun `skal legge til kapitalinntekt over 10 000 minus terskel i BM inntekt`() {
             val nettoPositivKapitalinntekt = BigDecimal("25000")
 
-            val beregningRequest = lagBereningRequestDto(
+            val beregningRequest = lagBeregningRequestDto(
                 bmInntekt = ForelderInntektDto(BigDecimal("300000"), nettoPositivKapitalinntekt),
                 bpInntekt = ForelderInntektDto(BigDecimal("700000")),
                 bidragstype = BidragsType.MOTTAKER,
@@ -410,7 +410,7 @@ class BeregningsgrunnlagBuilderTest {
         @Test
         fun `skal bygge samværsgrunnlag med korrekt klasse`() {
             val barn = lagBarnDto(alder = 1, samværklasse = Samværsklasse.SAMVÆRSKLASSE_3)
-            val beregningRequest = lagBereningRequestDto(
+            val beregningRequest = lagBeregningRequestDto(
                 bmInntekt = ForelderInntektDto(BigDecimal("300000")),
                 bpInntekt = ForelderInntektDto(BigDecimal("700000")),
                 bidragstype = BidragsType.MOTTAKER,

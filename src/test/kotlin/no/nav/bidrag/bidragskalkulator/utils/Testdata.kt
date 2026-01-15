@@ -35,7 +35,7 @@ fun lagBoforhold(
     antallBarnOver18Vgs = antallBarnOver18Vgs
 )
 
-fun lagBereningRequestDto(
+fun lagBeregningRequestDto(
     bmInntekt: ForelderInntektDto,
     bpInntekt: ForelderInntektDto,
     bidragstype: BidragsType,

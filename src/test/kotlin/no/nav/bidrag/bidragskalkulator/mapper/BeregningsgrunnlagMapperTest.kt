@@ -12,7 +12,7 @@ import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningRequestD
 import no.nav.bidrag.bidragskalkulator.service.PersonService
 import no.nav.bidrag.bidragskalkulator.service.SjablonService
 import no.nav.bidrag.bidragskalkulator.utils.lagBarnDto
-import no.nav.bidrag.bidragskalkulator.utils.lagBereningRequestDto
+import no.nav.bidrag.bidragskalkulator.utils.lagBeregningRequestDto
 import no.nav.bidrag.bidragskalkulator.utils.lagBoforhold
 import no.nav.bidrag.commons.service.sjablon.Sjablontall
 import no.nav.bidrag.domene.enums.barnetilsyn.Tilsynstype
@@ -81,7 +81,7 @@ class BeregningsgrunnlagMapperTest {
 
     @Test
     fun `skal mappe BeregningRequestDto med ett barn til BeregnGrunnlag`() {
-        val beregningRequest = lagBereningRequestDto(
+        val beregningRequest = lagBeregningRequestDto(
             bmInntekt = ForelderInntektDto(BigDecimal("300000")),
             bpInntekt = ForelderInntektDto(BigDecimal("700000")),
             bidragstype = BidragsType.MOTTAKER,
@@ -98,7 +98,7 @@ class BeregningsgrunnlagMapperTest {
     fun `skal mappe BeregningRequestDto med to barn til BeregnGrunnlag`() {
         val barn1 = lagBarnDto(alder = 1)
         val barn2 = lagBarnDto(alder = 2)
-        val beregningRequest = lagBereningRequestDto(
+        val beregningRequest = lagBeregningRequestDto(
             bmInntekt = ForelderInntektDto(BigDecimal("300000")),
             bpInntekt = ForelderInntektDto(BigDecimal("700000")),
             bidragstype = BidragsType.MOTTAKER,
@@ -117,7 +117,7 @@ class BeregningsgrunnlagMapperTest {
     fun `skal ha riktig antall grunnlagselementer`() {
         val barn1 = lagBarnDto(alder = 1)
         val barn2 = lagBarnDto(alder = 2)
-        val beregningRequest = lagBereningRequestDto(
+        val beregningRequest = lagBeregningRequestDto(
             bmInntekt = ForelderInntektDto(BigDecimal("300000")),
             bpInntekt = ForelderInntektDto(BigDecimal("700000")),
             bidragstype = BidragsType.MOTTAKER,
@@ -135,7 +135,7 @@ class BeregningsgrunnlagMapperTest {
         @Test
         fun `skal sette stønadstype til BIDRAG18AAR for barn over 18`() {
             val barn = lagBarnDto(alder = 18)
-            val beregningRequest = lagBereningRequestDto(
+            val beregningRequest = lagBeregningRequestDto(
                 bmInntekt = ForelderInntektDto(BigDecimal("300000")),
                 bpInntekt = ForelderInntektDto(BigDecimal("700000")),
                 bidragstype = BidragsType.MOTTAKER,
@@ -151,7 +151,7 @@ class BeregningsgrunnlagMapperTest {
         @Test
         fun `skal sette stønadstype til BIDRAG for barn under 18`() {
             val barn = lagBarnDto(alder = 17)
-            val beregningRequest = lagBereningRequestDto(
+            val beregningRequest = lagBeregningRequestDto(
                 bmInntekt = ForelderInntektDto(BigDecimal("300000")),
                 bpInntekt = ForelderInntektDto(BigDecimal("700000")),
                 bidragstype = BidragsType.MOTTAKER,
@@ -169,7 +169,7 @@ class BeregningsgrunnlagMapperTest {
         fun `skal inkludere faktisk utgift grunnlag når brnetilsynsutgift er satt`() {
             val barn = lagBarnDto(alder = 1, samværklasse = Samværsklasse.SAMVÆRSKLASSE_2, barnetilsyn = BarnetilsynDto(
                 BigDecimal("1200")))
-            val beregningRequest = lagBereningRequestDto(
+            val beregningRequest = lagBeregningRequestDto(
                 bmInntekt = ForelderInntektDto(BigDecimal("300000")),
                 bpInntekt = ForelderInntektDto(BigDecimal("700000")),
                 bidragstype = BidragsType.MOTTAKER,
@@ -185,7 +185,7 @@ class BeregningsgrunnlagMapperTest {
 
         @Test
         fun `skal ikke inkludere faktisk utgift grunnlag når brnetilsynsutgift ikke er satt`() {
-            val beregningRequest = lagBereningRequestDto(
+            val beregningRequest = lagBeregningRequestDto(
                 bmInntekt = ForelderInntektDto(BigDecimal("300000")),
                 bpInntekt = ForelderInntektDto(BigDecimal("700000")),
                 bidragstype = BidragsType.MOTTAKER,
@@ -205,7 +205,7 @@ class BeregningsgrunnlagMapperTest {
                 månedligUtgift = null,
                 plassType = Tilsynstype.DELTID,
             ))
-            val request = lagBereningRequestDto(
+            val request = lagBeregningRequestDto(
                 bmInntekt = ForelderInntektDto(BigDecimal("300000")),
                 bpInntekt = ForelderInntektDto(BigDecimal("700000")),
                 bidragstype = BidragsType.MOTTAKER,
@@ -227,7 +227,7 @@ class BeregningsgrunnlagMapperTest {
         @Test
         fun `skal ikke legge til barnetilsyn-grunnlag når barnetilsyn er null`() {
             val barn = lagBarnDto(barnetilsyn = null)
-            val request = lagBereningRequestDto(
+            val request = lagBeregningRequestDto(
                 bmInntekt = ForelderInntektDto(BigDecimal("300000")),
                 bpInntekt = ForelderInntektDto(BigDecimal("700000")),
                 bidragstype = BidragsType.MOTTAKER,
@@ -253,7 +253,7 @@ class BeregningsgrunnlagMapperTest {
         fun `skal legge kontantstøtte til BM inntekt`() {
             val kontantstøtte = BigDecimal("100")
             val barn = lagBarnDto(kontantstøtte = KontantstøtteDto(kontantstøtte, deles = false))
-            val beregningRequest = lagBereningRequestDto(
+            val beregningRequest = lagBeregningRequestDto(
                 bmInntekt = ForelderInntektDto(BigDecimal("300000")),
                 bpInntekt = ForelderInntektDto(BigDecimal("700000")),
                 bidragstype = BidragsType.MOTTAKER,
@@ -280,7 +280,7 @@ class BeregningsgrunnlagMapperTest {
 
             // deles = true
             val barnMedDeltKontantstøtte = lagBarnDto(kontantstøtte = KontantstøtteDto(beløp = beløp, deles = true))
-            val requestDelt = lagBereningRequestDto(
+            val requestDelt = lagBeregningRequestDto(
                 bmInntekt = ForelderInntektDto(BigDecimal("300000")),
                 bpInntekt = ForelderInntektDto(BigDecimal("700000")),
                 bidragstype = BidragsType.MOTTAKER,
@@ -297,7 +297,7 @@ class BeregningsgrunnlagMapperTest {
 
             // deles = false
             val barnMedFullKontantstøtte = lagBarnDto(kontantstøtte = KontantstøtteDto(beløp = beløp, deles = false))
-            val requestFull = lagBereningRequestDto(
+            val requestFull = lagBeregningRequestDto(
                 bmInntekt = ForelderInntektDto(BigDecimal("300000")),
                 bpInntekt = ForelderInntektDto(BigDecimal("700000")),
                 bidragstype = BidragsType.MOTTAKER,
@@ -318,7 +318,7 @@ class BeregningsgrunnlagMapperTest {
     inner class Småbarnstillegg {
         @Test
         fun `skal legge småbarnstillegg til BM inntekt basert på sjablon`() {
-            val beregningRequest = lagBereningRequestDto(
+            val beregningRequest = lagBeregningRequestDto(
                 bmInntekt = ForelderInntektDto(BigDecimal("300000")),
                 bpInntekt = ForelderInntektDto(BigDecimal("700000")),
                 bidragstype = BidragsType.MOTTAKER,
@@ -351,7 +351,7 @@ class BeregningsgrunnlagMapperTest {
 
         @Test
         fun `skal ikke legge småbarnstillegg til BM inntekt når småbarnstillegg er false`() {
-            val request = lagBereningRequestDto(
+            val request = lagBeregningRequestDto(
                 bmInntekt = ForelderInntektDto(BigDecimal("300000")),
                 bpInntekt = ForelderInntektDto(BigDecimal("700000")),
                 bidragstype = BidragsType.MOTTAKER,
@@ -387,7 +387,7 @@ class BeregningsgrunnlagMapperTest {
         @Test
         fun `skal inkludere barnets inntekt grunnlag når barn inntekt er satt`() {
             val barn = lagBarnDto(inntekt = BigDecimal("5000"))
-            val request = lagBereningRequestDto(
+            val request = lagBeregningRequestDto(
                 bmInntekt = ForelderInntektDto(BigDecimal("300000")),
                 bpInntekt = ForelderInntektDto(BigDecimal("700000")),
                 bidragstype = BidragsType.MOTTAKER,
@@ -407,7 +407,7 @@ class BeregningsgrunnlagMapperTest {
         @Test
         fun `skal ikke inkludere barnets inntekt grunnlag når barn inntekt er null`() {
             val barn = lagBarnDto(inntekt = null)
-            val request = lagBereningRequestDto(
+            val request = lagBeregningRequestDto(
                 bmInntekt = ForelderInntektDto(BigDecimal("300000")),
                 bpInntekt = ForelderInntektDto(BigDecimal("700000")),
                 bidragstype = BidragsType.MOTTAKER,
@@ -428,7 +428,7 @@ class BeregningsgrunnlagMapperTest {
     inner class UtvidetBarnetrygd {
         @Test
         fun `skal ikke legge utvidet barnetrygd til BM inntekt når harUtvidetBarnetrygd er false selv om delesMedMedforelder er true`() {
-            val request = lagBereningRequestDto(
+            val request = lagBeregningRequestDto(
                 bmInntekt = ForelderInntektDto(BigDecimal("300000")),
                 bpInntekt = ForelderInntektDto(BigDecimal("700000")),
                 bidragstype = BidragsType.MOTTAKER,
@@ -460,7 +460,7 @@ class BeregningsgrunnlagMapperTest {
 
         @Test
         fun `skal legge utvidet barnetrygd til BM inntekt basert på sjablon`() {
-            val beregningRequest = lagBereningRequestDto(
+            val beregningRequest = lagBeregningRequestDto(
                 bmInntekt = ForelderInntektDto(BigDecimal("300000")),
                 bpInntekt = ForelderInntektDto(BigDecimal("700000")),
                 bidragstype = BidragsType.MOTTAKER,
@@ -496,7 +496,7 @@ class BeregningsgrunnlagMapperTest {
 
         @Test
         fun `skal halvere utvidet barnetrygd når den deles med medforelder`() {
-            val beregningRequest = lagBereningRequestDto(
+            val beregningRequest = lagBeregningRequestDto(
                 bmInntekt = ForelderInntektDto(BigDecimal("300000")),
                 bpInntekt = ForelderInntektDto(BigDecimal("700000")),
                 bidragstype = BidragsType.MOTTAKER,
@@ -535,7 +535,7 @@ class BeregningsgrunnlagMapperTest {
     inner class Boforhold {
         @Test
         fun `skal alltid inkludere bostatus grunnlag for bidragspliktig og søknadsbarn`() {
-            val request = lagBereningRequestDto(
+            val request = lagBeregningRequestDto(
                 bmInntekt = ForelderInntektDto(BigDecimal("300000")),
                 bpInntekt = ForelderInntektDto(BigDecimal("700000")),
                 bidragstype = BidragsType.MOTTAKER,
@@ -553,7 +553,7 @@ class BeregningsgrunnlagMapperTest {
 
         @Test
         fun `når bidragstype er MOTTAKER skal bostatus bygge egne barn under 18 fra medforelderBoforhold`() {
-            val request = lagBereningRequestDto(
+            val request = lagBeregningRequestDto(
                 bmInntekt = ForelderInntektDto(BigDecimal("300000")),
                 bpInntekt = ForelderInntektDto(BigDecimal("700000")),
                 bidragstype = BidragsType.MOTTAKER,
@@ -573,7 +573,7 @@ class BeregningsgrunnlagMapperTest {
 
         @Test
         fun `når bidragstype er PLIKTIG skal bostatus bygge egne barn under 18 fra dittBoforhold`() {
-            val request = lagBereningRequestDto(
+            val request = lagBeregningRequestDto(
                 bmInntekt = ForelderInntektDto(BigDecimal("300000")),
                 bpInntekt = ForelderInntektDto(BigDecimal("700000")),
                 bidragstype = BidragsType.PLIKTIG,

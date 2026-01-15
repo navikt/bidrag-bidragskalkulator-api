@@ -42,7 +42,6 @@ internal object BeregningsgrunnlagKonstant {
 class BeregningsgrunnlagBuilder(
     private val objectMapper: ObjectMapper = ObjectMapper().registerKotlinModule().registerModule(JavaTimeModule())
 ) {
-
     fun byggPersongrunnlag(referanse: String, type: Grunnlagstype, fødselsdato: LocalDate? = null) = GrunnlagDto(
         referanse = referanse,
         type = type,
