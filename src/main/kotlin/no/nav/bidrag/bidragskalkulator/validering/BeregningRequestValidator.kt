@@ -3,6 +3,7 @@ package no.nav.bidrag.bidragskalkulator.validering
 import no.nav.bidrag.bidragskalkulator.dto.BidragsType.*
 import no.nav.bidrag.bidragskalkulator.dto.FellesBeregningRequestDto
 import no.nav.bidrag.bidragskalkulator.dto.IFellesBarnDto
+import no.nav.bidrag.bidragskalkulator.dto.VoksneOver18Type
 import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.BarnMedAlderDto
 import no.nav.bidrag.bidragskalkulator.exception.UgyldigBeregningRequestException
 
@@ -72,19 +73,23 @@ object BeregningRequestValidator {
         }
 
         // Boforhold
-        val harPliktigeBarn = barneliste.any { it.bidragstype == PLIKTIG }
-        val harMottakerBarn = barneliste.any { it.bidragstype == MOTTAKER }
+        val erPliktig = dto.bidragstype == PLIKTIG
+        val erMottaker = dto.bidragstype == MOTTAKER
 
-        val manglerDittBoforhold = harPliktigeBarn && dto.dittBoforhold == null
-        val manglerMedforelderBoforhold = harMottakerBarn && dto.medforelderBoforhold == null
+        val manglerDittBoforhold = erPliktig && dto.dittBoforhold == null
+        val manglerMedforelderBoforhold = erMottaker && dto.medforelderBoforhold == null
+
+        val boforhold = if(erPliktig) dto.dittBoforhold else dto.medforelderBoforhold
+        val borMedBarnOver18 = boforhold?.voksneOver18Type?.contains(VoksneOver18Type.EGNE_BARN_OVER_18)
+        val manglerAntallBarnOver18Vgs = borMedBarnOver18 == true && boforhold.antallBarnOver18Vgs == null
 
         when {
-            manglerDittBoforhold && manglerMedforelderBoforhold ->
-                feil("Både 'dittBoforhold' og 'medforelderBoforhold' mangler, men må være satt når forespørselen inneholder barn der du er bidragspliktig og/eller bidragsmottaker.")
             manglerDittBoforhold ->
-                feil("'dittBoforhold' må være satt fordi forespørselen inneholder minst ett barn der du er bidragspliktig.")
+                feil("'dittBoforhold' må være satt fordi du er bidragspliktig i forespørselen.")
             manglerMedforelderBoforhold ->
-                feil("'medforelderBoforhold' må være satt fordi forespørselen inneholder minst ett barn der du er bidragsmottaker.")
+                feil("'medforelderBoforhold' må være satt fordi du er bidragsmottaker i forespørselen.")
+            manglerAntallBarnOver18Vgs ->
+                feil("'antallBarnOver18Vgs' må være satt når 'voksneOver18Type' inneholder 'EGNE_BARN_OVER_18'.")
         }
     }
 
