@@ -1,13 +1,15 @@
 package no.nav.bidrag.bidragskalkulator.mapper
 
 import no.nav.bidrag.bidragskalkulator.dto.*
-import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.BarnMedAlderDto
 import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningRequestDto
 import no.nav.bidrag.bidragskalkulator.mapper.BeregningsgrunnlagKonstant.BOSTATUS_BARN_PREFIX
 import no.nav.bidrag.bidragskalkulator.mapper.BeregningsgrunnlagKonstant.BOSTATUS_EGNE_BARN_OVER18_VGS
 import no.nav.bidrag.bidragskalkulator.mapper.BeregningsgrunnlagKonstant.BOSTATUS_EGNE_BARN_UNDER18_BOR_FAST
 import no.nav.bidrag.bidragskalkulator.mapper.BeregningsgrunnlagKonstant.INNTEKT_BIDRAGSMOTTAKER
 import no.nav.bidrag.bidragskalkulator.mapper.BeregningsgrunnlagKonstant.INNTEKT_BIDRAGSPLIKTIG
+import no.nav.bidrag.bidragskalkulator.utils.lagBarnDto
+import no.nav.bidrag.bidragskalkulator.utils.lagBereningRequestDto
+import no.nav.bidrag.bidragskalkulator.utils.lagBoforhold
 import no.nav.bidrag.domene.enums.barnetilsyn.Tilsynstype
 import no.nav.bidrag.domene.enums.beregning.Samværsklasse
 import no.nav.bidrag.domene.enums.grunnlag.Grunnlagstype
@@ -442,46 +444,6 @@ class BeregningsgrunnlagBuilderTest {
                 utvidetBarnetrygdÅrlig = utvidetBarnetrygdÅrlig,
                 småbarnstilleggÅrlig = småbarnstilleggÅrlig
             )
-        )
-    }
-
-    private fun lagBarnDto(alder: Int = 1,
-                           samværklasse: Samværsklasse = Samværsklasse.SAMVÆRSKLASSE_2,
-                           barnetilsyn: BarnetilsynDto? = null,
-                           kontantstøtte: KontantstøtteDto? = null
-                           ) = BarnMedAlderDto(
-        alder = alder,
-        samværsklasse = samværklasse,
-        barnetilsyn = barnetilsyn,
-        kontantstøtte = kontantstøtte
-    )
-
-    private fun lagBoforhold(antallBarnUnder18BorFast: Int = 0,
-                             voksneOver18Type: Set<VoksneOver18Type>? = null,
-                             antallBarnOver18Vgs: Int = 0) = BoforholdDto(
-        antallBarnUnder18BorFast = antallBarnUnder18BorFast,
-        voksneOver18Type = voksneOver18Type,
-        antallBarnOver18Vgs = antallBarnOver18Vgs
-    )
-
-    private fun lagBereningRequestDto(bmInntekt: ForelderInntektDto,
-                                      bpInntekt: ForelderInntektDto,
-                                      bidragstype: BidragsType,
-                                      barn: List<BarnMedAlderDto> = emptyList(),
-                                      dittBoforhold: BoforholdDto? = null,
-                                      medforelderBoforhold: BoforholdDto? = null,
-                                      utvidetBarnetrygd: UtvidetBarnetrygdDto? = null,
-                                      småbarnstillegg: Boolean = false
-                                      ): ÅpenBeregningRequestDto {
-        return ÅpenBeregningRequestDto(
-            bidragsmottakerInntekt = bmInntekt,
-            bidragspliktigInntekt = bpInntekt,
-            bidragstype = bidragstype,
-            barn = barn,
-            dittBoforhold = dittBoforhold,
-            medforelderBoforhold = medforelderBoforhold,
-            utvidetBarnetrygd = utvidetBarnetrygd,
-            småbarnstillegg = småbarnstillegg
         )
     }
 }
