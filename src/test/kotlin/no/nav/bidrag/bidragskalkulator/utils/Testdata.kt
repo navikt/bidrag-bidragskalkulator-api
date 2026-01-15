@@ -12,11 +12,12 @@ import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningRequestD
 import no.nav.bidrag.domene.enums.beregning.Samværsklasse
 import java.math.BigDecimal
 
-fun lagBarnDto(alder: Int = 1,
-               samværklasse: Samværsklasse = Samværsklasse.SAMVÆRSKLASSE_2,
-               barnetilsyn: BarnetilsynDto? = null,
-               kontantstøtte: KontantstøtteDto? = null,
-               inntekt: BigDecimal? = null
+fun lagBarnDto(
+    alder: Int = 1,
+    samværklasse: Samværsklasse = Samværsklasse.SAMVÆRSKLASSE_2,
+    barnetilsyn: BarnetilsynDto? = null,
+    kontantstøtte: KontantstøtteDto? = null,
+    inntekt: BigDecimal? = null
 ) = BarnMedAlderDto(
     alder = alder,
     samværsklasse = samværklasse,
@@ -25,30 +26,42 @@ fun lagBarnDto(alder: Int = 1,
     inntekt = inntekt
 )
 
-fun lagBoforhold(antallBarnUnder18BorFast: Int = 0,
-                         voksneOver18Type: Set<VoksneOver18Type>? = null,
-                         antallBarnOver18Vgs: Int? = null) = BoforholdDto(
+fun lagBoforhold(
+    antallBarnUnder18BorFast: Int = 0,
+    voksneOver18Type: Set<VoksneOver18Type>? = null,
+    antallBarnOver18Vgs: Int? = null) = BoforholdDto(
     antallBarnUnder18BorFast = antallBarnUnder18BorFast,
     voksneOver18Type = voksneOver18Type,
     antallBarnOver18Vgs = antallBarnOver18Vgs
 )
 
-fun lagBereningRequestDto(bmInntekt: ForelderInntektDto,
-                                  bpInntekt: ForelderInntektDto,
-                                  bidragstype: BidragsType,
-                                  barn: List<BarnMedAlderDto> = emptyList(),
-                                  dittBoforhold: BoforholdDto? = null,
-                                  medforelderBoforhold: BoforholdDto? = null,
-                                  utvidetBarnetrygd: UtvidetBarnetrygdDto? = null,
-                                  småbarnstillegg: Boolean = false
+fun lagBereningRequestDto(
+    bmInntekt: ForelderInntektDto,
+    bpInntekt: ForelderInntektDto,
+    bidragstype: BidragsType,
+    barn: List<BarnMedAlderDto> = emptyList(),
+    dittBoforhold: BoforholdDto? = null,
+    medforelderBoforhold: BoforholdDto? = null,
+    utvidetBarnetrygd: UtvidetBarnetrygdDto? = null,
+    småbarnstillegg: Boolean = false
 ): ÅpenBeregningRequestDto {
+
+    val defaultBoforhold = BoforholdDto(antallBarnUnder18BorFast = 0)
+
+    val (ditt, medforelder) = when (bidragstype) {
+        BidragsType.PLIKTIG ->
+            (dittBoforhold ?: defaultBoforhold) to medforelderBoforhold
+        BidragsType.MOTTAKER ->
+            dittBoforhold to (medforelderBoforhold ?: defaultBoforhold)
+    }
+
     return ÅpenBeregningRequestDto(
         bidragsmottakerInntekt = bmInntekt,
         bidragspliktigInntekt = bpInntekt,
         bidragstype = bidragstype,
         barn = barn,
-        dittBoforhold = dittBoforhold,
-        medforelderBoforhold = medforelderBoforhold,
+        dittBoforhold = ditt,
+        medforelderBoforhold = medforelder,
         utvidetBarnetrygd = utvidetBarnetrygd,
         småbarnstillegg = småbarnstillegg
     )
