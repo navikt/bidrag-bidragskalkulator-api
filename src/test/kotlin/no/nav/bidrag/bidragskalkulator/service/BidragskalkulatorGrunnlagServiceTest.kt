@@ -22,8 +22,7 @@ class BidragskalkulatorGrunnlagServiceTest {
     )
 
     @Test
-    fun `hentGrunnlagsData returnerer kombinert dto fra begge tjenester`() = runBlocking {
-        // given
+    fun `hentGrunnlagsData returnerer kombinert dto fra alle tjenester`() = runBlocking {
         val underhold = linkedMapOf(
             6 to BigDecimal(6547),
             11 to BigDecimal(7240)
@@ -38,9 +37,12 @@ class BidragskalkulatorGrunnlagServiceTest {
                 )
             )
         )
+        val barnInntektsgrense = BigDecimal(60300)
+        val selvforsørgetBarnInntektsgrense = BigDecimal(201000)
 
         every { boOgForbruksutgiftService.genererBoOgForbruksutgiftstabell() } returns underhold
         every { sjablonService.hentSamværsfradrag() } returns samvaer
+        every { sjablonService.hentForskuddssats() } returns BigDecimal(2010)
 
         // when
         val result: BidragskalkulatorGrunnlagDto = service.hentGrunnlagsData()
@@ -48,15 +50,19 @@ class BidragskalkulatorGrunnlagServiceTest {
         // then
         assertEquals(underhold, result.boOgForbruksutgifter)
         assertEquals(samvaer, result.samværsfradrag)
+        assertEquals(barnInntektsgrense, result.barnInntektsgrense)
+        assertEquals(selvforsørgetBarnInntektsgrense, result.selvforsørgetBarnInntektsgrense)
 
         verify(exactly = 1) { boOgForbruksutgiftService.genererBoOgForbruksutgiftstabell() }
         verify(exactly = 1) { sjablonService.hentSamværsfradrag() }
+        verify(exactly = 1) { sjablonService.hentForskuddssats() }
     }
 
     @Test
     fun `hentGrunnlagsData kaster videre hvis underholdskostnadService feiler`() = runBlocking {
         every { boOgForbruksutgiftService.genererBoOgForbruksutgiftstabell() } throws RuntimeException("Feil")
         every { sjablonService.hentSamværsfradrag() } returns emptyList()
+        every { sjablonService.hentForskuddssats() } returns BigDecimal(2010)
 
         assertThrows<RuntimeException> {
             service.hentGrunnlagsData()
@@ -64,6 +70,7 @@ class BidragskalkulatorGrunnlagServiceTest {
 
         verify(exactly = 1) { boOgForbruksutgiftService.genererBoOgForbruksutgiftstabell() }
         verify(exactly = 0) { sjablonService.hentSamværsfradrag() }
+        verify(exactly = 1) { sjablonService.hentForskuddssats() }
     }
 
     @Test
@@ -72,6 +79,7 @@ class BidragskalkulatorGrunnlagServiceTest {
             6 to BigDecimal(6547)
         )
         every { sjablonService.hentSamværsfradrag() } throws IllegalStateException("sjablon nede")
+        every { sjablonService.hentForskuddssats() } returns BigDecimal(2010)
 
         assertThrows<IllegalStateException> {
             service.hentGrunnlagsData()
@@ -79,5 +87,7 @@ class BidragskalkulatorGrunnlagServiceTest {
 
         verify(exactly = 1) { boOgForbruksutgiftService.genererBoOgForbruksutgiftstabell() }
         verify(exactly = 1) { sjablonService.hentSamværsfradrag() }
+        verify(exactly = 1) { sjablonService.hentForskuddssats() }
+
     }
 }

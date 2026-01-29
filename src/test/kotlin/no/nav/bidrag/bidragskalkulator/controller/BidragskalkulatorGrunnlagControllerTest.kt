@@ -23,13 +23,24 @@ class BidragskalkulatorGrunnlagControllerTest : AbstractControllerTest() {
         every { runBlocking { brukerinformasjonService.hentGrunnlagsData() } } returns
                 BidragskalkulatorGrunnlagDto(
                     boOgForbruksutgifter = emptyMap(),
-                    samværsfradrag = emptyList()
+                    samværsfradrag = emptyList(),
+                    barnInntektsgrense = BigDecimal.ZERO,
+                    selvforsørgetBarnInntektsgrense = BigDecimal.ZERO
                 )
+
+        val expectedJson = """
+            {
+              "boOgForbruksutgifter": {},
+              "samværsfradrag": [],
+              "barnInntektsgrense": 0,
+              "selvforsørgetBarnInntektsgrense": 0
+          }
+        """.trimIndent()
 
         getRequest("/api/v1/bidragskalkulator/grunnlagsdata")
             .andExpect(status().isOk)
             .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-            .andExpect(content().json("""{"boOgForbruksutgifter":{},"samværsfradrag":[]}""", true))
+            .andExpect(content().json(expectedJson, true))
 
         verify(exactly = 1) { runBlocking { brukerinformasjonService.hentGrunnlagsData() } }
     }
@@ -63,7 +74,9 @@ class BidragskalkulatorGrunnlagControllerTest : AbstractControllerTest() {
                             "SAMVÆRSKLASSE_4": 4497
                         }
                     }
-            ]
+            ],
+            "barnInntektsgrense": 60300,
+            "selvforsørgetBarnInntektsgrense": 201000
           }
         """.trimIndent()
 
@@ -85,7 +98,9 @@ class BidragskalkulatorGrunnlagControllerTest : AbstractControllerTest() {
                     "SAMVÆRSKLASSE_3" to BigDecimal(3582),
                     "SAMVÆRSKLASSE_4" to BigDecimal(4497)
                 )),
-            )
+            ),
+            barnInntektsgrense = BigDecimal(60300),
+            selvforsørgetBarnInntektsgrense = BigDecimal(201000)
         )
 
         every { runBlocking { brukerinformasjonService.hentGrunnlagsData() } } returns dto

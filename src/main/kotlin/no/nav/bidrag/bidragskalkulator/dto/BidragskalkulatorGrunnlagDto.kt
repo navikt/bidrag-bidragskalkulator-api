@@ -9,5 +9,16 @@ data class BidragskalkulatorGrunnlagDto(
     val boOgForbruksutgifter: Map<Int, BigDecimal>,
 
     @field:Schema(description = "Samværsfradrag per aldersintervall")
-    val samværsfradrag: List<SamværsfradragPeriode>
+    val samværsfradrag: List<SamværsfradragPeriode>,
+
+    @field:Schema(
+        description = "Dersom barnets årsinntekt overstiger denne grensen, tas inntekten med i beregningen av barnebidrag."
+    )
+    val barnInntektsgrense: BigDecimal,
+
+    @field:Schema(
+        description = "Årsinntekt over denne grensen medfører at barnet regnes som selvforsørget."
+    )
+    val selvforsørgetBarnInntektsgrense: BigDecimal
+
 )

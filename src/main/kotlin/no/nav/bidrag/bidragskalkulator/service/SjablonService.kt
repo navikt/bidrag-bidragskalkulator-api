@@ -47,6 +47,14 @@ class SjablonService {
         return filtrert
     }
 
+    fun hentForskuddssats(): BigDecimal {
+        logger.info { "Henter forskuddssats fra sjablontall" }
+        val sjablontall = hentSjablontall()
+        val forskuddssats = sjablontall.find { it.typeSjablon == "0005" }?.verdi ?: BigDecimal.ZERO
+        logger.info { "Hentet forskuddssats: $forskuddssats" }
+        return forskuddssats
+    }
+
     /**
      * Henter samværsfradrag fra sjablon, filtrerer på dato og grupperer etter alderTom.
      * Se punktet om Samværsfradrag i https://lovdata.no/nav/rundskriv/v1-55-02
