@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+  packages: read
+
 jobs:
   test:
     name: Run Tests
