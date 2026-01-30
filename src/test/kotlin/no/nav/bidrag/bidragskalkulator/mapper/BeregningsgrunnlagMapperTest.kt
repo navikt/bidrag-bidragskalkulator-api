@@ -396,7 +396,7 @@ class BeregningsgrunnlagMapperTest {
 
             val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlagAnonym(request)
 
-            val barnRef = "${BeregningsgrunnlagMapper.Referanser.SØKNADSBARN}${request.barn.first().alder}"
+            val barnRef = "${BeregningsgrunnlagMapper.Referanser.SØKNADSBARN}${request.barn.first().alder}_0"
             val barnInntekt = result.first().grunnlagListe
                 .find { it.referanse == "${BeregningsgrunnlagKonstant.INNTEKT_PREFIX}$barnRef" }
 
@@ -546,7 +546,7 @@ class BeregningsgrunnlagMapperTest {
             val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlagAnonym(request)
             val grunnlag = result.first().grunnlagListe
 
-            val barnRef = "${BeregningsgrunnlagMapper.Referanser.SØKNADSBARN}${request.barn.first().alder}"
+            val barnRef = "${BeregningsgrunnlagMapper.Referanser.SØKNADSBARN}${request.barn.first().alder}_0"
 
             // Mapperen skal alltid legge inn disse to bostatusene:
             assertThat(grunnlag).anyMatch { it.referanse == BeregningsgrunnlagKonstant.BOSTATUS_BIDRAGSPLIKTIG }
@@ -604,6 +604,6 @@ class BeregningsgrunnlagMapperTest {
         index: Int
     ) {
         val forventetAlder = beregningRequest.barn[index].alder
-        assertEquals("${BeregningsgrunnlagMapper.Referanser.SØKNADSBARN}$forventetAlder", grunnlag.søknadsbarnReferanse)
+        assertEquals("${BeregningsgrunnlagMapper.Referanser.SØKNADSBARN}${forventetAlder}_${index}", grunnlag.søknadsbarnReferanse)
     }
 }

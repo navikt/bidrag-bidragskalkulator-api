@@ -144,10 +144,16 @@ class BeregningService(
         periodeListe.sumOf { it.resultat.beløp ?: BigDecimal.ZERO }
 
     private fun alderFraBarnReferanse(referanse: String): Int? {
-        if (!referanse.startsWith(BeregningsgrunnlagMapper.Referanser.SØKNADSBARN)) return null
-        val rest = referanse.removePrefix(BeregningsgrunnlagMapper.Referanser.SØKNADSBARN)
-        if (rest.isEmpty() || rest.any { !it.isDigit() }) return null
-        return rest.toInt()
+        val prefix = BeregningsgrunnlagMapper.Referanser.SØKNADSBARN
+        if (!referanse.startsWith(prefix)) return null
+
+        val rest = referanse.removePrefix(prefix)
+        if (rest.isBlank()) return null
+
+        val alderDel = rest.substringBefore('_')
+
+        if (alderDel.isEmpty() || alderDel.any { !it.isDigit() }) return null
+        return alderDel.toInt()
     }
 
 }

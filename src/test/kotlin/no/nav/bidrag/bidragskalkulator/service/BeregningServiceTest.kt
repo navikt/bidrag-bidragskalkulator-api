@@ -214,7 +214,7 @@ class BeregningServiceTest {
             )
         }
 
-        coEvery { beregnBarnebidragApi.beregnV2(any(), any(), any(), any()) } returns resultater
+        coEvery { beregnBarnebidragApi.beregnV2(any(), any()) } returns resultater
 
         return beregningRequest
     }

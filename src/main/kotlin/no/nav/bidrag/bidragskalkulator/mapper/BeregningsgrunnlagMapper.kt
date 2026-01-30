@@ -32,8 +32,8 @@ class BeregningsgrunnlagMapper(
         val bmTilleggÅrlig = beregnBmTilleggÅrlig(dto)
 
         return dto.barn.mapIndexed { index, barn ->
-            val barnReferanse = barnReferanse(index)
             val fødselsdato = barn.ident.fødselsdato()
+            val barnReferanse = barnReferanse(fødselsdato.toString(), index)
 
             val grunnlagListe = lagGrunnlagsliste(
                 barn = barn,
@@ -56,7 +56,7 @@ class BeregningsgrunnlagMapper(
         val bmTilleggÅrlig = beregnBmTilleggÅrlig(dto)
 
         val grunnlag = dto.barn.mapIndexed { index, barn ->
-            val barnReferanse = barnReferanse(barn.alder)
+            val barnReferanse = barnReferanse(barn.alder.toString(), index)
             val fødselsdato = barn.getEstimertFødselsdato()
 
             val grunnlagListe = lagGrunnlagsliste(
@@ -146,7 +146,7 @@ class BeregningsgrunnlagMapper(
         return BmTilleggÅrlig(kontantstøtteÅrlig, utvidetBarnetrygdÅrlig, småbarnstillegg)
     }
 
-    private fun barnReferanse(alder: Int) = "${SØKNADSBARN}$alder"
+    private fun barnReferanse(alder: String, index: Int) = "${SØKNADSBARN}${alder}_${index}"
 
     private fun byggGrunnlag(referanse: String, type: Grunnlagstype, fødselsdato: LocalDate? = null): GrunnlagDto =
         beregningsgrunnlagBuilder.byggPersongrunnlag(referanse, type, fødselsdato)
