@@ -6,18 +6,18 @@ version = "0.0.1-SNAPSHOT"
 
 extra["tomcat.version"] = "10.1.47"
 
-val bidragBeregnFellesVersion = "2026.01.13.144140"
-val bidragFellesVersion = "2026.01.14.133857"
+val bidragBeregnFellesVersion = "2026.01.28.131946"
+val bidragFellesVersion = "2026.01.30.135639"
 val kotlinLoggingJvmVersion = "7.0.14"
 val springDocWebmvcVersion = "2.8.13"
 val springmockkVersion = "5.0.1"
 val tokenSupportVersion = "5.0.37"
 val jacksonVersion = "2.20.1"
-val junitJupiterVersion = "6.0.1"
+val junitJupiterVersion = "6.0.2"
 val coroutinesVersion = "1.10.2"
 val pdfBoxVersion = "2.0.31"
-val micrometerPrometheusVersion = "1.16.1"
-val logbackVersion = "1.5.23"
+val micrometerPrometheusVersion = "1.16.2"
+val logbackVersion = "1.5.25"
 val logstashEncoderVersion = "9.0"
 
 
