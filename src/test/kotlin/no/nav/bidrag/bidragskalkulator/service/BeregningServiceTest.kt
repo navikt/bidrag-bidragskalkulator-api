@@ -80,8 +80,7 @@ class BeregningServiceTest {
                 barn = emptyList()
             )
 
-            // Ny service kaller beregnV2(periode, grunnlagSøknadsbarnListe, grunnlagLøpendeBidragListe, grunnlagPrivatAvtaleListe)
-            coEvery { beregnBarnebidragApi.beregnV2(any(), any(), any(), any()) } returns emptyList()
+            coEvery { beregnBarnebidragApi.beregnV2(any(), any()) } returns emptyList()
 
             val resultat = beregningService.beregnBarnebidragAnonym(beregningRequest)
 
@@ -110,6 +109,7 @@ class BeregningServiceTest {
             beregningRequest = mockOppsett(
                 listOf(
                     BarnMedAlderDto(alder = 4, samværsklasse = Samværsklasse.SAMVÆRSKLASSE_2),
+                    BarnMedAlderDto(alder = 4, samværsklasse = Samværsklasse.SAMVÆRSKLASSE_2),
                     BarnMedAlderDto(alder = 7, samværsklasse = Samværsklasse.SAMVÆRSKLASSE_3)
                 )
             )
@@ -119,13 +119,13 @@ class BeregningServiceTest {
         @Test
         fun `skal returnere to beregningsresultater for to barn`() = runTest {
             val resultat = beregningService.beregnBarnebidragAnonym(beregningRequest)
-            assertEquals(2, resultat.resultater.size)
+            assertEquals(3, resultat.resultater.size)
         }
 
         @Test
-        fun `skal mappe alder riktig for begge barn`() {
+        fun `skal mappe alder riktig for alle barn og kunne håndtere barn med samme alder`() {
             val aldre = beregningResultat.resultater.map { it.alder }.sorted()
-            assertEquals(listOf(4, 7), aldre)
+            assertEquals(listOf(4, 4, 7), aldre)
         }
     }
 
