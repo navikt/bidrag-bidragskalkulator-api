@@ -6,7 +6,7 @@ on:
 permissions:
   pull-requests: write
 env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GITHUB_TOKEN: ${{ secrets.READER_TOKEN }}
 jobs:
   add-comment:
     runs-on: ubuntu-latest
