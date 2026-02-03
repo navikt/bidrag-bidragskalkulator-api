@@ -25,14 +25,15 @@ class BeregningsgrunnlagMapper(
     companion object Referanser {
         const val BIDRAGSMOTTAKER = "Person_Bidragsmottaker"
         const val BIDRAGSPLIKTIG = "Person_Bidragspliktig"
+        const val SØKNADSBARN = "Person_Søknadsbarn_"
     }
 
     fun mapTilBeregningsgrunnlag(dto: BeregningRequestDto): List<PersonBeregningsgrunnlag> {
         val bmTilleggÅrlig = beregnBmTilleggÅrlig(dto)
 
         return dto.barn.mapIndexed { index, barn ->
-            val barnReferanse = barnReferanse(index)
             val fødselsdato = barn.ident.fødselsdato()
+            val barnReferanse = barnReferanse(fødselsdato.toString(), index)
 
             val grunnlagListe = lagGrunnlagsliste(
                 barn = barn,
@@ -51,11 +52,11 @@ class BeregningsgrunnlagMapper(
         }
     }
 
-    fun mapTilBeregningsgrunnlagAnonym(dto: ÅpenBeregningRequestDto): List<PersonBeregningsgrunnlagAnonym> {
+    fun mapTilBeregningsgrunnlagAnonym(dto: ÅpenBeregningRequestDto): List<BeregnGrunnlag> {
         val bmTilleggÅrlig = beregnBmTilleggÅrlig(dto)
 
         val grunnlag = dto.barn.mapIndexed { index, barn ->
-            val barnReferanse = barnReferanse(index)
+            val barnReferanse = barnReferanse(barn.alder.toString(), index)
             val fødselsdato = barn.getEstimertFødselsdato()
 
             val grunnlagListe = lagGrunnlagsliste(
@@ -66,11 +67,7 @@ class BeregningsgrunnlagMapper(
                 bmTilleggÅrlig = bmTilleggÅrlig
             )
 
-            PersonBeregningsgrunnlagAnonym(
-                alder = barn.alder,
-                bidragsType = dto.bidragstype,
-                grunnlag = beregningsgrunnlagBuilder.byggFellesBeregnGrunnlag(barnReferanse, fødselsdato, grunnlagListe)
-            )
+             beregningsgrunnlagBuilder.byggFellesBeregnGrunnlag(barnReferanse, fødselsdato, grunnlagListe)
         }
 
         return grunnlag
@@ -149,7 +146,7 @@ class BeregningsgrunnlagMapper(
         return BmTilleggÅrlig(kontantstøtteÅrlig, utvidetBarnetrygdÅrlig, småbarnstillegg)
     }
 
-    private fun barnReferanse(index: Int) = "Person_Søknadsbarn_$index"
+    private fun barnReferanse(alder: String, index: Int) = "${SØKNADSBARN}${alder}_${index}"
 
     private fun byggGrunnlag(referanse: String, type: Grunnlagstype, fødselsdato: LocalDate? = null): GrunnlagDto =
         beregningsgrunnlagBuilder.byggPersongrunnlag(referanse, type, fødselsdato)
@@ -191,13 +188,6 @@ data class PersonBeregningsgrunnlag(
     val bidragsType: BidragsType,
     val grunnlag: BeregnGrunnlag,
 )
-
-data class PersonBeregningsgrunnlagAnonym(
-    val alder: Int,
-    val bidragsType: BidragsType,
-    val grunnlag: BeregnGrunnlag,
-)
-
 
 data class BmTilleggÅrlig(
     val kontantstøtteÅrlig: BigDecimal,

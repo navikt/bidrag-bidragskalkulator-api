@@ -2,7 +2,8 @@ name: Deploy release to prod
 on:
   release:
     types: [published]
-
+env:
+  GITHUB_TOKEN: ${{ secrets.READER_TOKEN }}
 jobs:
   build:
     name: Build and publish Docker image

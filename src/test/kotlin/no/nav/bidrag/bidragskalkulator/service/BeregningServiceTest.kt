@@ -1,3 +1,6 @@
+package no.nav.bidrag.bidragskalkulator.service
+
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
@@ -10,16 +13,13 @@ import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningsresulta
 import no.nav.bidrag.bidragskalkulator.mapper.BeregningsgrunnlagBuilder
 import no.nav.bidrag.bidragskalkulator.mapper.BeregningsgrunnlagMapper
 import no.nav.bidrag.bidragskalkulator.mapper.tilFamilieRelasjon
-import no.nav.bidrag.bidragskalkulator.service.BeregningService
-import no.nav.bidrag.bidragskalkulator.service.BoOgForbruksutgiftService
-import no.nav.bidrag.bidragskalkulator.service.PersonService
-import no.nav.bidrag.bidragskalkulator.service.SjablonService
 import no.nav.bidrag.bidragskalkulator.utils.JsonUtils
 import no.nav.bidrag.bidragskalkulator.utils.kalkulerAlder
 import no.nav.bidrag.domene.enums.beregning.Samværsklasse
 import no.nav.bidrag.domene.tid.ÅrMånedsperiode
 import no.nav.bidrag.generer.testdata.person.genererPersonident
 import no.nav.bidrag.transport.behandling.beregning.barnebidrag.BeregnetBarnebidragResultat
+import no.nav.bidrag.transport.behandling.beregning.barnebidrag.BeregnetBarnebidragResultatV2
 import no.nav.bidrag.transport.behandling.beregning.barnebidrag.ResultatBeregning
 import no.nav.bidrag.transport.behandling.beregning.barnebidrag.ResultatPeriode
 import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
@@ -65,8 +65,9 @@ class BeregningServiceTest {
 
         @BeforeEach
         fun oppsett() = runTest {
-            // beregne for et barn
-            beregningRequest = mockOppsett(listOf(BarnMedAlderDto(alder = 1, samværsklasse = Samværsklasse.SAMVÆRSKLASSE_2)))
+            beregningRequest = mockOppsett(
+                listOf(BarnMedAlderDto(alder = 1, samværsklasse = Samværsklasse.SAMVÆRSKLASSE_2))
+            )
             beregningResultat = beregningService.beregnBarnebidragAnonym(beregningRequest)
         }
 
@@ -79,6 +80,8 @@ class BeregningServiceTest {
                 barn = emptyList()
             )
 
+            coEvery { beregnBarnebidragApi.beregnV2(any(), any()) } returns emptyList()
+
             val resultat = beregningService.beregnBarnebidragAnonym(beregningRequest)
 
             assertEquals(true, resultat.resultater.isEmpty())
@@ -87,6 +90,11 @@ class BeregningServiceTest {
         @Test
         fun `skal returnere ett beregningsresultat for ett barn`() {
             assertEquals(1, beregningResultat.resultater.size)
+        }
+
+        @Test
+        fun `skal returnere alder fra søknadsbarnreferanse`() {
+            assertEquals(1, beregningResultat.resultater.first().alder)
         }
     }
 
@@ -98,17 +106,26 @@ class BeregningServiceTest {
 
         @BeforeEach
         fun oppsett() = runTest {
-            beregningRequest = mockOppsett(listOf(
-                BarnMedAlderDto(alder = 4, samværsklasse = Samværsklasse.SAMVÆRSKLASSE_2),
-                BarnMedAlderDto(alder = 7, samværsklasse = Samværsklasse.SAMVÆRSKLASSE_3)
-            ))
+            beregningRequest = mockOppsett(
+                listOf(
+                    BarnMedAlderDto(alder = 4, samværsklasse = Samværsklasse.SAMVÆRSKLASSE_2),
+                    BarnMedAlderDto(alder = 4, samværsklasse = Samværsklasse.SAMVÆRSKLASSE_2),
+                    BarnMedAlderDto(alder = 7, samværsklasse = Samværsklasse.SAMVÆRSKLASSE_3)
+                )
+            )
             beregningResultat = beregningService.beregnBarnebidragAnonym(beregningRequest)
         }
 
         @Test
         fun `skal returnere to beregningsresultater for to barn`() = runTest {
             val resultat = beregningService.beregnBarnebidragAnonym(beregningRequest)
-            assertEquals(2, resultat.resultater.size)
+            assertEquals(3, resultat.resultater.size)
+        }
+
+        @Test
+        fun `skal mappe alder riktig for alle barn og kunne håndtere barn med samme alder`() {
+            val aldre = beregningResultat.resultater.map { it.alder }.sorted()
+            assertEquals(listOf(4, 4, 7), aldre)
         }
     }
 
@@ -138,22 +155,16 @@ class BeregningServiceTest {
 
         @Test
         fun `skal beregne underholdskostnader for barnerelasjoner og sortere etter alder`() = runTest {
-            // Arrange
             val motpartBarnRelasjon: MotpartBarnRelasjonDto = JsonUtils.lesJsonFil("/person/person_med_barn_en_motpart.json")
             val fellesBarn = motpartBarnRelasjon.personensMotpartBarnRelasjon.first().fellesBarn
 
-            val barn1Ident = fellesBarn[0].ident
-            val barn2Ident = fellesBarn[1].ident
             val forventetUnderholdskostnad = BigDecimal(8471)
+            every { boOgForbruksutgiftServiceMock.beregnCachedPersonBoOgForbruksutgiftskostnad(any()) } returns forventetUnderholdskostnad
 
-            every { boOgForbruksutgiftServiceMock.beregnCachedPersonBoOgForbruksutgiftskostnad(any()) } returns BigDecimal.ZERO
-            every { beregningService.beregnPersonUnderholdskostnad(barn1Ident) } returns forventetUnderholdskostnad
-            every { beregningService.beregnPersonUnderholdskostnad(barn2Ident) } returns forventetUnderholdskostnad
+            val resultat = beregningService.beregnUnderholdskostnaderForBarnerelasjoner(
+                motpartBarnRelasjon.personensMotpartBarnRelasjon.tilFamilieRelasjon()
+            )
 
-            // Act
-            val resultat = beregningService.beregnUnderholdskostnaderForBarnerelasjoner(motpartBarnRelasjon.personensMotpartBarnRelasjon.tilFamilieRelasjon())
-
-            // Assert
             assertEquals(1, resultat.size, "Skal være én relasjon til motpart med barn")
 
             val relasjon = resultat.first()
@@ -165,11 +176,10 @@ class BeregningServiceTest {
                 .sortedDescending()
 
             val faktiskeAldre = relasjon.fellesBarn.map { it.alder }
-
             assertEquals(forventetSortertAldre, faktiskeAldre, "Barna skal være sortert etter alder synkende")
 
-            assertEquals(BigDecimal(8471), relasjon.fellesBarn[0].underholdskostnad)
-            assertEquals(BigDecimal(8471), relasjon.fellesBarn[1].underholdskostnad)
+            assertEquals(forventetUnderholdskostnad, relasjon.fellesBarn[0].underholdskostnad)
+            assertEquals(forventetUnderholdskostnad, relasjon.fellesBarn[1].underholdskostnad)
         }
     }
 
@@ -197,9 +207,14 @@ class BeregningServiceTest {
             beregnetBarnebidragPeriodeListe = listOf(lagResultatPeriode())
         )
 
-        beregningRequest.barn.forEach { _ ->
-            every { beregnBarnebidragApi.beregn(any()) } returns beregnetResultat
+        val resultater: List<BeregnetBarnebidragResultatV2> = barn.map { b ->
+            BeregnetBarnebidragResultatV2(
+                søknadsbarnreferanse = "${BeregningsgrunnlagMapper.Referanser.SØKNADSBARN}${b.alder}",
+                beregnetBarnebidragResultat = beregnetResultat
+            )
         }
+
+        coEvery { beregnBarnebidragApi.beregnV2(any(), any()) } returns resultater
 
         return beregningRequest
     }

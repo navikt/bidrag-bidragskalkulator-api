@@ -9,7 +9,6 @@ import no.nav.bidrag.bidragskalkulator.dto.ForelderInntektDto
 import no.nav.bidrag.bidragskalkulator.dto.KontantstøtteDto
 import no.nav.bidrag.bidragskalkulator.dto.UtvidetBarnetrygdDto
 import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningRequestDto
-import no.nav.bidrag.bidragskalkulator.service.PersonService
 import no.nav.bidrag.bidragskalkulator.service.SjablonService
 import no.nav.bidrag.bidragskalkulator.utils.lagBarnDto
 import no.nav.bidrag.bidragskalkulator.utils.lagBeregningRequestDto
@@ -19,12 +18,13 @@ import no.nav.bidrag.domene.enums.barnetilsyn.Tilsynstype
 import no.nav.bidrag.domene.enums.beregning.Samværsklasse
 import no.nav.bidrag.domene.enums.grunnlag.Grunnlagstype
 import no.nav.bidrag.domene.enums.vedtak.Stønadstype
-import no.nav.bidrag.generer.testdata.person.genererPersonident
+import no.nav.bidrag.transport.behandling.beregning.felles.BeregnGrunnlag
 import no.nav.bidrag.transport.behandling.felles.grunnlag.InntektsrapporteringPeriode
 import no.nav.bidrag.transport.behandling.felles.grunnlag.innholdTilObjekt
-import no.nav.bidrag.transport.person.PersonDto
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -35,11 +35,8 @@ import java.time.LocalDate
 @ExtendWith(MockKExtension::class)
 class BeregningsgrunnlagMapperTest {
 
-    @MockK(relaxed = true)
-    lateinit var mockPersonService: PersonService
-
     // Bruk ekte builder
-    private val mockBeregningsgrunnlagBuilder = BeregningsgrunnlagBuilder()
+    private val beregningsgrunnlagBuilder = BeregningsgrunnlagBuilder()
 
     @MockK
     lateinit var sjablonService: SjablonService
@@ -48,24 +45,14 @@ class BeregningsgrunnlagMapperTest {
 
     @BeforeEach
     fun setup() {
-        val fødselsdato = LocalDate.now().minusYears(10)
-
-        every { mockPersonService.hentPersoninformasjon(any()) } returns PersonDto(
-            fødselsdato = fødselsdato,
-            ident = genererPersonident(),
-            fornavn = "Navn",
-            visningsnavn = "Navn Navnesen",
-        )
-
         every { sjablonService.hentSjablontall() } returns emptyList()
-
-        beregningsgrunnlagMapper = BeregningsgrunnlagMapper(mockBeregningsgrunnlagBuilder, sjablonService)
+        beregningsgrunnlagMapper = BeregningsgrunnlagMapper(beregningsgrunnlagBuilder, sjablonService)
     }
 
     @Test
     fun `mapTilBoOgForbruksutgiftsgrunnlag skal bygge grunnlag med BM BP og søknadsbarn`() {
         val fødselsdato = LocalDate.now().minusYears(5)
-        val barnRef = "Person_Søknadsbarn_0"
+        val barnRef = "${BeregningsgrunnlagMapper.Referanser.SØKNADSBARN}1"
 
         val result = beregningsgrunnlagMapper.mapTilBoOgForbruksutgiftsgrunnlag(fødselsdato, barnRef)
 
@@ -80,7 +67,7 @@ class BeregningsgrunnlagMapperTest {
     }
 
     @Test
-    fun `skal mappe BeregningRequestDto med ett barn til BeregnGrunnlag`() {
+    fun `skal mappe ÅpenBeregningRequestDto med ett barn til BeregnGrunnlag`() {
         val beregningRequest = lagBeregningRequestDto(
             bmInntekt = ForelderInntektDto(BigDecimal("300000")),
             bpInntekt = ForelderInntektDto(BigDecimal("700000")),
@@ -95,7 +82,7 @@ class BeregningsgrunnlagMapperTest {
     }
 
     @Test
-    fun `skal mappe BeregningRequestDto med to barn til BeregnGrunnlag`() {
+    fun `skal mappe ÅpenBeregningRequestDto med to barn til BeregnGrunnlag`() {
         val barn1 = lagBarnDto(alder = 1)
         val barn2 = lagBarnDto(alder = 2)
         val beregningRequest = lagBeregningRequestDto(
@@ -108,8 +95,8 @@ class BeregningsgrunnlagMapperTest {
         val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlagAnonym(beregningRequest)
 
         assertEquals(2, result.size, "Forventet to beregninger")
-        result.forEachIndexed { index, beregnGrunnlagMedAlder ->
-            assertBarnetsAlderOgReferanse(beregnGrunnlagMedAlder, beregningRequest, index)
+        result.forEachIndexed { index, beregnGrunnlag ->
+            assertBarnetsAlderOgReferanse(beregnGrunnlag, beregningRequest, index)
         }
     }
 
@@ -127,7 +114,7 @@ class BeregningsgrunnlagMapperTest {
         val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlagAnonym(beregningRequest)
         // barnsreferanse, bidragspliktigsreferanse, bidragsmottakersreferanse, bidragspliktig inntekt,
         // bidragsmottaker inntekt, samværsklasse, bidragspliktig bostatus, barn bostatus
-        assertEquals(8, result.first().grunnlag.grunnlagListe.size, "Forventet 8 grunnlagselementer")
+        assertEquals(8, result.first().grunnlagListe.size, "Forventet 8 grunnlagselementer")
     }
 
     @Nested
@@ -145,7 +132,11 @@ class BeregningsgrunnlagMapperTest {
             val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlagAnonym(beregningRequest)
 
             assertEquals(1, result.size, "Forventet én beregning")
-            assertEquals(Stønadstype.BIDRAG18AAR, result.first().grunnlag.stønadstype, "Stønadstype skal være BIDRAG18AAR for barn over 18")
+            assertEquals(
+                Stønadstype.BIDRAG18AAR,
+                result.first().stønadstype,
+                "Stønadstype skal være BIDRAG18AAR for barn over 18"
+            )
         }
 
         @Test
@@ -157,18 +148,22 @@ class BeregningsgrunnlagMapperTest {
                 bidragstype = BidragsType.MOTTAKER,
                 barn = listOf(barn),
             )
+
             val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlagAnonym(beregningRequest)
 
-            assertEquals(Stønadstype.BIDRAG, result.first().grunnlag.stønadstype)
+            assertEquals(Stønadstype.BIDRAG, result.first().stønadstype)
         }
     }
 
     @Nested
     inner class FaktiskUtgiftBarnetilsyn {
         @Test
-        fun `skal inkludere faktisk utgift grunnlag når brnetilsynsutgift er satt`() {
-            val barn = lagBarnDto(alder = 1, samværklasse = Samværsklasse.SAMVÆRSKLASSE_2, barnetilsyn = BarnetilsynDto(
-                BigDecimal("1200")))
+        fun `skal inkludere faktisk utgift grunnlag når barnetilsynsutgift er satt`() {
+            val barn = lagBarnDto(
+                alder = 1,
+                samværklasse = Samværsklasse.SAMVÆRSKLASSE_2,
+                barnetilsyn = BarnetilsynDto(BigDecimal("1200"))
+            )
             val beregningRequest = lagBeregningRequestDto(
                 bmInntekt = ForelderInntektDto(BigDecimal("300000")),
                 bpInntekt = ForelderInntektDto(BigDecimal("700000")),
@@ -177,14 +172,14 @@ class BeregningsgrunnlagMapperTest {
             )
 
             val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlagAnonym(beregningRequest)
-            val faktiskUtgiftGrunnlag = result.first().grunnlag.grunnlagListe
+            val faktiskUtgiftGrunnlag = result.first().grunnlagListe
                 .find { it.type == Grunnlagstype.FAKTISK_UTGIFT_PERIODE }
 
             assertNotNull(faktiskUtgiftGrunnlag, "Forventet grunnlag for faktisk utgift til barnetilsyn")
         }
 
         @Test
-        fun `skal ikke inkludere faktisk utgift grunnlag når brnetilsynsutgift ikke er satt`() {
+        fun `skal ikke inkludere faktisk utgift grunnlag når barnetilsynsutgift ikke er satt`() {
             val beregningRequest = lagBeregningRequestDto(
                 bmInntekt = ForelderInntektDto(BigDecimal("300000")),
                 bpInntekt = ForelderInntektDto(BigDecimal("700000")),
@@ -193,18 +188,23 @@ class BeregningsgrunnlagMapperTest {
             )
 
             val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlagAnonym(beregningRequest)
-            val faktiskUtgiftGrunnlag = result.first().grunnlag.grunnlagListe
+            val faktiskUtgiftGrunnlag = result.first().grunnlagListe
                 .find { it.type == Grunnlagstype.FAKTISK_UTGIFT_PERIODE }
 
-            assertNull(faktiskUtgiftGrunnlag, "Forventet ikke grunnlag for faktisk utgift til barnetilsyn når barnetilsynsutgift ikke er satt")
+            assertNull(
+                faktiskUtgiftGrunnlag,
+                "Forventet ikke grunnlag for faktisk utgift til barnetilsyn når barnetilsynsutgift ikke er satt"
+            )
         }
 
         @Test
         fun `skal legge til grunnlag for mottatt barnepassplass når barnetilsyn plassType er satt`() {
-            val barn = lagBarnDto(barnetilsyn = BarnetilsynDto(
-                månedligUtgift = null,
-                plassType = Tilsynstype.DELTID,
-            ))
+            val barn = lagBarnDto(
+                barnetilsyn = BarnetilsynDto(
+                    månedligUtgift = null,
+                    plassType = Tilsynstype.DELTID,
+                )
+            )
             val request = lagBeregningRequestDto(
                 bmInntekt = ForelderInntektDto(BigDecimal("300000")),
                 bpInntekt = ForelderInntektDto(BigDecimal("700000")),
@@ -214,10 +214,10 @@ class BeregningsgrunnlagMapperTest {
 
             val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlagAnonym(request)
 
-            val barnetilsynMedStønadGrunnlag = result.first().grunnlag.grunnlagListe
+            val barnetilsynMedStønadGrunnlag = result.first().grunnlagListe
                 .find { it.type == Grunnlagstype.BARNETILSYN_MED_STØNAD_PERIODE }
 
-            val faktiskUtgiftGrunnlag = result.first().grunnlag.grunnlagListe
+            val faktiskUtgiftGrunnlag = result.first().grunnlagListe
                 .find { it.type == Grunnlagstype.FAKTISK_UTGIFT_PERIODE }
 
             assertNotNull(barnetilsynMedStønadGrunnlag)
@@ -236,10 +236,10 @@ class BeregningsgrunnlagMapperTest {
 
             val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlagAnonym(request)
 
-            val barnetilsynMedStønadGrunnlag = result.first().grunnlag.grunnlagListe
+            val barnetilsynMedStønadGrunnlag = result.first().grunnlagListe
                 .find { it.type == Grunnlagstype.BARNETILSYN_MED_STØNAD_PERIODE }
 
-            val faktiskUtgiftGrunnlag = result.first().grunnlag.grunnlagListe
+            val faktiskUtgiftGrunnlag = result.first().grunnlagListe
                 .find { it.type == Grunnlagstype.FAKTISK_UTGIFT_PERIODE }
 
             assertNull(barnetilsynMedStønadGrunnlag)
@@ -264,10 +264,9 @@ class BeregningsgrunnlagMapperTest {
 
             // kontantstøtteTilleggBm = 100 * 12
             val forventetTilleggÅr = BigDecimal("100").multiply(BigDecimal("12"))
-
             val forventetBmInntekt = beregningRequest.bidragsmottakerInntekt.inntekt + forventetTilleggÅr
 
-            val inntektBmGrunnlag = result.first().grunnlag.grunnlagListe
+            val inntektBmGrunnlag = result.first().grunnlagListe
                 .first { it.referanse == BeregningsgrunnlagKonstant.INNTEKT_BIDRAGSMOTTAKER }
 
             val beløp = inntektBmGrunnlag.innholdTilObjekt<InntektsrapporteringPeriode>().beløp
@@ -288,11 +287,12 @@ class BeregningsgrunnlagMapperTest {
             )
 
             val resultDelt = beregningsgrunnlagMapper.mapTilBeregningsgrunnlagAnonym(requestDelt)
-            val bmInntektDelt = resultDelt.first().grunnlag.grunnlagListe
+            val bmInntektDelt = resultDelt.first().grunnlagListe
                 .first { it.referanse == BeregningsgrunnlagKonstant.INNTEKT_BIDRAGSMOTTAKER }
                 .innholdTilObjekt<InntektsrapporteringPeriode>().beløp
 
-            val forventetDelt = requestDelt.bidragsmottakerInntekt.inntekt + beløp.multiply(BigDecimal("12")).divide(BigDecimal("2"))
+            val forventetDelt =
+                requestDelt.bidragsmottakerInntekt.inntekt + beløp.multiply(BigDecimal("12")).divide(BigDecimal("2"))
             assertThat(bmInntektDelt).isEqualByComparingTo(forventetDelt)
 
             // deles = false
@@ -305,7 +305,7 @@ class BeregningsgrunnlagMapperTest {
             )
 
             val resultFull = beregningsgrunnlagMapper.mapTilBeregningsgrunnlagAnonym(requestFull)
-            val bmInntektFull = resultFull.first().grunnlag.grunnlagListe
+            val bmInntektFull = resultFull.first().grunnlagListe
                 .first { it.referanse == BeregningsgrunnlagKonstant.INNTEKT_BIDRAGSMOTTAKER }
                 .innholdTilObjekt<InntektsrapporteringPeriode>().beløp
 
@@ -328,7 +328,7 @@ class BeregningsgrunnlagMapperTest {
 
             // 0032 = småbarnstillegg per måned
             every { sjablonService.hentSjablontall() } returns listOf(
-                no.nav.bidrag.commons.service.sjablon.Sjablontall(
+                Sjablontall(
                     typeSjablon = "0032",
                     verdi = BigDecimal("1500"),
                     datoFom = null,
@@ -338,7 +338,7 @@ class BeregningsgrunnlagMapperTest {
 
             val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlagAnonym(beregningRequest)
 
-            val beløp = result.first().grunnlag.grunnlagListe
+            val beløp = result.first().grunnlagListe
                 .first { it.referanse == BeregningsgrunnlagKonstant.INNTEKT_BIDRAGSMOTTAKER }
                 .innholdTilObjekt<InntektsrapporteringPeriode>()
                 .beløp
@@ -361,7 +361,7 @@ class BeregningsgrunnlagMapperTest {
 
             // Sjablon finnes, men skal IKKE brukes når flagget er false
             every { sjablonService.hentSjablontall() } returns listOf(
-                no.nav.bidrag.commons.service.sjablon.Sjablontall(
+                Sjablontall(
                     typeSjablon = "0032",
                     verdi = BigDecimal("1500"),
                     datoFom = null,
@@ -371,7 +371,7 @@ class BeregningsgrunnlagMapperTest {
 
             val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlagAnonym(request)
 
-            val beløp = result.first().grunnlag.grunnlagListe
+            val beløp = result.first().grunnlagListe
                 .first { it.referanse == BeregningsgrunnlagKonstant.INNTEKT_BIDRAGSMOTTAKER }
                 .innholdTilObjekt<InntektsrapporteringPeriode>()
                 .beløp
@@ -396,8 +396,8 @@ class BeregningsgrunnlagMapperTest {
 
             val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlagAnonym(request)
 
-            val barnRef = "Person_Søknadsbarn_0"
-            val barnInntekt = result.first().grunnlag.grunnlagListe
+            val barnRef = "${BeregningsgrunnlagMapper.Referanser.SØKNADSBARN}${request.barn.first().alder}_0"
+            val barnInntekt = result.first().grunnlagListe
                 .find { it.referanse == "${BeregningsgrunnlagKonstant.INNTEKT_PREFIX}$barnRef" }
 
             assertNotNull(barnInntekt)
@@ -416,8 +416,8 @@ class BeregningsgrunnlagMapperTest {
 
             val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlagAnonym(request)
 
-            val barnRef = "Person_Søknadsbarn_0"
-            val barnInntekt = result.first().grunnlag.grunnlagListe
+            val barnRef = "${BeregningsgrunnlagMapper.Referanser.SØKNADSBARN}${request.barn.first().alder}"
+            val barnInntekt = result.first().grunnlagListe
                 .find { it.referanse == "${BeregningsgrunnlagKonstant.INNTEKT_PREFIX}$barnRef" }
 
             assertNull(barnInntekt)
@@ -450,7 +450,7 @@ class BeregningsgrunnlagMapperTest {
 
             val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlagAnonym(request)
 
-            val bmBeløp = result.first().grunnlag.grunnlagListe
+            val bmBeløp = result.first().grunnlagListe
                 .first { it.referanse == BeregningsgrunnlagKonstant.INNTEKT_BIDRAGSMOTTAKER }
                 .innholdTilObjekt<InntektsrapporteringPeriode>()
                 .beløp
@@ -483,7 +483,7 @@ class BeregningsgrunnlagMapperTest {
 
             val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlagAnonym(beregningRequest)
 
-            val inntektBmGrunnlag = result.first().grunnlag.grunnlagListe
+            val inntektBmGrunnlag = result.first().grunnlagListe
                 .first { it.referanse == BeregningsgrunnlagKonstant.INNTEKT_BIDRAGSMOTTAKER }
 
             val beløp = inntektBmGrunnlag.innholdTilObjekt<InntektsrapporteringPeriode>().beløp
@@ -518,7 +518,7 @@ class BeregningsgrunnlagMapperTest {
 
             val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlagAnonym(beregningRequest)
 
-            val beløp = result.first().grunnlag.grunnlagListe
+            val beløp = result.first().grunnlagListe
                 .first { it.referanse == BeregningsgrunnlagKonstant.INNTEKT_BIDRAGSMOTTAKER }
                 .innholdTilObjekt<InntektsrapporteringPeriode>()
                 .beløp
@@ -544,11 +544,13 @@ class BeregningsgrunnlagMapperTest {
             )
 
             val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlagAnonym(request)
-            val grunnlag = result.first().grunnlag.grunnlagListe
+            val grunnlag = result.first().grunnlagListe
+
+            val barnRef = "${BeregningsgrunnlagMapper.Referanser.SØKNADSBARN}${request.barn.first().alder}_0"
 
             // Mapperen skal alltid legge inn disse to bostatusene:
             assertThat(grunnlag).anyMatch { it.referanse == BeregningsgrunnlagKonstant.BOSTATUS_BIDRAGSPLIKTIG }
-            assertThat(grunnlag).anyMatch { it.referanse == "${BeregningsgrunnlagKonstant.BOSTATUS_BARN_PREFIX}Person_Søknadsbarn_0" }
+            assertThat(grunnlag).anyMatch { it.referanse == "${BeregningsgrunnlagKonstant.BOSTATUS_BARN_PREFIX}$barnRef" }
         }
 
         @Test
@@ -562,10 +564,12 @@ class BeregningsgrunnlagMapperTest {
                 dittBoforhold = lagBoforhold(antallBarnUnder18BorFast = 0),
             )
 
-            val grunnlag = beregningsgrunnlagMapper.mapTilBeregningsgrunnlagAnonym(request).first().grunnlag.grunnlagListe
+            val grunnlag = beregningsgrunnlagMapper.mapTilBeregningsgrunnlagAnonym(request).first().grunnlagListe
 
             val under18BorFast = grunnlag.filter {
-                it.referanse.startsWith("${BeregningsgrunnlagKonstant.BOSTATUS_BARN_PREFIX}${BeregningsgrunnlagKonstant.BOSTATUS_EGNE_BARN_UNDER18_BOR_FAST}")
+                it.referanse.startsWith(
+                    "${BeregningsgrunnlagKonstant.BOSTATUS_BARN_PREFIX}${BeregningsgrunnlagKonstant.BOSTATUS_EGNE_BARN_UNDER18_BOR_FAST}"
+                )
             }
 
             assertThat(under18BorFast).hasSize(2)
@@ -582,10 +586,12 @@ class BeregningsgrunnlagMapperTest {
                 medforelderBoforhold = lagBoforhold(antallBarnUnder18BorFast = 0),
             )
 
-            val grunnlag = beregningsgrunnlagMapper.mapTilBeregningsgrunnlagAnonym(request).first().grunnlag.grunnlagListe
+            val grunnlag = beregningsgrunnlagMapper.mapTilBeregningsgrunnlagAnonym(request).first().grunnlagListe
 
             val under18BorFast = grunnlag.filter {
-                it.referanse.startsWith("${BeregningsgrunnlagKonstant.BOSTATUS_BARN_PREFIX}${BeregningsgrunnlagKonstant.BOSTATUS_EGNE_BARN_UNDER18_BOR_FAST}")
+                it.referanse.startsWith(
+                    "${BeregningsgrunnlagKonstant.BOSTATUS_BARN_PREFIX}${BeregningsgrunnlagKonstant.BOSTATUS_EGNE_BARN_UNDER18_BOR_FAST}"
+                )
             }
 
             assertThat(under18BorFast).hasSize(3)
@@ -593,11 +599,11 @@ class BeregningsgrunnlagMapperTest {
     }
 
     private fun assertBarnetsAlderOgReferanse(
-    grunnlagOgBarnInformasjon: PersonBeregningsgrunnlagAnonym,
-    beregningRequest: ÅpenBeregningRequestDto,
-    index: Int
+        grunnlag: BeregnGrunnlag,
+        beregningRequest: ÅpenBeregningRequestDto,
+        index: Int
     ) {
-        assertEquals(beregningRequest.barn[index].alder, grunnlagOgBarnInformasjon.alder)
-        assertEquals("Person_Søknadsbarn_$index", grunnlagOgBarnInformasjon.grunnlag.søknadsbarnReferanse)
+        val forventetAlder = beregningRequest.barn[index].alder
+        assertEquals("${BeregningsgrunnlagMapper.Referanser.SØKNADSBARN}${forventetAlder}_${index}", grunnlag.søknadsbarnReferanse)
     }
 }

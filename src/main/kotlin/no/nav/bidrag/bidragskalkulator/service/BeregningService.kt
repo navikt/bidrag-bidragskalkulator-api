@@ -18,9 +18,12 @@ import no.nav.bidrag.bidragskalkulator.utils.asyncCatching
 import no.nav.bidrag.bidragskalkulator.utils.kalkulerAlder
 import no.nav.bidrag.commons.util.secureLogger
 import no.nav.bidrag.domene.ident.Personident
+import no.nav.bidrag.domene.tid.ÅrMånedsperiode
 import no.nav.bidrag.transport.behandling.beregning.barnebidrag.ResultatPeriode
+import no.nav.bidrag.transport.behandling.beregning.felles.BeregnGrunnlag
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
+import java.time.YearMonth
 import kotlin.time.measureTimedValue
 
 private val logger = KotlinLogging.logger {}
@@ -84,18 +87,18 @@ class BeregningService(
             }.awaitAll()
     }
 
-    private suspend fun utførBarnebidragBeregningAnonym(grunnlag: List<PersonBeregningsgrunnlagAnonym>): List<ÅpenBeregningsresultatBarnDto> =
+    private suspend fun utførBarnebidragBeregningAnonym(grunnlag: List<BeregnGrunnlag>): List<ÅpenBeregningsresultatBarnDto> {
+        val periode = ÅrMånedsperiode(YearMonth.now(), YearMonth.now().plusMonths(1))
+        val beregnet = beregnBarnebidragApi.beregnV2(periode, grunnlag)
 
-            grunnlag.map { data ->
-                    val beregnet = beregnBarnebidragApi.beregn(data.grunnlag)
-                    val sum = summerBeregnedeBeløp(beregnet.beregnetBarnebidragPeriodeListe)
+        return beregnet.map { it ->
+            ÅpenBeregningsresultatBarnDto(
+                sum = summerBeregnedeBeløp(it.beregnetBarnebidragResultat.beregnetBarnebidragPeriodeListe),
+                alder = alderFraBarnReferanse(it.søknadsbarnreferanse) ?: error("Ugyldig barnReferanse: ${it.søknadsbarnreferanse}")
 
-                    ÅpenBeregningsresultatBarnDto(
-                        sum = sum,
-                        alder = data.alder
-                    )
-                }
-
+            )
+        }
+    }
 
     fun beregnPersonUnderholdskostnad(personident: Personident): BigDecimal {
         val alder = kalkulerAlder(personident.fødselsdato())
@@ -139,5 +142,18 @@ class BeregningService(
 
     private fun summerBeregnedeBeløp(periodeListe: List<ResultatPeriode>): BigDecimal =
         periodeListe.sumOf { it.resultat.beløp ?: BigDecimal.ZERO }
+
+    private fun alderFraBarnReferanse(referanse: String): Int? {
+        val prefix = BeregningsgrunnlagMapper.Referanser.SØKNADSBARN
+        if (!referanse.startsWith(prefix)) return null
+
+        val rest = referanse.removePrefix(prefix)
+        if (rest.isBlank()) return null
+
+        val alderDel = rest.substringBefore('_')
+
+        if (alderDel.isEmpty() || alderDel.any { !it.isDigit() }) return null
+        return alderDel.toInt()
+    }
 
 }

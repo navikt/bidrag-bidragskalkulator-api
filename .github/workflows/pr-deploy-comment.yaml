@@ -5,7 +5,8 @@ on:
 
 permissions:
   pull-requests: write
-
+env:
+  GITHUB_TOKEN: ${{ secrets.READER_TOKEN }}
 jobs:
   add-comment:
     runs-on: ubuntu-latest
@@ -24,7 +25,7 @@ jobs:
             });
 
             // Sjekk om vi allerede har en deploy-kommentar
-            const harAlleredeLagetDeployKommentar = kommentarer.data.some(kommentar => 
+            const harAlleredeLagetDeployKommentar = kommentarer.data.some(kommentar =>
               kommentar.body.includes('🚀 Deploy til dev-miljø')
             );
 

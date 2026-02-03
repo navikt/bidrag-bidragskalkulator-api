@@ -6,18 +6,18 @@ version = "0.0.1-SNAPSHOT"
 
 extra["tomcat.version"] = "10.1.47"
 
-val bidragBeregnFellesVersion = "2025.10.15.133314"
-val bidragFellesVersion = "2025.12.16.103515"
+val bidragBeregnFellesVersion = "2026.02.03.143635"
+val bidragFellesVersion = "2026.02.03.083158"
 val kotlinLoggingJvmVersion = "7.0.14"
 val springDocWebmvcVersion = "2.8.13"
 val springmockkVersion = "5.0.1"
 val tokenSupportVersion = "5.0.37"
 val jacksonVersion = "2.20.1"
-val junitJupiterVersion = "6.0.1"
+val junitJupiterVersion = "6.0.2"
 val coroutinesVersion = "1.10.2"
 val pdfBoxVersion = "2.0.31"
-val micrometerPrometheusVersion = "1.16.1"
-val logbackVersion = "1.5.23"
+val micrometerPrometheusVersion = "1.16.2"
+val logbackVersion = "1.5.25"
 val logstashEncoderVersion = "9.0"
 
 
@@ -33,6 +33,13 @@ plugins {
 repositories {
     mavenCentral()
     mavenLocal()
+    maven {
+        url = uri("https://maven.pkg.github.com/navikt/maven-release")
+        credentials {
+            username = "x-access-token"
+            password = System.getenv("GITHUB_TOKEN")
+        }
+    }
     maven("https://github-package-registry-mirror.gc.nav.no/cached/maven-release")
 }
 
