@@ -33,6 +33,13 @@ plugins {
 repositories {
     mavenCentral()
     mavenLocal()
+    maven {
+        url = uri("https://maven.pkg.github.com/navikt/maven-release")
+        credentials {
+            username = "token"
+            password = System.getenv("GITHUB_TOKEN")
+        }
+    }
     maven("https://github-package-registry-mirror.gc.nav.no/cached/maven-release")
 }
 
