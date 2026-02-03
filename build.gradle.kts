@@ -6,7 +6,7 @@ version = "0.0.1-SNAPSHOT"
 
 extra["tomcat.version"] = "10.1.47"
 
-val bidragBeregnFellesVersion = "2026.02.02.174703"
+val bidragBeregnFellesVersion = "2026.02.03.143635"
 val bidragFellesVersion = "2026.02.03.083158"
 val kotlinLoggingJvmVersion = "7.0.14"
 val springDocWebmvcVersion = "2.8.13"
