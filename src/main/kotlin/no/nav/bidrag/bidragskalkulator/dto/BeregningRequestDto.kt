@@ -163,10 +163,7 @@ data class BoforholdDto(
     @param:Schema(description = "Antall barn under 18 år som bor fast hos forelderen", required = true, example = "3")
     val antallBarnUnder18BorFast: Int,
 
-    @param:Schema(
-        description = "Typer voksne over 18 år i husholdningen (kan være null).",
-        required = false
-    )
+    @param:Schema(ref = "#/components/schemas/voksneOver18TypeSchema")
     val voksneOver18Type: Set<VoksneOver18Type>? = null,
 
     @field:Min(0)

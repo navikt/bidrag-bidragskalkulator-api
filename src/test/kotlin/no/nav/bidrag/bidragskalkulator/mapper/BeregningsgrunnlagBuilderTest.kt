@@ -409,7 +409,7 @@ class BeregningsgrunnlagBuilderTest {
 
         @Test
         fun `skal bygge samværsgrunnlag med korrekt klasse`() {
-            val barn = lagBarnDto(alder = 1, samværklasse = Samværsklasse.SAMVÆRSKLASSE_3)
+            val barn = lagBarnDto(fødselsdato = LocalDate.now().minusYears(1), samværklasse = Samværsklasse.SAMVÆRSKLASSE_3)
             val beregningRequest = lagBeregningRequestDto(
                 bmInntekt = ForelderInntektDto(BigDecimal("300000")),
                 bpInntekt = ForelderInntektDto(BigDecimal("700000")),
@@ -431,11 +431,11 @@ class BeregningsgrunnlagBuilderTest {
 
         @Test
         fun `skal bygge mottatt faktisk utgift med riktig grunnlagstype`() {
-            val barn = lagBarnDto(alder = 1, samværklasse = Samværsklasse.SAMVÆRSKLASSE_3, barnetilsyn = BarnetilsynDto(
+            val barn = lagBarnDto(fødselsdato = LocalDate.now().minusYears(1), samværklasse = Samværsklasse.SAMVÆRSKLASSE_3, barnetilsyn = BarnetilsynDto(
                 BigDecimal("1200")))
 
             val resultat = builder.byggMottattFaktiskUtgift(
-                barn.getEstimertFødselsdato(), "Person_Søknadsbarn_0", barn.barnetilsyn?.månedligUtgift ?: BigDecimal.ZERO
+                barn.fødselsdato, "Person_Søknadsbarn_0", barn.barnetilsyn?.månedligUtgift ?: BigDecimal.ZERO
             )
 
             assertThat(resultat.type).isEqualTo(Grunnlagstype.FAKTISK_UTGIFT_PERIODE)

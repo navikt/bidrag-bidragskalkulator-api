@@ -9,6 +9,7 @@ import io.swagger.v3.oas.models.media.Schema
 import no.nav.bidrag.bidragskalkulator.dto.BidragsType
 import no.nav.bidrag.bidragskalkulator.dto.Oppgjørsform
 import no.nav.bidrag.bidragskalkulator.dto.Vedleggskrav
+import no.nav.bidrag.bidragskalkulator.dto.VoksneOver18Type
 import no.nav.bidrag.bidragskalkulator.dto.førstesidegenerator.NavSkjemaId
 import no.nav.bidrag.bidragskalkulator.dto.førstesidegenerator.Språkkode
 import no.nav.bidrag.domene.enums.barnetilsyn.Tilsynstype
@@ -84,6 +85,12 @@ class SwaggerConfig {
                     enum = BidragsType.entries.map { it.name }
                 }
 
+            val voksneOver18TypeSchema = Schema<String>().description("Type voksne over 18 år i husholdningen")
+                .example("SAMBOER_ELLER_EKTEFELLE")
+                .apply {
+                    enum = VoksneOver18Type.entries.map { it.name }
+                }
+
             openApi.components = (openApi.components ?: Components())
                 .addSchemas("Samværsklasse", samværsklasseSchema)
                 .addSchemas("Tilsynstype", tilsynstypeSchema)
@@ -92,6 +99,7 @@ class SwaggerConfig {
                 .addSchemas("Språkkode", språkkodeSchema)
                 .addSchemas("NavSkjemaId", navSkjemaIdSchema)
                 .addSchemas("bidragsTypeSchema", bidragsTypeSchema)
+                .addSchemas("voksneOver18TypeSchema", voksneOver18TypeSchema)
         }
     }
 }

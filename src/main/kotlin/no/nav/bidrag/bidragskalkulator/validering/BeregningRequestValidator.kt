@@ -4,11 +4,14 @@ import no.nav.bidrag.bidragskalkulator.dto.BidragsType.*
 import no.nav.bidrag.bidragskalkulator.dto.FellesBeregningRequestDto
 import no.nav.bidrag.bidragskalkulator.dto.IFellesBarnDto
 import no.nav.bidrag.bidragskalkulator.dto.VoksneOver18Type
-import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.BarnMedAlderDto
+import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.BarnMedFødselsdatoDto
 import no.nav.bidrag.bidragskalkulator.exception.UgyldigBeregningRequestException
+import java.math.BigDecimal
 
 object BeregningRequestValidator {
     private const val MAKS_ALDER_FOR_BARNETILSYN = 10
+    private const val MIN_MÅNED_KONTANTSTØTTE = 13
+    private const val MAX_MÅNED_KONTANTSTØTTE = 19
 
     fun <T : IFellesBarnDto, R : FellesBeregningRequestDto<T>> valider(dto: R) {
         // Utvidet barnetrygd
@@ -26,13 +29,13 @@ object BeregningRequestValidator {
         // Barnetilsyn-regler:
 
         barneliste
-            .filterIsInstance<BarnMedAlderDto>()
+            .filterIsInstance<BarnMedFødselsdatoDto>()
             .forEach { barn ->
                 val barnetilsyn = barn.barnetilsyn ?: return@forEach
 
                 // 1) Alder: barnetilsyn er ikke tillatt over 10 år
-                if (barn.alder > MAKS_ALDER_FOR_BARNETILSYN) {
-                    feil("Barnetilsyn kan ikke oppgis for barn over $MAKS_ALDER_FOR_BARNETILSYN år (barnets alder=${barn.alder}).")
+                if (barn.getAlder() > MAKS_ALDER_FOR_BARNETILSYN) {
+                    feil("Barnetilsyn kan ikke oppgis for barn over $MAKS_ALDER_FOR_BARNETILSYN år (barnets fødselsdato=${barn.fødselsdato}).")
                 }
 
                 // 2) Enten/eller: kan ikke sende både månedligUtgift og plassType
@@ -53,10 +56,13 @@ object BeregningRequestValidator {
                 feil("kontantstøtte.deles kan ikke settes uten at beløp også er satt (barn[$index])")
             }
 
-            if (beløp != null) {
-                val alder = (barn as? BarnMedAlderDto)?.alder
-                if (alder != null && alder != 1) {
-                    feil("Kontantstøtte kan kun settes for barn som er 1 år (barn[$index] har alder=$alder)")
+            if (beløp != null && beløp > BigDecimal.ZERO) {
+                val antallMånederFraFødselsdato = (barn as? BarnMedFødselsdatoDto)?.getAntallMåneder()
+                if (antallMånederFraFødselsdato != null &&
+                    (antallMånederFraFødselsdato < MIN_MÅNED_KONTANTSTØTTE ||
+                            antallMånederFraFødselsdato > MAX_MÅNED_KONTANTSTØTTE)
+                ) {
+                    feil("Kontantstøtte kan kun settes for barn som er mellom 13 og 19 måneder (barn[$index] har antall måneder=$antallMånederFraFødselsdato)")
                 }
             }
         }
@@ -64,7 +70,7 @@ object BeregningRequestValidator {
         // Småbarnstillegg
         if (dto.småbarnstillegg) {
             val harBarn0Til3År = barneliste
-                .mapNotNull { (it as? BarnMedAlderDto)?.alder }
+                .mapNotNull { (it as? BarnMedFødselsdatoDto)?.getAlder() }
                 .any { it in 0..3 }
 
             if (!harBarn0Til3År) {

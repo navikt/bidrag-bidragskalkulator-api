@@ -83,8 +83,8 @@ class BeregningsgrunnlagMapperTest {
 
     @Test
     fun `skal mappe ÅpenBeregningRequestDto med to barn til BeregnGrunnlag`() {
-        val barn1 = lagBarnDto(alder = 1)
-        val barn2 = lagBarnDto(alder = 2)
+        val barn1 = lagBarnDto(fødselsdato = LocalDate.now().minusYears(1))
+        val barn2 = lagBarnDto(fødselsdato = LocalDate.now().minusYears(2))
         val beregningRequest = lagBeregningRequestDto(
             bmInntekt = ForelderInntektDto(BigDecimal("300000")),
             bpInntekt = ForelderInntektDto(BigDecimal("700000")),
@@ -102,8 +102,8 @@ class BeregningsgrunnlagMapperTest {
 
     @Test
     fun `skal ha riktig antall grunnlagselementer`() {
-        val barn1 = lagBarnDto(alder = 1)
-        val barn2 = lagBarnDto(alder = 2)
+        val barn1 = lagBarnDto(fødselsdato = LocalDate.now().minusYears(1))
+        val barn2 = lagBarnDto(fødselsdato = LocalDate.now().minusYears(2))
         val beregningRequest = lagBeregningRequestDto(
             bmInntekt = ForelderInntektDto(BigDecimal("300000")),
             bpInntekt = ForelderInntektDto(BigDecimal("700000")),
@@ -121,7 +121,7 @@ class BeregningsgrunnlagMapperTest {
     inner class StønadstypeGrunnlag {
         @Test
         fun `skal sette stønadstype til BIDRAG18AAR for barn over 18`() {
-            val barn = lagBarnDto(alder = 18)
+            val barn = lagBarnDto(fødselsdato = LocalDate.now().minusYears(18))
             val beregningRequest = lagBeregningRequestDto(
                 bmInntekt = ForelderInntektDto(BigDecimal("300000")),
                 bpInntekt = ForelderInntektDto(BigDecimal("700000")),
@@ -141,7 +141,7 @@ class BeregningsgrunnlagMapperTest {
 
         @Test
         fun `skal sette stønadstype til BIDRAG for barn under 18`() {
-            val barn = lagBarnDto(alder = 17)
+            val barn = lagBarnDto(fødselsdato = LocalDate.now().minusYears(17))
             val beregningRequest = lagBeregningRequestDto(
                 bmInntekt = ForelderInntektDto(BigDecimal("300000")),
                 bpInntekt = ForelderInntektDto(BigDecimal("700000")),
@@ -160,7 +160,7 @@ class BeregningsgrunnlagMapperTest {
         @Test
         fun `skal inkludere faktisk utgift grunnlag når barnetilsynsutgift er satt`() {
             val barn = lagBarnDto(
-                alder = 1,
+                fødselsdato = LocalDate.now().minusYears(1),
                 samværklasse = Samværsklasse.SAMVÆRSKLASSE_2,
                 barnetilsyn = BarnetilsynDto(BigDecimal("1200"))
             )
@@ -396,7 +396,7 @@ class BeregningsgrunnlagMapperTest {
 
             val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlagAnonym(request)
 
-            val barnRef = "${BeregningsgrunnlagMapper.Referanser.SØKNADSBARN}${request.barn.first().alder}_0"
+            val barnRef = "${BeregningsgrunnlagMapper.Referanser.SØKNADSBARN}${request.barn.first().fødselsdato}_0"
             val barnInntekt = result.first().grunnlagListe
                 .find { it.referanse == "${BeregningsgrunnlagKonstant.INNTEKT_PREFIX}$barnRef" }
 
@@ -416,7 +416,7 @@ class BeregningsgrunnlagMapperTest {
 
             val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlagAnonym(request)
 
-            val barnRef = "${BeregningsgrunnlagMapper.Referanser.SØKNADSBARN}${request.barn.first().alder}"
+            val barnRef = "${BeregningsgrunnlagMapper.Referanser.SØKNADSBARN}${request.barn.first().fødselsdato}"
             val barnInntekt = result.first().grunnlagListe
                 .find { it.referanse == "${BeregningsgrunnlagKonstant.INNTEKT_PREFIX}$barnRef" }
 
@@ -546,7 +546,7 @@ class BeregningsgrunnlagMapperTest {
             val result = beregningsgrunnlagMapper.mapTilBeregningsgrunnlagAnonym(request)
             val grunnlag = result.first().grunnlagListe
 
-            val barnRef = "${BeregningsgrunnlagMapper.Referanser.SØKNADSBARN}${request.barn.first().alder}_0"
+            val barnRef = "${BeregningsgrunnlagMapper.Referanser.SØKNADSBARN}${request.barn.first().fødselsdato}_0"
 
             // Mapperen skal alltid legge inn disse to bostatusene:
             assertThat(grunnlag).anyMatch { it.referanse == BeregningsgrunnlagKonstant.BOSTATUS_BIDRAGSPLIKTIG }
@@ -603,7 +603,7 @@ class BeregningsgrunnlagMapperTest {
         beregningRequest: ÅpenBeregningRequestDto,
         index: Int
     ) {
-        val forventetAlder = beregningRequest.barn[index].alder
+        val forventetAlder = beregningRequest.barn[index].fødselsdato
         assertEquals("${BeregningsgrunnlagMapper.Referanser.SØKNADSBARN}${forventetAlder}_${index}", grunnlag.søknadsbarnReferanse)
     }
 }

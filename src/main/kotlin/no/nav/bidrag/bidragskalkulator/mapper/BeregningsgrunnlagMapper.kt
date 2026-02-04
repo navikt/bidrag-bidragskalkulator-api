@@ -56,8 +56,8 @@ class BeregningsgrunnlagMapper(
         val bmTilleggÅrlig = beregnBmTilleggÅrlig(dto)
 
         val grunnlag = dto.barn.mapIndexed { index, barn ->
-            val barnReferanse = barnReferanse(barn.alder.toString(), index)
-            val fødselsdato = barn.getEstimertFødselsdato()
+            val barnReferanse = barnReferanse(barn.fødselsdato.toString(), index)
+            val fødselsdato = barn.fødselsdato
 
             val grunnlagListe = lagGrunnlagsliste(
                 barn = barn,

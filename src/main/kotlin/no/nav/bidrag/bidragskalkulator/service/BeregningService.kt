@@ -17,12 +17,16 @@ import no.nav.bidrag.bidragskalkulator.model.FamilieRelasjon
 import no.nav.bidrag.bidragskalkulator.utils.asyncCatching
 import no.nav.bidrag.bidragskalkulator.utils.kalkulerAlder
 import no.nav.bidrag.commons.util.secureLogger
+import no.nav.bidrag.domene.enums.grunnlag.Grunnlagstype
 import no.nav.bidrag.domene.ident.Personident
 import no.nav.bidrag.domene.tid.ÅrMånedsperiode
 import no.nav.bidrag.transport.behandling.beregning.barnebidrag.ResultatPeriode
 import no.nav.bidrag.transport.behandling.beregning.felles.BeregnGrunnlag
+import no.nav.bidrag.transport.behandling.felles.grunnlag.Person
+import no.nav.bidrag.transport.behandling.felles.grunnlag.innholdTilObjekt
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
+import java.time.LocalDate
 import java.time.YearMonth
 import kotlin.time.measureTimedValue
 
@@ -94,7 +98,9 @@ class BeregningService(
         return beregnet.map { it ->
             ÅpenBeregningsresultatBarnDto(
                 sum = summerBeregnedeBeløp(it.beregnetBarnebidragResultat.beregnetBarnebidragPeriodeListe),
-                alder = alderFraBarnReferanse(it.søknadsbarnreferanse) ?: error("Ugyldig barnReferanse: ${it.søknadsbarnreferanse}")
+                fødselsdato = finnBarnFødselsdatoFraGrunnlag(
+                    it.søknadsbarnreferanse,
+                    grunnlag)
 
             )
         }
@@ -143,17 +149,9 @@ class BeregningService(
     private fun summerBeregnedeBeløp(periodeListe: List<ResultatPeriode>): BigDecimal =
         periodeListe.sumOf { it.resultat.beløp ?: BigDecimal.ZERO }
 
-    private fun alderFraBarnReferanse(referanse: String): Int? {
-        val prefix = BeregningsgrunnlagMapper.Referanser.SØKNADSBARN
-        if (!referanse.startsWith(prefix)) return null
-
-        val rest = referanse.removePrefix(prefix)
-        if (rest.isBlank()) return null
-
-        val alderDel = rest.substringBefore('_')
-
-        if (alderDel.isEmpty() || alderDel.any { !it.isDigit() }) return null
-        return alderDel.toInt()
+    private fun finnBarnFødselsdatoFraGrunnlag(referanse: String, grunnlag: List<BeregnGrunnlag>): LocalDate {
+        return grunnlag.first { it.søknadsbarnReferanse === referanse }
+            .grunnlagListe.first { it.type === Grunnlagstype.PERSON_SØKNADSBARN }
+            .innholdTilObjekt<Person>().fødselsdato
     }
-
 }

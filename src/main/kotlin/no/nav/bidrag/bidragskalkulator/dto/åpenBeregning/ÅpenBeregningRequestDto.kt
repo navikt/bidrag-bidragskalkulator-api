@@ -14,12 +14,10 @@ import java.math.BigDecimal
 import java.time.LocalDate
 
 @Schema(description = "Informasjon om et barn i beregningen")
-data class BarnMedAlderDto(
-    @field:NotNull(message = "Alder må være satt")
-    @field:Min(value = 0, message = "Alder kan ikke være negativ")
-    @field:Max(value = 25, message = "Alder kan ikke være høyere enn 25")
-    @param:Schema(description = "Alder til barnet", required = true, example = "10")
-    val alder: Int,
+data class BarnMedFødselsdatoDto(
+    @field:NotNull(message = "Fødselsdato må være satt")
+    @param:Schema(description = "Fødselsdato til barnet", required = true, example = "2015-06-30")
+    val fødselsdato: LocalDate,
 
     @field:NotNull(message = "Samværsklasse må være satt")
     @param:Schema(ref = "#/components/schemas/Samværsklasse") // Reference dynamically registered schema. See BeregnBarnebidragConfig
@@ -49,10 +47,14 @@ data class BarnMedAlderDto(
 ): IFellesBarnDto {
     @JsonIgnore
     @Schema(hidden = true) // Hides from Swagger
-    //Når barnet har alder = 15, blir fødselsmåneden alltid satt til juli, uavhengig av den faktiske fødselsdatoen (usikkert hvor denne regelen stammer fra).
-    // Dette betyr at barnet ikke anses som 15 år før juli.
-    // I alle beregningsperioder før juli vil barnet derfor fortsatt regnes som 14 år.
-    fun getEstimertFødselsdato(): LocalDate = LocalDate.now().minusYears(alder.toLong())
+    fun getAlder(): Int = LocalDate.now().year - fødselsdato.year
+
+    @JsonIgnore
+    @Schema(hidden = true)
+    fun getAntallMåneder(): Int {
+        val today = LocalDate.now()
+        return (today.year - fødselsdato.year) * 12 + (today.monthValue - fødselsdato.monthValue)
+    }
 }
 
 @Schema(description = "Modellen brukes til å beregne barnebidrag basert på barnets alder")
@@ -60,7 +62,7 @@ data class ÅpenBeregningRequestDto(
     @field:NotEmpty(message = "Liste over barn kan ikke være tom")
     @field:Valid
     @param:Schema(description = "Liste over barn som inngår i beregningen", required = true)
-    override val barn: List<BarnMedAlderDto>,
+    override val barn: List<BarnMedFødselsdatoDto>,
 
     @param:Schema(description = "Boforhold for den påloggede personen. Må være satt hvis bidragstype for minst ett barn er PLIKTIG", required = false)
     override val dittBoforhold: BoforholdDto? = null,
@@ -103,6 +105,6 @@ data class ÅpenBeregningRequestDto(
     @field:NotNull(message = "Bidragstype må være satt")
     @param:Schema(description = "Angir om den personen er pliktig eller mottaker", required = true)
     override val bidragstype: BidragsType,
-) : FellesBeregningRequestDto<BarnMedAlderDto>(
+) : FellesBeregningRequestDto<BarnMedFødselsdatoDto>(
     bidragsmottakerInntekt, bidragspliktigInntekt, bidragstype, barn, dittBoforhold, medforelderBoforhold, utvidetBarnetrygd, småbarnstillegg
 )

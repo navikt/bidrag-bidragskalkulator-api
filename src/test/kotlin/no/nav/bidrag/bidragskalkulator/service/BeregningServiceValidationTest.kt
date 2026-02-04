@@ -12,11 +12,14 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import com.fasterxml.jackson.databind.JsonMappingException
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import no.nav.bidrag.bidragskalkulator.dto.ForelderInntektDto
-import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.BarnMedAlderDto
+import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.BarnMedFødselsdatoDto
 import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningRequestDto
 import no.nav.bidrag.generer.testdata.person.genererPersonident
 import java.math.BigDecimal
+import java.time.LocalDate
 
 class BeregningServiceValidationTest {
 
@@ -28,7 +31,10 @@ class BeregningServiceValidationTest {
     fun setup() {
         val factory = Validation.buildDefaultValidatorFactory()
         validator = factory.validator
-        objectMapper = ObjectMapper().registerKotlinModule()
+        objectMapper = ObjectMapper()
+            .registerKotlinModule()
+            .registerModule(JavaTimeModule())
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
     }
 
     @Test
@@ -38,8 +44,8 @@ class BeregningServiceValidationTest {
             bidragspliktigInntekt = ForelderInntektDto(inntekt = BigDecimal("600000")),
             bidragstype = BidragsType.PLIKTIG,
             barn = listOf(
-                BarnMedAlderDto(
-                    alder = 1,
+                BarnMedFødselsdatoDto(
+                    fødselsdato = LocalDate.now().minusYears(1),
                     samværsklasse = Samværsklasse.SAMVÆRSKLASSE_1,
                 )
             )
@@ -59,7 +65,7 @@ class BeregningServiceValidationTest {
                 },
                 "barn": [
                     {
-                        "alder": 1,
+                        "fødselsdato": "${LocalDate.now().minusYears(1)}",
                         "samværsklasse": "SAMVÆRSKLASSE_1"
                     }
                 ]
@@ -173,7 +179,7 @@ class BeregningServiceValidationTest {
           "bidragstype": "MOTTAKER",
           "barn": [
             {
-              "alder": 1,
+              "fødselsdato": "2025-07-01",
               "samværsklasse": "SAMVÆRSKLASSE_1"
             }
           ]
