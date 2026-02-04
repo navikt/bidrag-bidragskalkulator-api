@@ -7,7 +7,7 @@ import kotlinx.coroutines.test.runTest
 import no.nav.bidrag.beregn.barnebidrag.BeregnBarnebidragApi
 import no.nav.bidrag.bidragskalkulator.dto.BidragsType
 import no.nav.bidrag.bidragskalkulator.dto.ForelderInntektDto
-import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.BarnMedAlderDto
+import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.BarnMedFødselsdatoDto
 import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningRequestDto
 import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningsresultatDto
 import no.nav.bidrag.bidragskalkulator.mapper.BeregningsgrunnlagBuilder
@@ -22,12 +22,14 @@ import no.nav.bidrag.transport.behandling.beregning.barnebidrag.BeregnetBarnebid
 import no.nav.bidrag.transport.behandling.beregning.barnebidrag.BeregnetBarnebidragResultatV2
 import no.nav.bidrag.transport.behandling.beregning.barnebidrag.ResultatBeregning
 import no.nav.bidrag.transport.behandling.beregning.barnebidrag.ResultatPeriode
+import no.nav.bidrag.transport.behandling.beregning.felles.BeregnGrunnlag
 import no.nav.bidrag.transport.person.MotpartBarnRelasjonDto
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
+import java.time.LocalDate
 import java.time.YearMonth
 
 class BeregningServiceTest {
@@ -66,7 +68,7 @@ class BeregningServiceTest {
         @BeforeEach
         fun oppsett() = runTest {
             beregningRequest = mockOppsett(
-                listOf(BarnMedAlderDto(alder = 1, samværsklasse = Samværsklasse.SAMVÆRSKLASSE_2))
+                listOf(BarnMedFødselsdatoDto(fødselsdato = LocalDate.now().minusYears(1), samværsklasse = Samværsklasse.SAMVÆRSKLASSE_2))
             )
             beregningResultat = beregningService.beregnBarnebidragAnonym(beregningRequest)
         }
@@ -93,39 +95,42 @@ class BeregningServiceTest {
         }
 
         @Test
-        fun `skal returnere alder fra søknadsbarnreferanse`() {
-            assertEquals(1, beregningResultat.resultater.first().alder)
+        fun `skal mappe fødselsdato riktig fra grunnlag`() {
+            val forventetFødselsdato = beregningRequest.barn.first().fødselsdato
+            assertEquals(forventetFødselsdato, beregningResultat.resultater.first().fødselsdato)
         }
     }
 
     @Nested
-    inner class BeregningBarnebidragForToBarn {
+    inner class BeregningBarnebidragForTreBarn {
 
         private lateinit var beregningRequest: ÅpenBeregningRequestDto
         private lateinit var beregningResultat: ÅpenBeregningsresultatDto
+        private val fødselsdato4År = LocalDate.now().minusYears(4)
+        private val fødselsdato7År = LocalDate.now().minusYears(7)
 
         @BeforeEach
         fun oppsett() = runTest {
             beregningRequest = mockOppsett(
                 listOf(
-                    BarnMedAlderDto(alder = 4, samværsklasse = Samværsklasse.SAMVÆRSKLASSE_2),
-                    BarnMedAlderDto(alder = 4, samværsklasse = Samværsklasse.SAMVÆRSKLASSE_2),
-                    BarnMedAlderDto(alder = 7, samværsklasse = Samværsklasse.SAMVÆRSKLASSE_3)
+                    BarnMedFødselsdatoDto(fødselsdato = fødselsdato4År, samværsklasse = Samværsklasse.SAMVÆRSKLASSE_2),
+                    BarnMedFødselsdatoDto(fødselsdato = fødselsdato4År, samværsklasse = Samværsklasse.SAMVÆRSKLASSE_2),
+                    BarnMedFødselsdatoDto(fødselsdato = fødselsdato7År, samværsklasse = Samværsklasse.SAMVÆRSKLASSE_3)
                 )
             )
             beregningResultat = beregningService.beregnBarnebidragAnonym(beregningRequest)
         }
 
         @Test
-        fun `skal returnere to beregningsresultater for to barn`() = runTest {
+        fun `skal returnere tre beregningsresultater for tre barn`() = runTest {
             val resultat = beregningService.beregnBarnebidragAnonym(beregningRequest)
             assertEquals(3, resultat.resultater.size)
         }
 
         @Test
-        fun `skal mappe alder riktig for alle barn og kunne håndtere barn med samme alder`() {
-            val aldre = beregningResultat.resultater.map { it.alder }.sorted()
-            assertEquals(listOf(4, 4, 7), aldre)
+        fun `skal mappe fødselsdato riktig for alle barn og kunne håndtere barn med samme fødselsdato`() {
+            val fødselsdatoer = beregningResultat.resultater.map { it.fødselsdato }.sorted()
+            assertEquals(listOf(fødselsdato7År, fødselsdato4År, fødselsdato4År), fødselsdatoer)
         }
     }
 
@@ -191,7 +196,7 @@ class BeregningServiceTest {
         )
     }
 
-    private fun mockOppsett(barn: List<BarnMedAlderDto>): ÅpenBeregningRequestDto {
+    private fun mockOppsett(barn: List<BarnMedFødselsdatoDto>): ÅpenBeregningRequestDto {
         val beregningRequest = ÅpenBeregningRequestDto(
             bidragsmottakerInntekt = ForelderInntektDto(inntekt = BigDecimal("500000")),
             bidragspliktigInntekt = ForelderInntektDto(inntekt = BigDecimal("800000")),
@@ -207,14 +212,15 @@ class BeregningServiceTest {
             beregnetBarnebidragPeriodeListe = listOf(lagResultatPeriode())
         )
 
-        val resultater: List<BeregnetBarnebidragResultatV2> = barn.map { b ->
-            BeregnetBarnebidragResultatV2(
-                søknadsbarnreferanse = "${BeregningsgrunnlagMapper.Referanser.SØKNADSBARN}${b.alder}",
-                beregnetBarnebidragResultat = beregnetResultat
-            )
+        coEvery { beregnBarnebidragApi.beregnV2(any(), any()) } answers {
+            val grunnlag = secondArg<List<BeregnGrunnlag>>()
+            grunnlag.map { g ->
+                BeregnetBarnebidragResultatV2(
+                    søknadsbarnreferanse = g.søknadsbarnReferanse,
+                    beregnetBarnebidragResultat = beregnetResultat
+                )
+            }
         }
-
-        coEvery { beregnBarnebidragApi.beregnV2(any(), any()) } returns resultater
 
         return beregningRequest
     }

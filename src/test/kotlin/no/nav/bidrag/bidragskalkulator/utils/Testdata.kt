@@ -7,19 +7,20 @@ import no.nav.bidrag.bidragskalkulator.dto.ForelderInntektDto
 import no.nav.bidrag.bidragskalkulator.dto.KontantstøtteDto
 import no.nav.bidrag.bidragskalkulator.dto.UtvidetBarnetrygdDto
 import no.nav.bidrag.bidragskalkulator.dto.VoksneOver18Type
-import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.BarnMedAlderDto
+import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.BarnMedFødselsdatoDto
 import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningRequestDto
 import no.nav.bidrag.domene.enums.beregning.Samværsklasse
 import java.math.BigDecimal
+import java.time.LocalDate
 
 fun lagBarnDto(
-    alder: Int = 1,
+    fødselsdato: LocalDate = LocalDate.now().minusYears(1),
     samværklasse: Samværsklasse = Samværsklasse.SAMVÆRSKLASSE_2,
     barnetilsyn: BarnetilsynDto? = null,
     kontantstøtte: KontantstøtteDto? = null,
     inntekt: BigDecimal? = null
-) = BarnMedAlderDto(
-    alder = alder,
+) = BarnMedFødselsdatoDto(
+    fødselsdato = fødselsdato,
     samværsklasse = samværklasse,
     barnetilsyn = barnetilsyn,
     kontantstøtte = kontantstøtte,
@@ -39,7 +40,7 @@ fun lagBeregningRequestDto(
     bmInntekt: ForelderInntektDto,
     bpInntekt: ForelderInntektDto,
     bidragstype: BidragsType,
-    barn: List<BarnMedAlderDto> = emptyList(),
+    barn: List<BarnMedFødselsdatoDto> = emptyList(),
     dittBoforhold: BoforholdDto? = null,
     medforelderBoforhold: BoforholdDto? = null,
     utvidetBarnetrygd: UtvidetBarnetrygdDto? = null,

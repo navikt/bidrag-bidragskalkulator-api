@@ -1,5 +1,9 @@
 package no.nav.bidrag.bidragskalkulator.controller
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import kotlinx.coroutines.runBlocking
@@ -9,7 +13,7 @@ import no.nav.bidrag.bidragskalkulator.dto.BeregningsresultatBarnDto
 import no.nav.bidrag.bidragskalkulator.dto.BeregningsresultatDto
 import no.nav.bidrag.bidragskalkulator.dto.BidragsType
 import no.nav.bidrag.bidragskalkulator.dto.BoforholdDto
-import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.BarnMedAlderDto
+import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.BarnMedFødselsdatoDto
 import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningRequestDto
 import no.nav.bidrag.bidragskalkulator.service.BeregningService
 import no.nav.bidrag.domene.enums.beregning.Samværsklasse
@@ -28,10 +32,13 @@ import no.nav.bidrag.bidragskalkulator.dto.VoksneOver18Type
 import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningsresultatBarnDto
 import no.nav.bidrag.bidragskalkulator.dto.åpenBeregning.ÅpenBeregningsresultatDto
 import no.nav.bidrag.domene.enums.barnetilsyn.Tilsynstype
+import java.time.LocalDate
 
 class BeregningControllerTest : AbstractControllerTest() {
     @MockkBean(relaxUnitFun = true)
     private lateinit var beregningService: BeregningService
+
+    val today = LocalDate.now()
 
     @Test
     fun `skal bekrefte at mock OAuth2-server kjører`() {
@@ -42,6 +49,7 @@ class BeregningControllerTest : AbstractControllerTest() {
 
     @BeforeEach
     fun setupMocks() {
+
         every { runBlocking { beregningService.beregnBarnebidrag(mockGyldigRequest) } } returns mockRespons
         every { runBlocking { beregningService.beregnBarnebidragAnonym(any()) } } returns
                 mockÅpenRespons
@@ -79,8 +87,8 @@ class BeregningControllerTest : AbstractControllerTest() {
         val ugyldigRequest = mockGyldigÅpenRequest.copy(
             bidragstype = BidragsType.MOTTAKER,
             barn = listOf(
-                BarnMedAlderDto(
-                    alder = 2,
+                BarnMedFødselsdatoDto(
+                    fødselsdato = today.minusYears(2),
                     samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0,
                 )
             ),
@@ -99,7 +107,7 @@ class BeregningControllerTest : AbstractControllerTest() {
                 antallBarnUnder18BorFast = 1,
                 voksneOver18Type = setOf(VoksneOver18Type.EGNE_BARN_OVER_18),
                 antallBarnOver18Vgs = null
-            )
+            ),
         )
 
         postRequest("/api/v1/beregning/barnebidrag/åpen", request)
@@ -122,35 +130,43 @@ class BeregningControllerTest : AbstractControllerTest() {
     }
 
     @Test
-    fun `skal returnere 400 hvis kontantstøtte er satt og alder ikke er 1`() {
+    fun `skal returnere 400 hvis kontantstøtte er satt og barn ikke er mellom 13 og 19 måneder`() {
+        val fødselsdato = today.minusMonths(24)
+
         val request = mockGyldigÅpenRequest.copy(
             bidragstype = BidragsType.MOTTAKER,
             barn = listOf(
-                BarnMedAlderDto(
-                    alder = 2,
+                BarnMedFødselsdatoDto(
+                    fødselsdato = fødselsdato,
                     samværsklasse = Samværsklasse.SAMVÆRSKLASSE_2,
                     kontantstøtte = KontantstøtteDto(beløp = BigDecimal("500"))
-                ),
+                )
             )
         )
 
         postRequest("/api/v1/beregning/barnebidrag/åpen", request)
             .andExpect(status().isBadRequest)
-            .andExpect(jsonPath("$.detail").value("Kontantstøtte kan kun settes for barn som er 1 år (barn[0] har alder=2)"))
+            .andExpect(
+                jsonPath("$.detail").value(
+                    "Kontantstøtte kan kun settes for barn som er mellom 13 og 19 måneder (barn[0] har antall måneder=24)"
+                )
+            )
 
         verify(exactly = 0) { runBlocking { beregningService.beregnBarnebidragAnonym(any()) } }
     }
 
     @Test
-    fun `skal returnere 200 OK når kontantstøtte er satt for barn som er 1 år`() {
+    fun `skal returnere 200 OK når kontantstøtte er satt for barn mellom 13 og 19 måneder`() {
+        val fødselsdato = today.minusMonths(14)
+
         val request = mockGyldigÅpenRequest.copy(
             bidragstype = BidragsType.MOTTAKER,
             barn = listOf(
-                BarnMedAlderDto(
-                    alder = 1,
+                BarnMedFødselsdatoDto(
+                    fødselsdato = fødselsdato,
                     samværsklasse = Samværsklasse.SAMVÆRSKLASSE_2,
                     kontantstøtte = KontantstøtteDto(beløp = BigDecimal("500"))
-                ),
+                )
             )
         )
 
@@ -165,8 +181,8 @@ class BeregningControllerTest : AbstractControllerTest() {
         val request = mockGyldigÅpenRequest.copy(
             bidragstype = BidragsType.MOTTAKER,
             barn = listOf(
-                BarnMedAlderDto(
-                    alder = 1,
+                BarnMedFødselsdatoDto(
+                    fødselsdato = today.minusYears(1),
                     samværsklasse = Samværsklasse.SAMVÆRSKLASSE_2,
                     kontantstøtte = KontantstøtteDto(beløp = null, deles = true)
                 )
@@ -204,7 +220,7 @@ class BeregningControllerTest : AbstractControllerTest() {
         val request = mockGyldigÅpenRequest.copy(
             bidragstype = BidragsType.MOTTAKER,
             småbarnstillegg = true,
-            barn = mockGyldigÅpenRequest.barn.map { it.copy(alder = 4, kontantstøtte = null) },
+            barn = mockGyldigÅpenRequest.barn.map { it.copy(fødselsdato = today.minusYears(4), kontantstøtte = null) },
         )
 
         postRequest("/api/v1/beregning/barnebidrag/åpen", request)
@@ -221,7 +237,7 @@ class BeregningControllerTest : AbstractControllerTest() {
         val request = mockGyldigÅpenRequest.copy(
             bidragstype = BidragsType.MOTTAKER,
             barn = mockGyldigÅpenRequest.barn
-                .map { it.copy(alder = 1, barnetilsyn = BarnetilsynDto(månedligUtgift = BigDecimal("1200"))) },
+                .map { it.copy(fødselsdato = today.minusYears(1), barnetilsyn = BarnetilsynDto(månedligUtgift = BigDecimal("1200"))) },
         )
 
         postRequest("/api/v1/beregning/barnebidrag/åpen", request)
@@ -256,24 +272,25 @@ class BeregningControllerTest : AbstractControllerTest() {
 
     @Test
     fun `skal gi 400 når barn er over 10 år og barnetilsyn månedligUtgift er gitt`() {
+        val fødselsdato = today.minusYears(11)
+
         val request = mockGyldigÅpenRequest.copy(
             bidragstype = BidragsType.MOTTAKER,
             barn = mockGyldigÅpenRequest.barn.mapIndexed { idx, barn ->
                 if (idx == 0) {
                     barn.copy(
-                        alder = 11,
-                        barnetilsyn = barn.barnetilsyn?.copy(
-                            månedligUtgift = BigDecimal("1200")
-                        )
+                        fødselsdato = fødselsdato,
+                        barnetilsyn = barn.barnetilsyn?.copy(månedligUtgift = BigDecimal("1200"))
                     )
-                } else barn }
+                } else barn
+            }
         )
 
         postRequest("/api/v1/beregning/barnebidrag/åpen", request)
             .andExpect(status().isBadRequest)
             .andExpect(
                 jsonPath("$.detail").value(
-                    "Barnetilsyn kan ikke oppgis for barn over 10 år (barnets alder=11)."
+                    "Barnetilsyn kan ikke oppgis for barn over 10 år (barnets fødselsdato=$fødselsdato)."
                 )
             )
     }
@@ -303,6 +320,7 @@ class BeregningControllerTest : AbstractControllerTest() {
 
     companion object TestData {
         private val personIdent = genererPersonident()
+        val today = LocalDate.now()
 
         val mockGyldigRequest = BeregningRequestDto(
             bidragsmottakerInntekt = ForelderInntektDto(inntekt = BigDecimal("500000")),
@@ -322,8 +340,8 @@ class BeregningControllerTest : AbstractControllerTest() {
             bidragspliktigInntekt = ForelderInntektDto(inntekt = BigDecimal("400000")),
             bidragstype = BidragsType.PLIKTIG,
             barn = listOf(
-                BarnMedAlderDto(
-                    alder = 1,
+                BarnMedFødselsdatoDto(
+                    fødselsdato = today.minusYears(1),
                     samværsklasse = Samværsklasse.SAMVÆRSKLASSE_0,
                     barnetilsyn = BarnetilsynDto(månedligUtgift = BigDecimal("1200")),
                     inntekt = BigDecimal.ZERO,
@@ -345,12 +363,11 @@ class BeregningControllerTest : AbstractControllerTest() {
                 )
             )
         )
-
         val mockÅpenRespons = ÅpenBeregningsresultatDto(
             resultater = listOf(
                 ÅpenBeregningsresultatBarnDto(
                     sum = BigDecimal(100),
-                    alder = 10,
+                    fødselsdato = today,
                 )
             )
         )
