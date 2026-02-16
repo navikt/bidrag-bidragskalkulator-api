@@ -12,20 +12,20 @@ val kotlinLoggingJvmVersion = "7.0.14"
 val springDocWebmvcVersion = "2.8.13"
 val springmockkVersion = "5.0.1"
 val tokenSupportVersion = "5.0.37"
-val jacksonVersion = "2.20.1"
+val jacksonVersion = "2.21.0"
 val junitJupiterVersion = "6.0.2"
 val coroutinesVersion = "1.10.2"
 val pdfBoxVersion = "2.0.31"
 val micrometerPrometheusVersion = "1.16.2"
-val logbackVersion = "1.5.25"
+val logbackVersion = "1.5.28"
 val logstashEncoderVersion = "9.0"
 
 
 plugins {
-    id("org.jetbrains.kotlin.plugin.spring") version "2.3.0"
+    id("org.jetbrains.kotlin.plugin.spring") version "2.3.10"
     id("org.springframework.boot") version "3.5.6"
     id("io.spring.dependency-management") version "1.1.7"
-    kotlin("jvm") version "2.3.0"
+    kotlin("jvm") version "2.3.10"
     id("java")
     id("maven-publish")
 }
