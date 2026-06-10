@@ -2,6 +2,7 @@ name: Deploy release to prod
 on:
   release:
     types: [published]
+  workflow_dispatch:
 env:
   GITHUB_TOKEN: ${{ secrets.READER_TOKEN }}
 jobs:
