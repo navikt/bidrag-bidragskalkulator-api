@@ -49,7 +49,7 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v6
-      - uses: nais/deploy/actions/deploy@v2
+      - uses: nais/deploy/actions/deploy@v3
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
